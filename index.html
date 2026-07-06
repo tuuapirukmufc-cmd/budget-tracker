@@ -2264,49 +2264,35 @@ async function fetchGoldPrice(){
 
   let price=null,sourceName='';
 
-  // ── วิธีที่ 1: metals-live via allorigins CORS proxy ──
-  // metals-live ให้ XAU ราคา USD/troy oz ฟรีไม่ต้อง key
   const apis=[
-    // frankfurter.app — XAU/THB โดยตรง (ไม่ต้อง key ไม่ต้อง proxy)
+    // วิธีที่ 1: gold-api.com (ฟรี ไม่ต้อง key เปิด CORS ให้เรียกตรงจากเบราว์เซอร์ได้) + แปลง USD→THB
     async ()=>{
-      const r=await fetch('https://api.frankfurter.app/latest?from=XAU&to=THB',
-        {signal:AbortSignal.timeout(6000)});
-      const d=await r.json();
-      if(d?.rates?.THB){
-        // 1 troy oz THB → บาทไทย (15.244g)
-        const thbPerOz=d.rates.THB;
-        return {p:Math.round(thbPerOz*15.244/31.1035),src:'Frankfurter (ECB · XAU/THB)'};
-      }
-      return null;
-    },
-    // exchangerate-api XAU USD แล้วคูณ USD/THB
-    async ()=>{
-      const [rx,ru]=await Promise.all([
-        fetch('https://api.exchangerate-api.com/v4/latest/USD',{signal:AbortSignal.timeout(6000)}),
-        fetch('https://api.allorigins.win/raw?url='+encodeURIComponent('https://metals-api.com/api/latest?access_key=demo&base=USD&symbols=XAU,THB'),
-          {signal:AbortSignal.timeout(6000)})
+      const [rg,rx]=await Promise.all([
+        fetch('https://api.gold-api.com/price/XAU',{signal:AbortSignal.timeout(6000)}),
+        fetch('https://open.er-api.com/v6/latest/USD',{signal:AbortSignal.timeout(6000)})
       ]);
-      const du=await rx.json();
-      const thb=du?.rates?.THB;
-      if(!thb)return null;
-      // XAU/USD จาก open source
-      const r2=await fetch('https://api.allorigins.win/raw?url='+
-        encodeURIComponent('https://www.goldapi.io/api/XAU/USD'),
-        {signal:AbortSignal.timeout(6000)});
-      const d2=await r2.json();
-      if(d2?.price){
-        const thbPerOz=d2.price*thb;
-        return {p:Math.round(thbPerOz*15.244/31.1035),src:'GoldAPI (USD→THB)'};
+      const dg=await rg.json();
+      const dx=await rx.json();
+      const usdPerOz=dg?.price;
+      const thbPerUsd=dx?.rates?.THB;
+      if(usdPerOz&&thbPerUsd){
+        const thbPerOz=usdPerOz*thbPerUsd;
+        return {p:Math.round(thbPerOz*15.244/31.1035),src:'Gold-API.com (USD→THB)'};
       }
       return null;
     },
-    // อีกทาง: open.er-api.com XAU/THB
+    // วิธีที่ 2 (สำรอง): metals-api ผ่าน allorigins proxy (base=USD, symbols=XAU,THB)
     async ()=>{
-      const r=await fetch('https://open.er-api.com/v6/latest/XAU',
+      const r=await fetch('https://api.allorigins.win/raw?url='+
+        encodeURIComponent('https://metals-api.com/api/latest?access_key=demo&base=USD&symbols=XAU,THB'),
         {signal:AbortSignal.timeout(6000)});
       const d=await r.json();
-      if(d?.rates?.THB){
-        return {p:Math.round(d.rates.THB*15.244/31.1035),src:'ExchangeRate-API (XAU/THB)'};
+      const xauRate=d?.rates?.XAU; // USD per unit of XAU (i.e. 1/ounce price)
+      const thbRate=d?.rates?.THB;
+      if(xauRate&&thbRate){
+        const usdPerOz=1/xauRate;
+        const thbPerOz=usdPerOz*thbRate;
+        return {p:Math.round(thbPerOz*15.244/31.1035),src:'Metals-API (USD→THB)'};
       }
       return null;
     },
