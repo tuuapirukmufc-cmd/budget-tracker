@@ -2368,8 +2368,32 @@ async function fetchGoldPrice(){
 
   let price=null,sourceName='';
 
+  const parseThaiNum=(s)=>parseFloat(String(s).replace(/,/g,''));
+
   const apis=[
-    // วิธีที่ 1: gold-api.com (ฟรี ไม่ต้อง key เปิด CORS ให้เรียกตรงจากเบราว์เซอร์ได้) + แปลง USD→THB
+    // วิธีที่ 1: ราคาทองคำแท่ง "รับซื้อ" ตามประกาศสมาคมค้าทองคำ (ราคาทองไทยจริง ไม่ใช่ราคา spot โลก)
+    async ()=>{
+      const r=await fetch('https://api.chnwt.dev/thai-gold-api/latest',{signal:AbortSignal.timeout(6000)});
+      const d=await r.json();
+      const buy=d?.response?.price?.gold_bar?.buy;
+      if(buy){
+        return {p:Math.round(parseThaiNum(buy)),src:'สมาคมค้าทองคำ (ทองคำแท่ง รับซื้อ)'};
+      }
+      return null;
+    },
+    // วิธีที่ 2 (สำรอง): เรียกผ่าน allorigins proxy กรณีโดน CORS บล็อกตรง
+    async ()=>{
+      const r=await fetch('https://api.allorigins.win/raw?url='+
+        encodeURIComponent('https://api.chnwt.dev/thai-gold-api/latest'),
+        {signal:AbortSignal.timeout(6000)});
+      const d=await r.json();
+      const buy=d?.response?.price?.gold_bar?.buy;
+      if(buy){
+        return {p:Math.round(parseThaiNum(buy)),src:'สมาคมค้าทองคำ (ทองคำแท่ง รับซื้อ)'};
+      }
+      return null;
+    },
+    // วิธีที่ 3 (สำรองสุดท้าย): ราคา spot โลก (XAU) แปลงเป็นบาท — ใช้เมื่อแหล่งไทยล่มเท่านั้น
     async ()=>{
       const [rg,rx]=await Promise.all([
         fetch('https://api.gold-api.com/price/XAU',{signal:AbortSignal.timeout(6000)}),
@@ -2381,22 +2405,7 @@ async function fetchGoldPrice(){
       const thbPerUsd=dx?.rates?.THB;
       if(usdPerOz&&thbPerUsd){
         const thbPerOz=usdPerOz*thbPerUsd;
-        return {p:Math.round(thbPerOz*15.244/31.1035),src:'Gold-API.com (USD→THB)'};
-      }
-      return null;
-    },
-    // วิธีที่ 2 (สำรอง): metals-api ผ่าน allorigins proxy (base=USD, symbols=XAU,THB)
-    async ()=>{
-      const r=await fetch('https://api.allorigins.win/raw?url='+
-        encodeURIComponent('https://metals-api.com/api/latest?access_key=demo&base=USD&symbols=XAU,THB'),
-        {signal:AbortSignal.timeout(6000)});
-      const d=await r.json();
-      const xauRate=d?.rates?.XAU; // USD per unit of XAU (i.e. 1/ounce price)
-      const thbRate=d?.rates?.THB;
-      if(xauRate&&thbRate){
-        const usdPerOz=1/xauRate;
-        const thbPerOz=usdPerOz*thbRate;
-        return {p:Math.round(thbPerOz*15.244/31.1035),src:'Metals-API (USD→THB)'};
+        return {p:Math.round(thbPerOz*15.244/31.1035),src:'Gold-API.com spot (USD→THB) — ประมาณการ'};
       }
       return null;
     },
