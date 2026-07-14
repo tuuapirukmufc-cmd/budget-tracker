@@ -228,12 +228,6 @@ table.tbl tr.dim .iname{text-decoration:line-through}
 .mbtns{display:flex;gap:8px;justify-content:flex-end;margin-top:1rem;flex-wrap:wrap}
 .divider-label{font-size:11px;font-weight:700;color:var(--g400);text-transform:uppercase;letter-spacing:.04em;padding:.5rem 0 .3rem;border-top:1px solid var(--g200);margin-top:.5rem}
 
-.budget-split-grid{display:grid;grid-template-columns:2fr 1fr;gap:.85rem;align-items:start}
-.budget-col-main,.budget-col-side{min-width:0}
-@media(max-width:900px){
-  .budget-split-grid{grid-template-columns:1fr}
-}
-
 /* combined 100% split bar (reusable) */
 .combo-wrap{background:var(--surface);border:1px solid var(--g200);border-radius:var(--r);padding:1rem 1.1rem;margin-bottom:1rem}
 .combo-bar{display:flex;height:12px;border-radius:999px;overflow:hidden;background:var(--g200);width:100%}
@@ -245,6 +239,8 @@ table.tbl tr.dim .iname{text-decoration:line-through}
 .dot-used,.dot-rem{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:middle}
 .dot-used{background:var(--amber)}
 .dot-rem{background:var(--green)}
+.loc-link{color:var(--blue);font-size:12px;font-weight:600;text-decoration:none;white-space:nowrap}
+.loc-link:hover{text-decoration:underline}
 
 /* dividend circles */
 .div-circles{display:flex;justify-content:center;gap:5px}
@@ -491,13 +487,14 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   <div class="sec">
     <div class="sec-head"><span class="sec-title"><span class="dot dg"></span>รายการทั้งหมด</span></div>
     <table class="tbl"><thead><tr>
-      <th style="width:7%" class="tc">สถานะ</th>
-      <th style="width:26%">ชื่อรายการ</th>
-      <th style="width:13%">วันครบกำหนด</th>
-      <th style="width:11%" class="tc">เวลานัดหมาย</th>
-      <th style="width:12%">ความสำคัญ</th>
-      <th style="width:19%">แจ้งเตือน</th>
-      <th style="width:6%" class="tc">✏</th>
+      <th style="width:6%" class="tc">สถานะ</th>
+      <th style="width:22%">ชื่อรายการ</th>
+      <th style="width:12%">วันครบกำหนด</th>
+      <th style="width:9%" class="tc">เวลานัดหมาย</th>
+      <th style="width:10%">ความสำคัญ</th>
+      <th style="width:10%" class="tc">สถานที่</th>
+      <th style="width:16%">แจ้งเตือน</th>
+      <th style="width:5%" class="tc">✏</th>
     </tr></thead><tbody id="todo-body"></tbody></table>
   </div>
 </div>
@@ -622,42 +619,25 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
       <span><i class="dot-rem"></i>คงเหลือ <strong id="bg-combo-rem-pct">0%</strong></span>
     </div>
   </div>
-  <div class="budget-split-grid">
-    <div class="budget-col-main">
-      <div class="sec">
-        <div class="sec-head"><span class="sec-title"><span class="dot dg"></span>รายรับ</span>
-          <button class="btn btn-pri btn-sm" onclick="openBM('income')">+ เพิ่มรายรับ</button></div>
-        <table class="tbl"><thead><tr id="inc-head">
-          <th style="width:30%">รายการ</th><th style="width:12%">หมวด</th>
-          <th style="width:11%">วันที่</th><th style="width:13%" class="tr">จำนวน</th>
-          <th style="width:9%" class="tc">รับแล้ว</th><th style="width:25%">หมายเหตุ</th><th style="width:5%" class="tc">✏</th>
-        </tr></thead><tbody id="inc-body"></tbody></table>
-        <div class="tfoot"><span>รวมรายรับ</span><strong id="inc-tot">฿0</strong></div>
-      </div>
-      <div class="sec">
-        <div class="sec-head"><span class="sec-title"><span class="dot dc"></span>รายจ่าย</span>
-          <button class="btn btn-pri btn-sm" onclick="openBM('expense')">+ เพิ่มรายจ่าย</button></div>
-        <table class="tbl"><thead><tr id="exp-head">
-          <th style="width:30%">รายการ</th><th style="width:12%">หมวด</th>
-          <th style="width:11%">ครบกำหนด</th><th style="width:13%" class="tr">จำนวน</th>
-          <th style="width:9%" class="tc">จ่ายแล้ว</th><th style="width:20%">หมายเหตุ</th><th style="width:5%" class="tc">✏</th>
-        </tr></thead><tbody id="exp-body"></tbody></table>
-        <div class="tfoot"><span>รวมรายจ่าย</span><strong id="exp-tot">฿0</strong></div>
-      </div>
-    </div>
-    <div class="budget-col-side">
-      <div class="sec">
-        <div class="sec-head"><span class="sec-title"><span class="dot da"></span>เมียตัวดีเบิกอีกแล้ว 😅</span>
-          <button class="btn btn-pri btn-sm" onclick="openWDM()">+ เพิ่มรายการ</button></div>
-        <table class="tbl"><thead><tr>
-          <th style="width:34%">เบิกวันไหน</th>
-          <th style="width:32%" class="tr">ยอด</th>
-          <th style="width:24%">เอาไปทำอะไร</th>
-          <th style="width:10%" class="tc">✏</th>
-        </tr></thead><tbody id="wd-body"></tbody></table>
-        <div class="tfoot"><span>รวมยอดเบิก</span><strong id="wd-tot">฿0</strong></div>
-      </div>
-    </div>
+  <div class="sec">
+    <div class="sec-head"><span class="sec-title"><span class="dot dg"></span>รายรับ</span>
+      <button class="btn btn-pri btn-sm" onclick="openBM('income')">+ เพิ่มรายรับ</button></div>
+    <table class="tbl"><thead><tr id="inc-head">
+      <th style="width:30%">รายการ</th><th style="width:12%">หมวด</th>
+      <th style="width:11%">วันที่</th><th style="width:13%" class="tr">จำนวน</th>
+      <th style="width:9%" class="tc">รับแล้ว</th><th style="width:25%">หมายเหตุ</th><th style="width:5%" class="tc">✏</th>
+    </tr></thead><tbody id="inc-body"></tbody></table>
+    <div class="tfoot"><span>รวมรายรับ</span><strong id="inc-tot">฿0</strong></div>
+  </div>
+  <div class="sec">
+    <div class="sec-head"><span class="sec-title"><span class="dot dc"></span>รายจ่าย</span>
+      <button class="btn btn-pri btn-sm" onclick="openBM('expense')">+ เพิ่มรายจ่าย</button></div>
+    <table class="tbl"><thead><tr id="exp-head">
+      <th style="width:30%">รายการ</th><th style="width:12%">หมวด</th>
+      <th style="width:11%">ครบกำหนด</th><th style="width:13%" class="tr">จำนวน</th>
+      <th style="width:9%" class="tc">จ่ายแล้ว</th><th style="width:20%">หมายเหตุ</th><th style="width:5%" class="tc">✏</th>
+    </tr></thead><tbody id="exp-body"></tbody></table>
+    <div class="tfoot"><span>รวมรายจ่าย</span><strong id="exp-tot">฿0</strong></div>
   </div>
 </div>
 
@@ -919,7 +899,6 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
         <option value="todo">สิ่งที่ต้องทำ</option>
         <option value="fairtex">Fairtex</option>
         <option value="budget">รายรับ-รายจ่าย</option>
-        <option value="withdraw">เมียตัวดีเบิกอีกแล้ว</option>
         <option value="debt">หนี้สิน</option>
         <option value="invest">การลงทุน</option>
         <option value="gold">ออมทอง</option>
@@ -979,20 +958,6 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
     <button class="btn btn-danger" id="bm-del" onclick="delBudget()" style="display:none">ลบ</button>
     <button class="btn btn-ghost" onclick="closeOv('bm-ov')">ยกเลิก</button>
     <button class="btn btn-pri" onclick="saveBudget()">บันทึก</button>
-  </div>
-</div></div>
-
-<!-- Wife Withdraw -->
-<div class="ov" id="wdm-ov"><div class="modal">
-  <span class="modal-drag"></span>
-  <h3 id="wdm-title">เพิ่มรายการเบิก</h3>
-  <div class="f"><label>เบิกวันไหน</label><input type="date" id="wdm-date"></div>
-  <div class="f"><label>ยอด (฿)</label><input type="number" id="wdm-amt" placeholder="0" min="0"></div>
-  <div class="f"><label>เอาไปทำอะไร</label><input type="text" id="wdm-note" placeholder="เช่น ช้อปปิ้ง, ทำผม, ซื้อของใช้"></div>
-  <div class="mbtns">
-    <button class="btn btn-danger" id="wdm-del" onclick="deleteWithdraw()" style="display:none">ลบ</button>
-    <button class="btn btn-ghost" onclick="closeOv('wdm-ov')">ยกเลิก</button>
-    <button class="btn btn-pri" onclick="saveWithdraw()">บันทึก</button>
   </div>
 </div></div>
 
@@ -1064,6 +1029,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
       <option value="low">ต่ำ</option>
     </select>
   </div>
+  <div class="f"><label>สถานที่ (วางลิงก์ Google Maps ได้)</label><input type="text" id="tm-loc" placeholder="เช่น ธนาคารกสิกรไทย สาขาเซ็นทรัล หรือวางลิงก์ https://maps.app.goo.gl/..."></div>
   <div class="mbtns">
     <button class="btn btn-danger" id="tm-del" onclick="deleteTodoItem()" style="display:none">ลบ</button>
     <button class="btn btn-ghost" onclick="closeOv('tm-ov')">ยกเลิก</button>
@@ -1440,7 +1406,7 @@ function renderHistory(){
   const all=getHist();
   const f=document.getElementById('hist-filter').value;
   const items=f?all.filter(h=>h.cat===f):all;
-  const catIcon={budget:'💳',debt:'🏦',invest:'📈',gold:'🥇',subscription:'🔔',login:'🔑',todo:'📝',fairtex:'🥊',withdraw:'💸'};
+  const catIcon={budget:'💳',debt:'🏦',invest:'📈',gold:'🥇',subscription:'🔔',login:'🔑',todo:'📝',fairtex:'🥊'};
   const actColor={เพิ่ม:'vg',แก้ไข:'vb',ลบ:'vc'};
   const tb=document.getElementById('hist-body');
   if(!items.length){tb.innerHTML='<div class="empty">ยังไม่มีประวัติ</div>';return}
@@ -1655,7 +1621,6 @@ function renderBudget(){
   document.getElementById('exp-tot').textContent=fmt(eT);
   renderBBody('inc-body','inc-head',d.income,'income');
   renderBBody('exp-body','exp-head',d.expense,'expense');
-  renderWithdraws();
 }
 function renderBBody(id,headId,items,type){
   const tb=document.getElementById(id);
@@ -1689,71 +1654,6 @@ function renderBBody(id,headId,items,type){
       <td class="tc"><button class="icon-btn" onclick="openBM('${type}',${item.id})">✏</button></td>
     </tr>`;
   }).join('');
-}
-
-// ══ WIFE WITHDRAW (แยกจากรายรับ-รายจ่าย) ══
-function getWithdraws(){return ls(uKey('wife_withdraw_v1'),[])}
-function saveWithdraws(w){lss(uKey('wife_withdraw_v1'),w)}
-let wdEId=null;
-function openWDM(id){
-  wdEId=id||null;
-  const item=id?getWithdraws().find(w=>w.id===id):null;
-  document.getElementById('wdm-title').textContent=id?'แก้ไขรายการ':'เพิ่มรายการเบิก';
-  document.getElementById('wdm-date').value=item?.date||'';
-  document.getElementById('wdm-amt').value=item?.amount||'';
-  document.getElementById('wdm-note').value=item?.note||'';
-  document.getElementById('wdm-del').style.display=id?'inline-flex':'none';
-  document.getElementById('wdm-ov').classList.add('open');
-}
-function saveWithdraw(){
-  const date=document.getElementById('wdm-date').value;
-  const amount=parseFloat(document.getElementById('wdm-amt').value)||0;
-  const note=(document.getElementById('wdm-note').value||'').trim();
-  if(!date||!amount)return;
-  let w=getWithdraws();
-  if(wdEId){
-    w=w.map(i=>i.id===wdEId?{...i,date,amount,note}:i);
-    addHist('withdraw','แก้ไข',`${date} — ${fmt(amount)} (${note||'ไม่ระบุ'})`);
-  }else{
-    const newId=w.length?Math.max(...w.map(i=>i.id))+1:1;
-    w.push({id:newId,date,amount,note});
-    addHist('withdraw','เพิ่ม',`${date} — ${fmt(amount)} (${note||'ไม่ระบุ'})`);
-  }
-  saveWithdraws(w);
-  closeOv('wdm-ov');
-  renderWithdraws();
-}
-function deleteWithdraw(){
-  if(!wdEId)return;
-  if(!confirm('ลบรายการนี้?'))return;
-  const item=getWithdraws().find(i=>i.id===wdEId);
-  saveWithdraws(getWithdraws().filter(i=>i.id!==wdEId));
-  addHist('withdraw','ลบ',`${item?.date||''} — ${fmt(item?.amount||0)} (${item?.note||''})`);
-  closeOv('wdm-ov');
-  renderWithdraws();
-}
-function renderWithdraws(){
-  const body=document.getElementById('wd-body');
-  if(!body)return;
-  const list=getWithdraws().slice().sort((a,b)=>b.date.localeCompare(a.date));
-  if(!list.length){
-    body.innerHTML='<tr><td colspan="4" class="empty">ยังไม่มีรายการ</td></tr>';
-    document.getElementById('wd-tot').textContent=fmt(0);
-    return;
-  }
-  let total=0;
-  body.innerHTML=list.map(w=>{
-    total+=w.amount;
-    const dt=new Date(w.date+'T00:00:00');
-    const dLabel=dt.toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric'});
-    return`<tr>
-      <td>${dLabel}</td>
-      <td class="tr ac">${fmt(w.amount)}</td>
-      <td style="font-size:13px">${w.note||'—'}</td>
-      <td class="tc"><button class="icon-btn" onclick="openWDM(${w.id})">✏</button></td>
-    </tr>`;
-  }).join('');
-  document.getElementById('wd-tot').textContent=fmt(total);
 }
 
 // ══ DEBT ══
@@ -1931,12 +1831,13 @@ function openTM(id){
   document.getElementById('tm-due').value=item?.due||'';
   document.getElementById('tm-time').value=item?.time||'';
   document.getElementById('tm-pri').value=item?.priority||'medium';
+  document.getElementById('tm-loc').value=item?.location||'';
   document.getElementById('tm-del').style.display=id?'inline-flex':'none';
   document.getElementById('tm-ov').classList.add('open');
 }
 function saveTodoItem(){
   const name=(document.getElementById('tm-name').value||'').trim();if(!name)return;
-  const obj={name,due:document.getElementById('tm-due').value,time:document.getElementById('tm-time').value,priority:document.getElementById('tm-pri').value};
+  const obj={name,due:document.getElementById('tm-due').value,time:document.getElementById('tm-time').value,priority:document.getElementById('tm-pri').value,location:(document.getElementById('tm-loc').value||'').trim()};
   let t=getTodos();
   if(tEId){
     t=t.map(i=>i.id===tEId?{...i,...obj}:i);
@@ -1968,6 +1869,12 @@ function toggleTodoDone(id){
   addHist('todo','แก้ไข',`${t[idx].name} — ${t[idx].done?'เสร็จแล้ว':'ยังไม่เสร็จ'}`);
   renderTodo();
 }
+function todoMapHref(loc){
+  if(!loc)return null;
+  const trimmed=loc.trim();
+  if(/^https?:\/\//i.test(trimmed))return trimmed;
+  return 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(trimmed);
+}
 function renderTodo(){
   const items=getTodos().slice().sort((a,b)=>(a.due||'').localeCompare(b.due||'')||(a.time||'').localeCompare(b.time||''));
   const today=new Date();today.setHours(0,0,0,0);
@@ -1975,7 +1882,7 @@ function renderTodo(){
   const body=document.getElementById('todo-body');
   if(!body)return;
   if(!items.length){
-    body.innerHTML='<tr><td colspan="7" class="empty">ยังไม่มีรายการ</td></tr>';
+    body.innerHTML='<tr><td colspan="8" class="empty">ยังไม่มีรายการ</td></tr>';
   }else{
     body.innerHTML=items.map(t=>{
       const dueDate=t.due?new Date(t.due+'T00:00:00'):null;
@@ -1989,12 +1896,16 @@ function renderTodo(){
       const priCls=t.priority==='high'?'b-over':t.priority==='low'?'b-gray':'b-soon';
       const dueLabel=dueDate?dueDate.toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric'}):'—';
       const timeLabel=t.time?`${t.time} น.`:'—';
+      const mapHref=todoMapHref(t.location);
+      const isLink=t.location&&/^https?:\/\//i.test(t.location.trim());
+      const locHtml=mapHref?`<a href="${mapHref}" target="_blank" rel="noopener" class="loc-link" title="เปิดใน Google Maps">📍 ${isLink?'แผนที่':(t.location.length>10?t.location.slice(0,10)+'…':t.location)}</a>`:'<span class="pill">—</span>';
       return`<tr class="${t.done?'dim':''}">
         <td class="tc"><div class="chk"><input type="checkbox" ${t.done?'checked':''} onchange="toggleTodoDone(${t.id})"></div></td>
         <td><div class="iname" style="font-weight:600">${t.name}</div></td>
         <td>${dueLabel}</td>
         <td class="tc">${timeLabel}</td>
         <td><span class="badge ${priCls}">${priLabel}</span></td>
+        <td class="tc">${locHtml}</td>
         <td>${alertHtml}</td>
         <td class="tc"><button class="icon-btn" onclick="openTM(${t.id})">✏</button></td>
       </tr>`;
@@ -2371,13 +2282,13 @@ async function fetchGoldPrice(){
   const parseThaiNum=(s)=>parseFloat(String(s).replace(/,/g,''));
 
   const apis=[
-    // วิธีที่ 1: ราคาทองคำแท่ง "รับซื้อ" ตามประกาศสมาคมค้าทองคำ (ราคาทองไทยจริง ไม่ใช่ราคา spot โลก)
+    // วิธีที่ 1: ราคาทองรูปพรรณ "รับซื้อ" ตามประกาศสมาคมค้าทองคำ (ราคาทองไทยจริง ไม่ใช่ราคา spot โลก)
     async ()=>{
       const r=await fetch('https://api.chnwt.dev/thai-gold-api/latest',{signal:AbortSignal.timeout(6000)});
       const d=await r.json();
-      const buy=d?.response?.price?.gold_bar?.buy;
+      const buy=d?.response?.price?.gold?.buy;
       if(buy){
-        return {p:Math.round(parseThaiNum(buy)),src:'สมาคมค้าทองคำ (ทองคำแท่ง รับซื้อ)'};
+        return {p:Math.round(parseThaiNum(buy)),src:'สมาคมค้าทองคำ (ทองรูปพรรณ รับซื้อ)'};
       }
       return null;
     },
@@ -2387,9 +2298,9 @@ async function fetchGoldPrice(){
         encodeURIComponent('https://api.chnwt.dev/thai-gold-api/latest'),
         {signal:AbortSignal.timeout(6000)});
       const d=await r.json();
-      const buy=d?.response?.price?.gold_bar?.buy;
+      const buy=d?.response?.price?.gold?.buy;
       if(buy){
-        return {p:Math.round(parseThaiNum(buy)),src:'สมาคมค้าทองคำ (ทองคำแท่ง รับซื้อ)'};
+        return {p:Math.round(parseThaiNum(buy)),src:'สมาคมค้าทองคำ (ทองรูปพรรณ รับซื้อ)'};
       }
       return null;
     },
