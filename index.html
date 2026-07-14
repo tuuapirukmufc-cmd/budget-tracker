@@ -487,13 +487,14 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   <div class="sec">
     <div class="sec-head"><span class="sec-title"><span class="dot dg"></span>รายการทั้งหมด</span></div>
     <table class="tbl"><thead><tr>
-      <th style="width:6%" class="tc">สถานะ</th>
-      <th style="width:22%">ชื่อรายการ</th>
-      <th style="width:12%">วันครบกำหนด</th>
-      <th style="width:9%" class="tc">เวลานัดหมาย</th>
-      <th style="width:10%">ความสำคัญ</th>
-      <th style="width:10%" class="tc">สถานที่</th>
-      <th style="width:16%">แจ้งเตือน</th>
+      <th style="width:5%" class="tc">สถานะ</th>
+      <th style="width:25%">ชื่อรายการ</th>
+      <th style="width:11%">วันครบกำหนด</th>
+      <th style="width:8%" class="tc">เวลานัดหมาย</th>
+      <th style="width:9%">ความสำคัญ</th>
+      <th style="width:16%">สถานที่</th>
+      <th style="width:8%" class="tc">MAP</th>
+      <th style="width:13%">แจ้งเตือน</th>
       <th style="width:5%" class="tc">✏</th>
     </tr></thead><tbody id="todo-body"></tbody></table>
   </div>
@@ -1029,7 +1030,8 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
       <option value="low">ต่ำ</option>
     </select>
   </div>
-  <div class="f"><label>สถานที่ (วางลิงก์ Google Maps ได้)</label><input type="text" id="tm-loc" placeholder="เช่น ธนาคารกสิกรไทย สาขาเซ็นทรัล หรือวางลิงก์ https://maps.app.goo.gl/..."></div>
+  <div class="f"><label>สถานที่</label><input type="text" id="tm-loc" placeholder="เช่น ธนาคารกสิกรไทย สาขาเซ็นทรัล"></div>
+  <div class="f"><label>MAP (วางลิงก์ Google Maps)</label><input type="text" id="tm-maplink" placeholder="วางลิงก์ https://maps.app.goo.gl/..."></div>
   <div class="mbtns">
     <button class="btn btn-danger" id="tm-del" onclick="deleteTodoItem()" style="display:none">ลบ</button>
     <button class="btn btn-ghost" onclick="closeOv('tm-ov')">ยกเลิก</button>
@@ -1832,12 +1834,13 @@ function openTM(id){
   document.getElementById('tm-time').value=item?.time||'';
   document.getElementById('tm-pri').value=item?.priority||'medium';
   document.getElementById('tm-loc').value=item?.location||'';
+  document.getElementById('tm-maplink').value=item?.mapLink||'';
   document.getElementById('tm-del').style.display=id?'inline-flex':'none';
   document.getElementById('tm-ov').classList.add('open');
 }
 function saveTodoItem(){
   const name=(document.getElementById('tm-name').value||'').trim();if(!name)return;
-  const obj={name,due:document.getElementById('tm-due').value,time:document.getElementById('tm-time').value,priority:document.getElementById('tm-pri').value,location:(document.getElementById('tm-loc').value||'').trim()};
+  const obj={name,due:document.getElementById('tm-due').value,time:document.getElementById('tm-time').value,priority:document.getElementById('tm-pri').value,location:(document.getElementById('tm-loc').value||'').trim(),mapLink:(document.getElementById('tm-maplink').value||'').trim()};
   let t=getTodos();
   if(tEId){
     t=t.map(i=>i.id===tEId?{...i,...obj}:i);
@@ -1869,12 +1872,6 @@ function toggleTodoDone(id){
   addHist('todo','แก้ไข',`${t[idx].name} — ${t[idx].done?'เสร็จแล้ว':'ยังไม่เสร็จ'}`);
   renderTodo();
 }
-function todoMapHref(loc){
-  if(!loc)return null;
-  const trimmed=loc.trim();
-  if(/^https?:\/\//i.test(trimmed))return trimmed;
-  return 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(trimmed);
-}
 function renderTodo(){
   const items=getTodos().slice().sort((a,b)=>(a.due||'').localeCompare(b.due||'')||(a.time||'').localeCompare(b.time||''));
   const today=new Date();today.setHours(0,0,0,0);
@@ -1882,7 +1879,7 @@ function renderTodo(){
   const body=document.getElementById('todo-body');
   if(!body)return;
   if(!items.length){
-    body.innerHTML='<tr><td colspan="8" class="empty">ยังไม่มีรายการ</td></tr>';
+    body.innerHTML='<tr><td colspan="9" class="empty">ยังไม่มีรายการ</td></tr>';
   }else{
     body.innerHTML=items.map(t=>{
       const dueDate=t.due?new Date(t.due+'T00:00:00'):null;
@@ -1896,16 +1893,16 @@ function renderTodo(){
       const priCls=t.priority==='high'?'b-over':t.priority==='low'?'b-gray':'b-soon';
       const dueLabel=dueDate?dueDate.toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric'}):'—';
       const timeLabel=t.time?`${t.time} น.`:'—';
-      const mapHref=todoMapHref(t.location);
-      const isLink=t.location&&/^https?:\/\//i.test(t.location.trim());
-      const locHtml=mapHref?`<a href="${mapHref}" target="_blank" rel="noopener" class="loc-link" title="เปิดใน Google Maps">📍 ${isLink?'แผนที่':(t.location.length>10?t.location.slice(0,10)+'…':t.location)}</a>`:'<span class="pill">—</span>';
+      const locHtml=t.location?`<span style="font-size:13px">${t.location}</span>`:'<span class="pill">—</span>';
+      const mapHtml=t.mapLink?`<a href="${t.mapLink}" target="_blank" rel="noopener" class="loc-link" title="เปิดใน Google Maps">📍 แผนที่</a>`:'<span class="pill">—</span>';
       return`<tr class="${t.done?'dim':''}">
         <td class="tc"><div class="chk"><input type="checkbox" ${t.done?'checked':''} onchange="toggleTodoDone(${t.id})"></div></td>
         <td><div class="iname" style="font-weight:600">${t.name}</div></td>
         <td>${dueLabel}</td>
         <td class="tc">${timeLabel}</td>
         <td><span class="badge ${priCls}">${priLabel}</span></td>
-        <td class="tc">${locHtml}</td>
+        <td>${locHtml}</td>
+        <td class="tc">${mapHtml}</td>
         <td>${alertHtml}</td>
         <td class="tc"><button class="icon-btn" onclick="openTM(${t.id})">✏</button></td>
       </tr>`;
