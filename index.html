@@ -231,6 +231,12 @@ table.tbl tr.dim .iname{text-decoration:line-through}
 /* combined 100% split bar (reusable) */
 .combo-wrap{background:var(--surface);border:1px solid var(--g200);border-radius:var(--r);padding:1rem 1.1rem;margin-bottom:1rem}
 
+.budget-split-grid{display:grid;grid-template-columns:3fr 2fr;gap:.85rem;align-items:start}
+.budget-col-main,.budget-col-side{min-width:0}
+@media(max-width:1000px){
+  .budget-split-grid{grid-template-columns:1fr}
+}
+
 /* side income section */
 .si-sec{border-color:var(--gold);border-width:1.5px}
 .si-sec-head{background:linear-gradient(90deg,rgba(234,197,79,.14),transparent)}
@@ -638,50 +644,55 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
       <span><i class="dot-rem"></i>คงเหลือ <strong id="bg-combo-rem-pct">0%</strong></span>
     </div>
   </div>
-  <div class="sec">
-    <div class="sec-head"><span class="sec-title"><span class="dot dg"></span>รายรับ</span>
-      <button class="btn btn-pri btn-sm" onclick="openBM('income')">+ เพิ่มรายรับ</button></div>
-    <table class="tbl"><thead><tr id="inc-head">
-      <th style="width:30%">รายการ</th><th style="width:12%">หมวด</th>
-      <th style="width:11%">วันที่</th><th style="width:13%" class="tr">จำนวน</th>
-      <th style="width:9%" class="tc">รับแล้ว</th><th style="width:25%">หมายเหตุ</th><th style="width:5%" class="tc">✏</th>
-    </tr></thead><tbody id="inc-body"></tbody></table>
-    <div class="tfoot"><span>รวมรายรับ</span><strong id="inc-tot">฿0</strong></div>
-  </div>
-  <div class="sec">
-    <div class="sec-head"><span class="sec-title"><span class="dot dc"></span>รายจ่าย</span>
-      <button class="btn btn-pri btn-sm" onclick="openBM('expense')">+ เพิ่มรายจ่าย</button></div>
-    <table class="tbl"><thead><tr id="exp-head">
-      <th style="width:30%">รายการ</th><th style="width:12%">หมวด</th>
-      <th style="width:11%">ครบกำหนด</th><th style="width:13%" class="tr">จำนวน</th>
-      <th style="width:9%" class="tc">จ่ายแล้ว</th><th style="width:20%">หมายเหตุ</th><th style="width:5%" class="tc">✏</th>
-    </tr></thead><tbody id="exp-body"></tbody></table>
-    <div class="tfoot"><span>รวมรายจ่าย</span><strong id="exp-tot">฿0</strong></div>
-  </div>
-
-  <div class="sec si-sec">
-    <div class="sec-head si-sec-head"><span class="sec-title"><span class="dot dgold"></span>รายได้เสริม</span>
-      <div class="sec-actions">
-        <button class="btn btn-ghost btn-sm" onclick="openSICat()">+ หมวดหมู่</button>
-        <button class="btn btn-pri btn-sm si-btn-pri" onclick="openSITX()">+ เพิ่มรายการ</button>
+  <div class="budget-split-grid">
+    <div class="budget-col-main">
+      <div class="sec">
+        <div class="sec-head"><span class="sec-title"><span class="dot dg"></span>รายรับ</span>
+          <button class="btn btn-pri btn-sm" onclick="openBM('income')">+ เพิ่มรายรับ</button></div>
+        <table class="tbl"><thead><tr id="inc-head">
+          <th style="width:30%">รายการ</th><th style="width:12%">หมวด</th>
+          <th style="width:11%">วันที่</th><th style="width:13%" class="tr">จำนวน</th>
+          <th style="width:9%" class="tc">รับแล้ว</th><th style="width:25%">หมายเหตุ</th><th style="width:5%" class="tc">✏</th>
+        </tr></thead><tbody id="inc-body"></tbody></table>
+        <div class="tfoot"><span>รวมรายรับ</span><strong id="inc-tot">฿0</strong></div>
+      </div>
+      <div class="sec">
+        <div class="sec-head"><span class="sec-title"><span class="dot dc"></span>รายจ่าย</span>
+          <button class="btn btn-pri btn-sm" onclick="openBM('expense')">+ เพิ่มรายจ่าย</button></div>
+        <table class="tbl"><thead><tr id="exp-head">
+          <th style="width:30%">รายการ</th><th style="width:12%">หมวด</th>
+          <th style="width:11%">ครบกำหนด</th><th style="width:13%" class="tr">จำนวน</th>
+          <th style="width:9%" class="tc">จ่ายแล้ว</th><th style="width:20%">หมายเหตุ</th><th style="width:5%" class="tc">✏</th>
+        </tr></thead><tbody id="exp-body"></tbody></table>
+        <div class="tfoot"><span>รวมรายจ่าย</span><strong id="exp-tot">฿0</strong></div>
       </div>
     </div>
-    <div class="si-body">
-      <div class="cards c3">
-        <div class="card si-card"><div class="lbl">รายได้เสริมรวม (ได้รับแล้ว)</div><div class="val vgold" id="si-total">฿0</div></div>
-        <div class="card si-card"><div class="lbl">เป้าหมายรวม</div><div class="val vb" id="si-target-total">฿0</div></div>
-        <div class="card si-card"><div class="lbl">% บรรลุเป้าหมายภาพรวม</div><div class="val vg" id="si-pct">0%</div></div>
+    <div class="budget-col-side">
+      <div class="sec si-sec">
+        <div class="sec-head si-sec-head"><span class="sec-title"><span class="dot dgold"></span>รายได้เสริม</span>
+          <div class="sec-actions">
+            <button class="btn btn-ghost btn-sm" onclick="openSICat()">+ หมวดหมู่</button>
+            <button class="btn btn-pri btn-sm si-btn-pri" onclick="openSITX()">+ เพิ่มรายการ</button>
+          </div>
+        </div>
+        <div class="si-body">
+          <div class="cards c3">
+            <div class="card si-card"><div class="lbl">รายได้เสริมรวม (ได้รับแล้ว)</div><div class="val vgold" id="si-total">฿0</div></div>
+            <div class="card si-card"><div class="lbl">เป้าหมายรวม</div><div class="val vb" id="si-target-total">฿0</div></div>
+            <div class="card si-card"><div class="lbl">% บรรลุเป้าหมายภาพรวม</div><div class="val vg" id="si-pct">0%</div></div>
+          </div>
+          <div class="si-cat-grid" id="si-cat-grid"></div>
+          <table class="tbl"><thead><tr>
+            <th style="width:16%">วันที่</th>
+            <th style="width:22%">หมวดหมู่</th>
+            <th style="width:28%">รายละเอียด</th>
+            <th style="width:16%" class="tr">จำนวนเงิน</th>
+            <th style="width:12%" class="tc">สถานะ</th>
+            <th style="width:6%" class="tc">✏</th>
+          </tr></thead><tbody id="si-tx-body"></tbody></table>
+          <div class="tfoot"><span id="si-tx-foot-lbl">รวมรายได้เสริม</span><strong id="si-tx-tot">฿0</strong></div>
+        </div>
       </div>
-      <div class="si-cat-grid" id="si-cat-grid"></div>
-      <table class="tbl"><thead><tr>
-        <th style="width:13%">วันที่</th>
-        <th style="width:18%">หมวดหมู่</th>
-        <th style="width:29%">รายละเอียด/รายการ</th>
-        <th style="width:15%" class="tr">จำนวนเงิน</th>
-        <th style="width:15%" class="tc">สถานะ</th>
-        <th style="width:10%" class="tc">✏</th>
-      </tr></thead><tbody id="si-tx-body"></tbody></table>
-      <div class="tfoot"><span id="si-tx-foot-lbl">รวมรายได้เสริม</span><strong id="si-tx-tot">฿0</strong></div>
     </div>
   </div>
 </div>
