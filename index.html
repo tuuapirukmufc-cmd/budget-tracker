@@ -677,9 +677,9 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
         </div>
         <div class="si-body">
           <div class="cards c3">
-            <div class="card si-card"><div class="lbl">รายได้เสริมรวม (ได้รับแล้ว)</div><div class="val vgold" id="si-total">฿0</div></div>
-            <div class="card si-card"><div class="lbl">เป้าหมายรวม</div><div class="val vb" id="si-target-total">฿0</div></div>
-            <div class="card si-card"><div class="lbl">% บรรลุเป้าหมายภาพรวม</div><div class="val vg" id="si-pct">0%</div></div>
+            <div class="card si-card"><div class="lbl">รายได้เสริมเดือนนี้ (ได้รับแล้ว)</div><div class="val vgold" id="si-total">฿0</div></div>
+            <div class="card si-card"><div class="lbl">เป้าหมายเดือนนี้</div><div class="val vb" id="si-target-total">฿0</div></div>
+            <div class="card si-card"><div class="lbl">% บรรลุเป้าหมายเดือนนี้</div><div class="val vg" id="si-pct">0%</div></div>
           </div>
           <div class="si-cat-grid" id="si-cat-grid"></div>
           <table class="tbl"><thead><tr>
@@ -1806,7 +1806,9 @@ function openSITX(id){
   const catSel=document.getElementById('sitx-cat');
   catSel.innerHTML=getSICats().map(c=>`<option value="${c.id}">${c.name}</option>`).join('')||'<option value="">— ยังไม่มีหมวดหมู่ —</option>';
   document.getElementById('sitx-title').textContent=id?'แก้ไขรายได้เสริม':'เพิ่มรายได้เสริม';
-  document.getElementById('sitx-date').value=item?.date||new Date().toISOString().slice(0,10);
+  const isCurMonth=cy===now.getFullYear()&&cm===now.getMonth();
+  const defDate=isCurMonth?now.toISOString().slice(0,10):`${cy}-${String(cm+1).padStart(2,'0')}-01`;
+  document.getElementById('sitx-date').value=item?.date||defDate;
   if(item?.catId)catSel.value=item.catId;
   document.getElementById('sitx-desc').value=item?.desc||'';
   document.getElementById('sitx-amt').value=item?.amount||'';
@@ -1856,7 +1858,8 @@ function renderSideIncome(){
   const grid=document.getElementById('si-cat-grid');
   if(!grid)return;
   const cats=getSICats();
-  const tx=getSITx();
+  const monthKey=`${cy}-${String(cm+1).padStart(2,'0')}`;
+  const tx=getSITx().filter(t=>t.date&&t.date.slice(0,7)===monthKey);
   const receivedByCat={},allByCat={};
   tx.forEach(t=>{
     if(t.status==='received')receivedByCat[t.catId]=(receivedByCat[t.catId]||0)+t.amount;
@@ -1887,7 +1890,7 @@ function renderSideIncome(){
   const body=document.getElementById('si-tx-body');
   const sorted=tx.slice().sort((a,b)=>b.date.localeCompare(a.date));
   if(!sorted.length){
-    body.innerHTML='<tr><td colspan="6" class="empty">ยังไม่มีรายการ</td></tr>';
+    body.innerHTML='<tr><td colspan="6" class="empty">ยังไม่มีรายการในเดือนนี้</td></tr>';
   }else{
     const catMap={};cats.forEach(c=>catMap[c.id]=c.name);
     body.innerHTML=sorted.map(t=>{
@@ -1906,7 +1909,7 @@ function renderSideIncome(){
     }).join('');
   }
   const pendingTotal=tx.filter(t=>t.status==='pending').reduce((s,t)=>s+t.amount,0);
-  document.getElementById('si-tx-foot-lbl').textContent=pendingTotal>0?`รวมรายได้เสริม (ได้รับแล้ว) — รอชำระอีก ${fmt(pendingTotal)}`:'รวมรายได้เสริม (ได้รับแล้ว)';
+  document.getElementById('si-tx-foot-lbl').textContent=pendingTotal>0?`รวมรายได้เสริมเดือนนี้ (ได้รับแล้ว) — รอชำระอีก ${fmt(pendingTotal)}`:'รวมรายได้เสริมเดือนนี้ (ได้รับแล้ว)';
   document.getElementById('si-tx-tot').textContent=fmt(totalReceived);
 }
 
