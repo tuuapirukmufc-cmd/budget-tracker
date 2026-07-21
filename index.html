@@ -562,9 +562,8 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
     <div><h2 class="desk-only">ภาพรวมการเงิน</h2><div class="sub" id="dash-sub">ข้อมูลรวมทุกส่วน</div></div>
     <div class="page-head-actions">
       <div class="mnav">
-        <button onclick="dashPrev()">‹</button>
-        <span class="mnav-label" id="dash-ml"></span>
-        <button onclick="dashNext()">›</button>
+        <select class="styled" id="dash-yr-sel" onchange="onDashPeriodChange()"></select>
+        <select class="styled" id="dash-mo-sel" onchange="onDashPeriodChange()"></select>
       </div>
     </div>
   </div>
@@ -580,6 +579,20 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
       <div style="padding:.9rem;height:210px;position:relative"><canvas id="ch-ie"></canvas></div></div>
     <div class="sec"><div class="sec-head"><span class="sec-title"><span class="dot dc"></span>รายจ่ายแยกหมวด</span></div>
       <div style="padding:.9rem;height:210px;position:relative"><canvas id="ch-cat"></canvas></div></div>
+  </div>
+  <!-- Side income -->
+  <div class="sec" style="margin-bottom:.85rem">
+    <div class="sec-head"><span class="sec-title"><span class="dot dgold"></span>รายได้เสริม</span>
+      <div class="sec-actions"><button class="btn btn-ghost btn-sm" onclick="sw('budget',null)">ไปหน้ารายรับ-รายจ่าย</button></div>
+    </div>
+    <div style="padding:.75rem .9rem">
+      <div class="cards c3" style="margin-bottom:.75rem">
+        <div class="card si-card"><div class="lbl">รายได้เสริมเดือนนี้ (ได้รับแล้ว)</div><div class="val vgold" id="dash-si-total">฿0</div></div>
+        <div class="card si-card"><div class="lbl">เป้าหมายเดือนนี้</div><div class="val vb" id="dash-si-target-total">฿0</div></div>
+        <div class="card si-card"><div class="lbl">% บรรลุเป้าหมายเดือนนี้</div><div class="val vg" id="dash-si-pct">0%</div></div>
+      </div>
+      <div class="si-cat-grid" id="dash-si-cat-grid"></div>
+    </div>
   </div>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:.85rem;margin-bottom:.85rem">
     <div class="sec"><div class="sec-head"><span class="sec-title"><span class="dot db"></span>หนี้สิน — วงเงิน vs เบิกใช้ไป</span></div>
@@ -622,9 +635,8 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
     <div><h2 class="desk-only">รายรับ - รายจ่าย</h2><div class="sub">รายการประจำ — เพิ่มครั้งเดียว ใช้ทุกเดือน</div></div>
     <div class="page-head-actions">
       <div class="mnav">
-        <button onclick="prevMonth()">‹</button>
-        <span class="mnav-label" id="budget-ml"></span>
-        <button onclick="nextMonth()">›</button>
+        <select class="styled" id="budget-yr-sel" onchange="onBudgetPeriodChange()"></select>
+        <select class="styled" id="budget-mo-sel" onchange="onBudgetPeriodChange()"></select>
       </div>
     </div>
   </div>
@@ -1545,8 +1557,26 @@ function clearDismissed(){lss(uKey('dismissed_alerts'),{})}
 
 // ══ BUDGET ══
 let cy=now.getFullYear(),cm=now.getMonth();
-function prevMonth(){cm--;if(cm<0){cm=11;cy--;}renderBudget()}
-function nextMonth(){cm++;if(cm>11){cm=0;cy++;}renderBudget()}
+function fillPeriodSelect(yearId,monthId,y,m){
+  const yearSel=document.getElementById(yearId),moSel=document.getElementById(monthId);
+  if(!yearSel||!moSel)return;
+  if(!yearSel.dataset.filled){
+    for(let yy=now.getFullYear()-5;yy<=now.getFullYear()+1;yy++){
+      const o=document.createElement('option');o.value=yy;o.textContent='พ.ศ. '+(yy+543);yearSel.appendChild(o);
+    }
+    yearSel.dataset.filled='1';
+  }
+  if(!moSel.dataset.filled){
+    moSel.innerHTML=MN.map((n,i)=>`<option value="${i}">${n}</option>`).join('');
+    moSel.dataset.filled='1';
+  }
+  yearSel.value=y;moSel.value=m;
+}
+function onBudgetPeriodChange(){
+  cy=parseInt(document.getElementById('budget-yr-sel').value);
+  cm=parseInt(document.getElementById('budget-mo-sel').value);
+  renderBudget();
+}
 function getTmpls(){return ls(uKey('tmpl_v2'),defTmpls())}
 function getOv(y,m){return ls(uKey(`ov_${y}_${m}`),{})}
 function saveOv(y,m,o){lss(uKey(`ov_${y}_${m}`),o)}
@@ -1695,7 +1725,7 @@ function dueBadge(dueDay,paid){
   return`<span class="badge b-gray">ทุกวันที่ ${dueDay}</span>`;
 }
 function renderBudget(){
-  document.getElementById('budget-ml').textContent=MN[cm]+' '+(cy+543);
+  fillPeriodSelect('budget-yr-sel','budget-mo-sel',cy,cm);
   const d=getMI(cy,cm);
   let iT=0,eT=0,pT=0;
   d.income.forEach(i=>iT+=i.amount);
@@ -3054,8 +3084,11 @@ function renderAlerts(){
 // ══ DASHBOARD ══
 let dy=now.getFullYear(),dm=now.getMonth(),dashY=now.getFullYear(),selMonth=null;
 let dCharts={};
-function dashPrev(){dm--;if(dm<0){dm=11;dy--;}renderDashboard()}
-function dashNext(){dm++;if(dm>11){dm=0;dy++;}renderDashboard()}
+function onDashPeriodChange(){
+  dy=parseInt(document.getElementById('dash-yr-sel').value);
+  dm=parseInt(document.getElementById('dash-mo-sel').value);
+  renderDashboard();
+}
 function destroyCharts(){Object.values(dCharts).forEach(c=>{try{c.destroy()}catch(e){}});dCharts={}}
 function initYearSelectors(){
   [['yr-sel',5,1],['stk-yr-sel',2,1]].forEach(([id,past,future])=>{
@@ -3067,7 +3100,7 @@ function initYearSelectors(){
   });
 }
 function renderDashboard(){
-  document.getElementById('dash-ml').textContent=MN[dm]+' '+(dy+543);
+  fillPeriodSelect('dash-yr-sel','dash-mo-sel',dy,dm);
   document.getElementById('dash-sub').textContent='ข้อมูล ณ เดือน '+MN[dm]+' '+(dy+543);
   const bd=getMI(dy,dm);
   const iT=bd.income.reduce((s,i)=>s+i.amount,0),eT=bd.expense.reduce((s,i)=>s+i.amount,0);
@@ -3098,8 +3131,35 @@ function renderDashboard(){
   if(stocks.length)dCharts.inv=new Chart(document.getElementById('ch-invest'),{type:'doughnut',
     data:{labels:stocks.map(s=>s.name),datasets:[{data:stocks.map(s=>s.invest),backgroundColor:['#C89B3C','#1D9E75','#378ADD','#534AB7','#D85A30','#BA7517'],borderWidth:2,borderColor:'#fff'}]},
     options:{responsive:true,maintainAspectRatio:false,cutout:'58%',plugins:{legend:{position:'right',labels:{font,boxWidth:10,padding:8}},tooltip:{callbacks:{label:c=>{const inv=stocks.reduce((s,i)=>s+i.invest,0);const pct=inv>0?Math.round(c.raw/inv*100):0;return c.label+': ฿'+Math.round(c.raw).toLocaleString('th-TH')+' ('+pct+'%)'}}}}}}); 
+  renderDashSideIncome();
   renderYearSummary();
   renderAlerts();
+}
+function renderDashSideIncome(){
+  const grid=document.getElementById('dash-si-cat-grid');
+  if(!grid)return;
+  const cats=getSICats();
+  const monthKey=`${dy}-${String(dm+1).padStart(2,'0')}`;
+  const tx=getSITx().filter(t=>t.date&&t.date.slice(0,7)===monthKey);
+  const receivedByCat={};
+  tx.forEach(t=>{if(t.status==='received')receivedByCat[t.catId]=(receivedByCat[t.catId]||0)+t.amount});
+  let totalReceived=0,totalTarget=0;
+  cats.forEach(c=>{totalReceived+=(receivedByCat[c.id]||0);totalTarget+=c.target});
+  const overallPct=totalTarget>0?Math.round(totalReceived/totalTarget*100):0;
+  document.getElementById('dash-si-total').textContent=fmt(totalReceived);
+  document.getElementById('dash-si-target-total').textContent=fmt(totalTarget);
+  document.getElementById('dash-si-pct').textContent=overallPct+'%';
+  grid.innerHTML=cats.length?cats.map(c=>{
+    const got=receivedByCat[c.id]||0;
+    const pct=c.target>0?Math.round(got/c.target*100):0;
+    const barCls=pct>=100?'good':pct>=50?'':'warn';
+    return`<div class="si-cat-card">
+      <div class="si-cat-top"><span class="si-cat-name">${c.name}</span></div>
+      <div class="si-cat-amt"><strong>${fmt(got)}</strong> / ฿${fmt(c.target)}</div>
+      <div class="pbar-wrap"><div class="pbar ${barCls}" style="width:${Math.min(100,pct)}%"></div></div>
+      <div class="si-cat-pct">${pct}%</div>
+    </div>`;
+  }).join(''):'<div class="empty" style="grid-column:1/-1">ยังไม่มีหมวดหมู่รายได้เสริม</div>';
 }
 
 function renderYearSummary(){
