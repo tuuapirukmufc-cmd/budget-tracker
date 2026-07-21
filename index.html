@@ -1362,6 +1362,11 @@ function applySortArr(arr,page,sub){
 }
 const MN=['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
 const MNS=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+const MIN_PY=2026,MIN_PM=4; // ตัวกรองเริ่มได้ตั้งแต่ พ.ค. 2569 (พ.ศ.) เป็นต้นไป
+function clampPeriod(y,m){
+  if(y<MIN_PY||(y===MIN_PY&&m<MIN_PM))return{y:MIN_PY,m:MIN_PM};
+  return{y,m};
+}
 const now=new Date();
 const fmt=n=>'฿'+Math.round(n||0).toLocaleString('th-TH');
 const fmtN=(n,d=2)=>(n||0).toFixed(d);
@@ -1557,22 +1562,32 @@ function clearDismissed(){lss(uKey('dismissed_alerts'),{})}
 
 // ══ BUDGET ══
 let cy=now.getFullYear(),cm=now.getMonth();
+{const p=clampPeriod(cy,cm);cy=p.y;cm=p.m;}
 function fillPeriodSelect(yearId,monthId,y,m){
   const yearSel=document.getElementById(yearId),moSel=document.getElementById(monthId);
   if(!yearSel||!moSel)return;
+  const p=clampPeriod(y,m);y=p.y;m=p.m;
   if(!yearSel.dataset.filled){
-    for(let yy=now.getFullYear()-5;yy<=now.getFullYear()+1;yy++){
+    const maxY=Math.max(now.getFullYear()+1,MIN_PY+2);
+    for(let yy=MIN_PY;yy<=maxY;yy++){
       const o=document.createElement('option');o.value=yy;o.textContent='พ.ศ. '+(yy+543);yearSel.appendChild(o);
     }
     yearSel.dataset.filled='1';
   }
-  if(!moSel.dataset.filled){
-    moSel.innerHTML=MN.map((n,i)=>`<option value="${i}">${n}</option>`).join('');
-    moSel.dataset.filled='1';
-  }
-  yearSel.value=y;moSel.value=m;
+  yearSel.value=y;
+  rebuildMonthOptions(yearId,monthId,m);
+}
+function rebuildMonthOptions(yearId,monthId,preferM){
+  const yearSel=document.getElementById(yearId),moSel=document.getElementById(monthId);
+  if(!yearSel||!moSel)return;
+  const y=parseInt(yearSel.value);
+  const startM=(y===MIN_PY)?MIN_PM:0;
+  const prevVal=preferM!==undefined?preferM:parseInt(moSel.value);
+  moSel.innerHTML=MN.map((n,i)=>i>=startM?`<option value="${i}">${n}</option>`:'').join('');
+  moSel.value=(!isNaN(prevVal)&&prevVal>=startM)?prevVal:startM;
 }
 function onBudgetPeriodChange(){
+  rebuildMonthOptions('budget-yr-sel','budget-mo-sel');
   cy=parseInt(document.getElementById('budget-yr-sel').value);
   cm=parseInt(document.getElementById('budget-mo-sel').value);
   renderBudget();
@@ -3083,8 +3098,10 @@ function renderAlerts(){
 
 // ══ DASHBOARD ══
 let dy=now.getFullYear(),dm=now.getMonth(),dashY=now.getFullYear(),selMonth=null;
+{const p=clampPeriod(dy,dm);dy=p.y;dm=p.m;}
 let dCharts={};
 function onDashPeriodChange(){
+  rebuildMonthOptions('dash-yr-sel','dash-mo-sel');
   dy=parseInt(document.getElementById('dash-yr-sel').value);
   dm=parseInt(document.getElementById('dash-mo-sel').value);
   renderDashboard();
