@@ -196,7 +196,7 @@ table.tbl tr.dim .iname{text-decoration:line-through}
 /* progress */
 .pbar-wrap{background:var(--g200);border-radius:999px;height:4px;width:100%;margin-top:3px}
 .pbar{height:4px;border-radius:999px;background:var(--blue)}
-.pbar.warn{background:var(--amber)}.pbar.danger{background:var(--red)}
+.pbar.warn{background:var(--amber)}.pbar.danger{background:var(--red)}.pbar.good{background:var(--green)}
 
 /* checkbox */
 .chk{display:flex;justify-content:center}
@@ -230,6 +230,24 @@ table.tbl tr.dim .iname{text-decoration:line-through}
 
 /* combined 100% split bar (reusable) */
 .combo-wrap{background:var(--surface);border:1px solid var(--g200);border-radius:var(--r);padding:1rem 1.1rem;margin-bottom:1rem}
+
+/* side income section */
+.si-sec{border-color:var(--gold);border-width:1.5px}
+.si-sec-head{background:linear-gradient(90deg,rgba(234,197,79,.14),transparent)}
+.si-body{padding:.9rem}
+.si-body .cards{margin-bottom:.9rem}
+.si-card .val{font-size:17px}
+.si-cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:.6rem;margin-bottom:1rem}
+.si-cat-card{background:var(--g100);border:1px solid var(--g200);border-radius:var(--rsm);padding:.65rem .75rem}
+.si-cat-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:.3rem}
+.si-cat-name{font-size:12.5px;font-weight:700;color:var(--g900)}
+.si-cat-amt{font-size:11.5px;color:var(--g400);margin-bottom:.35rem}
+.si-cat-amt strong{color:var(--gold);font-weight:700}
+.si-cat-pct{font-size:11px;color:var(--g400);margin-top:3px;text-align:right}
+@media(max-width:768px){
+  .si-cat-grid{grid-template-columns:repeat(2,1fr)}
+  .si-body .cards.c3{grid-template-columns:1fr}
+}
 .combo-bar{display:flex;height:12px;border-radius:999px;overflow:hidden;background:var(--g200);width:100%}
 .combo-seg{height:100%;transition:width .3s}
 .combo-used{background:var(--amber)}
@@ -640,6 +658,32 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
     </tr></thead><tbody id="exp-body"></tbody></table>
     <div class="tfoot"><span>รวมรายจ่าย</span><strong id="exp-tot">฿0</strong></div>
   </div>
+
+  <div class="sec si-sec">
+    <div class="sec-head si-sec-head"><span class="sec-title"><span class="dot dgold"></span>รายได้เสริม</span>
+      <div class="sec-actions">
+        <button class="btn btn-ghost btn-sm" onclick="openSICat()">+ หมวดหมู่</button>
+        <button class="btn btn-pri btn-sm si-btn-pri" onclick="openSITX()">+ เพิ่มรายการ</button>
+      </div>
+    </div>
+    <div class="si-body">
+      <div class="cards c3">
+        <div class="card si-card"><div class="lbl">รายได้เสริมรวม (ได้รับแล้ว)</div><div class="val vgold" id="si-total">฿0</div></div>
+        <div class="card si-card"><div class="lbl">เป้าหมายรวม</div><div class="val vb" id="si-target-total">฿0</div></div>
+        <div class="card si-card"><div class="lbl">% บรรลุเป้าหมายภาพรวม</div><div class="val vg" id="si-pct">0%</div></div>
+      </div>
+      <div class="si-cat-grid" id="si-cat-grid"></div>
+      <table class="tbl"><thead><tr>
+        <th style="width:13%">วันที่</th>
+        <th style="width:18%">หมวดหมู่</th>
+        <th style="width:29%">รายละเอียด/รายการ</th>
+        <th style="width:15%" class="tr">จำนวนเงิน</th>
+        <th style="width:15%" class="tc">สถานะ</th>
+        <th style="width:10%" class="tc">✏</th>
+      </tr></thead><tbody id="si-tx-body"></tbody></table>
+      <div class="tfoot"><span id="si-tx-foot-lbl">รวมรายได้เสริม</span><strong id="si-tx-tot">฿0</strong></div>
+    </div>
+  </div>
 </div>
 
 <!-- PAGE: DEBT -->
@@ -900,6 +944,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
         <option value="todo">สิ่งที่ต้องทำ</option>
         <option value="fairtex">Fairtex</option>
         <option value="budget">รายรับ-รายจ่าย</option>
+        <option value="sideincome">รายได้เสริม</option>
         <option value="debt">หนี้สิน</option>
         <option value="invest">การลงทุน</option>
         <option value="gold">ออมทอง</option>
@@ -959,6 +1004,42 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
     <button class="btn btn-danger" id="bm-del" onclick="delBudget()" style="display:none">ลบ</button>
     <button class="btn btn-ghost" onclick="closeOv('bm-ov')">ยกเลิก</button>
     <button class="btn btn-pri" onclick="saveBudget()">บันทึก</button>
+  </div>
+</div></div>
+
+<!-- Side Income Category -->
+<div class="ov" id="sicat-ov"><div class="modal">
+  <span class="modal-drag"></span>
+  <h3 id="sicat-title">เพิ่มหมวดหมู่รายได้เสริม</h3>
+  <div class="f"><label>ชื่อหมวดหมู่</label><input type="text" id="sicat-name" placeholder="เช่น งานฟรีแลนซ์, ขายของออนไลน์"></div>
+  <div class="f"><label>เป้าหมายคาดการณ์ (฿ / เดือน)</label><input type="number" id="sicat-target" placeholder="0" min="0"></div>
+  <div class="mbtns">
+    <button class="btn btn-danger" id="sicat-del" onclick="deleteSICat()" style="display:none">ลบ</button>
+    <button class="btn btn-ghost" onclick="closeOv('sicat-ov')">ยกเลิก</button>
+    <button class="btn btn-pri" onclick="saveSICat()">บันทึก</button>
+  </div>
+</div></div>
+
+<!-- Side Income Transaction -->
+<div class="ov" id="sitx-ov"><div class="modal">
+  <span class="modal-drag"></span>
+  <h3 id="sitx-title">เพิ่มรายได้เสริม</h3>
+  <div class="f"><label>วันที่</label><input type="date" id="sitx-date"></div>
+  <div class="f"><label>หมวดหมู่</label><select id="sitx-cat"></select></div>
+  <div class="f"><label>รายละเอียด/รายการ</label><input type="text" id="sitx-desc" placeholder="เช่น รับงานออกแบบโลโก้"></div>
+  <div class="f-row">
+    <div class="f"><label>จำนวนเงิน (฿)</label><input type="number" id="sitx-amt" placeholder="0" min="0"></div>
+    <div class="f"><label>สถานะ</label>
+      <select id="sitx-status">
+        <option value="received">ได้รับแล้ว</option>
+        <option value="pending">รอชำระ</option>
+      </select>
+    </div>
+  </div>
+  <div class="mbtns">
+    <button class="btn btn-danger" id="sitx-del" onclick="deleteSITX()" style="display:none">ลบ</button>
+    <button class="btn btn-ghost" onclick="closeOv('sitx-ov')">ยกเลิก</button>
+    <button class="btn btn-pri" onclick="saveSITX()">บันทึก</button>
   </div>
 </div></div>
 
@@ -1408,7 +1489,7 @@ function renderHistory(){
   const all=getHist();
   const f=document.getElementById('hist-filter').value;
   const items=f?all.filter(h=>h.cat===f):all;
-  const catIcon={budget:'💳',debt:'🏦',invest:'📈',gold:'🥇',subscription:'🔔',login:'🔑',todo:'📝',fairtex:'🥊'};
+  const catIcon={budget:'💳',debt:'🏦',invest:'📈',gold:'🥇',subscription:'🔔',login:'🔑',todo:'📝',fairtex:'🥊',sideincome:'💰'};
   const actColor={เพิ่ม:'vg',แก้ไข:'vb',ลบ:'vc'};
   const tb=document.getElementById('hist-body');
   if(!items.length){tb.innerHTML='<div class="empty">ยังไม่มีประวัติ</div>';return}
@@ -1623,6 +1704,7 @@ function renderBudget(){
   document.getElementById('exp-tot').textContent=fmt(eT);
   renderBBody('inc-body','inc-head',d.income,'income');
   renderBBody('exp-body','exp-head',d.expense,'expense');
+  renderSideIncome();
 }
 function renderBBody(id,headId,items,type){
   const tb=document.getElementById(id);
@@ -1656,6 +1738,165 @@ function renderBBody(id,headId,items,type){
       <td class="tc"><button class="icon-btn" onclick="openBM('${type}',${item.id})">✏</button></td>
     </tr>`;
   }).join('');
+}
+
+// ══ SIDE INCOME (รายได้เสริม) ══
+function defSICats(){return[
+  {id:1,name:'งานฟรีแลนซ์',target:5000},
+  {id:2,name:'ขายของออนไลน์',target:3000},
+  {id:3,name:'เงินปันผล/การลงทุน',target:2000},
+  {id:4,name:'งานพิเศษอื่นๆ',target:2000}
+]}
+function getSICats(){return ls(uKey('side_income_cats_v1'),defSICats())}
+function saveSICats(c){lss(uKey('side_income_cats_v1'),c)}
+function getSITx(){return ls(uKey('side_income_tx_v1'),[])}
+function saveSITx(t){lss(uKey('side_income_tx_v1'),t)}
+
+let siCatEId=null;
+function openSICat(id){
+  siCatEId=id||null;
+  const item=id?getSICats().find(c=>c.id===id):null;
+  document.getElementById('sicat-title').textContent=id?'แก้ไขหมวดหมู่':'เพิ่มหมวดหมู่รายได้เสริม';
+  document.getElementById('sicat-name').value=item?.name||'';
+  document.getElementById('sicat-target').value=item?.target||'';
+  document.getElementById('sicat-del').style.display=id?'inline-flex':'none';
+  document.getElementById('sicat-ov').classList.add('open');
+}
+function saveSICat(){
+  const name=(document.getElementById('sicat-name').value||'').trim();if(!name)return;
+  const target=parseFloat(document.getElementById('sicat-target').value)||0;
+  let c=getSICats();
+  if(siCatEId){
+    c=c.map(i=>i.id===siCatEId?{...i,name,target}:i);
+    addHist('sideincome','แก้ไข',`หมวดหมู่: ${name} เป้าหมาย ${fmt(target)}`);
+  }else{
+    const newId=c.length?Math.max(...c.map(i=>i.id))+1:1;
+    c.push({id:newId,name,target});
+    addHist('sideincome','เพิ่ม',`เพิ่มหมวดหมู่: ${name} เป้าหมาย ${fmt(target)}`);
+  }
+  saveSICats(c);
+  closeOv('sicat-ov');
+  renderSideIncome();
+}
+function deleteSICat(){
+  if(!siCatEId)return;
+  if(!confirm('ลบหมวดหมู่นี้? (รายการที่เคยบันทึกไว้จะยังอยู่ แต่จะไม่มีหมวดหมู่กำกับ)'))return;
+  const item=getSICats().find(i=>i.id===siCatEId);
+  saveSICats(getSICats().filter(i=>i.id!==siCatEId));
+  addHist('sideincome','ลบ',`ลบหมวดหมู่: ${item?.name||''}`);
+  closeOv('sicat-ov');
+  renderSideIncome();
+}
+
+let siTxEId=null;
+function openSITX(id){
+  siTxEId=id||null;
+  const item=id?getSITx().find(t=>t.id===id):null;
+  const catSel=document.getElementById('sitx-cat');
+  catSel.innerHTML=getSICats().map(c=>`<option value="${c.id}">${c.name}</option>`).join('')||'<option value="">— ยังไม่มีหมวดหมู่ —</option>';
+  document.getElementById('sitx-title').textContent=id?'แก้ไขรายได้เสริม':'เพิ่มรายได้เสริม';
+  document.getElementById('sitx-date').value=item?.date||new Date().toISOString().slice(0,10);
+  if(item?.catId)catSel.value=item.catId;
+  document.getElementById('sitx-desc').value=item?.desc||'';
+  document.getElementById('sitx-amt').value=item?.amount||'';
+  document.getElementById('sitx-status').value=item?.status||'received';
+  document.getElementById('sitx-del').style.display=id?'inline-flex':'none';
+  document.getElementById('sitx-ov').classList.add('open');
+}
+function saveSITX(){
+  const date=document.getElementById('sitx-date').value;
+  const catId=parseInt(document.getElementById('sitx-cat').value)||null;
+  const desc=(document.getElementById('sitx-desc').value||'').trim();
+  const amount=parseFloat(document.getElementById('sitx-amt').value)||0;
+  const status=document.getElementById('sitx-status').value;
+  if(!date||!desc||!amount)return;
+  let t=getSITx();
+  if(siTxEId){
+    t=t.map(i=>i.id===siTxEId?{...i,date,catId,desc,amount,status}:i);
+    addHist('sideincome','แก้ไข',`${desc} = ${fmt(amount)} (${status==='received'?'ได้รับแล้ว':'รอชำระ'})`);
+  }else{
+    const newId=t.length?Math.max(...t.map(i=>i.id))+1:1;
+    t.push({id:newId,date,catId,desc,amount,status});
+    addHist('sideincome','เพิ่ม',`${desc} = ${fmt(amount)} (${status==='received'?'ได้รับแล้ว':'รอชำระ'})`);
+  }
+  saveSITx(t);
+  closeOv('sitx-ov');
+  renderSideIncome();
+}
+function deleteSITX(){
+  if(!siTxEId)return;
+  if(!confirm('ลบรายการนี้?'))return;
+  const item=getSITx().find(i=>i.id===siTxEId);
+  saveSITx(getSITx().filter(i=>i.id!==siTxEId));
+  addHist('sideincome','ลบ',`${item?.desc||''} = ${fmt(item?.amount||0)}`);
+  closeOv('sitx-ov');
+  renderSideIncome();
+}
+function toggleSITXStatus(id){
+  const t=getSITx();
+  const idx=t.findIndex(i=>i.id===id);
+  if(idx<0)return;
+  t[idx].status=t[idx].status==='received'?'pending':'received';
+  saveSITx(t);
+  addHist('sideincome','แก้ไข',`${t[idx].desc} — ${t[idx].status==='received'?'ได้รับแล้ว':'รอชำระ'}`);
+  renderSideIncome();
+}
+function renderSideIncome(){
+  const grid=document.getElementById('si-cat-grid');
+  if(!grid)return;
+  const cats=getSICats();
+  const tx=getSITx();
+  const receivedByCat={},allByCat={};
+  tx.forEach(t=>{
+    if(t.status==='received')receivedByCat[t.catId]=(receivedByCat[t.catId]||0)+t.amount;
+    allByCat[t.catId]=(allByCat[t.catId]||0)+t.amount;
+  });
+  let totalReceived=0,totalTarget=0;
+  cats.forEach(c=>{totalReceived+=(receivedByCat[c.id]||0);totalTarget+=c.target});
+  const overallPct=totalTarget>0?Math.round(totalReceived/totalTarget*100):0;
+  document.getElementById('si-total').textContent=fmt(totalReceived);
+  document.getElementById('si-target-total').textContent=fmt(totalTarget);
+  document.getElementById('si-pct').textContent=overallPct+'%';
+
+  grid.innerHTML=cats.length?cats.map(c=>{
+    const got=receivedByCat[c.id]||0;
+    const pct=c.target>0?Math.round(got/c.target*100):0;
+    const barCls=pct>=100?'good':pct>=50?'':'warn';
+    return`<div class="si-cat-card">
+      <div class="si-cat-top">
+        <span class="si-cat-name">${c.name}</span>
+        <button class="icon-btn" style="opacity:1" onclick="openSICat(${c.id})">✏</button>
+      </div>
+      <div class="si-cat-amt"><strong>${fmt(got)}</strong> / ฿${fmt(c.target)}</div>
+      <div class="pbar-wrap"><div class="pbar ${barCls}" style="width:${Math.min(100,pct)}%"></div></div>
+      <div class="si-cat-pct">${pct}%</div>
+    </div>`;
+  }).join(''):'<div class="empty" style="grid-column:1/-1">ยังไม่มีหมวดหมู่ — กด "+ หมวดหมู่" เพื่อเริ่มตั้งเป้าหมาย</div>';
+
+  const body=document.getElementById('si-tx-body');
+  const sorted=tx.slice().sort((a,b)=>b.date.localeCompare(a.date));
+  if(!sorted.length){
+    body.innerHTML='<tr><td colspan="6" class="empty">ยังไม่มีรายการ</td></tr>';
+  }else{
+    const catMap={};cats.forEach(c=>catMap[c.id]=c.name);
+    body.innerHTML=sorted.map(t=>{
+      const dt=new Date(t.date+'T00:00:00');
+      const dLabel=dt.toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric'});
+      const catName=catMap[t.catId]||'ไม่ระบุหมวด';
+      const isOn=t.status==='received';
+      return`<tr>
+        <td>${dLabel}</td>
+        <td><span class="pill">${catName}</span></td>
+        <td style="font-size:13px">${t.desc}</td>
+        <td class="tr" style="color:var(--gold);font-weight:600">${fmt(t.amount)}</td>
+        <td class="tc"><span class="sab ${isOn?'sab-on':'sab-off'}" style="cursor:pointer" onclick="toggleSITXStatus(${t.id})">${isOn?'✓ ได้รับแล้ว':'○ รอชำระ'}</span></td>
+        <td class="tc"><button class="icon-btn" onclick="openSITX(${t.id})">✏</button></td>
+      </tr>`;
+    }).join('');
+  }
+  const pendingTotal=tx.filter(t=>t.status==='pending').reduce((s,t)=>s+t.amount,0);
+  document.getElementById('si-tx-foot-lbl').textContent=pendingTotal>0?`รวมรายได้เสริม (ได้รับแล้ว) — รอชำระอีก ${fmt(pendingTotal)}`:'รวมรายได้เสริม (ได้รับแล้ว)';
+  document.getElementById('si-tx-tot').textContent=fmt(totalReceived);
 }
 
 // ══ DEBT ══
