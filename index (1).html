@@ -297,9 +297,10 @@ table.tbl tr.dim .iname{text-decoration:line-through}
 .md-row .mn-val{font-weight:600}
 
 /* notes */
-.note-box{background:var(--al);border:1px solid #E8C26A;border-radius:var(--rsm);padding:.6rem .85rem;margin:.6rem .9rem;font-size:12px;color:#7A4E0D;line-height:1.5;cursor:pointer;position:relative}
-.note-box .note-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#9A6B1E;margin-bottom:2px}
-.note-box .note-edit-hint{font-size:10px;color:#B8842A;position:absolute;right:.65rem;top:.6rem}
+.note-box{display:flex;align-items:center;gap:.5rem;background:var(--al);border:1px solid #E8C26A;border-radius:var(--rsm);padding:.5rem .85rem;margin:.6rem .9rem;font-size:12px;color:#7A4E0D;line-height:1.4;cursor:pointer;white-space:nowrap;overflow:hidden}
+.note-box .note-lbl{flex:0 0 auto;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#9A6B1E}
+.note-box .note-txt{flex:1 1 auto;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.note-box .note-edit-hint{flex:0 0 auto;font-size:10px;color:#B8842A}
 .note-empty{font-size:12px;color:var(--g400);padding:.5rem .9rem;cursor:pointer}
 
 /* history panel */
@@ -500,6 +501,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   <div class="page-head">
     <div><h2 class="desk-only">สิ่งที่ต้องทำ</h2><div class="sub">วางแผนชีวิตและติดตามงานสำคัญ</div></div>
     <div class="page-head-actions">
+      <button class="btn btn-ghost btn-sm" onclick="sw('dashboard',null)">⌂ ภาพรวม</button>
       <button class="btn btn-pri btn-sm" onclick="openTM()">+ เพิ่มรายการ</button>
     </div>
   </div>
@@ -527,6 +529,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   <div class="page-head">
     <div><h2 class="desk-only">🥊 Fairtex</h2><div class="sub">ตารางเข้าเวรวันเสาร์ และวันหยุดประจำปี</div></div>
     <div class="page-head-actions">
+      <button class="btn btn-ghost btn-sm" onclick="sw('dashboard',null)">⌂ ภาพรวม</button>
       <select class="styled" id="ft-fyear" onchange="renderFairtex()"></select>
       <select class="styled" id="ft-fmonth" onchange="renderFairtex()"></select>
     </div>
@@ -634,6 +637,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   <div class="page-head">
     <div><h2 class="desk-only">รายรับ - รายจ่าย</h2><div class="sub">รายการประจำ — เพิ่มครั้งเดียว ใช้ทุกเดือน</div></div>
     <div class="page-head-actions">
+      <button class="btn btn-ghost btn-sm" onclick="sw('dashboard',null)">⌂ ภาพรวม</button>
       <div class="mnav">
         <select class="styled" id="budget-yr-sel" onchange="onBudgetPeriodChange()"></select>
         <select class="styled" id="budget-mo-sel" onchange="onBudgetPeriodChange()"></select>
@@ -718,6 +722,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
     </div>
     <div class="db-header-right">
       <button class="btn btn-export btn-sm" onclick="exportDebt()">↓ Export</button>
+      <button class="btn btn-ghost btn-sm" onclick="openCatMgr()">⚙ ประเภท</button>
       <button class="btn btn-pri btn-sm" onclick="openDM()">+ เพิ่มบัตร/สินเชื่อ</button>
       <button class="db-bell" title="ไปหน้าภาพรวม" onclick="sw('dashboard',null)">⌂ ภาพรวม</button>
       <div class="db-avatar" title="ผู้ใช้งาน">👤</div>
@@ -745,21 +750,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
     </div>
   </div>
 
-  <div class="db-sec">
-    <div class="db-sec-head"><span class="db-dot"></span>Commercial Banks</div>
-    <div class="db-table-wrap"><table class="db-tbl"><thead><tr id="bank-head"></tr></thead><tbody id="bank-body"></tbody></table></div>
-    <div class="db-tfoot" id="bank-tot"></div>
-  </div>
-  <div class="db-sec">
-    <div class="db-sec-head"><span class="db-dot"></span>Non-Bank</div>
-    <div class="db-table-wrap"><table class="db-tbl"><thead><tr id="nonbank-head"></tr></thead><tbody id="nonbank-body"></tbody></table></div>
-    <div class="db-tfoot" id="nonbank-tot"></div>
-  </div>
-  <div class="db-sec">
-    <div class="db-sec-head"><span class="db-dot"></span>อื่นๆ</div>
-    <div class="db-table-wrap"><table class="db-tbl"><thead><tr id="other-head"></tr></thead><tbody id="other-body"></tbody></table></div>
-    <div class="db-tfoot" id="other-tot"></div>
-  </div>
+  <div id="debt-sections"></div>
 </div>
 
 <!-- PAGE: INVEST (หุ้น + ออมทอง) -->
@@ -767,6 +758,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   <div class="page-head">
     <div><h2 class="desk-only">การลงทุน</h2><div class="sub">หุ้นปันผล · ออมทอง · ทรัพย์สิน</div></div>
     <div class="page-head-actions">
+      <button class="btn btn-ghost btn-sm" onclick="sw('dashboard',null)">⌂ ภาพรวม</button>
       <span style="font-size:12px;color:var(--g400)">ปีปันผล:</span>
       <select class="styled" id="stk-yr-sel" onchange="renderInvest()"></select>
       <button class="btn btn-export btn-sm" onclick="exportInvest()">↓ Export</button>
@@ -900,6 +892,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   <div class="page-head">
     <div><h2 class="desk-only">สมัครสมาชิก / แอปรายปี</h2><div class="sub">ติดตามวันต่ออายุ</div></div>
     <div class="page-head-actions">
+      <button class="btn btn-ghost btn-sm" onclick="sw('dashboard',null)">⌂ ภาพรวม</button>
       <button class="btn btn-pri btn-sm" onclick="openSubM()">+ เพิ่ม</button>
     </div>
   </div>
@@ -925,6 +918,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   <div class="page-head">
     <div><h2 class="desk-only">User-Login</h2><div class="sub">บัญชี / รหัสผ่าน / บริการต่างๆ</div></div>
     <div class="page-head-actions">
+      <button class="btn btn-ghost btn-sm" onclick="sw('dashboard',null)">⌂ ภาพรวม</button>
       <input type="text" id="login-search" placeholder="🔍 ค้นหาหัวข้อ, user, ประเภท..." oninput="renderLogins()"
         style="border:1px solid var(--g200);border-radius:8px;padding:5px 10px;font-size:12px;font-family:var(--font);width:200px">
       <button class="btn btn-ghost btn-sm" id="login-pw-toggle" onclick="togAllPw()">👁 แสดงรหัสผ่าน</button>
@@ -956,6 +950,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   <div class="page-head">
     <div><h2 class="desk-only">ประวัติการเปลี่ยนแปลง</h2><div class="sub">บันทึกทุกการเพิ่ม ลบ แก้ไข</div></div>
     <div class="page-head-actions">
+      <button class="btn btn-ghost btn-sm" onclick="sw('dashboard',null)">⌂ ภาพรวม</button>
       <button class="btn btn-danger btn-sm" onclick="if(confirm('ลบประวัติทั้งหมด?')){saveHist([]);renderHistory()}">🗑 ล้างประวัติ</button>
       <button class="btn btn-export btn-sm" onclick="exportHistory()">↓ Export JSON</button>
     </div>
@@ -1078,10 +1073,16 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   <div class="f"><label>ชื่อบัตร / สินเชื่อ</label><input type="text" id="dm-name" placeholder="เช่น Line BK, Shopee"></div>
   <div class="f-row">
     <div class="f"><label>ประเภท</label>
-      <select id="dm-cat"><option value="bank">Commercial Bank</option><option value="nonbank">Non-Bank</option><option value="other">อื่นๆ</option></select>
+      <div style="display:flex;gap:5px">
+        <select id="dm-cat" style="flex:1"></select>
+        <button type="button" class="btn btn-ghost btn-sm" style="padding:0 9px" title="จัดการประเภท" onclick="openCatMgr()">⚙</button>
+      </div>
     </div>
     <div class="f"><label>สถานะ</label>
-      <select id="dm-stat"><option value="active">Active</option><option value="inactive">Inactive</option></select>
+      <div style="display:flex;gap:5px">
+        <select id="dm-stat" style="flex:1"></select>
+        <button type="button" class="btn btn-ghost btn-sm" style="padding:0 9px" title="จัดการสถานะ" onclick="openStatMgr()">⚙</button>
+      </div>
     </div>
   </div>
   <div class="f-row">
@@ -1115,6 +1116,34 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
     <button class="btn btn-danger" id="dm-del" onclick="delDebt()" style="display:none">ลบ</button>
     <button class="btn btn-ghost" onclick="closeOv('dm-ov')">ยกเลิก</button>
     <button class="btn btn-pri" onclick="saveDebt()">บันทึก</button>
+  </div>
+</div></div>
+
+<!-- Debt Category Manager -->
+<div class="ov" id="catmgr-ov"><div class="modal">
+  <span class="modal-drag"></span>
+  <h3>จัดการประเภท (หมวดหมู่บัตร/สินเชื่อ)</h3>
+  <div id="catmgr-list" style="margin-bottom:.75rem"></div>
+  <div class="f-row">
+    <div class="f" style="flex:1"><label>เพิ่มประเภทใหม่</label><input type="text" id="catmgr-new" placeholder="เช่น สหกรณ์ออมทรัพย์"></div>
+  </div>
+  <div class="mbtns">
+    <button class="btn btn-ghost" onclick="closeOv('catmgr-ov')">ปิด</button>
+    <button class="btn btn-pri" onclick="addDebtCat()">+ เพิ่มประเภท</button>
+  </div>
+</div></div>
+
+<!-- Debt Status Manager -->
+<div class="ov" id="statmgr-ov"><div class="modal">
+  <span class="modal-drag"></span>
+  <h3>จัดการสถานะ</h3>
+  <div id="statmgr-list" style="margin-bottom:.75rem"></div>
+  <div class="f-row">
+    <div class="f" style="flex:1"><label>เพิ่มสถานะใหม่</label><input type="text" id="statmgr-new" placeholder="เช่น ปิดบัญชีแล้ว"></div>
+  </div>
+  <div class="mbtns">
+    <button class="btn btn-ghost" onclick="closeOv('statmgr-ov')">ปิด</button>
+    <button class="btn btn-pri" onclick="addDebtStatus()">+ เพิ่มสถานะ</button>
   </div>
 </div></div>
 
@@ -1336,8 +1365,13 @@ th[onclick]:hover{background:var(--g50);cursor:pointer}
 // ══ UTILS ══
 // ── SORT STATE (ต้องอยู่ก่อน render functions ทุกตัว) ──
 const sortState={budget:{income:{col:null,dir:1},expense:{col:null,dir:1}},debt:{bank:{col:null,dir:1},nonbank:{col:null,dir:1},other:{col:null,dir:1}},invest:{stock:{col:null,dir:1},gold:{col:null,dir:1},asset:{col:null,dir:1}},subscription:{col:{col:null,dir:1}},login:{col:{col:null,dir:1}}};
+function ensureSortState(page,sub){
+  if(!sortState[page])sortState[page]={};
+  if(!sortState[page][sub])sortState[page][sub]={col:null,dir:1};
+  return sortState[page][sub];
+}
 function sortBy(page,sub,col){
-  const s=sortState[page][sub];
+  const s=ensureSortState(page,sub);
   if(s.col===col)s.dir*=-1;else{s.col=col;s.dir=-1;}
   if(page==='budget')renderBudget();
   else if(page==='debt')renderDebt();
@@ -1346,12 +1380,12 @@ function sortBy(page,sub,col){
   else if(page==='login')renderLogins();
 }
 function sortIcon(page,sub,col){
-  const s=sortState[page][sub];
+  const s=ensureSortState(page,sub);
   if(s.col!==col)return'<span style="color:var(--g300);font-size:10px">⇅</span>';
   return s.dir===1?'<span style="color:var(--blue);font-size:10px">↑</span>':'<span style="color:var(--blue);font-size:10px">↓</span>';
 }
 function applySortArr(arr,page,sub){
-  const s=sortState[page][sub];
+  const s=ensureSortState(page,sub);
   if(!s.col)return arr;
   return[...arr].sort((a,b)=>{
     let av=a[s.col],bv=b[s.col];
@@ -1362,6 +1396,11 @@ function applySortArr(arr,page,sub){
 }
 const MN=['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
 const MNS=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+const MIN_PY=2026,MIN_PM=4; // ตัวกรองเริ่มได้ตั้งแต่ พ.ค. 2569 (พ.ศ.) เป็นต้นไป
+function clampPeriod(y,m){
+  if(y<MIN_PY||(y===MIN_PY&&m<MIN_PM))return{y:MIN_PY,m:MIN_PM};
+  return{y,m};
+}
 const now=new Date();
 const fmt=n=>'฿'+Math.round(n||0).toLocaleString('th-TH');
 const fmtN=(n,d=2)=>(n||0).toFixed(d);
@@ -1546,7 +1585,7 @@ function renderPageNote(pageKey,containerId){
   if(!containerId)return;
   const el=document.getElementById(containerId);
   if(!el)return;
-  if(v){el.innerHTML=`<div class="note-box" onclick="openNoteModal('${pageKey}','')"><div class="note-lbl">📝 หมายเหตุ</div>${v}<div class="note-edit-hint">แตะเพื่อแก้ไข</div></div>`;}
+  if(v){el.innerHTML=`<div class="note-box" onclick="openNoteModal('${pageKey}','')" title="${v.replace(/"/g,'&quot;')}"><span class="note-lbl">📝 หมายเหตุ</span><span class="note-txt">${v}</span><span class="note-edit-hint">แตะเพื่อแก้ไข</span></div>`;}
   else{el.innerHTML=`<div class="note-empty" onclick="openNoteModal('${pageKey}','')">+ เพิ่มหมายเหตุ...</div>`;}
 }
 
@@ -1557,22 +1596,32 @@ function clearDismissed(){lss(uKey('dismissed_alerts'),{})}
 
 // ══ BUDGET ══
 let cy=now.getFullYear(),cm=now.getMonth();
+{const p=clampPeriod(cy,cm);cy=p.y;cm=p.m;}
 function fillPeriodSelect(yearId,monthId,y,m){
   const yearSel=document.getElementById(yearId),moSel=document.getElementById(monthId);
   if(!yearSel||!moSel)return;
+  const p=clampPeriod(y,m);y=p.y;m=p.m;
   if(!yearSel.dataset.filled){
-    for(let yy=now.getFullYear()-5;yy<=now.getFullYear()+1;yy++){
+    const maxY=Math.max(now.getFullYear()+1,MIN_PY+2);
+    for(let yy=MIN_PY;yy<=maxY;yy++){
       const o=document.createElement('option');o.value=yy;o.textContent='พ.ศ. '+(yy+543);yearSel.appendChild(o);
     }
     yearSel.dataset.filled='1';
   }
-  if(!moSel.dataset.filled){
-    moSel.innerHTML=MN.map((n,i)=>`<option value="${i}">${n}</option>`).join('');
-    moSel.dataset.filled='1';
-  }
-  yearSel.value=y;moSel.value=m;
+  yearSel.value=y;
+  rebuildMonthOptions(yearId,monthId,m);
+}
+function rebuildMonthOptions(yearId,monthId,preferM){
+  const yearSel=document.getElementById(yearId),moSel=document.getElementById(monthId);
+  if(!yearSel||!moSel)return;
+  const y=parseInt(yearSel.value);
+  const startM=(y===MIN_PY)?MIN_PM:0;
+  const prevVal=preferM!==undefined?preferM:parseInt(moSel.value);
+  moSel.innerHTML=MN.map((n,i)=>i>=startM?`<option value="${i}">${n}</option>`:'').join('');
+  moSel.value=(!isNaN(prevVal)&&prevVal>=startM)?prevVal:startM;
 }
 function onBudgetPeriodChange(){
+  rebuildMonthOptions('budget-yr-sel','budget-mo-sel');
   cy=parseInt(document.getElementById('budget-yr-sel').value);
   cm=parseInt(document.getElementById('budget-mo-sel').value);
   renderBudget();
@@ -1959,13 +2008,132 @@ function defDebts(){return[
   {id:10,name:'first choice',cat:'other',status:'active',rate:33,limit:13000,used:13000,type:'สินเชื่อส่วนบุคคล',note:'',included:false,installmentPlan:'ผ่อนขั้นต่ำ',monthlyPayment:700,currentDue:700,dueDay:18}
 ]}
 let dEId=null;
+
+// ── ประเภท (หมวดหมู่บัตร/สินเชื่อ) — เพิ่ม/แก้ไข/ลบเองได้ ──
+function defDebtCats(){return[
+  {id:'bank',label:'Commercial Banks'},
+  {id:'nonbank',label:'Non-Bank'},
+  {id:'other',label:'อื่นๆ'}
+]}
+function getDebtCats(){return ls(uKey('debt_categories_v1'),defDebtCats())}
+function saveDebtCats(c){lss(uKey('debt_categories_v1'),c)}
+function slugifyCat(s){return 'cat_'+s.toLowerCase().replace(/[^a-z0-9ก-๙]+/g,'_').replace(/^_+|_+$/g,'')+'_'+Date.now().toString(36)}
+function refreshDMCatOptions(){
+  const sel=document.getElementById('dm-cat');
+  if(!sel)return;
+  const cur=sel.value;
+  sel.innerHTML=getDebtCats().map(c=>`<option value="${c.id}">${c.label}</option>`).join('');
+  if([...sel.options].some(o=>o.value===cur))sel.value=cur;
+}
+function openCatMgr(){
+  renderCatMgrList();
+  document.getElementById('catmgr-new').value='';
+  document.getElementById('catmgr-ov').classList.add('open');
+}
+function renderCatMgrList(){
+  const cats=getDebtCats();
+  const debts=getDebts();
+  document.getElementById('catmgr-list').innerHTML=cats.length?cats.map(c=>{
+    const count=debts.filter(d=>d.cat===c.id).length;
+    return`<div class="f-row" style="align-items:center;margin-bottom:.4rem">
+      <input type="text" value="${c.label.replace(/"/g,'&quot;')}" onchange="renameDebtCat('${c.id}',this.value)" style="flex:1">
+      <button class="btn btn-danger btn-sm" ${count>0?'disabled title="ยังมี '+count+' รายการอยู่ในประเภทนี้ ย้าย/ลบรายการก่อนถึงจะลบได้"':''} onclick="deleteDebtCat('${c.id}')">ลบ</button>
+    </div>`;
+  }).join(''):'<div class="empty">ยังไม่มีประเภท</div>';
+}
+function addDebtCat(){
+  const label=(document.getElementById('catmgr-new').value||'').trim();
+  if(!label)return;
+  const cats=getDebtCats();
+  cats.push({id:slugifyCat(label),label});
+  saveDebtCats(cats);
+  addHist('debt','เพิ่ม',`เพิ่มประเภทใหม่: ${label}`);
+  document.getElementById('catmgr-new').value='';
+  renderCatMgrList();refreshDMCatOptions();renderDebt();
+}
+function renameDebtCat(id,newLabel){
+  newLabel=(newLabel||'').trim();if(!newLabel)return;
+  saveDebtCats(getDebtCats().map(c=>c.id===id?{...c,label:newLabel}:c));
+  addHist('debt','แก้ไข',`เปลี่ยนชื่อประเภทเป็น: ${newLabel}`);
+  renderCatMgrList();refreshDMCatOptions();renderDebt();
+}
+function deleteDebtCat(id){
+  if(getDebts().some(d=>d.cat===id)){alert('ยังมีรายการอยู่ในประเภทนี้ ย้ายหรือลบรายการก่อนถึงจะลบประเภทนี้ได้');return;}
+  if(!confirm('ลบประเภทนี้?'))return;
+  const cat=getDebtCats().find(c=>c.id===id);
+  saveDebtCats(getDebtCats().filter(c=>c.id!==id));
+  addHist('debt','ลบ',`ลบประเภท: ${cat?.label||''}`);
+  renderCatMgrList();refreshDMCatOptions();renderDebt();
+}
+
+// ── สถานะ — เพิ่ม/แก้ไข/ลบเองได้ ──
+function defDebtStatuses(){return['active','inactive']}
+function getDebtStatuses(){return ls(uKey('debt_statuses_v1'),defDebtStatuses())}
+function saveDebtStatuses(s){lss(uKey('debt_statuses_v1'),s)}
+function refreshDMStatOptions(){
+  const sel=document.getElementById('dm-stat');
+  if(!sel)return;
+  const cur=sel.value;
+  const statuses=getDebtStatuses();
+  sel.innerHTML=statuses.map(s=>`<option value="${s}">${s}</option>`).join('');
+  if(statuses.includes(cur))sel.value=cur;
+  else if(statuses.length)sel.value=statuses[0];
+}
+function openStatMgr(){
+  renderStatMgrList();
+  document.getElementById('statmgr-new').value='';
+  document.getElementById('statmgr-ov').classList.add('open');
+}
+function renderStatMgrList(){
+  const statuses=getDebtStatuses();
+  document.getElementById('statmgr-list').innerHTML=statuses.length?statuses.map((s,i)=>
+    `<div class="f-row" style="align-items:center;margin-bottom:.4rem">
+      <input type="text" value="${s.replace(/"/g,'&quot;')}" onchange="renameDebtStatus(${i},this.value)" style="flex:1">
+      <button class="btn btn-danger btn-sm" onclick="deleteDebtStatus(${i})">ลบ</button>
+    </div>`
+  ).join(''):'<div class="empty">ยังไม่มีสถานะ</div>';
+}
+function addDebtStatus(){
+  const val=(document.getElementById('statmgr-new').value||'').trim();
+  if(!val)return;
+  const statuses=getDebtStatuses();
+  if(statuses.includes(val)){document.getElementById('statmgr-new').value='';return;}
+  statuses.push(val);
+  saveDebtStatuses(statuses);
+  addHist('debt','เพิ่ม',`เพิ่มสถานะใหม่: ${val}`);
+  document.getElementById('statmgr-new').value='';
+  renderStatMgrList();refreshDMStatOptions();
+}
+function renameDebtStatus(idx,newVal){
+  newVal=(newVal||'').trim();if(!newVal)return;
+  const statuses=getDebtStatuses();
+  const oldVal=statuses[idx];
+  statuses[idx]=newVal;
+  saveDebtStatuses(statuses);
+  saveDebts(getDebts().map(d=>d.status===oldVal?{...d,status:newVal}:d));
+  addHist('debt','แก้ไข',`เปลี่ยนชื่อสถานะเป็น: ${newVal}`);
+  renderStatMgrList();refreshDMStatOptions();
+}
+function deleteDebtStatus(idx){
+  const statuses=getDebtStatuses();
+  if(statuses.length<=1){alert('ต้องมีอย่างน้อย 1 สถานะ');return;}
+  const val=statuses[idx];
+  if(!confirm(`ลบสถานะ "${val}"?`))return;
+  statuses.splice(idx,1);
+  saveDebtStatuses(statuses);
+  addHist('debt','ลบ',`ลบสถานะ: ${val}`);
+  renderStatMgrList();refreshDMStatOptions();
+}
+
 function openDM(id){
   dEId=id||null;
   const item=id?getDebts().find(d=>d.id===id):null;
   document.getElementById('dm-title').textContent=id?'แก้ไขบัตร/สินเชื่อ':'เพิ่มบัตร/สินเชื่อ';
   document.getElementById('dm-name').value=item?.name||'';
-  document.getElementById('dm-cat').value=item?.cat||'bank';
-  document.getElementById('dm-stat').value=item?.status||'active';
+  refreshDMCatOptions();
+  document.getElementById('dm-cat').value=item?.cat||(getDebtCats()[0]?.id||'');
+  refreshDMStatOptions();
+  document.getElementById('dm-stat').value=item?.status||(getDebtStatuses()[0]||'');
   document.getElementById('dm-rate').value=item?.rate||'';
   document.getElementById('dm-lim').value=item?.limit||'';
   document.getElementById('dm-used').value=item?.used||'';
@@ -2024,6 +2192,14 @@ function toggleDebtInclude(id){
 
 function renderDebt(){
   const debts=getDebts();
+  const cats=getDebtCats();
+  const container=document.getElementById('debt-sections');
+  if(container)container.innerHTML=cats.map(c=>`
+    <div class="db-sec">
+      <div class="db-sec-head"><span class="db-dot"></span>${c.label}</div>
+      <div class="db-table-wrap"><table class="db-tbl"><thead><tr id="cat-head-${c.id}"></tr></thead><tbody id="cat-body-${c.id}"></tbody></table></div>
+      <div class="db-tfoot" id="cat-tot-${c.id}"></div>
+    </div>`).join('')||'<div class="empty">ยังไม่มีประเภท — กด "⚙ ประเภท" เพื่อเพิ่ม</div>';
   const counted=debts.filter(d=>d.included!==false);
   const tL=counted.reduce((s,d)=>s+d.limit,0);
   const tU=counted.reduce((s,d)=>s+d.used,0);
@@ -2036,8 +2212,8 @@ function renderDebt(){
   document.getElementById('d-combo-rem').style.width=remPct+'%';
   document.getElementById('d-combo-used-pct').textContent=utilPct+'%';
   document.getElementById('d-combo-rem-pct').textContent=remPct+'%';
-  ['bank','nonbank','other'].forEach(cat=>
-    renderDBody(cat+'-body',cat+'-tot',cat+'-head',debts.filter(d=>d.cat===cat),cat)
+  cats.forEach(c=>
+    renderDBody('cat-body-'+c.id,'cat-tot-'+c.id,'cat-head-'+c.id,debts.filter(d=>d.cat===c.id),c.id)
   );
 }
 
@@ -3083,8 +3259,10 @@ function renderAlerts(){
 
 // ══ DASHBOARD ══
 let dy=now.getFullYear(),dm=now.getMonth(),dashY=now.getFullYear(),selMonth=null;
+{const p=clampPeriod(dy,dm);dy=p.y;dm=p.m;}
 let dCharts={};
 function onDashPeriodChange(){
+  rebuildMonthOptions('dash-yr-sel','dash-mo-sel');
   dy=parseInt(document.getElementById('dash-yr-sel').value);
   dm=parseInt(document.getElementById('dash-mo-sel').value);
   renderDashboard();
