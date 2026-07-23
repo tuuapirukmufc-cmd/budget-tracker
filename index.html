@@ -729,7 +729,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
     </div>
   </div>
 
-  <div class="db-cards" style="grid-template-columns:repeat(2,1fr)">
+  <div class="db-cards" style="grid-template-columns:repeat(3,1fr)">
     <div class="db-card">
       <div class="db-card-lbl">วงเงินรวม</div>
       <div class="db-card-val" id="d-lim">฿0</div>
@@ -737,6 +737,10 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
     <div class="db-card">
       <div class="db-card-lbl">วงเงินคงเหลือรวม</div>
       <div class="db-card-val" id="d-rem">฿0</div>
+    </div>
+    <div class="db-card">
+      <div class="db-card-lbl">ยอดรวมการผ่อนต่อเดือน</div>
+      <div class="db-card-val" id="d-mpay-tot">฿0</div>
     </div>
   </div>
   <div class="db-combo-wrap">
@@ -2207,8 +2211,10 @@ function renderDebt(){
   const tL=counted.reduce((s,d)=>s+d.limit,0);
   const tU=counted.reduce((s,d)=>s+d.used,0);
   const tRem=tL-tU;
+  const tMPay=counted.reduce((s,d)=>s+(d.monthlyPayment||0),0);
   document.getElementById('d-lim').textContent=fmt(tL);
   document.getElementById('d-rem').textContent=fmt(tRem);
+  document.getElementById('d-mpay-tot').textContent=fmt(tMPay);
   const utilPct=tL>0?Math.max(0,Math.min(100,Math.round(tU/tL*100))):0;
   const remPct=100-utilPct;
   document.getElementById('d-combo-used').style.width=utilPct+'%';
@@ -2242,10 +2248,12 @@ function renderDBody(tbId,totId,headId,items,cat){
   const inc=items.filter(d=>d.included!==false);
   const tL=inc.reduce((s,d)=>s+d.limit,0);
   const tU=inc.reduce((s,d)=>s+d.used,0);
+  const tMPay=inc.reduce((s,d)=>s+(d.monthlyPayment||0),0);
   const excCount=items.length-inc.length;
   tot.innerHTML=`<span>
     วงเงิน <strong>${fmt(tL)}</strong> &nbsp;
-    คงเหลือ <strong>${fmt(tL-tU)}</strong>
+    คงเหลือ <strong>${fmt(tL-tU)}</strong> &nbsp;
+    ผ่อน/เดือน <strong>${fmt(tMPay)}</strong>
     ${excCount>0?`<span class="db-muted-note">(ไม่นับ ${excCount} รายการ)</span>`:''}
   </span>`;
   const sorted=applySortArr(items,'debt',cat);
