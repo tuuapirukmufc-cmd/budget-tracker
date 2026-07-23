@@ -397,7 +397,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 #page-debt .db-red{color:#F87171!important}
 #page-debt .db-green{color:#34D399!important}
 #page-debt .db-inst-text{font-size:12px;color:#C7CEDE;margin-bottom:4px;white-space:normal}
-#page-debt .db-note{font-size:12px;color:#7B839C;max-width:150px;white-space:normal}
+#page-debt .db-note{font-size:12px;color:#7B839C;max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #page-debt .db-empty{text-align:center;padding:1.8rem;font-size:13px;color:#5B6480}
 #page-debt .db-icon-btn{background:none;border:none;cursor:pointer;color:#5B6480;padding:4px 6px;border-radius:6px;font-size:13px;transition:.1s;opacity:0}
 #page-debt tr:hover .db-icon-btn{opacity:1}
@@ -1104,6 +1104,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
     </div>
     <div class="f"><label>ยอดจ่ายต่อเดือน (฿)</label><input type="number" id="dm-mpay" placeholder="0" min="0"></div>
   </div>
+  <div class="f"><label>จำนวนเดือนที่ผ่อน (เดือน)</label><input type="number" id="dm-inst-months" placeholder="เช่น 10" min="0"></div>
   <div class="f-row">
     <div class="f"><label>ยอดค้างเดือนนี้ (฿)</label><input type="number" id="dm-due" placeholder="0" min="0"></div>
     <div class="f"><label>วันครบกำหนด (1-31)</label><input type="number" id="dm-dueday" placeholder="5" min="1" max="31"></div>
@@ -2149,6 +2150,7 @@ function openDM(id){
     document.getElementById('dm-inst-custom').value='';
   }
   document.getElementById('dm-mpay').value=item?.monthlyPayment||'';
+  document.getElementById('dm-inst-months').value=item?.installmentMonths||'';
   document.getElementById('dm-due').value=item?.currentDue||'';
   document.getElementById('dm-dueday').value=item?.dueDay||'';
   document.getElementById('dm-type').value=item?.type||'';
@@ -2166,6 +2168,7 @@ function saveDebt(){
     used:parseFloat(document.getElementById('dm-used').value)||0,
     installmentPlan,
     monthlyPayment:parseFloat(document.getElementById('dm-mpay').value)||0,
+    installmentMonths:parseInt(document.getElementById('dm-inst-months').value)||0,
     currentDue:parseFloat(document.getElementById('dm-due').value)||0,
     dueDay:parseInt(document.getElementById('dm-dueday').value)||null,
     type:document.getElementById('dm-type').value,note:document.getElementById('dm-note').value};
@@ -2224,17 +2227,16 @@ function renderDBody(tbId,totId,headId,items,cat){
   if(headEl)headEl.innerHTML=`
     <th style="width:4%" class="db-tc">นับ</th>
     <th style="width:7%" class="db-tc">สถานะ</th>
-    <th style="width:14%;cursor:pointer" onclick="sortBy('debt','${cat}','name')">ชื่อบัตร ${si('name')}</th>
-    <th style="width:10%;cursor:pointer" class="db-tr" onclick="sortBy('debt','${cat}','limit')">วงเงิน ${si('limit')}</th>
-    <th style="width:10%;cursor:pointer" class="db-tr" onclick="sortBy('debt','${cat}','used')">เบิกใช้ไปแล้ว ${si('used')}</th>
-    <th style="width:9%" class="db-tr">คงเหลือ</th>
-    <th style="width:20%">รูปแบบการผ่อน / ยอดจ่ายต่อเดือน</th>
+    <th style="width:16%;cursor:pointer" onclick="sortBy('debt','${cat}','name')">ชื่อบัตร ${si('name')}</th>
+    <th style="width:11%;cursor:pointer" class="db-tr" onclick="sortBy('debt','${cat}','limit')">วงเงิน ${si('limit')}</th>
+    <th style="width:10%" class="db-tr">คงเหลือ</th>
+    <th style="width:23%">รูปแบบการผ่อน / ยอดจ่ายต่อเดือน</th>
     <th style="width:9%" class="db-tc">วันครบกำหนด</th>
-    <th style="width:7%" class="db-tr">ดอกเบี้ย</th>
-    <th style="width:6%">หมายเหตุ</th>
+    <th style="width:8%" class="db-tr">ดอกเบี้ย</th>
+    <th style="width:8%">หมายเหตุ</th>
     <th style="width:4%" class="db-tc">✏</th>`;
   if(!items.length){
-    tb.innerHTML='<tr><td colspan="11" class="db-empty">ยังไม่มีรายการ</td></tr>';
+    tb.innerHTML='<tr><td colspan="10" class="db-empty">ยังไม่มีรายการ</td></tr>';
     tot.innerHTML='—';return;
   }
   const inc=items.filter(d=>d.included!==false);
@@ -2243,7 +2245,6 @@ function renderDBody(tbId,totId,headId,items,cat){
   const excCount=items.length-inc.length;
   tot.innerHTML=`<span>
     วงเงิน <strong>${fmt(tL)}</strong> &nbsp;
-    เบิกใช้ไป <strong>${fmt(tU)}</strong> &nbsp;
     คงเหลือ <strong>${fmt(tL-tU)}</strong>
     ${excCount>0?`<span class="db-muted-note">(ไม่นับ ${excCount} รายการ)</span>`:''}
   </span>`;
@@ -2252,6 +2253,9 @@ function renderDBody(tbId,totId,headId,items,cat){
     const isOn=d.included!==false;
     const rem=d.limit-d.used;
     const dueTxt=d.dueDay?`ทุกวันที่ ${d.dueDay}`:'—';
+    const instParts=[d.installmentPlan||'—'];
+    if(d.monthlyPayment)instParts.push(`${fmt(d.monthlyPayment)}/ด.`);
+    if(d.installmentMonths)instParts.push(`${d.installmentMonths} เดือน`);
     return`<tr class="${isOn?'':'db-row-off'}">
       <td class="db-tc db-idx">${i+1}</td>
       <td class="db-tc">
@@ -2259,20 +2263,19 @@ function renderDBody(tbId,totId,headId,items,cat){
       </td>
       <td><div class="db-name">${d.name}</div></td>
       <td class="db-tr db-num">${fmt(d.limit)}</td>
-      <td class="db-tr db-num">${fmt(d.used)}</td>
       <td class="db-tr db-num ${rem<0?'db-red':'db-green'}">${fmt(rem)}</td>
-      <td><div class="db-inst-text">${d.installmentPlan||'—'}${d.monthlyPayment?` · ${fmt(d.monthlyPayment)}/ด.`:''}</div></td>
+      <td><div class="db-inst-text">${instParts.join(' · ')}</div></td>
       <td class="db-tc db-num">${dueTxt}</td>
       <td class="db-tr db-num">${d.rate?d.rate+'%':'—'}</td>
-      <td class="db-note">${d.note||'—'}</td>
+      <td class="db-note" title="${(d.note||'').replace(/"/g,'&quot;')}">${d.note||'—'}</td>
       <td class="db-tc"><button class="db-icon-btn" onclick="openDM(${d.id})">✏</button></td>
     </tr>`;
   }).join('');
 }
 function exportDebt(){
   const d=getDebts();
-  const rows=[['ชื่อบัตร','ประเภท','สถานะ','ดอกเบี้ย','วงเงิน','เบิกใช้ไป','คงเหลือ','รูปแบบการผ่อน','ยอดจ่ายต่อเดือน','ยอดค้างเดือนนี้','วันครบกำหนด','ประเภทสินเชื่อ','หมายเหตุ'],
-    ...d.map(i=>[i.name,i.cat,i.status,i.rate,i.limit,i.used,i.limit-i.used,i.installmentPlan||'',i.monthlyPayment||0,i.currentDue||0,i.dueDay||'',i.type,i.note])];
+  const rows=[['ชื่อบัตร','ประเภท','สถานะ','ดอกเบี้ย','วงเงิน','เบิกใช้ไป','คงเหลือ','รูปแบบการผ่อน','จำนวนเดือนที่ผ่อน','ยอดจ่ายต่อเดือน','ยอดค้างเดือนนี้','วันครบกำหนด','ประเภทสินเชื่อ','หมายเหตุ'],
+    ...d.map(i=>[i.name,i.cat,i.status,i.rate,i.limit,i.used,i.limit-i.used,i.installmentPlan||'',i.installmentMonths||'',i.monthlyPayment||0,i.currentDue||0,i.dueDay||'',i.type,i.note])];
   dlCSV(rows,'debt_export.csv');
 }
 
