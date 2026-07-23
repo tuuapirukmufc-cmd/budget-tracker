@@ -297,9 +297,10 @@ table.tbl tr.dim .iname{text-decoration:line-through}
 .md-row .mn-val{font-weight:600}
 
 /* notes */
-.note-box{background:var(--al);border:1px solid #E8C26A;border-radius:var(--rsm);padding:.6rem .85rem;margin:.6rem .9rem;font-size:12px;color:#7A4E0D;line-height:1.5;cursor:pointer;position:relative}
-.note-box .note-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#9A6B1E;margin-bottom:2px}
-.note-box .note-edit-hint{font-size:10px;color:#B8842A;position:absolute;right:.65rem;top:.6rem}
+.note-box{display:flex;align-items:center;gap:.5rem;background:var(--al);border:1px solid #E8C26A;border-radius:var(--rsm);padding:.5rem .85rem;margin:.6rem .9rem;font-size:12px;color:#7A4E0D;line-height:1.4;cursor:pointer;white-space:nowrap;overflow:hidden}
+.note-box .note-lbl{flex:0 0 auto;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#9A6B1E}
+.note-box .note-txt{flex:1 1 auto;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.note-box .note-edit-hint{flex:0 0 auto;font-size:10px;color:#B8842A}
 .note-empty{font-size:12px;color:var(--g400);padding:.5rem .9rem;cursor:pointer}
 
 /* history panel */
@@ -396,7 +397,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 #page-debt .db-red{color:#F87171!important}
 #page-debt .db-green{color:#34D399!important}
 #page-debt .db-inst-text{font-size:12px;color:#C7CEDE;margin-bottom:4px;white-space:normal}
-#page-debt .db-note{font-size:12px;color:#7B839C;max-width:150px;white-space:normal}
+#page-debt .db-note{font-size:12px;color:#7B839C;max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #page-debt .db-empty{text-align:center;padding:1.8rem;font-size:13px;color:#5B6480}
 #page-debt .db-icon-btn{background:none;border:none;cursor:pointer;color:#5B6480;padding:4px 6px;border-radius:6px;font-size:13px;transition:.1s;opacity:0}
 #page-debt tr:hover .db-icon-btn{opacity:1}
@@ -1584,7 +1585,7 @@ function renderPageNote(pageKey,containerId){
   if(!containerId)return;
   const el=document.getElementById(containerId);
   if(!el)return;
-  if(v){el.innerHTML=`<div class="note-box" onclick="openNoteModal('${pageKey}','')"><div class="note-lbl">📝 หมายเหตุ</div>${v}<div class="note-edit-hint">แตะเพื่อแก้ไข</div></div>`;}
+  if(v){el.innerHTML=`<div class="note-box" onclick="openNoteModal('${pageKey}','')" title="${v.replace(/"/g,'&quot;')}"><span class="note-lbl">📝 หมายเหตุ</span><span class="note-txt">${v}</span><span class="note-edit-hint">แตะเพื่อแก้ไข</span></div>`;}
   else{el.innerHTML=`<div class="note-empty" onclick="openNoteModal('${pageKey}','')">+ เพิ่มหมายเหตุ...</div>`;}
 }
 
@@ -2263,7 +2264,7 @@ function renderDBody(tbId,totId,headId,items,cat){
       <td><div class="db-inst-text">${d.installmentPlan||'—'}${d.monthlyPayment?` · ${fmt(d.monthlyPayment)}/ด.`:''}</div></td>
       <td class="db-tc db-num">${dueTxt}</td>
       <td class="db-tr db-num">${d.rate?d.rate+'%':'—'}</td>
-      <td class="db-note">${d.note||'—'}</td>
+      <td class="db-note" title="${(d.note||'').replace(/"/g,'&quot;')}">${d.note||'—'}</td>
       <td class="db-tc"><button class="db-icon-btn" onclick="openDM(${d.id})">✏</button></td>
     </tr>`;
   }).join('');
