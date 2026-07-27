@@ -263,6 +263,9 @@ table.tbl tr.dim .iname{text-decoration:line-through}
 .dot-used,.dot-rem{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:middle}
 .dot-used{background:var(--amber)}
 .dot-rem{background:var(--green)}
+.pagemgr-row{display:flex;align-items:center;justify-content:space-between;padding:.55rem 0;border-bottom:1px solid var(--g100)}
+.pagemgr-row:last-child{border-bottom:none}
+.pagemgr-name{font-size:13.5px;font-weight:600}
 .loc-link{color:var(--blue);font-size:12px;font-weight:600;text-decoration:none;white-space:nowrap}
 .loc-link:hover{text-decoration:underline}
 
@@ -480,19 +483,24 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 <!-- Desktop nav -->
 <nav class="desk-nav">
   <div class="brand"><span class="brand-icon">💰</span>การเงินส่วนตัว</div>
-  <div class="nav-tab" onclick="sw('todo',this)">📝 สิ่งที่ต้องทำ</div>
-  <div class="nav-tab" onclick="sw('fairtex',this)">🥊 Fairtex</div>
-  <div class="nav-tab active" onclick="sw('dashboard',this)">★ ภาพรวม</div>
-  <div class="nav-tab" onclick="sw('budget',this)">รายรับ-รายจ่าย</div>
-  <div class="nav-tab" onclick="sw('debt',this)">หนี้สิน</div>
-  <div class="nav-tab" onclick="sw('invest',this)">การลงทุน</div>
-  <div class="nav-tab" onclick="sw('subscription',this)">สมัครสมาชิก</div>
-  <div class="nav-tab" onclick="sw('logins',this)">User-Login</div>
-  <div class="nav-tab" onclick="sw('history',this)">ประวัติ</div>
+  <div class="nav-tab" data-page="todo" onclick="sw('todo',this)">📝 สิ่งที่ต้องทำ</div>
+  <div class="nav-tab" data-page="fairtex" onclick="sw('fairtex',this)">🥊 Fairtex</div>
+  <div class="nav-tab active" data-page="dashboard" onclick="sw('dashboard',this)">★ ภาพรวม</div>
+  <div class="nav-tab" data-page="budget" onclick="sw('budget',this)">รายรับ-รายจ่าย</div>
+  <div class="nav-tab" data-page="debt" onclick="sw('debt',this)">หนี้สิน</div>
+  <div class="nav-tab" data-page="invest" onclick="sw('invest',this)">การลงทุน</div>
+  <div class="nav-tab" data-page="lending" onclick="sw('lending',this)">💵 ติดตามหนี้สิน</div>
+  <div class="nav-tab" data-page="subscription" onclick="sw('subscription',this)">สมัครสมาชิก</div>
+  <div class="nav-tab" data-page="logins" onclick="sw('logins',this)">User-Login</div>
+  <div class="nav-tab" data-page="history" onclick="sw('history',this)">ประวัติ</div>
+  <button class="btn btn-ghost btn-sm" style="margin-left:auto;flex-shrink:0" onclick="openPageMgr()">⚙ จัดการเมนู</button>
 </nav>
 <!-- Mobile header -->
 <div class="mob-header" id="mob-header">
   <h2 id="mob-title">ภาพรวม</h2>
+  <div class="mh-right">
+    <button class="btn btn-ghost btn-sm" onclick="openPageMgr()">⚙</button>
+  </div>
 </div>
 
 <div class="page-wrap">
@@ -891,6 +899,53 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   </div>
 </div>
 
+<!-- PAGE: LENDING (ติดตามหนี้สิน / ลูกหนี้) -->
+<div id="page-lending" class="page">
+  <div class="page-head">
+    <div><h2 class="desk-only">💵 ติดตามหนี้สิน (ลูกหนี้)</h2><div class="sub">บันทึกเงินให้ยืม คำนวณดอกเบี้ยลดต้นลดดอก และประวัติการชำระ</div></div>
+    <div class="page-head-actions">
+      <button class="btn btn-ghost btn-sm" onclick="sw('dashboard',null)">⌂ ภาพรวม</button>
+      <button class="btn btn-pri btn-sm" onclick="openLendM()">+ เพิ่มลูกหนี้</button>
+    </div>
+  </div>
+  <div class="cards c4">
+    <div class="card"><div class="lbl">เงินต้นที่ให้ยืมทั้งหมด</div><div class="val vb" id="lend-principal-tot">฿0</div></div>
+    <div class="card"><div class="lbl">ยอดคงเหลือทั้งหมด</div><div class="val vc" id="lend-balance-tot">฿0</div></div>
+    <div class="card"><div class="lbl">ดอกเบี้ยที่ได้รับสะสม</div><div class="val vgold" id="lend-interest-tot">฿0</div></div>
+    <div class="card"><div class="lbl">ลูกหนี้ค้างชำระ</div><div class="val vneg" id="lend-overdue-count">0 คน</div></div>
+  </div>
+  <div class="sec">
+    <div class="sec-head"><span class="sec-title"><span class="dot dp"></span>รายชื่อลูกหนี้</span></div>
+    <table class="tbl"><thead><tr>
+      <th style="width:16%">ชื่อลูกหนี้</th>
+      <th style="width:11%" class="tr">เงินต้น</th>
+      <th style="width:8%" class="tc">ดอกเบี้ย/ปี</th>
+      <th style="width:11%">ระยะเวลาสัญญา</th>
+      <th style="width:11%" class="tr">ยอดคงเหลือ</th>
+      <th style="width:11%">กำหนดชำระคืน</th>
+      <th style="width:9%" class="tc">วันสะดวกจ่าย</th>
+      <th style="width:10%" class="tc">สถานะ</th>
+      <th style="width:13%" class="tc">จัดการ</th>
+    </tr></thead><tbody id="lend-body"></tbody></table>
+  </div>
+  <div class="sec">
+    <div class="sec-head"><span class="sec-title"><span class="dot dgold"></span>ประวัติการชำระทั้งหมด</span>
+      <select class="styled" id="lendhist-filter" onchange="renderLendHistory()" style="font-size:12px;padding:3px 8px">
+        <option value="">ลูกหนี้ทุกคน</option>
+      </select>
+    </div>
+    <table class="tbl"><thead><tr>
+      <th style="width:18%">ชื่อลูกหนี้</th>
+      <th style="width:14%">จ่ายวันไหน</th>
+      <th style="width:14%" class="tr">ยอดจ่าย</th>
+      <th style="width:16%" class="tr">ตัดเงินต้น</th>
+      <th style="width:16%" class="tr">ตัดดอกเบี้ย</th>
+      <th style="width:14%" class="tr">คงเหลือหลังจ่าย</th>
+      <th style="width:8%" class="tc">✏</th>
+    </tr></thead><tbody id="lendhist-body"></tbody></table>
+  </div>
+</div>
+
 <!-- PAGE: SUBSCRIPTION -->
 <div id="page-subscription" class="page">
   <div class="page-head">
@@ -969,9 +1024,11 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
         <option value="sideincome">รายได้เสริม</option>
         <option value="debt">หนี้สิน</option>
         <option value="invest">การลงทุน</option>
+        <option value="lending">ติดตามหนี้สิน (ลูกหนี้)</option>
         <option value="gold">ออมทอง</option>
         <option value="subscription">สมัครสมาชิก</option>
         <option value="login">User-Login</option>
+        <option value="settings">ตั้งค่า/จัดการเมนู</option>
       </select>
     </div>
     <div id="hist-body"></div>
@@ -982,14 +1039,15 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 <!-- Mobile bottom nav -->
 <nav class="mob-nav">
   <div class="mob-nav-inner">
-    <div class="mob-tab" onclick="swMob('todo',this,'สิ่งที่ต้องทำ')"><div class="micon">📝</div><div class="mlbl">ต้องทำ</div></div>
-    <div class="mob-tab" onclick="swMob('fairtex',this,'Fairtex')"><div class="micon">🥊</div><div class="mlbl">Fairtex</div></div>
-    <div class="mob-tab active" onclick="swMob('dashboard',this,'ภาพรวม')"><div class="micon">★</div><div class="mlbl">ภาพรวม</div></div>
-    <div class="mob-tab" onclick="swMob('budget',this,'รายรับ-รายจ่าย')"><div class="micon">💳</div><div class="mlbl">รายรับ-จ่าย</div></div>
-    <div class="mob-tab" onclick="swMob('debt',this,'หนี้สิน')"><div class="micon">🏦</div><div class="mlbl">หนี้สิน</div></div>
-    <div class="mob-tab" onclick="swMob('invest',this,'การลงทุน')"><div class="micon">📈</div><div class="mlbl">ลงทุน</div></div>
-    <div class="mob-tab" onclick="swMob('subscription',this,'สมัครสมาชิก')"><div class="micon">🔔</div><div class="mlbl">สมาชิก</div></div>
-    <div class="mob-tab" onclick="swMob('logins',this,'User-Login')"><div class="micon">🔑</div><div class="mlbl">Login</div></div>
+    <div class="mob-tab" data-page="todo" onclick="swMob('todo',this,'สิ่งที่ต้องทำ')"><div class="micon">📝</div><div class="mlbl">ต้องทำ</div></div>
+    <div class="mob-tab" data-page="fairtex" onclick="swMob('fairtex',this,'Fairtex')"><div class="micon">🥊</div><div class="mlbl">Fairtex</div></div>
+    <div class="mob-tab active" data-page="dashboard" onclick="swMob('dashboard',this,'ภาพรวม')"><div class="micon">★</div><div class="mlbl">ภาพรวม</div></div>
+    <div class="mob-tab" data-page="budget" onclick="swMob('budget',this,'รายรับ-รายจ่าย')"><div class="micon">💳</div><div class="mlbl">รายรับ-จ่าย</div></div>
+    <div class="mob-tab" data-page="debt" onclick="swMob('debt',this,'หนี้สิน')"><div class="micon">🏦</div><div class="mlbl">หนี้สิน</div></div>
+    <div class="mob-tab" data-page="invest" onclick="swMob('invest',this,'การลงทุน')"><div class="micon">📈</div><div class="mlbl">ลงทุน</div></div>
+    <div class="mob-tab" data-page="lending" onclick="swMob('lending',this,'ติดตามหนี้สิน')"><div class="micon">💵</div><div class="mlbl">ลูกหนี้</div></div>
+    <div class="mob-tab" data-page="subscription" onclick="swMob('subscription',this,'สมัครสมาชิก')"><div class="micon">🔔</div><div class="mlbl">สมาชิก</div></div>
+    <div class="mob-tab" data-page="logins" onclick="swMob('logins',this,'User-Login')"><div class="micon">🔑</div><div class="mlbl">Login</div></div>
   </div>
 </nav>
 </div><!-- /app-screen -->
@@ -1347,6 +1405,82 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   </div>
 </div></div>
 
+<!-- Lending: Debtor add/edit -->
+<div class="ov" id="lendm-ov"><div class="modal">
+  <span class="modal-drag"></span>
+  <h3 id="lendm-title">เพิ่มลูกหนี้</h3>
+  <div class="f-row">
+    <div class="f"><label>ชื่อลูกหนี้</label><input type="text" id="lendm-name" placeholder="ชื่อ-นามสกุล"></div>
+    <div class="f"><label>เบอร์ติดต่อ</label><input type="text" id="lendm-phone" placeholder="08x-xxx-xxxx"></div>
+  </div>
+  <div class="f-row">
+    <div class="f"><label>เงินต้นที่ให้ยืม (฿)</label><input type="number" id="lendm-principal" placeholder="0" min="0"></div>
+    <div class="f"><label>ดอกเบี้ยต่อปี (%)</label>
+      <select id="lendm-rate">
+        <option value="3">3%</option><option value="4">4%</option><option value="5">5%</option>
+        <option value="6">6%</option><option value="7">7%</option><option value="8">8%</option>
+        <option value="9">9%</option><option value="10">10%</option>
+      </select>
+    </div>
+  </div>
+  <div class="f-row">
+    <div class="f"><label>ระยะเวลาสัญญา (ปี)</label><input type="number" id="lendm-years" placeholder="0" min="0"></div>
+    <div class="f"><label>ระยะเวลาสัญญา (เดือน)</label><input type="number" id="lendm-months" placeholder="0" min="0" max="11"></div>
+  </div>
+  <div class="f-row">
+    <div class="f"><label>วันที่ยืม</label><input type="date" id="lendm-borrowdate"></div>
+    <div class="f"><label>วันที่สะดวกชำระ (1-31)</label><input type="number" id="lendm-payday" placeholder="5" min="1" max="31"></div>
+  </div>
+  <div class="f"><label>หมายเหตุ</label><input type="text" id="lendm-note" placeholder="บันทึกเพิ่มเติม..."></div>
+  <div class="mbtns">
+    <button class="btn btn-danger" id="lendm-del" onclick="delDebtor()" style="display:none">ลบ</button>
+    <button class="btn btn-ghost" onclick="closeOv('lendm-ov')">ยกเลิก</button>
+    <button class="btn btn-pri" onclick="saveDebtor()">บันทึก</button>
+  </div>
+</div></div>
+
+<!-- Lending: Payment history -->
+<div class="ov" id="lendpay-ov"><div class="modal" style="max-width:640px">
+  <span class="modal-drag"></span>
+  <h3 id="lendpay-title">ประวัติการชำระเงิน</h3>
+  <div class="cards c3" style="margin-bottom:.8rem">
+    <div class="card"><div class="lbl">เงินต้น</div><div class="val vb" id="lendpay-principal">฿0</div></div>
+    <div class="card"><div class="lbl">ยอดคงเหลือ</div><div class="val vc" id="lendpay-balance">฿0</div></div>
+    <div class="card"><div class="lbl">กำหนดชำระคืน</div><div class="val" id="lendpay-duedate" style="font-size:14px">—</div></div>
+  </div>
+  <div class="f-row" style="align-items:flex-end">
+    <div class="f"><label>วันที่ชำระจริง</label><input type="date" id="lendpay-date"></div>
+    <div class="f"><label>ยอดจ่าย (฿)</label><input type="number" id="lendpay-amt" placeholder="0" min="0"></div>
+  </div>
+  <div class="f"><label>หมายเหตุ</label><input type="text" id="lendpay-note" placeholder="เช่น โอนผ่านธนาคาร..."></div>
+  <div class="mbtns" style="justify-content:flex-start;margin-top:0">
+    <button class="btn btn-pri btn-sm" onclick="saveDebtPayment()">+ บันทึกการชำระ</button>
+  </div>
+  <div class="divider-label">ประวัติย้อนหลัง</div>
+  <table class="tbl"><thead><tr>
+    <th style="width:18%">วันที่ชำระจริง</th>
+    <th style="width:17%" class="tr">ยอดจ่าย</th>
+    <th style="width:20%" class="tr">หักเงินต้น</th>
+    <th style="width:20%" class="tr">หักดอกเบี้ย</th>
+    <th style="width:15%" class="tr">คงเหลือ</th>
+    <th style="width:10%" class="tc">✏</th>
+  </tr></thead><tbody id="lendpay-body"></tbody></table>
+  <div class="mbtns">
+    <button class="btn btn-ghost" onclick="closeOv('lendpay-ov')">ปิด</button>
+  </div>
+</div></div>
+
+<!-- Page Manager (ซ่อน/เปิดใช้งานหน้า) -->
+<div class="ov" id="pagemgr-ov"><div class="modal">
+  <span class="modal-drag"></span>
+  <h3>จัดการเมนู — ซ่อน/เปิดใช้งานหน้า</h3>
+  <div style="font-size:12px;color:var(--g400);margin-bottom:.75rem">หน้าไหนยังไม่ได้ใช้ กด "ซ่อน" ได้ — จะไม่หายไปไหน กดเปิดกลับมาได้ตลอด ข้อมูลในหน้านั้นยังอยู่ครบ</div>
+  <div id="pagemgr-list"></div>
+  <div class="mbtns">
+    <button class="btn btn-ghost" onclick="closeOv('pagemgr-ov')">ปิด</button>
+  </div>
+</div></div>
+
 <!-- Note modal -->
 <div class="ov" id="note-ov"><div class="modal">
   <span class="modal-drag"></span>
@@ -1485,7 +1619,8 @@ async function cloudDownload(){
       restoreAllAppData(allData);
       const t1=new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
       updateCloudStatus('✓ โหลดแล้ว '+t1,'ok');
-      renderDashboard();renderBudget();renderDebt();renderInvest();renderSub();renderHistory();renderTodo();renderFairtex();
+      applyPageVisibility();
+      renderDashboard();renderBudget();renderDebt();renderInvest();renderSub();renderHistory();renderTodo();renderFairtex();renderLending();
     }else{updateCloudStatus('ยกเลิก','');}
   }catch(e){updateCloudStatus('❌ เชื่อมต่อคลาวด์ไม่ได้','err');console.error(e);}
 }
@@ -1513,6 +1648,7 @@ document.addEventListener('DOMContentLoaded',async function(){
   document.getElementById('app-screen').style.display='block';
   await cloudAutoLoadOnStart();
   initYearSelectors();
+  applyPageVisibility();
   renderDashboard();
 });
 
@@ -1533,6 +1669,7 @@ function sw(id,el){
   else if(id==='history')renderHistory();
   else if(id==='todo')renderTodo();
   else if(id==='fairtex')renderFairtex();
+  else if(id==='lending')renderLending();
 }
 function swMob(id,el,title){
   document.querySelectorAll('.mob-tab').forEach(t=>t.classList.remove('active'));
@@ -1542,6 +1679,54 @@ function swMob(id,el,title){
 }
 function closeOv(id){document.getElementById(id).classList.remove('open')}
 document.querySelectorAll('.ov').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open')}));
+
+// ══ PAGE VISIBILITY (ซ่อน/เปิดใช้งานหน้า) ══
+const ALL_PAGES=[
+  {id:'todo',label:'📝 สิ่งที่ต้องทำ'},
+  {id:'fairtex',label:'🥊 Fairtex'},
+  {id:'budget',label:'💳 รายรับ-รายจ่าย'},
+  {id:'debt',label:'🏦 หนี้สิน'},
+  {id:'invest',label:'📈 การลงทุน'},
+  {id:'lending',label:'💵 ติดตามหนี้สิน (ลูกหนี้)'},
+  {id:'subscription',label:'🔔 สมัครสมาชิก'},
+  {id:'logins',label:'🔑 User-Login'},
+  {id:'history',label:'🕐 ประวัติ'}
+];
+function getHiddenPages(){return ls(uKey('hidden_pages_v1'),[])}
+function saveHiddenPages(p){lss(uKey('hidden_pages_v1'),p)}
+function applyPageVisibility(){
+  const hidden=getHiddenPages();
+  document.querySelectorAll('[data-page]').forEach(el=>{
+    el.style.display=hidden.includes(el.dataset.page)?'none':'';
+  });
+  if(hidden.includes(curPage)){
+    sw('dashboard',document.querySelector('.nav-tab[data-page="dashboard"]'));
+  }
+}
+function openPageMgr(){
+  renderPageMgrList();
+  document.getElementById('pagemgr-ov').classList.add('open');
+}
+function renderPageMgrList(){
+  const hidden=getHiddenPages();
+  document.getElementById('pagemgr-list').innerHTML=ALL_PAGES.map(p=>{
+    const isHidden=hidden.includes(p.id);
+    return`<div class="pagemgr-row">
+      <span class="pagemgr-name">${p.label}</span>
+      <button class="btn btn-sm ${isHidden?'btn-pri':'btn-ghost'}" onclick="togglePageVisibility('${p.id}')">${isHidden?'เปิดแสดง':'ซ่อน'}</button>
+    </div>`;
+  }).join('');
+}
+function togglePageVisibility(id){
+  let hidden=getHiddenPages();
+  const wasHidden=hidden.includes(id);
+  hidden=wasHidden?hidden.filter(h=>h!==id):[...hidden,id];
+  saveHiddenPages(hidden);
+  const pageInfo=ALL_PAGES.find(p=>p.id===id);
+  addHist('settings',wasHidden?'เปิดแสดง':'ซ่อน',`หน้า: ${pageInfo?.label||id}`);
+  renderPageMgrList();
+  applyPageVisibility();
+}
 
 // ══ HISTORY ══
 function getHist(){return ls(uKey('hist_v1'),[])}
@@ -1556,7 +1741,7 @@ function renderHistory(){
   const all=getHist();
   const f=document.getElementById('hist-filter').value;
   const items=f?all.filter(h=>h.cat===f):all;
-  const catIcon={budget:'💳',debt:'🏦',invest:'📈',gold:'🥇',subscription:'🔔',login:'🔑',todo:'📝',fairtex:'🥊',sideincome:'💰'};
+  const catIcon={budget:'💳',debt:'🏦',invest:'📈',gold:'🥇',subscription:'🔔',login:'🔑',todo:'📝',fairtex:'🥊',sideincome:'💰',lending:'💵',settings:'⚙'};
   const actColor={เพิ่ม:'vg',แก้ไข:'vb',ลบ:'vc'};
   const tb=document.getElementById('hist-body');
   if(!items.length){tb.innerHTML='<div class="empty">ยังไม่มีประวัติ</div>';return}
@@ -3029,6 +3214,225 @@ function renderAssets(){
     </tr>`;
   }).join('');
   document.getElementById('ast-foot').innerHTML=`<span>รวมมูลค่าทรัพย์สิน <strong class="ab">${fmt(tVal)}</strong></span>`;
+}
+
+// ══ LENDING (ติดตามหนี้สิน / ลูกหนี้) ══
+function getDebtors(){return ls(uKey('lend_debtors_v1'),[])}
+function saveDebtors(d){lss(uKey('lend_debtors_v1'),d)}
+function getDebtPayments(){return ls(uKey('lend_payments_v1'),[])}
+function saveDebtPayments(p){lss(uKey('lend_payments_v1'),p)}
+function round2(n){return Math.round(n*100)/100}
+function addMonthsISO(dateStr,months){
+  const d=new Date(dateStr+'T00:00:00');
+  d.setMonth(d.getMonth()+months);
+  return d.toISOString().slice(0,10);
+}
+function computeDebtorLedger(debtor,allPayments){
+  const payments=allPayments.filter(p=>p.debtorId===debtor.id).slice().sort((a,b)=>a.payDate.localeCompare(b.payDate)||a.id-b.id);
+  let balance=debtor.principal,totalInterest=0;
+  const ledger=payments.map(p=>{
+    const monthlyInterest=balance*((debtor.rate||0)/100/12);
+    const interestPaid=Math.min(monthlyInterest,p.amount);
+    const principalPaid=Math.max(0,p.amount-interestPaid);
+    balance=Math.max(0,round2(balance-principalPaid));
+    totalInterest+=interestPaid;
+    return{...p,interestPaid:round2(interestPaid),principalPaid:round2(principalPaid),balanceAfter:balance};
+  });
+  return{ledger,remainingBalance:round2(balance),totalInterest:round2(totalInterest)};
+}
+function getDebtorStatus(debtor,remainingBalance){
+  if(remainingBalance<=0)return{label:'ปิดยอดแล้ว',cls:'b-ok'};
+  const today=new Date();today.setHours(0,0,0,0);
+  if(debtor.dueDate){
+    const due=new Date(debtor.dueDate+'T00:00:00');
+    const diffDays=Math.round((due-today)/86400000);
+    if(diffDays<0)return{label:'ค้างชำระ',cls:'b-over'};
+    if(diffDays<=7)return{label:'ใกล้ครบกำหนด',cls:'b-soon'};
+  }
+  return{label:'ปกติ',cls:'b-blue'};
+}
+let lendEId=null;
+function openLendM(id){
+  lendEId=id||null;
+  const item=id?getDebtors().find(d=>d.id===id):null;
+  document.getElementById('lendm-title').textContent=id?'แก้ไขลูกหนี้':'เพิ่มลูกหนี้';
+  document.getElementById('lendm-name').value=item?.name||'';
+  document.getElementById('lendm-phone').value=item?.phone||'';
+  document.getElementById('lendm-principal').value=item?.principal||'';
+  document.getElementById('lendm-rate').value=item?.rate||5;
+  document.getElementById('lendm-years').value=item?.years||'';
+  document.getElementById('lendm-months').value=item?.months||'';
+  document.getElementById('lendm-borrowdate').value=item?.borrowDate||new Date().toISOString().slice(0,10);
+  document.getElementById('lendm-payday').value=item?.payDay||'';
+  document.getElementById('lendm-note').value=item?.note||'';
+  document.getElementById('lendm-del').style.display=id?'inline-flex':'none';
+  document.getElementById('lendm-ov').classList.add('open');
+}
+function saveDebtor(){
+  const name=(document.getElementById('lendm-name').value||'').trim();if(!name)return;
+  const principal=parseFloat(document.getElementById('lendm-principal').value)||0;
+  const rate=parseFloat(document.getElementById('lendm-rate').value)||5;
+  const years=parseInt(document.getElementById('lendm-years').value)||0;
+  const months=parseInt(document.getElementById('lendm-months').value)||0;
+  const borrowDate=document.getElementById('lendm-borrowdate').value;
+  const payDay=parseInt(document.getElementById('lendm-payday').value)||null;
+  const note=(document.getElementById('lendm-note').value||'').trim();
+  const phone=(document.getElementById('lendm-phone').value||'').trim();
+  const totalMonths=years*12+months;
+  const dueDate=borrowDate&&totalMonths>0?addMonthsISO(borrowDate,totalMonths):null;
+  const obj={name,phone,principal,rate,years,months,borrowDate,payDay,dueDate,note};
+  let d=getDebtors();
+  if(lendEId){
+    d=d.map(i=>i.id===lendEId?{...i,...obj}:i);
+    addHist('lending','แก้ไข',`${name} เงินต้น ${fmt(principal)}`);
+  }else{
+    const newId=d.length?Math.max(...d.map(i=>i.id))+1:1;
+    d.push({id:newId,...obj});
+    addHist('lending','เพิ่ม',`เพิ่มลูกหนี้ใหม่: ${name} เงินต้น ${fmt(principal)}`);
+  }
+  saveDebtors(d);
+  closeOv('lendm-ov');
+  renderLending();
+}
+function delDebtor(){
+  if(!lendEId)return;
+  if(!confirm('ลบลูกหนี้นี้? ประวัติการชำระที่บันทึกไว้จะถูกลบไปด้วย'))return;
+  const item=getDebtors().find(i=>i.id===lendEId);
+  saveDebtors(getDebtors().filter(i=>i.id!==lendEId));
+  saveDebtPayments(getDebtPayments().filter(p=>p.debtorId!==lendEId));
+  addHist('lending','ลบ',`ลบลูกหนี้: ${item?.name||''}`);
+  closeOv('lendm-ov');
+  renderLending();
+}
+let lendPayDebtorId=null;
+function openLendPay(id){
+  lendPayDebtorId=id;
+  const debtor=getDebtors().find(d=>d.id===id);
+  if(!debtor)return;
+  document.getElementById('lendpay-title').textContent='ประวัติการชำระ — '+debtor.name;
+  document.getElementById('lendpay-date').value=new Date().toISOString().slice(0,10);
+  document.getElementById('lendpay-amt').value='';
+  document.getElementById('lendpay-note').value='';
+  renderLendPayModal();
+  document.getElementById('lendpay-ov').classList.add('open');
+}
+function renderLendPayModal(){
+  const debtor=getDebtors().find(d=>d.id===lendPayDebtorId);
+  if(!debtor)return;
+  const{ledger,remainingBalance}=computeDebtorLedger(debtor,getDebtPayments());
+  document.getElementById('lendpay-principal').textContent=fmt(debtor.principal);
+  document.getElementById('lendpay-balance').textContent=fmt(remainingBalance);
+  document.getElementById('lendpay-duedate').textContent=debtor.dueDate?fmtDate(debtor.dueDate):'—';
+  const body=document.getElementById('lendpay-body');
+  if(!ledger.length){
+    body.innerHTML='<tr><td colspan="6" class="empty">ยังไม่มีประวัติการชำระ</td></tr>';
+  }else{
+    const sortedDesc=ledger.slice().sort((a,b)=>b.payDate.localeCompare(a.payDate));
+    body.innerHTML=sortedDesc.map(p=>`<tr>
+      <td>${fmtDate(p.payDate)}</td>
+      <td class="tr">${fmt(p.amount)}</td>
+      <td class="tr" style="color:var(--blue)">${fmt(p.principalPaid)}</td>
+      <td class="tr" style="color:var(--gold)">${fmt(p.interestPaid)}</td>
+      <td class="tr">${fmt(p.balanceAfter)}</td>
+      <td class="tc"><button class="icon-btn" style="opacity:1" onclick="deleteDebtPayment(${p.id})">🗑</button></td>
+    </tr>`).join('');
+  }
+}
+function saveDebtPayment(){
+  const payDate=document.getElementById('lendpay-date').value;
+  const amount=parseFloat(document.getElementById('lendpay-amt').value)||0;
+  const note=(document.getElementById('lendpay-note').value||'').trim();
+  if(!payDate||!amount||!lendPayDebtorId)return;
+  const payments=getDebtPayments();
+  const newId=payments.length?Math.max(...payments.map(p=>p.id))+1:1;
+  payments.push({id:newId,debtorId:lendPayDebtorId,payDate,amount,note});
+  saveDebtPayments(payments);
+  const debtor=getDebtors().find(d=>d.id===lendPayDebtorId);
+  addHist('lending','เพิ่ม',`บันทึกชำระ ${debtor?.name||''} ${fmt(amount)}`);
+  document.getElementById('lendpay-amt').value='';
+  document.getElementById('lendpay-note').value='';
+  renderLendPayModal();
+  renderLending();
+}
+function deleteDebtPayment(id){
+  if(!confirm('ลบรายการชำระนี้?'))return;
+  saveDebtPayments(getDebtPayments().filter(p=>p.id!==id));
+  addHist('lending','ลบ','ลบรายการชำระเงิน');
+  renderLendPayModal();
+  renderLending();
+}
+function renderLending(){
+  const body=document.getElementById('lend-body');
+  if(!body)return;
+  const debtors=getDebtors();
+  const payments=getDebtPayments();
+  let totalPrincipal=0,totalBalance=0,totalInterest=0,overdueCount=0;
+  if(!debtors.length){
+    body.innerHTML='<tr><td colspan="9" class="empty">ยังไม่มีลูกหนี้ — กด "+ เพิ่มลูกหนี้" เพื่อเริ่มบันทึก</td></tr>';
+  }else{
+    body.innerHTML=debtors.map(d=>{
+      const{remainingBalance,totalInterest:interestSum}=computeDebtorLedger(d,payments);
+      totalPrincipal+=d.principal;totalBalance+=remainingBalance;totalInterest+=interestSum;
+      const status=getDebtorStatus(d,remainingBalance);
+      if(status.label==='ค้างชำระ')overdueCount++;
+      const term=[d.years?d.years+' ปี':'',d.months?d.months+' เดือน':''].filter(Boolean).join(' ')||'—';
+      return`<tr>
+        <td style="font-weight:700">${d.name}${d.phone?`<div style="font-size:11px;color:var(--g400);font-weight:400">${d.phone}</div>`:''}</td>
+        <td class="tr">${fmt(d.principal)}</td>
+        <td class="tc">${d.rate}%</td>
+        <td>${term}</td>
+        <td class="tr" style="color:${remainingBalance>0?'var(--coral)':'var(--green)'};font-weight:600">${fmt(remainingBalance)}</td>
+        <td>${d.dueDate?fmtDate(d.dueDate):'—'}</td>
+        <td class="tc">${d.payDay?'ทุกวันที่ '+d.payDay:'—'}</td>
+        <td class="tc"><span class="badge ${status.cls}">${status.label}</span></td>
+        <td class="tc">
+          <button class="icon-btn" style="opacity:1" title="ประวัติการชำระ" onclick="openLendPay(${d.id})">📋</button>
+          <button class="icon-btn" style="opacity:1" title="แก้ไข" onclick="openLendM(${d.id})">✏</button>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+  document.getElementById('lend-principal-tot').textContent=fmt(totalPrincipal);
+  document.getElementById('lend-balance-tot').textContent=fmt(totalBalance);
+  document.getElementById('lend-interest-tot').textContent=fmt(totalInterest);
+  document.getElementById('lend-overdue-count').textContent=overdueCount+' คน';
+  renderLendHistory();
+}
+function editLendPayFromHistory(paymentId,debtorId){
+  openLendPay(debtorId);
+}
+function renderLendHistory(){
+  const filterSel=document.getElementById('lendhist-filter');
+  const body=document.getElementById('lendhist-body');
+  if(!filterSel||!body)return;
+  const debtors=getDebtors();
+  const payments=getDebtPayments();
+  const curVal=filterSel.value;
+  filterSel.innerHTML='<option value="">ลูกหนี้ทุกคน</option>'+debtors.map(d=>`<option value="${d.id}">${d.name}</option>`).join('');
+  if([...filterSel.options].some(o=>o.value===curVal))filterSel.value=curVal;
+  const filterId=filterSel.value?parseInt(filterSel.value):null;
+
+  let allRows=[];
+  debtors.forEach(d=>{
+    if(filterId&&d.id!==filterId)return;
+    const{ledger}=computeDebtorLedger(d,payments);
+    ledger.forEach(p=>allRows.push({...p,debtorName:d.name}));
+  });
+  allRows.sort((a,b)=>b.payDate.localeCompare(a.payDate)||b.id-a.id);
+
+  if(!allRows.length){
+    body.innerHTML='<tr><td colspan="7" class="empty">ยังไม่มีประวัติการชำระ</td></tr>';
+    return;
+  }
+  body.innerHTML=allRows.map(p=>`<tr>
+    <td style="font-weight:600">${p.debtorName}</td>
+    <td>${fmtDate(p.payDate)}</td>
+    <td class="tr">${fmt(p.amount)}</td>
+    <td class="tr" style="color:var(--blue)">${fmt(p.principalPaid)}</td>
+    <td class="tr" style="color:var(--gold)">${fmt(p.interestPaid)}</td>
+    <td class="tr" style="font-weight:600">${fmt(p.balanceAfter)}</td>
+    <td class="tc"><button class="icon-btn" style="opacity:1" title="ดู/แก้ไขในประวัติลูกหนี้" onclick="editLendPayFromHistory(${p.id},${p.debtorId})">📋</button></td>
+  </tr>`).join('');
 }
 
 // ══ SUBSCRIPTION ══
