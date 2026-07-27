@@ -266,6 +266,8 @@ table.tbl tr.dim .iname{text-decoration:line-through}
 .pagemgr-row{display:flex;align-items:center;justify-content:space-between;padding:.55rem 0;border-bottom:1px solid var(--g100)}
 .pagemgr-row:last-child{border-bottom:none}
 .pagemgr-name{font-size:13.5px;font-weight:600}
+table.tbl tr.lend-row-paid td{background:rgba(16,185,129,.07)}
+table.tbl tr.lend-row-paid:hover td{background:rgba(16,185,129,.13)}
 .loc-link{color:var(--blue);font-size:12px;font-weight:600;text-decoration:none;white-space:nowrap}
 .loc-link:hover{text-decoration:underline}
 
@@ -917,16 +919,17 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   <div class="sec">
     <div class="sec-head"><span class="sec-title"><span class="dot dp"></span>รายชื่อลูกหนี้</span></div>
     <table class="tbl"><thead><tr>
-      <th style="width:15%">ชื่อลูกหนี้</th>
-      <th style="width:10%" class="tr">เงินต้น</th>
-      <th style="width:7%" class="tc">ดอกเบี้ย/ปี</th>
-      <th style="width:9%">ระยะเวลาสัญญา</th>
-      <th style="width:10%" class="tr">ผ่อนต่อเดือน</th>
-      <th style="width:10%" class="tr">ยอดคงเหลือ</th>
-      <th style="width:10%">กำหนดชำระคืน</th>
-      <th style="width:8%" class="tc">วันสะดวกจ่าย</th>
-      <th style="width:9%" class="tc">สถานะ</th>
-      <th style="width:12%" class="tc">จัดการ</th>
+      <th style="width:14%">ชื่อลูกหนี้</th>
+      <th style="width:9%" class="tr">เงินต้น</th>
+      <th style="width:6%" class="tc">ดอกเบี้ย/ปี</th>
+      <th style="width:8%">ระยะเวลาสัญญา</th>
+      <th style="width:9%" class="tr">ผ่อนต่อเดือน</th>
+      <th style="width:9%" class="tr">ยอดคงเหลือ</th>
+      <th style="width:9%">กำหนดชำระคืน</th>
+      <th style="width:7%" class="tc">วันสะดวกจ่าย</th>
+      <th style="width:8%" class="tc">สถานะ</th>
+      <th style="width:10%" class="tc">จ่ายเดือนนี้</th>
+      <th style="width:11%" class="tc">จัดการ</th>
     </tr></thead><tbody id="lend-body"></tbody></table>
   </div>
   <div class="sec">
@@ -1444,6 +1447,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 <div class="ov" id="lendpay-ov"><div class="modal" style="max-width:640px">
   <span class="modal-drag"></span>
   <h3 id="lendpay-title">ประวัติการชำระเงิน</h3>
+  <div style="font-size:11px;color:var(--g400);margin-bottom:.6rem">🔄 ระบบคำนวณดอกเบี้ยแบบ<strong style="color:var(--gold)">ลดต้นลดดอก</strong>อัตโนมัติทุกครั้งที่บันทึกการชำระ — ดอกเบี้ยคิดจากยอดคงเหลือล่าสุด ไม่ใช่เงินต้นเดิม</div>
   <div class="cards c3" style="margin-bottom:.8rem">
     <div class="card"><div class="lbl">เงินต้น</div><div class="val vb" id="lendpay-principal">฿0</div></div>
     <div class="card"><div class="lbl">ยอดคงเหลือ</div><div class="val vc" id="lendpay-balance">฿0</div></div>
@@ -3400,8 +3404,9 @@ function renderLending(){
   const payments=getDebtPayments();
   let totalPrincipal=0,totalBalance=0,totalInterest=0,overdueCount=0;
   if(!debtors.length){
-    body.innerHTML='<tr><td colspan="10" class="empty">ยังไม่มีลูกหนี้ — กด "+ เพิ่มลูกหนี้" เพื่อเริ่มบันทึก</td></tr>';
+    body.innerHTML='<tr><td colspan="11" class="empty">ยังไม่มีลูกหนี้ — กด "+ เพิ่มลูกหนี้" เพื่อเริ่มบันทึก</td></tr>';
   }else{
+    const thisMonthKey=new Date().toISOString().slice(0,7);
     body.innerHTML=debtors.map(d=>{
       const{remainingBalance,totalInterest:interestSum}=computeDebtorLedger(d,payments);
       totalPrincipal+=d.principal;totalBalance+=remainingBalance;totalInterest+=interestSum;
@@ -3410,7 +3415,15 @@ function renderLending(){
       const term=[d.years?d.years+' ปี':'',d.months?d.months+' เดือน':''].filter(Boolean).join(' ')||'—';
       const totalMonths=(d.years||0)*12+(d.months||0);
       const monthlyPay=calcMonthlyPayment(d.principal,d.rate,totalMonths);
-      return`<tr>
+      const paidThisMonth=payments.some(p=>p.debtorId===d.id&&p.payDate.slice(0,7)===thisMonthKey);
+      const closed=remainingBalance<=0;
+      let payBadge='<span class="pill">—</span>';
+      if(!closed&&monthlyPay){
+        payBadge=paidThisMonth
+          ?`<span class="badge b-ok" style="cursor:pointer" title="จ่ายแล้วเดือนนี้ — กดถ้าต้องการบันทึกเพิ่ม" onclick="quickPayThisMonth(${d.id})">✅ จ่ายแล้ว</span>`
+          :`<span class="badge b-gray" style="cursor:pointer" title="กดเมื่อลูกหนี้ชำระเดือนนี้แล้ว" onclick="quickPayThisMonth(${d.id})">○ ยังไม่จ่าย</span>`;
+      }
+      return`<tr class="${paidThisMonth&&!closed?'lend-row-paid':''}">
         <td style="font-weight:700">${d.name}${d.phone?`<div style="font-size:11px;color:var(--g400);font-weight:400">${d.phone}</div>`:''}</td>
         <td class="tr">${fmt(d.principal)}</td>
         <td class="tc">${d.rate}%</td>
@@ -3420,8 +3433,8 @@ function renderLending(){
         <td>${d.dueDate?fmtDate(d.dueDate):'—'}</td>
         <td class="tc">${d.payDay?'ทุกวันที่ '+d.payDay:'—'}</td>
         <td class="tc"><span class="badge ${status.cls}">${status.label}</span></td>
+        <td class="tc">${payBadge}</td>
         <td class="tc">
-          ${remainingBalance>0&&monthlyPay?`<button class="icon-btn" style="opacity:1" title="ชำระเดือนนี้แล้ว" onclick="quickPayThisMonth(${d.id})">✓</button>`:''}
           <button class="icon-btn" style="opacity:1" title="ประวัติการชำระ" onclick="openLendPay(${d.id})">📋</button>
           <button class="icon-btn" style="opacity:1" title="แก้ไข" onclick="openLendM(${d.id})">✏</button>
         </td>
