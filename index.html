@@ -917,15 +917,16 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   <div class="sec">
     <div class="sec-head"><span class="sec-title"><span class="dot dp"></span>รายชื่อลูกหนี้</span></div>
     <table class="tbl"><thead><tr>
-      <th style="width:16%">ชื่อลูกหนี้</th>
-      <th style="width:11%" class="tr">เงินต้น</th>
-      <th style="width:8%" class="tc">ดอกเบี้ย/ปี</th>
-      <th style="width:11%">ระยะเวลาสัญญา</th>
-      <th style="width:11%" class="tr">ยอดคงเหลือ</th>
-      <th style="width:11%">กำหนดชำระคืน</th>
-      <th style="width:9%" class="tc">วันสะดวกจ่าย</th>
-      <th style="width:10%" class="tc">สถานะ</th>
-      <th style="width:13%" class="tc">จัดการ</th>
+      <th style="width:15%">ชื่อลูกหนี้</th>
+      <th style="width:10%" class="tr">เงินต้น</th>
+      <th style="width:7%" class="tc">ดอกเบี้ย/ปี</th>
+      <th style="width:9%">ระยะเวลาสัญญา</th>
+      <th style="width:10%" class="tr">ผ่อนต่อเดือน</th>
+      <th style="width:10%" class="tr">ยอดคงเหลือ</th>
+      <th style="width:10%">กำหนดชำระคืน</th>
+      <th style="width:8%" class="tc">วันสะดวกจ่าย</th>
+      <th style="width:9%" class="tc">สถานะ</th>
+      <th style="width:12%" class="tc">จัดการ</th>
     </tr></thead><tbody id="lend-body"></tbody></table>
   </div>
   <div class="sec">
@@ -3227,6 +3228,13 @@ function addMonthsISO(dateStr,months){
   d.setMonth(d.getMonth()+months);
   return d.toISOString().slice(0,10);
 }
+function calcMonthlyPayment(principal,annualRatePct,totalMonths){
+  if(!principal||!totalMonths)return 0;
+  const r=(annualRatePct||0)/100/12;
+  if(r===0)return round2(principal/totalMonths);
+  const factor=Math.pow(1+r,totalMonths);
+  return round2(principal*r*factor/(factor-1));
+}
 function computeDebtorLedger(debtor,allPayments){
   const payments=allPayments.filter(p=>p.debtorId===debtor.id).slice().sort((a,b)=>a.payDate.localeCompare(b.payDate)||a.id-b.id);
   let balance=debtor.principal,totalInterest=0;
@@ -3309,9 +3317,11 @@ function openLendPay(id){
   lendPayDebtorId=id;
   const debtor=getDebtors().find(d=>d.id===id);
   if(!debtor)return;
+  const totalMonths=(debtor.years||0)*12+(debtor.months||0);
+  const monthlyPay=calcMonthlyPayment(debtor.principal,debtor.rate,totalMonths);
   document.getElementById('lendpay-title').textContent='ประวัติการชำระ — '+debtor.name;
   document.getElementById('lendpay-date').value=new Date().toISOString().slice(0,10);
-  document.getElementById('lendpay-amt').value='';
+  document.getElementById('lendpay-amt').value=monthlyPay||'';
   document.getElementById('lendpay-note').value='';
   renderLendPayModal();
   document.getElementById('lendpay-ov').classList.add('open');
@@ -3320,9 +3330,11 @@ function renderLendPayModal(){
   const debtor=getDebtors().find(d=>d.id===lendPayDebtorId);
   if(!debtor)return;
   const{ledger,remainingBalance}=computeDebtorLedger(debtor,getDebtPayments());
+  const totalMonths=(debtor.years||0)*12+(debtor.months||0);
+  const monthlyPay=calcMonthlyPayment(debtor.principal,debtor.rate,totalMonths);
   document.getElementById('lendpay-principal').textContent=fmt(debtor.principal);
   document.getElementById('lendpay-balance').textContent=fmt(remainingBalance);
-  document.getElementById('lendpay-duedate').textContent=debtor.dueDate?fmtDate(debtor.dueDate):'—';
+  document.getElementById('lendpay-duedate').textContent=(debtor.dueDate?fmtDate(debtor.dueDate):'—')+(monthlyPay?` · ผ่อน ${fmt(monthlyPay)}/ด.`:'');
   const body=document.getElementById('lendpay-body');
   if(!ledger.length){
     body.innerHTML='<tr><td colspan="6" class="empty">ยังไม่มีประวัติการชำระ</td></tr>';
@@ -3361,6 +3373,26 @@ function deleteDebtPayment(id){
   renderLendPayModal();
   renderLending();
 }
+function quickPayThisMonth(id){
+  const debtor=getDebtors().find(d=>d.id===id);
+  if(!debtor)return;
+  const totalMonths=(debtor.years||0)*12+(debtor.months||0);
+  const monthlyPay=calcMonthlyPayment(debtor.principal,debtor.rate,totalMonths);
+  if(!monthlyPay){alert('ไม่สามารถคำนวณยอดผ่อนต่อเดือนได้ กรุณาตรวจสอบเงินต้น/ดอกเบี้ย/ระยะเวลาสัญญาให้ครบก่อน');return;}
+  const today=new Date().toISOString().slice(0,10);
+  const thisMonth=today.slice(0,7);
+  const payments=getDebtPayments();
+  const alreadyPaid=payments.some(p=>p.debtorId===id&&p.payDate.slice(0,7)===thisMonth);
+  const msg=alreadyPaid
+    ?`มีการบันทึกชำระของเดือนนี้ไปแล้ว ต้องการบันทึกเพิ่มอีก 1 รายการ ยอด ${fmt(monthlyPay)} หรือไม่?`
+    :`บันทึกว่า "${debtor.name}" ชำระเดือนนี้แล้ว ยอด ${fmt(monthlyPay)} ใช่ไหม?`;
+  if(!confirm(msg))return;
+  const newId=payments.length?Math.max(...payments.map(p=>p.id))+1:1;
+  payments.push({id:newId,debtorId:id,payDate:today,amount:monthlyPay,note:'ชำระเดือนนี้'});
+  saveDebtPayments(payments);
+  addHist('lending','เพิ่ม',`ชำระเดือนนี้แล้ว: ${debtor.name} ${fmt(monthlyPay)}`);
+  renderLending();
+}
 function renderLending(){
   const body=document.getElementById('lend-body');
   if(!body)return;
@@ -3368,7 +3400,7 @@ function renderLending(){
   const payments=getDebtPayments();
   let totalPrincipal=0,totalBalance=0,totalInterest=0,overdueCount=0;
   if(!debtors.length){
-    body.innerHTML='<tr><td colspan="9" class="empty">ยังไม่มีลูกหนี้ — กด "+ เพิ่มลูกหนี้" เพื่อเริ่มบันทึก</td></tr>';
+    body.innerHTML='<tr><td colspan="10" class="empty">ยังไม่มีลูกหนี้ — กด "+ เพิ่มลูกหนี้" เพื่อเริ่มบันทึก</td></tr>';
   }else{
     body.innerHTML=debtors.map(d=>{
       const{remainingBalance,totalInterest:interestSum}=computeDebtorLedger(d,payments);
@@ -3376,16 +3408,20 @@ function renderLending(){
       const status=getDebtorStatus(d,remainingBalance);
       if(status.label==='ค้างชำระ')overdueCount++;
       const term=[d.years?d.years+' ปี':'',d.months?d.months+' เดือน':''].filter(Boolean).join(' ')||'—';
+      const totalMonths=(d.years||0)*12+(d.months||0);
+      const monthlyPay=calcMonthlyPayment(d.principal,d.rate,totalMonths);
       return`<tr>
         <td style="font-weight:700">${d.name}${d.phone?`<div style="font-size:11px;color:var(--g400);font-weight:400">${d.phone}</div>`:''}</td>
         <td class="tr">${fmt(d.principal)}</td>
         <td class="tc">${d.rate}%</td>
         <td>${term}</td>
+        <td class="tr" style="color:var(--gold);font-weight:600">${monthlyPay?fmt(monthlyPay):'—'}</td>
         <td class="tr" style="color:${remainingBalance>0?'var(--coral)':'var(--green)'};font-weight:600">${fmt(remainingBalance)}</td>
         <td>${d.dueDate?fmtDate(d.dueDate):'—'}</td>
         <td class="tc">${d.payDay?'ทุกวันที่ '+d.payDay:'—'}</td>
         <td class="tc"><span class="badge ${status.cls}">${status.label}</span></td>
         <td class="tc">
+          ${remainingBalance>0&&monthlyPay?`<button class="icon-btn" style="opacity:1" title="ชำระเดือนนี้แล้ว" onclick="quickPayThisMonth(${d.id})">✓</button>`:''}
           <button class="icon-btn" style="opacity:1" title="ประวัติการชำระ" onclick="openLendPay(${d.id})">📋</button>
           <button class="icon-btn" style="opacity:1" title="แก้ไข" onclick="openLendM(${d.id})">✏</button>
         </td>
