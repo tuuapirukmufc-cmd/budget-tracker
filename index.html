@@ -492,6 +492,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   <div class="nav-tab" data-page="debt" onclick="sw('debt',this)">หนี้สิน</div>
   <div class="nav-tab" data-page="invest" onclick="sw('invest',this)">การลงทุน</div>
   <div class="nav-tab" data-page="lending" onclick="sw('lending',this)">💵 ติดตามหนี้สิน</div>
+  <div class="nav-tab" data-page="vehicle" onclick="sw('vehicle',this)">🔧 บำรุงรักษารถ</div>
   <div class="nav-tab" data-page="subscription" onclick="sw('subscription',this)">สมัครสมาชิก</div>
   <div class="nav-tab" data-page="logins" onclick="sw('logins',this)">User-Login</div>
   <div class="nav-tab" data-page="history" onclick="sw('history',this)">ประวัติ</div>
@@ -923,7 +924,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
       <th style="width:9%" class="tr">เงินต้น</th>
       <th style="width:6%" class="tc">ดอกเบี้ย/ปี</th>
       <th style="width:8%">ระยะเวลาสัญญา</th>
-      <th style="width:9%" class="tr">ผ่อนต่อเดือน</th>
+      <th style="width:9%" class="tr" title="คำนวณแบบลดต้นลดดอกจากยอดเงินต้นคงเหลือล่าสุด">ผ่อนต่อเดือน</th>
       <th style="width:9%" class="tr">ยอดคงเหลือ</th>
       <th style="width:9%">กำหนดชำระคืน</th>
       <th style="width:7%" class="tc">วันสะดวกจ่าย</th>
@@ -948,6 +949,29 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
       <th style="width:8%" class="tc">✏</th>
     </tr></thead><tbody id="lendhist-body"></tbody></table>
   </div>
+</div>
+
+<!-- PAGE: VEHICLE MAINTENANCE (บำรุงรักษายานพาหนะ) -->
+<div id="page-vehicle" class="page">
+  <div class="page-head">
+    <div><h2 class="desk-only">🔧 บำรุงรักษายานพาหนะ</h2><div class="sub">วางแผนบำรุงรักษาตามเลขไมล์ พร้อมลิงก์สั่งซื้ออะไหล่ตรงรุ่น</div></div>
+    <div class="page-head-actions">
+      <button class="btn btn-ghost btn-sm" onclick="sw('dashboard',null)">⌂ ภาพรวม</button>
+      <button class="btn btn-pri btn-sm" onclick="openVehM()">+ เพิ่มยานพาหนะ</button>
+    </div>
+  </div>
+  <div class="sec">
+    <div class="sec-head"><span class="sec-title"><span class="dot db"></span>ยานพาหนะของฉัน</span></div>
+    <table class="tbl"><thead><tr>
+      <th style="width:10%">ประเภท</th>
+      <th style="width:26%">ยี่ห้อ/รุ่น/ปี</th>
+      <th style="width:20%">ระบบเครื่องยนต์/ขับเคลื่อน</th>
+      <th style="width:14%" class="tr">เลขไมล์ปัจจุบัน</th>
+      <th style="width:18%" class="tc">แผนบำรุงรักษา</th>
+      <th style="width:12%" class="tc">จัดการ</th>
+    </tr></thead><tbody id="veh-body"></tbody></table>
+  </div>
+  <div id="veh-report-wrap"></div>
 </div>
 
 <!-- PAGE: SUBSCRIPTION -->
@@ -1029,6 +1053,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
         <option value="debt">หนี้สิน</option>
         <option value="invest">การลงทุน</option>
         <option value="lending">ติดตามหนี้สิน (ลูกหนี้)</option>
+        <option value="vehicle">บำรุงรักษารถ</option>
         <option value="gold">ออมทอง</option>
         <option value="subscription">สมัครสมาชิก</option>
         <option value="login">User-Login</option>
@@ -1050,6 +1075,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
     <div class="mob-tab" data-page="debt" onclick="swMob('debt',this,'หนี้สิน')"><div class="micon">🏦</div><div class="mlbl">หนี้สิน</div></div>
     <div class="mob-tab" data-page="invest" onclick="swMob('invest',this,'การลงทุน')"><div class="micon">📈</div><div class="mlbl">ลงทุน</div></div>
     <div class="mob-tab" data-page="lending" onclick="swMob('lending',this,'ติดตามหนี้สิน')"><div class="micon">💵</div><div class="mlbl">ลูกหนี้</div></div>
+    <div class="mob-tab" data-page="vehicle" onclick="swMob('vehicle',this,'บำรุงรักษารถ')"><div class="micon">🔧</div><div class="mlbl">บำรุงรถ</div></div>
     <div class="mob-tab" data-page="subscription" onclick="swMob('subscription',this,'สมัครสมาชิก')"><div class="micon">🔔</div><div class="mlbl">สมาชิก</div></div>
     <div class="mob-tab" data-page="logins" onclick="swMob('logins',this,'User-Login')"><div class="micon">🔑</div><div class="mlbl">Login</div></div>
   </div>
@@ -1475,6 +1501,49 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   </div>
 </div></div>
 
+<!-- Vehicle add/edit -->
+<div class="ov" id="vehm-ov"><div class="modal">
+  <span class="modal-drag"></span>
+  <h3 id="vehm-title">เพิ่มยานพาหนะ</h3>
+  <div class="f"><label>ประเภทยานพาหนะ</label>
+    <select id="vehm-type">
+      <option value="moto">มอเตอร์ไซค์</option>
+      <option value="car">รถยนต์</option>
+    </select>
+  </div>
+  <div class="f"><label>ยี่ห้อ / รุ่น / ปี</label><input type="text" id="vehm-brand" placeholder="เช่น Yamaha Grand Filano 2023"></div>
+  <div class="f"><label>ระบบเครื่องยนต์/ระบบขับเคลื่อน</label><input type="text" id="vehm-engine" placeholder="เช่น ออโตเมติก 125cc, เบนซิน Hybrid"></div>
+  <div class="f"><label>เลขไมล์ปัจจุบัน (กม.)</label><input type="number" id="vehm-mileage" placeholder="0" min="0"></div>
+  <div class="f"><label>หมายเหตุ</label><input type="text" id="vehm-note" placeholder="บันทึกเพิ่มเติม..."></div>
+  <div class="mbtns">
+    <button class="btn btn-danger" id="vehm-del" onclick="delVehicle()" style="display:none">ลบ</button>
+    <button class="btn btn-ghost" onclick="closeOv('vehm-ov')">ยกเลิก</button>
+    <button class="btn btn-pri" onclick="saveVehicle()">บันทึก</button>
+  </div>
+</div></div>
+
+<!-- Vehicle Service Log (บันทึกการเปลี่ยนอะไหล่) -->
+<div class="ov" id="vehlog-ov"><div class="modal">
+  <span class="modal-drag"></span>
+  <h3 id="vehlog-title">บันทึกการเปลี่ยนอะไหล่</h3>
+  <div class="f"><label>ชื่ออะไหล่</label>
+    <select id="vehlog-part" onchange="document.getElementById('vehlog-part-custom').style.display=this.value==='other'?'block':'none'"></select>
+    <input type="text" id="vehlog-part-custom" placeholder="ระบุชื่ออะไหล่" style="display:none;margin-top:6px">
+  </div>
+  <div class="f-row">
+    <div class="f"><label>วันที่เปลี่ยน</label><input type="date" id="vehlog-date"></div>
+    <div class="f"><label>เลขไมล์ตอนเปลี่ยน (กม.)</label><input type="number" id="vehlog-mileage" placeholder="0" min="0"></div>
+  </div>
+  <div class="f"><label>ค่าใช้จ่ายจริง (฿)</label><input type="number" id="vehlog-cost" placeholder="0" min="0"></div>
+  <div class="f"><label>ลิงก์สั่งซื้อที่เคยใช้ (ใส่เอง)</label><input type="text" id="vehlog-link" placeholder="วางลิงก์ Shopee/Lazada/ร้านค้าที่เคยสั่งจริง"></div>
+  <div class="f"><label>หมายเหตุ</label><input type="text" id="vehlog-note" placeholder="บันทึกเพิ่มเติม..."></div>
+  <div class="mbtns">
+    <button class="btn btn-danger" id="vehlog-del" onclick="delVehicleLog()" style="display:none">ลบ</button>
+    <button class="btn btn-ghost" onclick="closeOv('vehlog-ov')">ยกเลิก</button>
+    <button class="btn btn-pri" onclick="saveVehicleLog()">บันทึก</button>
+  </div>
+</div></div>
+
 <!-- Page Manager (ซ่อน/เปิดใช้งานหน้า) -->
 <div class="ov" id="pagemgr-ov"><div class="modal">
   <span class="modal-drag"></span>
@@ -1625,7 +1694,7 @@ async function cloudDownload(){
       const t1=new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
       updateCloudStatus('✓ โหลดแล้ว '+t1,'ok');
       applyPageVisibility();
-      renderDashboard();renderBudget();renderDebt();renderInvest();renderSub();renderHistory();renderTodo();renderFairtex();renderLending();
+      renderDashboard();renderBudget();renderDebt();renderInvest();renderSub();renderHistory();renderTodo();renderFairtex();renderLending();renderVehicles();
     }else{updateCloudStatus('ยกเลิก','');}
   }catch(e){updateCloudStatus('❌ เชื่อมต่อคลาวด์ไม่ได้','err');console.error(e);}
 }
@@ -1675,6 +1744,7 @@ function sw(id,el){
   else if(id==='todo')renderTodo();
   else if(id==='fairtex')renderFairtex();
   else if(id==='lending')renderLending();
+  else if(id==='vehicle')renderVehicles();
 }
 function swMob(id,el,title){
   document.querySelectorAll('.mob-tab').forEach(t=>t.classList.remove('active'));
@@ -1693,6 +1763,7 @@ const ALL_PAGES=[
   {id:'debt',label:'🏦 หนี้สิน'},
   {id:'invest',label:'📈 การลงทุน'},
   {id:'lending',label:'💵 ติดตามหนี้สิน (ลูกหนี้)'},
+  {id:'vehicle',label:'🔧 บำรุงรักษารถ'},
   {id:'subscription',label:'🔔 สมัครสมาชิก'},
   {id:'logins',label:'🔑 User-Login'},
   {id:'history',label:'🕐 ประวัติ'}
@@ -1746,7 +1817,7 @@ function renderHistory(){
   const all=getHist();
   const f=document.getElementById('hist-filter').value;
   const items=f?all.filter(h=>h.cat===f):all;
-  const catIcon={budget:'💳',debt:'🏦',invest:'📈',gold:'🥇',subscription:'🔔',login:'🔑',todo:'📝',fairtex:'🥊',sideincome:'💰',lending:'💵',settings:'⚙'};
+  const catIcon={budget:'💳',debt:'🏦',invest:'📈',gold:'🥇',subscription:'🔔',login:'🔑',todo:'📝',fairtex:'🥊',sideincome:'💰',lending:'💵',settings:'⚙',vehicle:'🔧'};
   const actColor={เพิ่ม:'vg',แก้ไข:'vb',ลบ:'vc'};
   const tb=document.getElementById('hist-body');
   if(!items.length){tb.innerHTML='<div class="empty">ยังไม่มีประวัติ</div>';return}
@@ -3239,6 +3310,13 @@ function calcMonthlyPayment(principal,annualRatePct,totalMonths){
   const factor=Math.pow(1+r,totalMonths);
   return round2(principal*r*factor/(factor-1));
 }
+function calcCurrentMonthlyPayment(debtor,allPayments){
+  const totalMonths=(debtor.years||0)*12+(debtor.months||0);
+  const{ledger,remainingBalance}=computeDebtorLedger(debtor,allPayments);
+  if(remainingBalance<=0)return 0;
+  const remainingMonths=Math.max(1,totalMonths-ledger.length);
+  return calcMonthlyPayment(remainingBalance,debtor.rate,remainingMonths);
+}
 function computeDebtorLedger(debtor,allPayments){
   const payments=allPayments.filter(p=>p.debtorId===debtor.id).slice().sort((a,b)=>a.payDate.localeCompare(b.payDate)||a.id-b.id);
   let balance=debtor.principal,totalInterest=0;
@@ -3321,8 +3399,7 @@ function openLendPay(id){
   lendPayDebtorId=id;
   const debtor=getDebtors().find(d=>d.id===id);
   if(!debtor)return;
-  const totalMonths=(debtor.years||0)*12+(debtor.months||0);
-  const monthlyPay=calcMonthlyPayment(debtor.principal,debtor.rate,totalMonths);
+  const monthlyPay=calcCurrentMonthlyPayment(debtor,getDebtPayments());
   document.getElementById('lendpay-title').textContent='ประวัติการชำระ — '+debtor.name;
   document.getElementById('lendpay-date').value=new Date().toISOString().slice(0,10);
   document.getElementById('lendpay-amt').value=monthlyPay||'';
@@ -3334,8 +3411,7 @@ function renderLendPayModal(){
   const debtor=getDebtors().find(d=>d.id===lendPayDebtorId);
   if(!debtor)return;
   const{ledger,remainingBalance}=computeDebtorLedger(debtor,getDebtPayments());
-  const totalMonths=(debtor.years||0)*12+(debtor.months||0);
-  const monthlyPay=calcMonthlyPayment(debtor.principal,debtor.rate,totalMonths);
+  const monthlyPay=calcCurrentMonthlyPayment(debtor,getDebtPayments());
   document.getElementById('lendpay-principal').textContent=fmt(debtor.principal);
   document.getElementById('lendpay-balance').textContent=fmt(remainingBalance);
   document.getElementById('lendpay-duedate').textContent=(debtor.dueDate?fmtDate(debtor.dueDate):'—')+(monthlyPay?` · ผ่อน ${fmt(monthlyPay)}/ด.`:'');
@@ -3380,12 +3456,11 @@ function deleteDebtPayment(id){
 function quickPayThisMonth(id){
   const debtor=getDebtors().find(d=>d.id===id);
   if(!debtor)return;
-  const totalMonths=(debtor.years||0)*12+(debtor.months||0);
-  const monthlyPay=calcMonthlyPayment(debtor.principal,debtor.rate,totalMonths);
+  const payments=getDebtPayments();
+  const monthlyPay=calcCurrentMonthlyPayment(debtor,payments);
   if(!monthlyPay){alert('ไม่สามารถคำนวณยอดผ่อนต่อเดือนได้ กรุณาตรวจสอบเงินต้น/ดอกเบี้ย/ระยะเวลาสัญญาให้ครบก่อน');return;}
   const today=new Date().toISOString().slice(0,10);
   const thisMonth=today.slice(0,7);
-  const payments=getDebtPayments();
   const alreadyPaid=payments.some(p=>p.debtorId===id&&p.payDate.slice(0,7)===thisMonth);
   const msg=alreadyPaid
     ?`มีการบันทึกชำระของเดือนนี้ไปแล้ว ต้องการบันทึกเพิ่มอีก 1 รายการ ยอด ${fmt(monthlyPay)} หรือไม่?`
@@ -3413,8 +3488,7 @@ function renderLending(){
       const status=getDebtorStatus(d,remainingBalance);
       if(status.label==='ค้างชำระ')overdueCount++;
       const term=[d.years?d.years+' ปี':'',d.months?d.months+' เดือน':''].filter(Boolean).join(' ')||'—';
-      const totalMonths=(d.years||0)*12+(d.months||0);
-      const monthlyPay=calcMonthlyPayment(d.principal,d.rate,totalMonths);
+      const monthlyPay=calcCurrentMonthlyPayment(d,payments);
       const paidThisMonth=payments.some(p=>p.debtorId===d.id&&p.payDate.slice(0,7)===thisMonthKey);
       const closed=remainingBalance<=0;
       let payBadge='<span class="pill">—</span>';
@@ -3481,6 +3555,327 @@ function renderLendHistory(){
     <td class="tr" style="color:var(--gold)">${fmt(p.interestPaid)}</td>
     <td class="tr" style="font-weight:600">${fmt(p.balanceAfter)}</td>
     <td class="tc"><button class="icon-btn" style="opacity:1" title="ดู/แก้ไขในประวัติลูกหนี้" onclick="editLendPayFromHistory(${p.id},${p.debtorId})">📋</button></td>
+  </tr>`).join('');
+}
+
+// ══ VEHICLE MAINTENANCE (บำรุงรักษายานพาหนะ) ══
+const MOTO_PARTS=[
+  {key:'oil_engine',name:'น้ำมันเครื่อง',interval:1000,workType:'เปลี่ยนถ่าย',costMin:150,costMax:350},
+  {key:'oil_final',name:'น้ำมันเฟืองท้าย',interval:8000,workType:'เปลี่ยนถ่าย',costMin:100,costMax:200},
+  {key:'air_filter',name:'ไส้กรองอากาศ',interval:8000,workType:'ทำความสะอาด/เปลี่ยน',costMin:100,costMax:300},
+  {key:'spark_plug',name:'หัวเทียน',interval:8000,workType:'เปลี่ยน',costMin:80,costMax:200},
+  {key:'v_belt',name:'สายพาน (V-Belt)',interval:20000,workType:'เปลี่ยน',costMin:400,costMax:800},
+  {key:'brake_front',name:'ผ้าเบรกหน้า',interval:10000,workType:'ตรวจเช็ก/เปลี่ยน',costMin:200,costMax:500},
+  {key:'brake_rear',name:'ผ้าเบรกหลัง',interval:10000,workType:'ตรวจเช็ก/เปลี่ยน',costMin:200,costMax:500},
+  {key:'clutch_set',name:'ชุดสายพาน/ชุดขับเคลื่อน (มู่เล่/ผ้าคลัตช์)',interval:20000,workType:'ล้าง/เปลี่ยน',costMin:500,costMax:1200},
+  {key:'battery',name:'แบตเตอรี่',interval:20000,workType:'ตรวจเช็ก/เปลี่ยน',costMin:400,costMax:900},
+  {key:'tire',name:'ยางรถจักรยานยนต์',interval:18000,workType:'ตรวจเช็ก/เปลี่ยน',costMin:600,costMax:1500}
+];
+const CAR_PARTS=[
+  {key:'oil_engine',name:'น้ำมันเครื่อง',interval:8000,workType:'เปลี่ยนถ่าย',costMin:1200,costMax:2500},
+  {key:'oil_filter',name:'ไส้กรองน้ำมันเครื่อง',interval:8000,workType:'เปลี่ยน',costMin:150,costMax:350},
+  {key:'oil_gear',name:'น้ำมันเกียร์',interval:50000,workType:'เปลี่ยนถ่าย',costMin:1500,costMax:3000},
+  {key:'oil_diff',name:'น้ำมันเฟืองท้าย',interval:50000,workType:'เปลี่ยนถ่าย',costMin:1000,costMax:2000},
+  {key:'brake_fluid',name:'น้ำมันเบรก',interval:40000,workType:'เปลี่ยนถ่าย',costMin:500,costMax:1000},
+  {key:'coolant',name:'น้ำยาหล่อเย็น (Coolant)',interval:60000,workType:'เปลี่ยนถ่าย',costMin:800,costMax:1800},
+  {key:'air_filter',name:'ไส้กรองอากาศ',interval:20000,workType:'เปลี่ยน',costMin:300,costMax:700},
+  {key:'cabin_filter',name:'ไส้กรองแอร์ห้องโดยสาร',interval:15000,workType:'เปลี่ยน',costMin:300,costMax:600},
+  {key:'fuel_filter',name:'ไส้กรองน้ำมันเชื้อเพลิง',interval:40000,workType:'เปลี่ยน',costMin:500,costMax:1200},
+  {key:'spark_plug',name:'หัวเทียน',interval:50000,workType:'เปลี่ยน',costMin:800,costMax:2000},
+  {key:'drive_belt',name:'สายพานหน้าเครื่อง',interval:80000,workType:'ตรวจเช็ก/เปลี่ยน',costMin:1000,costMax:2500},
+  {key:'brake_front',name:'ผ้าเบรกหน้า',interval:40000,workType:'ตรวจเช็ก/เปลี่ยน',costMin:1200,costMax:2500},
+  {key:'brake_rear',name:'ผ้าเบรกหลัง',interval:40000,workType:'ตรวจเช็ก/เปลี่ยน',costMin:1000,costMax:2200},
+  {key:'brake_disc',name:'จานเบรก',interval:80000,workType:'ตรวจเช็ก/เปลี่ยน',costMin:2000,costMax:4500},
+  {key:'shock',name:'โช้คอัพ',interval:70000,workType:'ตรวจเช็ก/เปลี่ยน',costMin:3000,costMax:8000},
+  {key:'tire_rotate',name:'สลับยาง-ถ่วงล้อ',interval:10000,workType:'บริการ',costMin:200,costMax:500},
+  {key:'wheel_align',name:'ตั้งศูนย์ล้อ',interval:15000,workType:'บริการ',costMin:400,costMax:900},
+  {key:'battery',name:'แบตเตอรี่ (12V)',interval:60000,workType:'ตรวจเช็ก/เปลี่ยน',costMin:2500,costMax:5000},
+  {key:'tire',name:'ยางรถยนต์',interval:55000,workType:'ตรวจเช็ก/เปลี่ยน',costMin:2500,costMax:5500},
+  {key:'throttle_clean',name:'ล้างลิ้นปีกผีเสื้อ',interval:30000,workType:'บริการ',costMin:500,costMax:1200},
+  {key:'ac_clean',name:'ล้างตู้แอร์',interval:20000,workType:'บริการ',costMin:800,costMax:1800}
+];
+const MOTO_CHECKLIST=[
+  'ตรวจสอบลมยางทั้งสองล้อให้ได้ตามมาตรฐานที่กำหนด',
+  'เช็กระดับน้ำมันเครื่องและสีน้ำมันเครื่องว่ายังใสอยู่หรือไม่',
+  'ทดสอบเบรกหน้า-หลังว่านุ่มมือ ไม่มีเสียงดังผิดปกติ',
+  'ตรวจสอบไฟหน้า ไฟเลี้ยว ไฟเบรก ให้ทำงานปกติครบทุกดวง',
+  'เช็กโซ่/สายพานว่าตึงพอดี ไม่หย่อนเกินไป'
+];
+const CAR_CHECKLIST=[
+  'ตรวจสอบลมยางทั้ง 4 ล้อ รวมยางอะไหล่ให้ได้ตามมาตรฐาน',
+  'เช็กระดับน้ำมันเครื่อง น้ำยาหล่อเย็น และน้ำฉีดกระจก',
+  'ทดสอบเบรกและฟังเสียงผิดปกติขณะเบรก',
+  'ตรวจสอบไฟหน้า ไฟท้าย ไฟเลี้ยว ไฟเบรกให้ครบทุกดวง',
+  'เช็กใบปัดน้ำฝนและน้ำยาฉีดกระจกให้พร้อมใช้งาน'
+];
+function getVehicles(){return ls(uKey('vehicles_v1'),[])}
+function saveVehicles(v){lss(uKey('vehicles_v1'),v)}
+function getVehicleLogs(){return ls(uKey('vehicle_service_log_v1'),[])}
+function saveVehicleLogs(l){lss(uKey('vehicle_service_log_v1'),l)}
+function shopeeLink(partName,brandModel){return'https://shopee.co.th/search?keyword='+encodeURIComponent(partName+' '+brandModel)}
+function lazadaLink(partName,brandModel){return'https://www.lazada.co.th/catalog/?q='+encodeURIComponent(partName+' '+brandModel)}
+function analyzeVehicle(vehicle){
+  const parts=vehicle.type==='moto'?MOTO_PARTS:CAR_PARTS;
+  const mileage=vehicle.mileage||0;
+  const logs=getVehicleLogs().filter(l=>l.vehicleId===vehicle.id);
+  return parts.map(p=>{
+    const partLogs=logs.filter(l=>l.partKey===p.key).sort((a,b)=>b.mileageAtService-a.mileageAtService);
+    const lastLog=partLogs[0]||null;
+    let lastServiceMileage,kmSinceService;
+    if(lastLog){
+      lastServiceMileage=lastLog.mileageAtService;
+      kmSinceService=Math.max(0,mileage-lastServiceMileage);
+    }else{
+      lastServiceMileage=Math.floor(mileage/p.interval)*p.interval;
+      kmSinceService=mileage-lastServiceMileage;
+    }
+    const kmUntilNext=Math.max(0,p.interval-kmSinceService);
+    const pctUsed=Math.min(150,kmSinceService/p.interval*100);
+    const nextDueKm=lastServiceMileage+p.interval;
+    let level;
+    if(pctUsed>=90)level='A';
+    else if(pctUsed>=60)level='B';
+    else level='C';
+    return{...p,kmSinceService,kmUntilNext,pctUsed,nextDueKm,lastServiceMileage,lastServiceDate:lastLog?.serviceDate||null,hasRecord:!!lastLog,level};
+  });
+}
+let vehEId=null;
+function openVehM(id){
+  vehEId=id||null;
+  const item=id?getVehicles().find(v=>v.id===id):null;
+  document.getElementById('vehm-title').textContent=id?'แก้ไขยานพาหนะ':'เพิ่มยานพาหนะ';
+  document.getElementById('vehm-type').value=item?.type||'moto';
+  document.getElementById('vehm-brand').value=item?.brand||'';
+  document.getElementById('vehm-engine').value=item?.engine||'';
+  document.getElementById('vehm-mileage').value=item?.mileage||'';
+  document.getElementById('vehm-note').value=item?.note||'';
+  document.getElementById('vehm-del').style.display=id?'inline-flex':'none';
+  document.getElementById('vehm-ov').classList.add('open');
+}
+function saveVehicle(){
+  const brand=(document.getElementById('vehm-brand').value||'').trim();if(!brand)return;
+  const obj={
+    type:document.getElementById('vehm-type').value,
+    brand,
+    engine:(document.getElementById('vehm-engine').value||'').trim(),
+    mileage:parseFloat(document.getElementById('vehm-mileage').value)||0,
+    note:(document.getElementById('vehm-note').value||'').trim()
+  };
+  let v=getVehicles();
+  if(vehEId){
+    v=v.map(i=>i.id===vehEId?{...i,...obj}:i);
+    addHist('vehicle','แก้ไข',`${brand} เลขไมล์ ${obj.mileage.toLocaleString('th-TH')} กม.`);
+  }else{
+    const newId=v.length?Math.max(...v.map(i=>i.id))+1:1;
+    v.push({id:newId,...obj});
+    addHist('vehicle','เพิ่ม',`เพิ่มยานพาหนะ: ${brand}`);
+  }
+  saveVehicles(v);
+  closeOv('vehm-ov');
+  renderVehicles();
+}
+function delVehicle(){
+  if(!vehEId)return;
+  if(!confirm('ลบยานพาหนะนี้? ประวัติการเปลี่ยนอะไหล่ที่บันทึกไว้จะถูกลบไปด้วย'))return;
+  const item=getVehicles().find(i=>i.id===vehEId);
+  saveVehicles(getVehicles().filter(i=>i.id!==vehEId));
+  saveVehicleLogs(getVehicleLogs().filter(l=>l.vehicleId!==vehEId));
+  addHist('vehicle','ลบ',`ลบยานพาหนะ: ${item?.brand||''}`);
+  document.getElementById('veh-report-wrap').innerHTML='';
+  closeOv('vehm-ov');
+  renderVehicles();
+}
+let vehLogVehicleId=null,vehLogEId=null;
+function openVehLog(vehicleId,partKey,partName){
+  vehLogVehicleId=vehicleId;
+  vehLogEId=null;
+  const vehicle=getVehicles().find(v=>v.id===vehicleId);
+  if(!vehicle)return;
+  const parts=vehicle.type==='moto'?MOTO_PARTS:CAR_PARTS;
+  const sel=document.getElementById('vehlog-part');
+  sel.innerHTML=parts.map(p=>`<option value="${p.key}">${p.name}</option>`).join('')+'<option value="other">อื่นๆ (ระบุเอง)</option>';
+  document.getElementById('vehlog-title').textContent='บันทึกการเปลี่ยนอะไหล่';
+  if(partKey&&parts.some(p=>p.key===partKey)){
+    sel.value=partKey;
+    document.getElementById('vehlog-part-custom').style.display='none';
+    document.getElementById('vehlog-part-custom').value='';
+  }else{
+    sel.value='other';
+    document.getElementById('vehlog-part-custom').style.display='block';
+    document.getElementById('vehlog-part-custom').value=partName||'';
+  }
+  document.getElementById('vehlog-date').value=new Date().toISOString().slice(0,10);
+  document.getElementById('vehlog-mileage').value=vehicle.mileage||'';
+  document.getElementById('vehlog-cost').value='';
+  document.getElementById('vehlog-link').value='';
+  document.getElementById('vehlog-note').value='';
+  document.getElementById('vehlog-del').style.display='none';
+  document.getElementById('vehlog-ov').classList.add('open');
+}
+function editVehLog(logId){
+  const log=getVehicleLogs().find(l=>l.id===logId);
+  if(!log)return;
+  vehLogVehicleId=log.vehicleId;
+  vehLogEId=logId;
+  const vehicle=getVehicles().find(v=>v.id===log.vehicleId);
+  if(!vehicle)return;
+  const parts=vehicle.type==='moto'?MOTO_PARTS:CAR_PARTS;
+  const sel=document.getElementById('vehlog-part');
+  sel.innerHTML=parts.map(p=>`<option value="${p.key}">${p.name}</option>`).join('')+'<option value="other">อื่นๆ (ระบุเอง)</option>';
+  document.getElementById('vehlog-title').textContent='แก้ไขบันทึกการเปลี่ยนอะไหล่';
+  if(log.partKey&&parts.some(p=>p.key===log.partKey)){
+    sel.value=log.partKey;
+    document.getElementById('vehlog-part-custom').style.display='none';
+    document.getElementById('vehlog-part-custom').value='';
+  }else{
+    sel.value='other';
+    document.getElementById('vehlog-part-custom').style.display='block';
+    document.getElementById('vehlog-part-custom').value=log.partName||'';
+  }
+  document.getElementById('vehlog-date').value=log.serviceDate||'';
+  document.getElementById('vehlog-mileage').value=log.mileageAtService||'';
+  document.getElementById('vehlog-cost').value=log.cost||'';
+  document.getElementById('vehlog-link').value=log.purchaseLink||'';
+  document.getElementById('vehlog-note').value=log.note||'';
+  document.getElementById('vehlog-del').style.display='inline-flex';
+  document.getElementById('vehlog-ov').classList.add('open');
+}
+function saveVehicleLog(){
+  if(!vehLogVehicleId)return;
+  const vehicle=getVehicles().find(v=>v.id===vehLogVehicleId);
+  if(!vehicle)return;
+  const parts=vehicle.type==='moto'?MOTO_PARTS:CAR_PARTS;
+  const partSel=document.getElementById('vehlog-part').value;
+  const isOther=partSel==='other';
+  const partKey=isOther?null:partSel;
+  const partName=isOther?(document.getElementById('vehlog-part-custom').value||'').trim():(parts.find(p=>p.key===partSel)?.name||partSel);
+  if(!partName)return;
+  const serviceDate=document.getElementById('vehlog-date').value;
+  const mileageAtService=parseFloat(document.getElementById('vehlog-mileage').value)||0;
+  const cost=parseFloat(document.getElementById('vehlog-cost').value)||0;
+  const purchaseLink=(document.getElementById('vehlog-link').value||'').trim();
+  const note=(document.getElementById('vehlog-note').value||'').trim();
+  if(!serviceDate)return;
+  const obj={vehicleId:vehLogVehicleId,partKey,partName,serviceDate,mileageAtService,cost,purchaseLink,note};
+  let logs=getVehicleLogs();
+  if(vehLogEId){
+    logs=logs.map(l=>l.id===vehLogEId?{...l,...obj}:l);
+    addHist('vehicle','แก้ไข',`บันทึกเปลี่ยน ${partName} — ${vehicle.brand} ที่ ${mileageAtService.toLocaleString('th-TH')} กม.`);
+  }else{
+    const newId=logs.length?Math.max(...logs.map(l=>l.id))+1:1;
+    logs.push({id:newId,...obj});
+    addHist('vehicle','เพิ่ม',`บันทึกเปลี่ยน ${partName} — ${vehicle.brand} ที่ ${mileageAtService.toLocaleString('th-TH')} กม.`);
+  }
+  saveVehicleLogs(logs);
+  closeOv('vehlog-ov');
+  renderVehicleReport(vehLogVehicleId);
+}
+function delVehicleLog(){
+  if(!vehLogEId)return;
+  if(!confirm('ลบบันทึกนี้?'))return;
+  const log=getVehicleLogs().find(l=>l.id===vehLogEId);
+  saveVehicleLogs(getVehicleLogs().filter(l=>l.id!==vehLogEId));
+  addHist('vehicle','ลบ',`ลบบันทึกเปลี่ยน ${log?.partName||''}`);
+  closeOv('vehlog-ov');
+  if(vehLogVehicleId)renderVehicleReport(vehLogVehicleId);
+}
+function renderVehicleReport(id){
+  const vehicle=getVehicles().find(v=>v.id===id);
+  const wrap=document.getElementById('veh-report-wrap');
+  if(!vehicle||!wrap)return;
+  const analysis=analyzeVehicle(vehicle);
+  const groups={A:[],B:[],C:[]};
+  analysis.forEach(a=>groups[a.level].push(a));
+  const levelMeta={A:{icon:'🔴',label:'ต้องเปลี่ยน/ทำทันที',cls:'b-over'},B:{icon:'🟡',label:'ต้องตรวจเช็กตามสภาพ',cls:'b-soon'},C:{icon:'🟢',label:'สภาพยังสมบูรณ์',cls:'b-ok'}};
+  const groupHtml=['A','B','C'].map(lv=>{
+    if(!groups[lv].length)return'';
+    const m=levelMeta[lv];
+    return`<div style="margin-bottom:.9rem">
+      <div style="font-size:13px;font-weight:700;margin-bottom:.4rem">${m.icon} [${lv}] ${m.label}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px">
+        ${groups[lv].map(a=>`<span class="badge ${m.cls}" title="เหลืออีก ${a.kmUntilNext.toLocaleString('th-TH')} กม. (ถึงรอบ ${a.nextDueKm.toLocaleString('th-TH')} กม.)${a.hasRecord?' — เปลี่ยนล่าสุด '+a.lastServiceMileage.toLocaleString('th-TH')+' กม.':' — ยังไม่มีประวัติ (ประมาณการ)'}">${a.name}${a.hasRecord?' ✓':''}</span>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+
+  const sortedByNext=analysis.slice().sort((a,b)=>a.kmUntilNext-b.kmUntilNext);
+  const tableRows=sortedByNext.map(a=>`<tr>
+    <td class="tr">${a.nextDueKm.toLocaleString('th-TH')} กม.</td>
+    <td>${a.name}${a.hasRecord?`<div style="font-size:11px;color:var(--g400)">เปลี่ยนล่าสุด ${fmtDate(a.lastServiceDate)} · ${a.lastServiceMileage.toLocaleString('th-TH')} กม.</div>`:`<div style="font-size:11px;color:var(--g400)">ยังไม่มีประวัติ (ประมาณการจากไมล์ปัจจุบัน)</div>`}</td>
+    <td>${a.workType}</td>
+    <td class="tr">${a.costMin.toLocaleString('th-TH')}-${a.costMax.toLocaleString('th-TH')}</td>
+    <td>
+      <a href="${shopeeLink(a.name,vehicle.brand)}" target="_blank" rel="noopener" class="loc-link">🛒 Shopee</a>
+      &nbsp;·&nbsp;
+      <a href="${lazadaLink(a.name,vehicle.brand)}" target="_blank" rel="noopener" class="loc-link">🛒 Lazada</a>
+    </td>
+    <td class="tc"><button class="btn btn-ghost btn-sm" onclick="openVehLog(${vehicle.id},'${a.key}',${JSON.stringify(a.name)})">✓ บันทึกว่าเปลี่ยนแล้ว</button></td>
+  </tr>`).join('');
+
+  const checklist=vehicle.type==='moto'?MOTO_CHECKLIST:CAR_CHECKLIST;
+  const checklistHtml=checklist.map(c=>`<li style="margin-bottom:.35rem">${c}</li>`).join('');
+
+  const logs=getVehicleLogs().filter(l=>l.vehicleId===vehicle.id).sort((a,b)=>b.mileageAtService-a.mileageAtService||b.serviceDate.localeCompare(a.serviceDate));
+  const logRows=logs.length?logs.map(l=>`<tr>
+    <td>${fmtDate(l.serviceDate)}</td>
+    <td class="tr">${(l.mileageAtService||0).toLocaleString('th-TH')} กม.</td>
+    <td style="font-weight:600">${l.partName}</td>
+    <td class="tr">${l.cost?fmt(l.cost):'—'}</td>
+    <td>${l.purchaseLink?`<a href="${l.purchaseLink}" target="_blank" rel="noopener" class="loc-link">🔗 ลิงก์ที่เคยสั่ง</a>`:'<span class="pill">—</span>'}</td>
+    <td style="font-size:12px;color:var(--g400)">${l.note||'—'}</td>
+    <td class="tc"><button class="icon-btn" style="opacity:1" onclick="editVehLog(${l.id})">✏</button></td>
+  </tr>`).join(''):'<tr><td colspan="7" class="empty">ยังไม่มีประวัติการเปลี่ยนอะไหล่ — กด "บันทึกว่าเปลี่ยนแล้ว" ที่รายการด้านบนเพื่อเริ่มบันทึก</td></tr>';
+
+  wrap.innerHTML=`
+    <div class="sec">
+      <div class="sec-head"><span class="sec-title"><span class="dot dc"></span>สถานะและการบำรุงรักษา ณ เลขไมล์ปัจจุบัน (${vehicle.mileage.toLocaleString('th-TH')} กม.) — ${vehicle.brand}</span></div>
+      <div style="padding:.9rem">${groupHtml||'<div class="empty">ไม่มีข้อมูล</div>'}</div>
+    </div>
+    <div class="sec">
+      <div class="sec-head"><span class="sec-title"><span class="dot db"></span>แผนการบำรุงรักษารอบถัดไป & ช่องทางสั่งซื้ออะไหล่</span></div>
+      <table class="tbl"><thead><tr>
+        <th style="width:9%" class="tr">ระยะไมล์ถัดไป</th>
+        <th style="width:19%">รายการที่ต้องเปลี่ยน/ทำ</th>
+        <th style="width:11%">ประเภทงาน</th>
+        <th style="width:11%" class="tr">ประเมินค่าใช้จ่าย (฿)</th>
+        <th style="width:22%">ลิงก์สั่งซื้ออะไหล่ตรงรุ่น</th>
+        <th style="width:28%" class="tc">บันทึกประวัติ</th>
+      </tr></thead><tbody>${tableRows}</tbody></table>
+    </div>
+    <div class="sec">
+      <div class="sec-head"><span class="sec-title"><span class="dot dp"></span>ประวัติการเปลี่ยนอะไหล่ (ย้อนหลัง)</span></div>
+      <table class="tbl"><thead><tr>
+        <th style="width:13%">วันที่เปลี่ยน</th>
+        <th style="width:12%" class="tr">เลขไมล์ตอนเปลี่ยน</th>
+        <th style="width:20%">ชื่ออะไหล่</th>
+        <th style="width:12%" class="tr">ค่าใช้จ่ายจริง</th>
+        <th style="width:16%">ลิงก์ที่เคยสั่งซื้อ</th>
+        <th style="width:19%">หมายเหตุ</th>
+        <th style="width:8%" class="tc">✏</th>
+      </tr></thead><tbody>${logRows}</tbody></table>
+    </div>
+    <div class="sec">
+      <div class="sec-head"><span class="sec-title"><span class="dot dg"></span>Quick Checklist ตรวจเช็กด้วยตัวเองประจำเดือน</span></div>
+      <ul style="padding:1rem 1.6rem;font-size:13px;color:var(--g600)">${checklistHtml}</ul>
+    </div>`;
+  wrap.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function renderVehicles(){
+  const body=document.getElementById('veh-body');
+  if(!body)return;
+  const vehicles=getVehicles();
+  if(!vehicles.length){
+    body.innerHTML='<tr><td colspan="6" class="empty">ยังไม่มียานพาหนะ — กด "+ เพิ่มยานพาหนะ" เพื่อเริ่มบันทึก</td></tr>';
+    document.getElementById('veh-report-wrap').innerHTML='';
+    return;
+  }
+  body.innerHTML=vehicles.map(v=>`<tr>
+    <td><span class="pill">${v.type==='moto'?'🏍️ มอเตอร์ไซค์':'🚗 รถยนต์'}</span></td>
+    <td style="font-weight:700">${v.brand}</td>
+    <td style="font-size:12px;color:var(--g400)">${v.engine||'—'}</td>
+    <td class="tr">${v.mileage.toLocaleString('th-TH')} กม.</td>
+    <td class="tc"><button class="btn btn-pri btn-sm" onclick="renderVehicleReport(${v.id})">📋 ดูแผน</button></td>
+    <td class="tc"><button class="icon-btn" style="opacity:1" onclick="openVehM(${v.id})">✏</button></td>
   </tr>`).join('');
 }
 
