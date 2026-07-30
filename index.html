@@ -266,6 +266,13 @@ table.tbl tr.dim .iname{text-decoration:line-through}
 .pagemgr-row{display:flex;align-items:center;justify-content:space-between;padding:.55rem 0;border-bottom:1px solid var(--g100)}
 .pagemgr-row:last-child{border-bottom:none}
 .pagemgr-name{font-size:13.5px;font-weight:600}
+.bm-item-row{display:flex;gap:6px;margin-bottom:6px;align-items:center}
+.bm-item-row input[type=text]{flex:2;padding:8px 10px;border:1px solid var(--g200);border-radius:6px;font-family:var(--font);font-size:13px;background:var(--input-bg);color:var(--g900)}
+.bm-item-row input[type=number]{flex:1;padding:8px 10px;border:1px solid var(--g200);border-radius:6px;font-family:var(--font);font-size:13px;background:var(--input-bg);color:var(--g900)}
+.reorder-btns{display:inline-flex;flex-direction:column;gap:1px;vertical-align:middle}
+.reorder-btns button{background:none;border:none;cursor:pointer;color:var(--g400);font-size:10px;line-height:1;padding:2px 4px}
+.reorder-btns button:hover{color:var(--g900)}
+.reorder-btns button:disabled{opacity:.25;cursor:default}
 table.tbl tr.lend-row-paid td{background:rgba(16,185,129,.07)}
 table.tbl tr.lend-row-paid:hover td{background:rgba(16,185,129,.13)}
 .loc-link{color:var(--blue);font-size:12px;font-weight:600;text-decoration:none;white-space:nowrap}
@@ -1087,9 +1094,12 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 <div class="ov" id="bm-ov"><div class="modal">
   <span class="modal-drag"></span>
   <h3 id="bm-title">เพิ่มรายการ</h3>
-  <div class="f"><label>ชื่อรายการ</label><input type="text" id="bm-name" placeholder="เช่น เงินเดือน, ค่าเช่า"></div>
+  <div class="f"><label>รายการ (ใส่ได้มากกว่า 1 รายการ เช่น ค่าบ้าน + ค่าเน็ต — บวกราคาให้อัตโนมัติ)</label>
+    <div id="bm-items-list"></div>
+    <button type="button" class="btn btn-ghost btn-sm" style="margin-top:6px" onclick="addBmItemRow()">+ เพิ่มรายการย่อย</button>
+  </div>
   <div class="f-row">
-    <div class="f"><label>จำนวนเงิน (฿)</label><input type="number" id="bm-amt" placeholder="0" min="0"></div>
+    <div class="f"><label>รวมจำนวนเงิน (฿)</label><input type="number" id="bm-amt" readonly style="background:var(--g100);font-weight:700;color:var(--g900)"></div>
     <div class="f"><label>ทุกวันที่</label><input type="number" id="bm-due" placeholder="1–31" min="1" max="31"></div>
   </div>
   <div class="f"><label>หมวดหมู่</label>
@@ -1523,20 +1533,20 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 </div></div>
 
 <!-- Vehicle Service Log (บันทึกการเปลี่ยนอะไหล่) -->
-<div class="ov" id="vehlog-ov"><div class="modal">
+<div class="ov" id="vehlog-ov"><div class="modal" style="max-width:600px">
   <span class="modal-drag"></span>
   <h3 id="vehlog-title">บันทึกการเปลี่ยนอะไหล่</h3>
-  <div class="f"><label>ชื่ออะไหล่</label>
-    <select id="vehlog-part" onchange="document.getElementById('vehlog-part-custom').style.display=this.value==='other'?'block':'none'"></select>
-    <input type="text" id="vehlog-part-custom" placeholder="ระบุชื่ออะไหล่" style="display:none;margin-top:6px">
+  <div class="f"><label>ยานพาหนะ</label><select id="vehlog-vehicle" onchange="onVehLogVehicleChange()"></select></div>
+  <div class="f"><label>รายการอะไหล่ที่เปลี่ยน (เลือกได้หลายรายการ)</label>
+    <div id="vehlog-parts-list" style="max-height:280px;overflow-y:auto;border:1px solid var(--g200);border-radius:8px;padding:.5rem"></div>
   </div>
   <div class="f-row">
     <div class="f"><label>วันที่เปลี่ยน</label><input type="date" id="vehlog-date"></div>
     <div class="f"><label>เลขไมล์ตอนเปลี่ยน (กม.)</label><input type="number" id="vehlog-mileage" placeholder="0" min="0"></div>
   </div>
-  <div class="f"><label>ค่าใช้จ่ายจริง (฿)</label><input type="number" id="vehlog-cost" placeholder="0" min="0"></div>
   <div class="f"><label>ลิงก์สั่งซื้อที่เคยใช้ (ใส่เอง)</label><input type="text" id="vehlog-link" placeholder="วางลิงก์ Shopee/Lazada/ร้านค้าที่เคยสั่งจริง"></div>
   <div class="f"><label>หมายเหตุ</label><input type="text" id="vehlog-note" placeholder="บันทึกเพิ่มเติม..."></div>
+  <div class="tfoot" style="margin-top:.3rem"><span>ยอดรวมค่าอะไหล่ที่เลือก</span><strong id="vehlog-total">฿0</strong></div>
   <div class="mbtns">
     <button class="btn btn-danger" id="vehlog-del" onclick="delVehicleLog()" style="display:none">ลบ</button>
     <button class="btn btn-ghost" onclick="closeOv('vehlog-ov')">ยกเลิก</button>
@@ -1578,6 +1588,26 @@ th[onclick]:hover{background:var(--g50);cursor:pointer}
 // ══ UTILS ══
 // ── SORT STATE (ต้องอยู่ก่อน render functions ทุกตัว) ──
 const sortState={budget:{income:{col:null,dir:1},expense:{col:null,dir:1}},debt:{bank:{col:null,dir:1},nonbank:{col:null,dir:1},other:{col:null,dir:1}},invest:{stock:{col:null,dir:1},gold:{col:null,dir:1},asset:{col:null,dir:1}},subscription:{col:{col:null,dir:1}},login:{col:{col:null,dir:1}}};
+// ══ MANUAL REORDER (ทุกหน้า) ══
+function reorderWithinGroup(fullArr,groupFilterFn,id,direction){
+  const groupIndices=[];
+  fullArr.forEach((item,idx)=>{if(groupFilterFn(item))groupIndices.push(idx)});
+  const groupItems=groupIndices.map(idx=>fullArr[idx]);
+  const posInGroup=groupItems.findIndex(i=>i.id===id);
+  if(posInGroup<0)return fullArr;
+  const newPos=posInGroup+direction;
+  if(newPos<0||newPos>=groupItems.length)return fullArr;
+  const tmp=groupItems[posInGroup];groupItems[posInGroup]=groupItems[newPos];groupItems[newPos]=tmp;
+  const result=fullArr.slice();
+  groupIndices.forEach((idx,i)=>{result[idx]=groupItems[i]});
+  return result;
+}
+function reorderBtns(upCall,downCall,canUp,canDown){
+  return`<span class="reorder-btns">
+    <button type="button" ${canUp?'':'disabled'} onclick="${upCall}" title="เลื่อนขึ้น">▲</button>
+    <button type="button" ${canDown?'':'disabled'} onclick="${downCall}" title="เลื่อนลง">▼</button>
+  </span>`;
+}
 function ensureSortState(page,sub){
   if(!sortState[page])sortState[page]={};
   if(!sortState[page][sub])sortState[page][sub]={col:null,dir:1};
@@ -1981,12 +2011,38 @@ function openImgLightbox(src){
   document.getElementById('img-lightbox-ov').classList.add('open');
 }
 function closeImgLightbox(){document.getElementById('img-lightbox-ov').classList.remove('open')}
+function addBmItemRow(name,amt){
+  const list=document.getElementById('bm-items-list');
+  const row=document.createElement('div');
+  row.className='bm-item-row';
+  row.innerHTML=`
+    <input type="text" class="bm-item-name" placeholder="ชื่อรายการ" value="${(name||'').replace(/"/g,'&quot;')}" oninput="updateBmTotal()">
+    <input type="number" class="bm-item-amt" placeholder="0" min="0" value="${amt!=null?amt:''}" oninput="updateBmTotal()">
+    <button type="button" class="icon-btn" style="opacity:1" onclick="removeBmItemRow(this)">✕</button>`;
+  list.appendChild(row);
+  updateBmTotal();
+}
+function removeBmItemRow(btn){
+  const list=document.getElementById('bm-items-list');
+  if(list.children.length<=1)return;
+  btn.closest('.bm-item-row').remove();
+  updateBmTotal();
+}
+function updateBmTotal(){
+  let total=0;
+  document.querySelectorAll('#bm-items-list .bm-item-amt').forEach(inp=>{total+=parseFloat(inp.value)||0});
+  document.getElementById('bm-amt').value=total;
+}
 function openBM(type,id){
   bEType=type;bEId=id||null;
   const d=getMI(cy,cm),item=id?d[type].find(i=>i.id===id):null;
   document.getElementById('bm-title').textContent=id?(type==='income'?'แก้ไขรายรับ':'แก้ไขรายจ่าย'):(type==='income'?'เพิ่มรายรับ':'เพิ่มรายจ่าย');
-  document.getElementById('bm-name').value=item?item.name:'';
-  document.getElementById('bm-amt').value=item?item.amount:'';
+  document.getElementById('bm-items-list').innerHTML='';
+  if(item?.subItems?.length){
+    item.subItems.forEach(s=>addBmItemRow(s.name,s.amount));
+  }else{
+    addBmItemRow(item?.name||'',item?item.amount:'');
+  }
   document.getElementById('bm-due').value=item?.dueDay||'';
   document.getElementById('bm-tag').value=item?item.tag:'ประจำ';
   document.getElementById('bm-note').value=item?.note||'';
@@ -1998,21 +2054,27 @@ function openBM(type,id){
   document.getElementById('bm-ov').classList.add('open');
 }
 function saveBudget(){
-  const name=(document.getElementById('bm-name').value||'').trim();
-  const amount=parseFloat(document.getElementById('bm-amt').value);
+  const rows=[...document.querySelectorAll('#bm-items-list .bm-item-row')].map(r=>({
+    name:(r.querySelector('.bm-item-name').value||'').trim(),
+    amount:parseFloat(r.querySelector('.bm-item-amt').value)||0
+  })).filter(r=>r.name);
+  if(!rows.length)return;
+  const name=rows.map(r=>r.name).join(' + ');
+  const amount=rows.reduce((s,r)=>s+r.amount,0);
+  const subItems=rows.length>1?rows:null;
   const dueDay=parseInt(document.getElementById('bm-due').value)||null;
   const tag=document.getElementById('bm-tag').value;
   const note=document.getElementById('bm-note').value;
   const payMethod=bPayMethod;
   const image=bImgData;
-  if(!name||isNaN(amount)||amount<0)return;
+  if(amount<0)return;
   const t=getTmpls(),isTmpl=bEId&&t[bEType].some(i=>i.id===bEId);
   if(bEId){
-    if(isTmpl){const o=getOv(cy,cm);const k=bEType+'_edit';o[k]=o[k]||{};o[k][bEId]={name,amount,dueDay,tag,note,payMethod,image};saveOv(cy,cm,o);}
-    else{const o=getOv(cy,cm);const k=bEType+'_add';o[k]=(o[k]||[]).map(i=>i.id===bEId?{...i,name,amount,dueDay,tag,note,payMethod,image}:i);saveOv(cy,cm,o);}
+    if(isTmpl){const o=getOv(cy,cm);const k=bEType+'_edit';o[k]=o[k]||{};o[k][bEId]={name,amount,subItems,dueDay,tag,note,payMethod,image};saveOv(cy,cm,o);}
+    else{const o=getOv(cy,cm);const k=bEType+'_add';o[k]=(o[k]||[]).map(i=>i.id===bEId?{...i,name,amount,subItems,dueDay,tag,note,payMethod,image}:i);saveOv(cy,cm,o);}
     addHist('budget','แก้ไข',`${bEType==='income'?'รายรับ':'รายจ่าย'}: ${name} = ${fmt(amount)}`);
   }else{
-    const o=getOv(cy,cm);const k=bEType+'_add';o[k]=[...(o[k]||[]),{id:Date.now(),name,amount,dueDay,tag,note,payMethod,image}];saveOv(cy,cm,o);
+    const o=getOv(cy,cm);const k=bEType+'_add';o[k]=[...(o[k]||[]),{id:Date.now(),name,amount,subItems,dueDay,tag,note,payMethod,image}];saveOv(cy,cm,o);
     addHist('budget','เพิ่ม',`${bEType==='income'?'รายรับ':'รายจ่าย'}: ${name} = ${fmt(amount)}`);
   }
   closeOv('bm-ov');renderBudget();
@@ -2062,9 +2124,29 @@ function renderBudget(){
   renderBBody('exp-body','exp-head',d.expense,'expense');
   renderSideIncome();
 }
+function getBudgetOrder(y,m,type,items){
+  const o=getOv(y,m);
+  const savedOrder=o[type+'_order'];
+  if(!savedOrder||!savedOrder.length)return items;
+  const byId={};items.forEach(i=>byId[i.id]=i);
+  const ordered=savedOrder.filter(id=>byId[id]).map(id=>byId[id]);
+  const remaining=items.filter(i=>!savedOrder.includes(i.id));
+  return[...ordered,...remaining];
+}
+function reorderBudgetItem(type,id,direction){
+  const items=getMI(cy,cm)[type];
+  const ordered=getBudgetOrder(cy,cm,type,items);
+  const newOrder=reorderWithinGroup(ordered,()=>true,id,direction).map(i=>i.id);
+  const o=getOv(cy,cm);
+  o[type+'_order']=newOrder;
+  saveOv(cy,cm,o);
+  renderBudget();
+}
 function renderBBody(id,headId,items,type){
   const tb=document.getElementById(id);
-  const sorted=applySortArr(items,'budget',type);
+  const ordered=getBudgetOrder(cy,cm,type,items);
+  const noSort=!ensureSortState('budget',type).col;
+  const sorted=applySortArr(ordered,'budget',type);
   const si=sortIcon.bind(null,'budget',type);
   const headEl=document.getElementById(headId);
   if(headEl)headEl.innerHTML=`
@@ -2077,13 +2159,16 @@ function renderBBody(id,headId,items,type){
     <th style="width:6%;text-align:center">รูป</th>
     <th style="width:21%">หมายเหตุ</th><th style="width:5%;text-align:center">✏</th>`;
   if(!sorted.length){tb.innerHTML='<tr><td colspan="9" class="empty">ยังไม่มีรายการ</td></tr>';return}
-  tb.innerHTML=sorted.map(item=>{
+  tb.innerHTML=sorted.map((item,i)=>{
     const paid=getPaid(cy,cm,type,item.id);
     const pm=item.payMethod||'cash';
     const pmBadge=pm==='credit'?'<span class="badge b-credit">💳 บัตร</span>':pm==='transfer'?'<span class="badge b-transfer">🏦 โอน</span>':'<span class="badge b-cash">💵 สด</span>';
     const imgCell=item.image?`<img class="row-thumb" src="${item.image}" onclick="openImgLightbox('${item.image}')">`:'—';
+    const nameHtml=item.subItems?.length
+      ?`<div>${item.subItems.map(s=>s.name).join(' + ')}</div><div style="font-size:11px;color:var(--g400);margin-top:2px">${item.subItems.map(s=>s.name+' '+fmt(s.amount)).join(' · ')}</div>`
+      :item.name;
     return`<tr class="${paid?'dim':''}">
-      <td class="iname">${item.name}</td>
+      <td class="iname">${nameHtml}</td>
       <td><span class="pill">${item.tag||''}</span></td>
       <td>${dueBadge(item.dueDay,paid)}</td>
       <td class="tr ${type==='income'?'ag':'ac'}">${fmt(item.amount)}</td>
@@ -2091,7 +2176,7 @@ function renderBBody(id,headId,items,type){
       <td class="tc">${pmBadge}</td>
       <td class="tc">${imgCell}</td>
       <td style="font-size:12px;color:var(--g400)">${item.note||'—'}</td>
-      <td class="tc"><button class="icon-btn" onclick="openBM('${type}',${item.id})">✏</button></td>
+      <td class="tc">${noSort?reorderBtns(`reorderBudgetItem('${type}',${item.id},-1)`,`reorderBudgetItem('${type}',${item.id},1)`,i>0,i<sorted.length-1):''}<button class="icon-btn" onclick="openBM('${type}',${item.id})">✏</button></td>
     </tr>`;
   }).join('');
 }
@@ -2517,6 +2602,7 @@ function renderDBody(tbId,totId,headId,items,cat){
     ผ่อน/เดือน <strong>${fmt(tMPay)}</strong>
     ${excCount>0?`<span class="db-muted-note">(ไม่นับ ${excCount} รายการ)</span>`:''}
   </span>`;
+  const noSort=!ensureSortState('debt',cat).col;
   const sorted=applySortArr(items,'debt',cat);
   tb.innerHTML=sorted.map((d,i)=>{
     const isOn=d.included!==false;
@@ -2537,9 +2623,13 @@ function renderDBody(tbId,totId,headId,items,cat){
       <td class="db-tc db-num">${dueTxt}</td>
       <td class="db-tr db-num">${d.rate?d.rate+'%':'—'}</td>
       <td class="db-note" title="${(d.note||'').replace(/"/g,'&quot;')}">${d.note||'—'}</td>
-      <td class="db-tc"><button class="db-icon-btn" onclick="openDM(${d.id})">✏</button></td>
+      <td class="db-tc">${noSort?reorderBtns(`reorderDebt(${d.id},-1)`,`reorderDebt(${d.id},1)`,i>0,i<sorted.length-1):''}<button class="db-icon-btn" onclick="openDM(${d.id})">✏</button></td>
     </tr>`;
   }).join('');
+}
+function reorderDebt(id,direction){
+  saveDebts(reorderWithinGroup(getDebts(),it=>it.cat===getDebts().find(d=>d.id===id)?.cat,id,direction));
+  renderDebt();
 }
 function exportDebt(){
   const d=getDebts();
@@ -2557,6 +2647,10 @@ function defTodos(){return[
 ]}
 function getTodos(){return ls(uKey('todos_v1'),defTodos())}
 function saveTodos(t){lss(uKey('todos_v1'),t)}
+function reorderTodo(id,direction){
+  saveTodos(reorderWithinGroup(getTodos(),()=>true,id,direction));
+  renderTodo();
+}
 let tEId=null;
 function openTM(id){
   tEId=id||null;
@@ -2606,7 +2700,7 @@ function toggleTodoDone(id){
   renderTodo();
 }
 function renderTodo(){
-  const items=getTodos().slice().sort((a,b)=>(a.due||'').localeCompare(b.due||'')||(a.time||'').localeCompare(b.time||''));
+  const items=getTodos();
   const today=new Date();today.setHours(0,0,0,0);
   let soonCount=0,overCount=0;
   const body=document.getElementById('todo-body');
@@ -2614,7 +2708,7 @@ function renderTodo(){
   if(!items.length){
     body.innerHTML='<tr><td colspan="9" class="empty">ยังไม่มีรายการ</td></tr>';
   }else{
-    body.innerHTML=items.map(t=>{
+    body.innerHTML=items.map((t,i)=>{
       const dueDate=t.due?new Date(t.due+'T00:00:00'):null;
       const diffDays=dueDate?Math.round((dueDate-today)/86400000):null;
       let alertHtml='<span class="pill">—</span>';
@@ -2637,7 +2731,7 @@ function renderTodo(){
         <td>${locHtml}</td>
         <td class="tc">${mapHtml}</td>
         <td>${alertHtml}</td>
-        <td class="tc"><button class="icon-btn" onclick="openTM(${t.id})">✏</button></td>
+        <td class="tc">${reorderBtns(`reorderTodo(${t.id},-1)`,`reorderTodo(${t.id},1)`,i>0,i<items.length-1)}<button class="icon-btn" onclick="openTM(${t.id})">✏</button></td>
       </tr>`;
     }).join('');
   }
@@ -2862,6 +2956,10 @@ function renderFairtex(){fillFtFilterOptions();renderFtShift();renderFtHoliday()
 // ══ INVEST — STOCKS ══
 function getStocks(){return ls(uKey('stocks_v3'),defStocks())}
 function saveStocks(s){lss(uKey('stocks_v3'),s)}
+function reorderStock(id,direction){
+  saveStocks(reorderWithinGroup(getStocks(),()=>true,id,direction));
+  renderInvest();
+}
 function getDivData(yr){return ls(uKey('div_'+yr),{})}
 function saveDivData(yr,d){lss(uKey('div_'+yr),d)}
 function defStocks(){return[
@@ -3143,8 +3241,9 @@ function renderInvest(){
     <th style="width:8%;text-align:center">✏</th>`;
   if(!stocks.length){tb.innerHTML='<tr><td colspan="9" class="empty">ยังไม่มีหุ้น</td></tr>';}
   else{
+    const noSortStk=!ensureSortState('invest','stock').col;
     const sorted=applySortArr(stocks,'invest','stock');
-    tb.innerHTML=sorted.map(s=>{
+    tb.innerHTML=sorted.map((s,si2)=>{
       const pct=tInvAll>0?Math.round(s.invest/tInvAll*100):0;
       const ad=Math.round(s.invest*s.yield/100),pm=Math.round(ad/12),est=Math.round(ad/2);
       const dr=divD[s.id]||{};const r1G=dr.r1>0,r2G=dr.r2>0;
@@ -3177,7 +3276,7 @@ function renderInvest(){
           <div style="font-size:10px;color:var(--g400);text-align:center;margin-top:2px">${r1G&&r2G?'ครบแล้ว ✓':r1G?'รอ ร.2':r2G?'ร.1 ค้าง':'รอทั้งคู่'}</div>
         </td>
         <td style="font-size:11px;color:var(--g400)">${s.note||'—'}</td>
-        <td class="tc"><button class="icon-btn" onclick="openStkM(${s.id})">✏</button></td>
+        <td class="tc">${noSortStk?reorderBtns(`reorderStock(${s.id},-1)`,`reorderStock(${s.id},1)`,si2>0,si2<sorted.length-1):''}<button class="icon-btn" onclick="openStkM(${s.id})">✏</button></td>
       </tr>`;
     }).join('');
   }
@@ -3275,8 +3374,9 @@ function renderAssets(){
     return;
   }
   const catIcon={'รถยนต์/มอเตอร์ไซค์':'🚗','อสังหาริมทรัพย์':'🏠','อิเล็กทรอนิกส์':'📱','เฟอร์นิเจอร์/เครื่องใช้':'🪑','เครื่องประดับ':'💎','อื่นๆ':'📦'};
+  const noSortAst=!ensureSortState('invest','asset').col;
   const sorted=applySortArr(assets,'invest','asset');
-  tb.innerHTML=sorted.map(a=>{
+  tb.innerHTML=sorted.map((a,i)=>{
     const pnl=a.val-a.buy;
     return`<tr>
       <td style="font-weight:700">${a.name}</td>
@@ -3286,15 +3386,23 @@ function renderAssets(){
       <td class="tr" style="color:var(--g500)">${a.buy?fmt(a.buy):'—'}</td>
       <td class="tr ${pnl>=0?'ag':'ac'}">${a.buy?(pnl>=0?'+':'')+fmt(pnl):'—'}</td>
       <td style="font-size:11px;color:var(--g400)">${a.note||'—'}</td>
-      <td class="tc"><button class="icon-btn" onclick="openAssetM(${a.id})">✏</button></td>
+      <td class="tc">${noSortAst?reorderBtns(`reorderAsset(${a.id},-1)`,`reorderAsset(${a.id},1)`,i>0,i<sorted.length-1):''}<button class="icon-btn" onclick="openAssetM(${a.id})">✏</button></td>
     </tr>`;
   }).join('');
   document.getElementById('ast-foot').innerHTML=`<span>รวมมูลค่าทรัพย์สิน <strong class="ab">${fmt(tVal)}</strong></span>`;
+}
+function reorderAsset(id,direction){
+  saveAssets(reorderWithinGroup(getAssets(),()=>true,id,direction));
+  renderAssets();
 }
 
 // ══ LENDING (ติดตามหนี้สิน / ลูกหนี้) ══
 function getDebtors(){return ls(uKey('lend_debtors_v1'),[])}
 function saveDebtors(d){lss(uKey('lend_debtors_v1'),d)}
+function reorderDebtor(id,direction){
+  saveDebtors(reorderWithinGroup(getDebtors(),()=>true,id,direction));
+  renderLending();
+}
 function getDebtPayments(){return ls(uKey('lend_payments_v1'),[])}
 function saveDebtPayments(p){lss(uKey('lend_payments_v1'),p)}
 function round2(n){return Math.round(n*100)/100}
@@ -3482,7 +3590,7 @@ function renderLending(){
     body.innerHTML='<tr><td colspan="11" class="empty">ยังไม่มีลูกหนี้ — กด "+ เพิ่มลูกหนี้" เพื่อเริ่มบันทึก</td></tr>';
   }else{
     const thisMonthKey=new Date().toISOString().slice(0,7);
-    body.innerHTML=debtors.map(d=>{
+    body.innerHTML=debtors.map((d,i)=>{
       const{remainingBalance,totalInterest:interestSum}=computeDebtorLedger(d,payments);
       totalPrincipal+=d.principal;totalBalance+=remainingBalance;totalInterest+=interestSum;
       const status=getDebtorStatus(d,remainingBalance);
@@ -3509,6 +3617,7 @@ function renderLending(){
         <td class="tc"><span class="badge ${status.cls}">${status.label}</span></td>
         <td class="tc">${payBadge}</td>
         <td class="tc">
+          ${reorderBtns(`reorderDebtor(${d.id},-1)`,`reorderDebtor(${d.id},1)`,i>0,i<debtors.length-1)}
           <button class="icon-btn" style="opacity:1" title="ประวัติการชำระ" onclick="openLendPay(${d.id})">📋</button>
           <button class="icon-btn" style="opacity:1" title="แก้ไข" onclick="openLendM(${d.id})">✏</button>
         </td>
@@ -3686,30 +3795,57 @@ function delVehicle(){
   renderVehicles();
 }
 let vehLogVehicleId=null,vehLogEId=null;
-function openVehLog(vehicleId,partKey,partName){
+function midCost(a,b){return Math.round((a+b)/2)}
+function renderVehLogPartsList(vehicleId,precheckKey){
+  const vehicle=getVehicles().find(v=>v.id===vehicleId);
+  const container=document.getElementById('vehlog-parts-list');
+  if(!vehicle){container.innerHTML='<div class="empty">กรุณาเลือกยานพาหนะก่อน</div>';return;}
+  const parts=vehicle.type==='moto'?MOTO_PARTS:CAR_PARTS;
+  container.innerHTML=parts.map(p=>`
+    <label style="display:flex;align-items:center;gap:8px;padding:.35rem 0;border-bottom:1px solid var(--g100)">
+      <input type="checkbox" class="vehlog-part-chk" data-key="${p.key}" data-name="${p.name}" ${precheckKey===p.key?'checked':''} onchange="updateVehLogTotal()">
+      <span style="flex:1;font-size:13px">${p.name}</span>
+      <input type="number" class="vehlog-part-price" data-key="${p.key}" value="${midCost(p.costMin,p.costMax)}" min="0" style="width:90px;padding:4px 6px;border:1px solid var(--g200);border-radius:6px;font-size:12px;font-family:var(--font)" oninput="updateVehLogTotal()">
+    </label>`).join('')+`
+    <label style="display:flex;align-items:center;gap:8px;padding:.5rem 0 .2rem">
+      <input type="checkbox" id="vehlog-other-chk" onchange="updateVehLogTotal()">
+      <input type="text" id="vehlog-other-name" placeholder="อื่นๆ ระบุเอง..." style="flex:1;font-size:13px;padding:4px 6px;border:1px solid var(--g200);border-radius:6px;font-family:var(--font)">
+      <input type="number" id="vehlog-other-price" value="0" min="0" style="width:90px;padding:4px 6px;border:1px solid var(--g200);border-radius:6px;font-size:12px;font-family:var(--font)" oninput="updateVehLogTotal()">
+    </label>`;
+  updateVehLogTotal();
+}
+function updateVehLogTotal(){
+  let total=0;
+  document.querySelectorAll('.vehlog-part-chk:checked').forEach(chk=>{
+    const priceInput=document.querySelector(`.vehlog-part-price[data-key="${chk.dataset.key}"]`);
+    total+=parseFloat(priceInput?.value)||0;
+  });
+  const otherChk=document.getElementById('vehlog-other-chk');
+  if(otherChk?.checked)total+=parseFloat(document.getElementById('vehlog-other-price').value)||0;
+  const totEl=document.getElementById('vehlog-total');
+  if(totEl)totEl.textContent=fmt(total);
+}
+function onVehLogVehicleChange(){
+  vehLogVehicleId=parseInt(document.getElementById('vehlog-vehicle').value)||null;
+  const vehicle=getVehicles().find(v=>v.id===vehLogVehicleId);
+  document.getElementById('vehlog-mileage').value=vehicle?.mileage||'';
+  renderVehLogPartsList(vehLogVehicleId);
+}
+function openVehLog(vehicleId,precheckKey){
   vehLogVehicleId=vehicleId;
   vehLogEId=null;
-  const vehicle=getVehicles().find(v=>v.id===vehicleId);
-  if(!vehicle)return;
-  const parts=vehicle.type==='moto'?MOTO_PARTS:CAR_PARTS;
-  const sel=document.getElementById('vehlog-part');
-  sel.innerHTML=parts.map(p=>`<option value="${p.key}">${p.name}</option>`).join('')+'<option value="other">อื่นๆ (ระบุเอง)</option>';
+  const vehicles=getVehicles();
+  const vehSel=document.getElementById('vehlog-vehicle');
+  vehSel.innerHTML=vehicles.map(v=>`<option value="${v.id}">${v.brand}</option>`).join('');
+  vehSel.value=vehicleId;
+  const vehicle=vehicles.find(v=>v.id===vehicleId);
   document.getElementById('vehlog-title').textContent='บันทึกการเปลี่ยนอะไหล่';
-  if(partKey&&parts.some(p=>p.key===partKey)){
-    sel.value=partKey;
-    document.getElementById('vehlog-part-custom').style.display='none';
-    document.getElementById('vehlog-part-custom').value='';
-  }else{
-    sel.value='other';
-    document.getElementById('vehlog-part-custom').style.display='block';
-    document.getElementById('vehlog-part-custom').value=partName||'';
-  }
   document.getElementById('vehlog-date').value=new Date().toISOString().slice(0,10);
-  document.getElementById('vehlog-mileage').value=vehicle.mileage||'';
-  document.getElementById('vehlog-cost').value='';
+  document.getElementById('vehlog-mileage').value=vehicle?.mileage||'';
   document.getElementById('vehlog-link').value='';
   document.getElementById('vehlog-note').value='';
   document.getElementById('vehlog-del').style.display='none';
+  renderVehLogPartsList(vehicleId,precheckKey);
   document.getElementById('vehlog-ov').classList.add('open');
 }
 function editVehLog(logId){
@@ -3717,54 +3853,62 @@ function editVehLog(logId){
   if(!log)return;
   vehLogVehicleId=log.vehicleId;
   vehLogEId=logId;
-  const vehicle=getVehicles().find(v=>v.id===log.vehicleId);
-  if(!vehicle)return;
-  const parts=vehicle.type==='moto'?MOTO_PARTS:CAR_PARTS;
-  const sel=document.getElementById('vehlog-part');
-  sel.innerHTML=parts.map(p=>`<option value="${p.key}">${p.name}</option>`).join('')+'<option value="other">อื่นๆ (ระบุเอง)</option>';
+  const vehicles=getVehicles();
+  const vehSel=document.getElementById('vehlog-vehicle');
+  vehSel.innerHTML=vehicles.map(v=>`<option value="${v.id}">${v.brand}</option>`).join('');
+  vehSel.value=log.vehicleId;
   document.getElementById('vehlog-title').textContent='แก้ไขบันทึกการเปลี่ยนอะไหล่';
-  if(log.partKey&&parts.some(p=>p.key===log.partKey)){
-    sel.value=log.partKey;
-    document.getElementById('vehlog-part-custom').style.display='none';
-    document.getElementById('vehlog-part-custom').value='';
-  }else{
-    sel.value='other';
-    document.getElementById('vehlog-part-custom').style.display='block';
-    document.getElementById('vehlog-part-custom').value=log.partName||'';
-  }
   document.getElementById('vehlog-date').value=log.serviceDate||'';
   document.getElementById('vehlog-mileage').value=log.mileageAtService||'';
-  document.getElementById('vehlog-cost').value=log.cost||'';
   document.getElementById('vehlog-link').value=log.purchaseLink||'';
   document.getElementById('vehlog-note').value=log.note||'';
   document.getElementById('vehlog-del').style.display='inline-flex';
+  renderVehLogPartsList(log.vehicleId,log.partKey);
+  if(!log.partKey){
+    document.getElementById('vehlog-other-chk').checked=true;
+    document.getElementById('vehlog-other-name').value=log.partName||'';
+    document.getElementById('vehlog-other-price').value=log.cost||0;
+  }else{
+    const priceInput=document.querySelector(`.vehlog-part-price[data-key="${log.partKey}"]`);
+    if(priceInput)priceInput.value=log.cost||priceInput.value;
+  }
+  updateVehLogTotal();
   document.getElementById('vehlog-ov').classList.add('open');
 }
 function saveVehicleLog(){
   if(!vehLogVehicleId)return;
   const vehicle=getVehicles().find(v=>v.id===vehLogVehicleId);
   if(!vehicle)return;
-  const parts=vehicle.type==='moto'?MOTO_PARTS:CAR_PARTS;
-  const partSel=document.getElementById('vehlog-part').value;
-  const isOther=partSel==='other';
-  const partKey=isOther?null:partSel;
-  const partName=isOther?(document.getElementById('vehlog-part-custom').value||'').trim():(parts.find(p=>p.key===partSel)?.name||partSel);
-  if(!partName)return;
   const serviceDate=document.getElementById('vehlog-date').value;
   const mileageAtService=parseFloat(document.getElementById('vehlog-mileage').value)||0;
-  const cost=parseFloat(document.getElementById('vehlog-cost').value)||0;
   const purchaseLink=(document.getElementById('vehlog-link').value||'').trim();
   const note=(document.getElementById('vehlog-note').value||'').trim();
   if(!serviceDate)return;
-  const obj={vehicleId:vehLogVehicleId,partKey,partName,serviceDate,mileageAtService,cost,purchaseLink,note};
+
+  const selected=[];
+  document.querySelectorAll('.vehlog-part-chk:checked').forEach(chk=>{
+    const priceInput=document.querySelector(`.vehlog-part-price[data-key="${chk.dataset.key}"]`);
+    selected.push({partKey:chk.dataset.key,partName:chk.dataset.name,cost:parseFloat(priceInput?.value)||0});
+  });
+  const otherChk=document.getElementById('vehlog-other-chk');
+  if(otherChk?.checked){
+    const name=(document.getElementById('vehlog-other-name').value||'').trim();
+    if(name)selected.push({partKey:null,partName:name,cost:parseFloat(document.getElementById('vehlog-other-price').value)||0});
+  }
+  if(!selected.length){alert('กรุณาเลือกอย่างน้อย 1 รายการอะไหล่ที่เปลี่ยน');return;}
+
   let logs=getVehicleLogs();
   if(vehLogEId){
-    logs=logs.map(l=>l.id===vehLogEId?{...l,...obj}:l);
-    addHist('vehicle','แก้ไข',`บันทึกเปลี่ยน ${partName} — ${vehicle.brand} ที่ ${mileageAtService.toLocaleString('th-TH')} กม.`);
+    const s=selected[0];
+    logs=logs.map(l=>l.id===vehLogEId?{...l,vehicleId:vehLogVehicleId,partKey:s.partKey,partName:s.partName,serviceDate,mileageAtService,cost:s.cost,purchaseLink,note}:l);
+    addHist('vehicle','แก้ไข',`บันทึกเปลี่ยน ${s.partName} — ${vehicle.brand} ที่ ${mileageAtService.toLocaleString('th-TH')} กม.`);
   }else{
-    const newId=logs.length?Math.max(...logs.map(l=>l.id))+1:1;
-    logs.push({id:newId,...obj});
-    addHist('vehicle','เพิ่ม',`บันทึกเปลี่ยน ${partName} — ${vehicle.brand} ที่ ${mileageAtService.toLocaleString('th-TH')} กม.`);
+    let nextId=logs.length?Math.max(...logs.map(l=>l.id))+1:1;
+    selected.forEach(s=>{
+      logs.push({id:nextId++,vehicleId:vehLogVehicleId,partKey:s.partKey,partName:s.partName,serviceDate,mileageAtService,cost:s.cost,purchaseLink,note});
+    });
+    const totalCost=selected.reduce((sum,s)=>sum+s.cost,0);
+    addHist('vehicle','เพิ่ม',`บันทึกเปลี่ยนอะไหล่ ${selected.length} รายการ — ${vehicle.brand} ที่ ${mileageAtService.toLocaleString('th-TH')} กม. รวม ${fmt(totalCost)}`);
   }
   saveVehicleLogs(logs);
   closeOv('vehlog-ov');
@@ -3809,7 +3953,7 @@ function renderVehicleReport(id){
       &nbsp;·&nbsp;
       <a href="${lazadaLink(a.name,vehicle.brand)}" target="_blank" rel="noopener" class="loc-link">🛒 Lazada</a>
     </td>
-    <td class="tc"><button class="btn btn-ghost btn-sm" onclick="openVehLog(${vehicle.id},'${a.key}',${JSON.stringify(a.name)})">✓ บันทึกว่าเปลี่ยนแล้ว</button></td>
+    <td class="tc"><button class="btn btn-ghost btn-sm" onclick="openVehLog(${vehicle.id},'${a.key}')">✓ บันทึกว่าเปลี่ยนแล้ว</button></td>
   </tr>`).join('');
 
   const checklist=vehicle.type==='moto'?MOTO_CHECKLIST:CAR_CHECKLIST;
@@ -3843,7 +3987,9 @@ function renderVehicleReport(id){
       </tr></thead><tbody>${tableRows}</tbody></table>
     </div>
     <div class="sec">
-      <div class="sec-head"><span class="sec-title"><span class="dot dp"></span>ประวัติการเปลี่ยนอะไหล่ (ย้อนหลัง)</span></div>
+      <div class="sec-head"><span class="sec-title"><span class="dot dp"></span>ประวัติการเปลี่ยนอะไหล่ (ย้อนหลัง)</span>
+        <button class="btn btn-pri btn-sm" onclick="openVehLog(${vehicle.id})">+ บันทึกการเปลี่ยนอะไหล่</button>
+      </div>
       <table class="tbl"><thead><tr>
         <th style="width:13%">วันที่เปลี่ยน</th>
         <th style="width:12%" class="tr">เลขไมล์ตอนเปลี่ยน</th>
@@ -3869,14 +4015,18 @@ function renderVehicles(){
     document.getElementById('veh-report-wrap').innerHTML='';
     return;
   }
-  body.innerHTML=vehicles.map(v=>`<tr>
+  body.innerHTML=vehicles.map((v,i)=>`<tr>
     <td><span class="pill">${v.type==='moto'?'🏍️ มอเตอร์ไซค์':'🚗 รถยนต์'}</span></td>
     <td style="font-weight:700">${v.brand}</td>
     <td style="font-size:12px;color:var(--g400)">${v.engine||'—'}</td>
     <td class="tr">${v.mileage.toLocaleString('th-TH')} กม.</td>
     <td class="tc"><button class="btn btn-pri btn-sm" onclick="renderVehicleReport(${v.id})">📋 ดูแผน</button></td>
-    <td class="tc"><button class="icon-btn" style="opacity:1" onclick="openVehM(${v.id})">✏</button></td>
+    <td class="tc">${reorderBtns(`reorderVehicle(${v.id},-1)`,`reorderVehicle(${v.id},1)`,i>0,i<vehicles.length-1)}<button class="icon-btn" style="opacity:1" onclick="openVehM(${v.id})">✏</button></td>
   </tr>`).join('');
+}
+function reorderVehicle(id,direction){
+  saveVehicles(reorderWithinGroup(getVehicles(),()=>true,id,direction));
+  renderVehicles();
 }
 
 // ══ SUBSCRIPTION ══
@@ -3940,8 +4090,9 @@ function renderSub(){
     <th style="width:9%;cursor:pointer" onclick="sortBy('subscription','col','status')">สถานะ ${si('status')}</th>
     <th style="width:13%">หมายเหตุ</th><th style="width:5%;text-align:center">✏</th>`;
   if(!subs.length){tb.innerHTML='<tr><td colspan="8" class="empty">ยังไม่มีรายการ</td></tr>';return}
+  const noSortSub=!ensureSortState('subscription','col').col;
   const sorted=applySortArr(subs,'subscription','col');
-  tb.innerHTML=sorted.map(s=>{
+  tb.innerHTML=sorted.map((s,i)=>{
     let eb='<span class="badge b-gray">—</span>';
     if(s.end){const d=new Date(s.end),diff=Math.ceil((d-today)/86400000),ds=fmtDate(s.end);
       if(diff<0)eb=`<span class="badge b-over">${ds} หมดแล้ว</span>`;
@@ -3955,9 +4106,13 @@ function renderSub(){
       <td>${eb}</td>
       <td><span class="sab ${s.status==='active'?'sab-on':'sab-off'}">${s.status==='active'?'Active':'Inactive'}</span></td>
       <td style="font-size:11px;color:var(--g400)">${s.note||'—'}</td>
-      <td class="tc"><button class="icon-btn" onclick="openSubM(${s.id})">✏</button></td>
+      <td class="tc">${noSortSub?reorderBtns(`reorderSub(${s.id},-1)`,`reorderSub(${s.id},1)`,i>0,i<sorted.length-1):''}<button class="icon-btn" onclick="openSubM(${s.id})">✏</button></td>
     </tr>`;
   }).join('');
+}
+function reorderSub(id,direction){
+  saveSubs(reorderWithinGroup(getSubs(),()=>true,id,direction));
+  renderSub();
 }
 
 // ══ USER-LOGIN ══
@@ -4067,7 +4222,8 @@ function renderLogins(){
     return;
   }
   const sorted=applySortArr(filtered,'login','col');
-  tb.innerHTML=sorted.map(l=>{
+  const noSortLogin=!q&&!ensureSortState('login','col').col;
+  tb.innerHTML=sorted.map((l,i)=>{
     const pwShown=allPwVisible;
     const pwDisplay=pwShown?(l.pw||'—'):'••••••••';
     const catColor=catColors[l.cat]||'#6b7280';
@@ -4078,10 +4234,14 @@ function renderLogins(){
       <td><span class="pill" style="background:${catColor}1a;color:${catColor};border:1px solid ${catColor}40">${l.cat}</span></td>
       <td style="font-size:11px;color:var(--g400)">${l.note2||'—'}</td>
       <td style="font-size:11px;color:var(--g400)">${l.note||'—'}</td>
-      <td class="tc"><button class="icon-btn" onclick="openLoginM(${l.id})">✏</button></td>
+      <td class="tc">${noSortLogin?reorderBtns(`reorderLogin(${l.id},-1)`,`reorderLogin(${l.id},1)`,i>0,i<sorted.length-1):''}<button class="icon-btn" onclick="openLoginM(${l.id})">✏</button></td>
     </tr>`;
   }).join('');
   document.getElementById('login-foot').innerHTML=`<span>แสดง ${filtered.length} จาก ${all.length} รายการ</span>`;
+}
+function reorderLogin(id,direction){
+  saveLogins(reorderWithinGroup(getLogins(),()=>true,id,direction));
+  renderLogins();
 }
 
 // ══ ALERTS ══
