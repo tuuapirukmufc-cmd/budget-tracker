@@ -1060,7 +1060,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
     <div class="f"><label>ดอกเบี้ย/ปี (%)</label><input type="number" id="dm-rate" placeholder="33" min="0"></div>
     <div class="f"><label>วงเงิน (฿)</label><input type="number" id="dm-lim" placeholder="0" min="0"></div>
   </div>
-  <div class="f"><label>เบิกใช้ไปแล้ว / ค้างชำระ (฿)</label><input type="number" id="dm-used" placeholder="0" min="0"></div>
+  <div class="f"><label>วงเงินคงเหลือ (฿)</label><input type="number" id="dm-remaining" placeholder="0" min="0"></div>
   <div class="f-row">
     <div class="f"><label>รูปแบบการผ่อน</label>
       <select id="dm-inst" onchange="document.getElementById('dm-inst-custom').style.display=this.value==='other'?'block':'none'">
@@ -2171,7 +2171,7 @@ function openDM(id){
   document.getElementById('dm-stat').value=item?.status||(getDebtStatuses()[0]||'');
   document.getElementById('dm-rate').value=item?.rate||'';
   document.getElementById('dm-lim').value=item?.limit||'';
-  document.getElementById('dm-used').value=item?.used||'';
+  document.getElementById('dm-remaining').value=item?(item.limit-item.used):'';
   const instPresets=['ผ่อนขั้นต่ำ','ผ่อนคงที่รายเดือน','ผ่อน 0% ตามรอบบัตร','ไม่มีดอกเบี้ย','จ่ายเต็มจำนวน'];
   const instVal=item?.installmentPlan||'';
   if(instVal&&!instPresets.includes(instVal)){
@@ -2196,10 +2196,12 @@ function saveDebt(){
   const name=(document.getElementById('dm-name').value||'').trim();if(!name)return;
   const instSel=document.getElementById('dm-inst').value;
   const installmentPlan=instSel==='other'?(document.getElementById('dm-inst-custom').value||'อื่นๆ'):instSel;
+  const dmLimit=parseFloat(document.getElementById('dm-lim').value)||0;
+  const dmRemaining=parseFloat(document.getElementById('dm-remaining').value)||0;
   const obj={name,cat:document.getElementById('dm-cat').value,status:document.getElementById('dm-stat').value,
     rate:parseFloat(document.getElementById('dm-rate').value)||null,
-    limit:parseFloat(document.getElementById('dm-lim').value)||0,
-    used:parseFloat(document.getElementById('dm-used').value)||0,
+    limit:dmLimit,
+    used:dmLimit-dmRemaining,
     installmentPlan,
     monthlyPayment:parseFloat(document.getElementById('dm-mpay').value)||0,
     installmentMonths:parseInt(document.getElementById('dm-inst-months').value)||0,
@@ -2207,7 +2209,7 @@ function saveDebt(){
     dueDay:parseInt(document.getElementById('dm-dueday').value)||null,
     type:document.getElementById('dm-type').value,note:document.getElementById('dm-note').value};
   let d=getDebts();
-  if(dEId){d=d.map(i=>i.id===dEId?{...i,...obj}:i);addHist('debt','แก้ไข',`${name} เบิกเบิกใช้ไป ${fmt(obj.used)} / ${fmt(obj.limit)}`);}
+  if(dEId){d=d.map(i=>i.id===dEId?{...i,...obj}:i);addHist('debt','แก้ไข',`${name} วงเงินคงเหลือ ${fmt(dmRemaining)} / ${fmt(obj.limit)}`);}
   else{d.push({id:Date.now(),...obj});addHist('debt','เพิ่ม',`${name} วงเงิน ${fmt(obj.limit)}`);}
   saveDebts(d);closeOv('dm-ov');renderDebt();
 }
