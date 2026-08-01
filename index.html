@@ -505,7 +505,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
     <div class="card"><div class="lbl">เกินกำหนด</div><div class="val vc" id="td-over">0</div></div>
   </div>
   <div class="sec">
-    <div class="sec-head"><span class="sec-title"><span class="dot dg"></span>รายการทั้งหมด</span></div>
+    <div class="sec-head"><span class="sec-title"><span class="dot dg"></span>รายการที่ต้องทำ</span></div>
     <table class="tbl"><thead><tr>
       <th style="width:5%" class="tc">สถานะ</th>
       <th style="width:25%">ชื่อรายการ</th>
@@ -517,6 +517,20 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
       <th style="width:13%">แจ้งเตือน</th>
       <th style="width:5%" class="tc">✏</th>
     </tr></thead><tbody id="todo-body"></tbody></table>
+  </div>
+  <div class="sec">
+    <div class="sec-head"><span class="sec-title"><span class="dot dgold"></span>ทำแล้ว</span></div>
+    <table class="tbl"><thead><tr>
+      <th style="width:5%" class="tc">สถานะ</th>
+      <th style="width:25%">ชื่อรายการ</th>
+      <th style="width:11%">วันครบกำหนด</th>
+      <th style="width:8%" class="tc">เวลานัดหมาย</th>
+      <th style="width:9%">ความสำคัญ</th>
+      <th style="width:16%">สถานที่</th>
+      <th style="width:8%" class="tc">MAP</th>
+      <th style="width:13%">แจ้งเตือน</th>
+      <th style="width:5%" class="tc">✏</th>
+    </tr></thead><tbody id="todo-done-body"></tbody></table>
   </div>
 </div>
 <div id="page-fairtex" class="page">
@@ -2334,7 +2348,10 @@ function defTodos(){return[
 function getTodos(){return ls(uKey('todos_v1'),defTodos())}
 function saveTodos(t){lss(uKey('todos_v1'),t)}
 function reorderTodo(id,direction){
-  saveTodos(reorderWithinGroup(getTodos(),()=>true,id,direction));
+  const todos=getTodos();
+  const target=todos.find(t=>t.id===id);
+  if(!target)return;
+  saveTodos(reorderWithinGroup(todos,t=>t.done===target.done,id,direction));
   renderTodo();
 }
 let tEId=null;
@@ -2385,41 +2402,56 @@ function toggleTodoDone(id){
   addHist('todo','แก้ไข',`${t[idx].name} — ${t[idx].done?'เสร็จแล้ว':'ยังไม่เสร็จ'}`);
   renderTodo();
 }
+function renderTodoRow(t,i,groupLen,today){
+  const dueDate=t.due?new Date(t.due+'T00:00:00'):null;
+  const diffDays=dueDate?Math.round((dueDate-today)/86400000):null;
+  let alertHtml='<span class="pill">—</span>';
+  let isOverdue=false,isSoon=false;
+  if(!t.done&&diffDays!==null){
+    if(diffDays<0){alertHtml='<span class="badge b-over">เกินกำหนด</span>';isOverdue=true;}
+    else if(diffDays<=2){alertHtml=`<span class="badge b-soon">ในอีก ${diffDays} วัน</span>`;isSoon=true;}
+  }
+  const priLabel=t.priority==='high'?'สูง':t.priority==='low'?'ต่ำ':'กลาง';
+  const priCls=t.priority==='high'?'b-over':t.priority==='low'?'b-gray':'b-soon';
+  const dueLabel=dueDate?dueDate.toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric'}):'—';
+  const timeLabel=t.time?`${t.time} น.`:'—';
+  const locHtml=t.location?`<span style="font-size:13px">${t.location}</span>`:'<span class="pill">—</span>';
+  const mapHtml=t.mapLink?`<a href="${t.mapLink}" target="_blank" rel="noopener" class="loc-link" title="เปิดใน Google Maps">📍 แผนที่</a>`:'<span class="pill">—</span>';
+  return{isOverdue,isSoon,html:`<tr class="${t.done?'dim':''}">
+    <td class="tc"><div class="chk"><input type="checkbox" ${t.done?'checked':''} onchange="toggleTodoDone(${t.id})"></div></td>
+    <td><div class="iname" style="font-weight:600">${t.name}</div></td>
+    <td>${dueLabel}</td>
+    <td class="tc">${timeLabel}</td>
+    <td><span class="badge ${priCls}">${priLabel}</span></td>
+    <td>${locHtml}</td>
+    <td class="tc">${mapHtml}</td>
+    <td>${alertHtml}</td>
+    <td class="tc">${reorderBtns(`reorderTodo(${t.id},-1)`,`reorderTodo(${t.id},1)`,i>0,i<groupLen-1)}<button class="icon-btn" onclick="openTM(${t.id})">✏</button></td>
+  </tr>`};
+}
 function renderTodo(){
   const items=getTodos();
   const today=new Date();today.setHours(0,0,0,0);
   let soonCount=0,overCount=0;
   const body=document.getElementById('todo-body');
-  if(!body)return;
-  if(!items.length){
+  const doneBody=document.getElementById('todo-done-body');
+  if(!body||!doneBody)return;
+  const pending=items.filter(t=>!t.done);
+  const done=items.filter(t=>t.done);
+  if(!pending.length){
     body.innerHTML='<tr><td colspan="9" class="empty">ยังไม่มีรายการ</td></tr>';
   }else{
-    body.innerHTML=items.map((t,i)=>{
-      const dueDate=t.due?new Date(t.due+'T00:00:00'):null;
-      const diffDays=dueDate?Math.round((dueDate-today)/86400000):null;
-      let alertHtml='<span class="pill">—</span>';
-      if(!t.done&&diffDays!==null){
-        if(diffDays<0){alertHtml='<span class="badge b-over">เกินกำหนด</span>';overCount++;}
-        else if(diffDays<=2){alertHtml=`<span class="badge b-soon">ในอีก ${diffDays} วัน</span>`;soonCount++;}
-      }
-      const priLabel=t.priority==='high'?'สูง':t.priority==='low'?'ต่ำ':'กลาง';
-      const priCls=t.priority==='high'?'b-over':t.priority==='low'?'b-gray':'b-soon';
-      const dueLabel=dueDate?dueDate.toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric'}):'—';
-      const timeLabel=t.time?`${t.time} น.`:'—';
-      const locHtml=t.location?`<span style="font-size:13px">${t.location}</span>`:'<span class="pill">—</span>';
-      const mapHtml=t.mapLink?`<a href="${t.mapLink}" target="_blank" rel="noopener" class="loc-link" title="เปิดใน Google Maps">📍 แผนที่</a>`:'<span class="pill">—</span>';
-      return`<tr class="${t.done?'dim':''}">
-        <td class="tc"><div class="chk"><input type="checkbox" ${t.done?'checked':''} onchange="toggleTodoDone(${t.id})"></div></td>
-        <td><div class="iname" style="font-weight:600">${t.name}</div></td>
-        <td>${dueLabel}</td>
-        <td class="tc">${timeLabel}</td>
-        <td><span class="badge ${priCls}">${priLabel}</span></td>
-        <td>${locHtml}</td>
-        <td class="tc">${mapHtml}</td>
-        <td>${alertHtml}</td>
-        <td class="tc">${reorderBtns(`reorderTodo(${t.id},-1)`,`reorderTodo(${t.id},1)`,i>0,i<items.length-1)}<button class="icon-btn" onclick="openTM(${t.id})">✏</button></td>
-      </tr>`;
+    body.innerHTML=pending.map((t,i)=>{
+      const r=renderTodoRow(t,i,pending.length,today);
+      if(r.isOverdue)overCount++;
+      if(r.isSoon)soonCount++;
+      return r.html;
     }).join('');
+  }
+  if(!done.length){
+    doneBody.innerHTML='<tr><td colspan="9" class="empty">ยังไม่มีรายการที่ทำเสร็จแล้ว</td></tr>';
+  }else{
+    doneBody.innerHTML=done.map((t,i)=>renderTodoRow(t,i,done.length,today).html).join('');
   }
   document.getElementById('td-total').textContent=items.length;
   document.getElementById('td-soon').textContent=soonCount;
