@@ -32,15 +32,15 @@
 @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
-  --green:#10B981;--gl:rgba(16,185,129,.16);--gd:#34D399;
-  --coral:#F87171;--cl:rgba(248,113,113,.16);
-  --blue:#60A5FA;--bl:rgba(96,165,250,.16);--bd:#93C5FD;
-  --amber:#F79009;--al:rgba(247,144,9,.16);
-  --red:#F04438;--rl:rgba(240,68,56,.16);
-  --purple:#A78BFA;--pl:rgba(167,139,250,.16);
-  --gold:#EAC54F;--goldl:rgba(234,197,79,.16);
-  --g50:#0B0F1C;--g100:#1B2337;--g200:#232B45;--g300:#2E3752;--g400:#8B93AC;--g600:#AEB6CC;--g900:#F1F4FB;
-  --surface:#12182B;--surface2:#161D33;--input-bg:#141C33;
+  --green:#E62429;--gl:rgba(230,36,41,.16);--gd:#FF6B6B;
+  --coral:#FF7A45;--cl:rgba(255,122,69,.16);
+  --blue:#4FC3F7;--bl:rgba(79,195,247,.16);--bd:#7DD8FF;
+  --amber:#FFB800;--al:rgba(255,184,0,.16);
+  --red:#FF3B30;--rl:rgba(255,59,48,.16);
+  --purple:#CD9F3E;--pl:rgba(205,159,62,.16);
+  --gold:#FFD700;--goldl:rgba(255,215,0,.16);
+  --g50:#170D0D;--g100:#2A1414;--g200:#3D1B1B;--g300:#4D2424;--g400:#C9A66B;--g600:#E0C9A6;--g900:#FDF6EC;
+  --surface:#241212;--surface2:#2E1616;--input-bg:#211010;
   --r:10px;--rsm:6px;--font:'Sarabun',sans-serif;
   --nav-h:52px;--bottom-h:56px;
 }
@@ -93,22 +93,22 @@ body{font-family:var(--font);background:var(--g50);color:var(--g900);font-size:1
 .logout-btn:hover{background:var(--g50);color:var(--g900)}
 /* Mobile bottom nav — Dark */
 .mob-nav{display:none;position:fixed;bottom:0;left:0;right:0;
-  background:#1C1C1E;border-top:1px solid #3A3A3C;
+  background:#201010;border-top:1px solid #4D2424;
   z-index:200;height:var(--bottom-h);
   padding-bottom:env(safe-area-inset-bottom)}
 .mob-nav-inner{display:flex;height:100%;align-items:stretch;overflow-x:auto;-webkit-overflow-scrolling:touch}
 .mob-nav-inner::-webkit-scrollbar{display:none}
 .mob-tab{flex:1 0 62px;min-width:62px;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:3px;cursor:pointer;color:#8E8E93;transition:.15s;
+  gap:3px;cursor:pointer;color:#9C7A52;transition:.15s;
   padding:4px 2px;user-select:none;-webkit-tap-highlight-color:transparent}
-.mob-tab.active{color:#30D158}
+.mob-tab.active{color:#E62429}
 .mob-tab .micon{font-size:22px;line-height:1}
 .mob-tab .mlbl{font-size:9px;font-weight:600;letter-spacing:.01em;text-align:center}
 /* Mobile header — Dark */
-.mob-header{display:none;background:#1C1C1E;border-bottom:1px solid #3A3A3C;
+.mob-header{display:none;background:#201010;border-bottom:1px solid #4D2424;
   padding:.65rem 1rem;position:sticky;top:0;z-index:50;
   align-items:center;justify-content:space-between}
-.mob-header h2{font-size:16px;font-weight:700;color:#F5F5F7}
+.mob-header h2{font-size:16px;font-weight:700;color:#FDF6EC}
 .mob-header .mh-right{display:flex;align-items:center;gap:.5rem}
 
 /* page layout */
@@ -140,11 +140,11 @@ body{font-family:var(--font);background:var(--g50);color:var(--g900);font-size:1
 /* buttons */
 .btn{display:inline-flex;align-items:center;gap:4px;border:none;border-radius:var(--rsm);padding:6px 13px;cursor:pointer;font-size:12px;font-family:var(--font);font-weight:600;transition:.12s;white-space:nowrap}
 .btn:active{transform:scale(.97)}
-.btn-pri{background:var(--green);color:#08130F}.btn-pri:hover{background:var(--gd)}
+.btn-pri{background:var(--green);color:#FFF7EC}.btn-pri:hover{background:var(--gd)}
 .btn-ghost{background:none;border:1px solid var(--g200);color:var(--g600)}.btn-ghost:hover{background:var(--g100);color:var(--g900);border-color:var(--g400)}
-.btn-danger{background:var(--rl);color:var(--red)}.btn-danger:hover{background:rgba(240,68,56,.28)}
+.btn-danger{background:var(--rl);color:var(--red)}.btn-danger:hover{background:rgba(255,59,48,.28)}
 .btn-sm{padding:4px 10px;font-size:11px}
-.btn-export{background:var(--bl);color:var(--bd)}.btn-export:hover{background:rgba(96,165,250,.28)}
+.btn-export{background:var(--bl);color:var(--bd)}.btn-export:hover{background:rgba(79,195,247,.28)}
 
 /* icon btn */
 .icon-btn{background:none;border:none;cursor:pointer;color:var(--g400);padding:4px 5px;border-radius:4px;font-size:13px;opacity:0;font-family:var(--font);transition:opacity .1s}
@@ -175,7 +175,7 @@ table.tbl tr.dim .iname{text-decoration:line-through}
 .pay-toggle-group{display:flex;gap:6px;flex-wrap:wrap}
 .pay-toggle-btn{flex:1;min-width:88px;display:flex;align-items:center;justify-content:center;gap:5px;padding:9px 6px;border:1px solid var(--g200);border-radius:var(--rsm);background:var(--input-bg);cursor:pointer;font-size:12.5px;font-weight:600;color:var(--g600);font-family:var(--font);transition:.12s;white-space:nowrap}
 .pay-toggle-btn:hover{border-color:var(--g400)}
-.pay-toggle-btn.active{background:var(--green);color:#08130F;border-color:var(--green)}
+.pay-toggle-btn.active{background:var(--green);color:#FFF7EC;border-color:var(--green)}
 .badge.b-cash{background:var(--gl);color:var(--gd)}
 .badge.b-credit{background:var(--bl);color:var(--bd)}
 .badge.b-transfer{background:var(--al);color:var(--amber)}
@@ -250,8 +250,8 @@ table.tbl tr.dim .iname{text-decoration:line-through}
 .reorder-btns button{background:none;border:none;cursor:pointer;color:var(--g400);font-size:10px;line-height:1;padding:2px 4px}
 .reorder-btns button:hover{color:var(--g900)}
 .reorder-btns button:disabled{opacity:.25;cursor:default}
-table.tbl tr.lend-row-paid td{background:rgba(16,185,129,.07)}
-table.tbl tr.lend-row-paid:hover td{background:rgba(16,185,129,.13)}
+table.tbl tr.lend-row-paid td{background:rgba(255,215,0,.08)}
+table.tbl tr.lend-row-paid:hover td{background:rgba(255,215,0,.15)}
 .loc-link{color:var(--blue);font-size:12px;font-weight:600;text-decoration:none;white-space:nowrap}
 .loc-link:hover{text-decoration:underline}
 
@@ -326,7 +326,7 @@ select.styled:focus{outline:none;border-color:var(--blue)}
 .toggle-wrap{display:flex;align-items:center;justify-content:center;gap:0}
 .toggle-sw{position:relative;width:36px;height:20px;flex-shrink:0}
 .toggle-sw input{opacity:0;width:0;height:0;position:absolute}
-.toggle-sw .slider{position:absolute;inset:0;background:#3A3A3C;border-radius:20px;cursor:pointer;transition:.2s}
+.toggle-sw .slider{position:absolute;inset:0;background:#4D2424;border-radius:20px;cursor:pointer;transition:.2s}
 .toggle-sw .slider::before{content:'';position:absolute;width:16px;height:16px;left:2px;top:2px;background:#fff;border-radius:50%;transition:.2s}
 .toggle-sw input:checked+.slider{background:var(--green)}
 .toggle-sw input:checked+.slider::before{transform:translateX(16px)}
@@ -334,74 +334,74 @@ tr.debt-excluded td{opacity:.38}
 tr.debt-excluded .toggle-sw .slider{background:#555}
 
 /* ══════════ DEBT PAGE — DARK DASHBOARD THEME ══════════ */
-#page-debt{background:#0B0F1C;border-radius:16px;color:#E7EAF3}
+#page-debt{background:#170D0D;border-radius:16px;color:#FDF6EC}
 #page-debt .db-header{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1.2rem}
-#page-debt .db-header h2{font-size:19px;font-weight:700;color:#10B981;letter-spacing:.01em;margin:0}
-#page-debt .db-sub{font-size:12px;color:#8B93AC;margin-top:3px}
+#page-debt .db-header h2{font-size:19px;font-weight:700;color:#E62429;letter-spacing:.01em;margin:0}
+#page-debt .db-sub{font-size:12px;color:#C9A66B;margin-top:3px}
 #page-debt .db-header-right{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap}
-#page-debt .db-avatar{width:32px;height:32px;border-radius:50%;background:#1A2138;border:1px solid #232B45;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
-#page-debt .db-bell{position:relative;height:32px;padding:0 14px;border-radius:999px;background:#1A2138;border:1px solid #232B45;display:flex;align-items:center;justify-content:center;gap:5px;font-size:12.5px;font-weight:600;cursor:pointer;color:#C7CEDE;flex-shrink:0;white-space:nowrap;font-family:var(--font)}
-#page-debt .db-bell:hover{background:#232B45}
-#page-debt .db-bell .db-dot-notif{position:absolute;top:5px;right:6px;width:7px;height:7px;border-radius:50%;background:#F04438;border:1.5px solid #0B0F1C}
-#page-debt .btn-pri{background:#10B981;color:#08130F}
-#page-debt .btn-pri:hover{background:#0EA271}
-#page-debt .btn-export{background:#141C33;color:#7DD3FC;border:1px solid #232B45}
-#page-debt .btn-export:hover{background:#1B2740}
+#page-debt .db-avatar{width:32px;height:32px;border-radius:50%;background:#331818;border:1px solid #3D1B1B;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+#page-debt .db-bell{position:relative;height:32px;padding:0 14px;border-radius:999px;background:#331818;border:1px solid #3D1B1B;display:flex;align-items:center;justify-content:center;gap:5px;font-size:12.5px;font-weight:600;cursor:pointer;color:#E0C9A6;flex-shrink:0;white-space:nowrap;font-family:var(--font)}
+#page-debt .db-bell:hover{background:#3D1B1B}
+#page-debt .db-bell .db-dot-notif{position:absolute;top:5px;right:6px;width:7px;height:7px;border-radius:50%;background:#FF3B30;border:1.5px solid #170D0D}
+#page-debt .btn-pri{background:#E62429;color:#FFF7EC}
+#page-debt .btn-pri:hover{background:#A80E23}
+#page-debt .btn-export{background:#211010;color:#7DD8FF;border:1px solid #3D1B1B}
+#page-debt .btn-export:hover{background:#3D1F1F}
 /* summary cards */
 #page-debt .db-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:.9rem;margin-bottom:1.2rem}
-#page-debt .db-card{background:#12182B;border:1px solid #232B45;border-radius:14px;padding:1rem 1.1rem}
-#page-debt .db-card-lbl{font-size:12px;color:#8B93AC;font-weight:500;margin-bottom:.4rem}
-#page-debt .db-card-val{font-size:23px;font-weight:700;color:#F1F4FB;margin-bottom:.6rem;font-variant-numeric:tabular-nums}
-#page-debt .db-val-red{color:#F87171}
-#page-debt .db-pbar-wrap{background:#232B45;border-radius:999px;height:5px;width:100%;overflow:hidden}
+#page-debt .db-card{background:#241212;border:1px solid #3D1B1B;border-radius:14px;padding:1rem 1.1rem}
+#page-debt .db-card-lbl{font-size:12px;color:#C9A66B;font-weight:500;margin-bottom:.4rem}
+#page-debt .db-card-val{font-size:23px;font-weight:700;color:#FDF6EC;margin-bottom:.6rem;font-variant-numeric:tabular-nums}
+#page-debt .db-val-red{color:#FF7A45}
+#page-debt .db-pbar-wrap{background:#3D1B1B;border-radius:999px;height:5px;width:100%;overflow:hidden}
 #page-debt .db-pbar{height:5px;border-radius:999px;transition:width .3s}
-#page-debt .db-pbar-g{background:#10B981}
-#page-debt .db-pbar-o{background:#F79009}
-#page-debt .db-pbar-r{background:#F04438}
-#page-debt .db-combo-wrap{background:#12182B;border:1px solid #232B45;border-radius:14px;padding:1rem 1.1rem;margin-bottom:1.2rem}
-#page-debt .db-combo-bar{display:flex;height:12px;border-radius:999px;overflow:hidden;background:#232B45;width:100%}
+#page-debt .db-pbar-g{background:#E62429}
+#page-debt .db-pbar-o{background:#FFB800}
+#page-debt .db-pbar-r{background:#FF3B30}
+#page-debt .db-combo-wrap{background:#241212;border:1px solid #3D1B1B;border-radius:14px;padding:1rem 1.1rem;margin-bottom:1.2rem}
+#page-debt .db-combo-bar{display:flex;height:12px;border-radius:999px;overflow:hidden;background:#3D1B1B;width:100%}
 #page-debt .db-combo-seg{height:100%;transition:width .3s}
-#page-debt .db-combo-used{background:#F79009}
-#page-debt .db-combo-rem{background:#10B981}
-#page-debt .db-combo-legend{display:flex;justify-content:space-between;margin-top:.6rem;font-size:12px;color:#8B93AC;flex-wrap:wrap;gap:.4rem}
-#page-debt .db-combo-legend strong{color:#F1F4FB;font-weight:700}
+#page-debt .db-combo-used{background:#FFB800}
+#page-debt .db-combo-rem{background:#E62429}
+#page-debt .db-combo-legend{display:flex;justify-content:space-between;margin-top:.6rem;font-size:12px;color:#C9A66B;flex-wrap:wrap;gap:.4rem}
+#page-debt .db-combo-legend strong{color:#FDF6EC;font-weight:700}
 #page-debt .db-dot-used,#page-debt .db-dot-rem{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:middle}
-#page-debt .db-dot-used{background:#F79009}
-#page-debt .db-dot-rem{background:#10B981}
+#page-debt .db-dot-used{background:#FFB800}
+#page-debt .db-dot-rem{background:#E62429}
 /* sections */
-#page-debt .db-sec{background:#12182B;border:1px solid #232B45;border-radius:14px;margin-bottom:1rem;overflow:hidden}
-#page-debt .db-sec-head{padding:.75rem 1.1rem;font-size:13px;font-weight:700;color:#F1F4FB;border-bottom:1px solid #232B45;display:flex;align-items:center;gap:8px;background:#161D33}
-#page-debt .db-dot{width:8px;height:8px;border-radius:50%;display:inline-block;background:#10B981}
+#page-debt .db-sec{background:#241212;border:1px solid #3D1B1B;border-radius:14px;margin-bottom:1rem;overflow:hidden}
+#page-debt .db-sec-head{padding:.75rem 1.1rem;font-size:13px;font-weight:700;color:#FDF6EC;border-bottom:1px solid #3D1B1B;display:flex;align-items:center;gap:8px;background:#2E1616}
+#page-debt .db-dot{width:8px;height:8px;border-radius:50%;display:inline-block;background:#E62429}
 #page-debt .db-table-wrap{overflow-x:auto}
 #page-debt table.db-tbl{width:100%;border-collapse:collapse;min-width:940px}
-#page-debt table.db-tbl th{font-size:10.5px;color:#7B839C;font-weight:600;text-transform:uppercase;letter-spacing:.02em;padding:.55rem .7rem;border-bottom:1px solid #232B45;text-align:left;white-space:nowrap;background:#161D33}
-#page-debt table.db-tbl td{font-size:13px;padding:.55rem .7rem;border-bottom:1px solid #1B2337;vertical-align:middle;color:#C7CEDE}
+#page-debt table.db-tbl th{font-size:10.5px;color:#B08A6A;font-weight:600;text-transform:uppercase;letter-spacing:.02em;padding:.55rem .7rem;border-bottom:1px solid #3D1B1B;text-align:left;white-space:nowrap;background:#2E1616}
+#page-debt table.db-tbl td{font-size:13px;padding:.55rem .7rem;border-bottom:1px solid #2A1414;vertical-align:middle;color:#E0C9A6}
 #page-debt table.db-tbl tr:last-child td{border-bottom:none}
-#page-debt table.db-tbl tr:hover td{background:#161D33}
+#page-debt table.db-tbl tr:hover td{background:#2E1616}
 #page-debt .db-tc{text-align:center}
 #page-debt .db-tr{text-align:right}
-#page-debt .db-num{color:#93C5FD;font-weight:600;font-variant-numeric:tabular-nums}
-#page-debt .db-idx{color:#5B6480;font-weight:600}
-#page-debt .db-name{font-weight:700;color:#F1F4FB}
-#page-debt .db-red{color:#F87171!important}
-#page-debt .db-green{color:#34D399!important}
-#page-debt .db-inst-text{font-size:12px;color:#C7CEDE;margin-bottom:4px;white-space:normal}
-#page-debt .db-note{font-size:12px;color:#7B839C;max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#page-debt .db-empty{text-align:center;padding:1.8rem;font-size:13px;color:#5B6480}
-#page-debt .db-icon-btn{background:none;border:none;cursor:pointer;color:#5B6480;padding:4px 6px;border-radius:6px;font-size:13px;transition:.1s;opacity:0}
+#page-debt .db-num{color:#7DD8FF;font-weight:600;font-variant-numeric:tabular-nums}
+#page-debt .db-idx{color:#9C7A52;font-weight:600}
+#page-debt .db-name{font-weight:700;color:#FDF6EC}
+#page-debt .db-red{color:#FF7A45!important}
+#page-debt .db-green{color:#FFD700!important}
+#page-debt .db-inst-text{font-size:12px;color:#E0C9A6;margin-bottom:4px;white-space:normal}
+#page-debt .db-note{font-size:12px;color:#B08A6A;max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#page-debt .db-empty{text-align:center;padding:1.8rem;font-size:13px;color:#9C7A52}
+#page-debt .db-icon-btn{background:none;border:none;cursor:pointer;color:#9C7A52;padding:4px 6px;border-radius:6px;font-size:13px;transition:.1s;opacity:0}
 #page-debt tr:hover .db-icon-btn{opacity:1}
-#page-debt .db-icon-btn:hover{color:#F1F4FB;background:#232B45}
-#page-debt .db-tfoot{display:flex;justify-content:space-between;padding:.6rem 1.1rem;font-size:12px;color:#8B93AC;border-top:1px solid #232B45;background:#161D33;flex-wrap:wrap;gap:.4rem}
-#page-debt .db-tfoot strong{color:#F1F4FB;font-weight:700}
-#page-debt .db-muted-note{color:#5B6480;font-size:11px;margin-left:8px}
+#page-debt .db-icon-btn:hover{color:#FDF6EC;background:#3D1B1B}
+#page-debt .db-tfoot{display:flex;justify-content:space-between;padding:.6rem 1.1rem;font-size:12px;color:#C9A66B;border-top:1px solid #3D1B1B;background:#2E1616;flex-wrap:wrap;gap:.4rem}
+#page-debt .db-tfoot strong{color:#FDF6EC;font-weight:700}
+#page-debt .db-muted-note{color:#9C7A52;font-size:11px;margin-left:8px}
 #page-debt tr.db-row-off td{opacity:.4}
-#page-debt tr.db-row-off .toggle-sw .slider{background:#3A3A3C}
-#page-debt .toggle-sw .slider{background:#2A3450}
+#page-debt tr.db-row-off .toggle-sw .slider{background:#4D2424}
+#page-debt .toggle-sw .slider{background:#4D2424}
 #page-debt .db-status-badge{display:inline-block;font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;cursor:pointer;white-space:nowrap;transition:.12s}
-#page-debt .db-status-on{background:rgba(16,185,129,.16);color:#34D399;border:1px solid rgba(16,185,129,.35)}
-#page-debt .db-status-on:hover{background:rgba(16,185,129,.28)}
-#page-debt .db-status-off{background:rgba(139,147,172,.14);color:#8B93AC;border:1px solid rgba(139,147,172,.3)}
-#page-debt .db-status-off:hover{background:rgba(139,147,172,.24)}
+#page-debt .db-status-on{background:rgba(255,215,0,.16);color:#FFD700;border:1px solid rgba(255,215,0,.4)}
+#page-debt .db-status-on:hover{background:rgba(255,215,0,.28)}
+#page-debt .db-status-off{background:rgba(201,166,107,.14);color:#C9A66B;border:1px solid rgba(201,166,107,.3)}
+#page-debt .db-status-off:hover{background:rgba(201,166,107,.24)}
 @media(max-width:768px){
   #page-debt{border-radius:12px}
   #page-debt .db-cards{grid-template-columns:1fr;gap:.6rem}
@@ -450,7 +450,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   #page-budget .cards.c4{grid-template-columns:repeat(4,1fr)}
   #page-debt .cards.c3{grid-template-columns:repeat(3,1fr)}
   #page-invest .cards.c4{grid-template-columns:repeat(4,1fr)}
-  #page-subscription .cards.c3{grid-template-columns:repeat(3,1fr)}
+  #page-subscription .cards.c4{grid-template-columns:repeat(4,1fr)}
   /* show bottom nav horizontal */
   .mob-nav-inner{flex-direction:row}
   .mob-tab{flex-direction:row;gap:6px;padding:0 8px}
@@ -476,7 +476,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   <div class="nav-tab" data-page="debt" onclick="sw('debt',this)">หนี้สิน</div>
   <div class="nav-tab" data-page="invest" onclick="sw('invest',this)">การลงทุน</div>
   <div class="nav-tab" data-page="lending" onclick="sw('lending',this)">💵 ติดตามหนี้สิน</div>
-  <div class="nav-tab" data-page="subscription" onclick="sw('subscription',this)">สมัครสมาชิก</div>
+  <div class="nav-tab" data-page="subscription" onclick="sw('subscription',this)">สมัครสมาชิกแอพ</div>
   <div class="nav-tab" data-page="logins" onclick="sw('logins',this)">User-Login</div>
   <div class="nav-tab" data-page="history" onclick="sw('history',this)">ประวัติ</div>
   <button class="btn btn-ghost btn-sm" style="margin-left:auto;flex-shrink:0" onclick="openPageMgr()">⚙ จัดการเมนู</button>
@@ -507,29 +507,33 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   <div class="sec">
     <div class="sec-head"><span class="sec-title"><span class="dot dg"></span>รายการที่ต้องทำ</span></div>
     <table class="tbl"><thead><tr>
-      <th style="width:5%" class="tc">สถานะ</th>
-      <th style="width:25%">ชื่อรายการ</th>
-      <th style="width:11%">วันครบกำหนด</th>
-      <th style="width:8%" class="tc">เวลานัดหมาย</th>
-      <th style="width:9%">ความสำคัญ</th>
-      <th style="width:16%">สถานที่</th>
-      <th style="width:8%" class="tc">MAP</th>
-      <th style="width:13%">แจ้งเตือน</th>
-      <th style="width:5%" class="tc">✏</th>
+      <th style="width:4%" class="tc">สถานะ</th>
+      <th style="width:21%">ชื่อรายการ</th>
+      <th style="width:9%">วันครบกำหนด</th>
+      <th style="width:7%" class="tc">เวลานัดหมาย</th>
+      <th style="width:8%" class="tr">ราคา</th>
+      <th style="width:8%">ความสำคัญ</th>
+      <th style="width:12%">สถานที่</th>
+      <th style="width:6%" class="tc">MAP</th>
+      <th style="width:9%">วันที่ลงข้อมูล</th>
+      <th style="width:12%">แจ้งเตือน</th>
+      <th style="width:4%" class="tc">✏</th>
     </tr></thead><tbody id="todo-body"></tbody></table>
   </div>
   <div class="sec">
     <div class="sec-head"><span class="sec-title"><span class="dot dgold"></span>ทำแล้ว</span></div>
     <table class="tbl"><thead><tr>
-      <th style="width:5%" class="tc">สถานะ</th>
-      <th style="width:25%">ชื่อรายการ</th>
-      <th style="width:11%">วันครบกำหนด</th>
-      <th style="width:8%" class="tc">เวลานัดหมาย</th>
-      <th style="width:9%">ความสำคัญ</th>
-      <th style="width:16%">สถานที่</th>
-      <th style="width:8%" class="tc">MAP</th>
-      <th style="width:13%">แจ้งเตือน</th>
-      <th style="width:5%" class="tc">✏</th>
+      <th style="width:4%" class="tc">สถานะ</th>
+      <th style="width:21%">ชื่อรายการ</th>
+      <th style="width:9%">วันครบกำหนด</th>
+      <th style="width:7%" class="tc">เวลานัดหมาย</th>
+      <th style="width:8%" class="tr">ราคา</th>
+      <th style="width:8%">ความสำคัญ</th>
+      <th style="width:12%">สถานที่</th>
+      <th style="width:6%" class="tc">MAP</th>
+      <th style="width:9%">วันที่ลงข้อมูล</th>
+      <th style="width:12%">แจ้งเตือน</th>
+      <th style="width:4%" class="tc">✏</th>
     </tr></thead><tbody id="todo-done-body"></tbody></table>
   </div>
 </div>
@@ -906,23 +910,24 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 <!-- PAGE: SUBSCRIPTION -->
 <div id="page-subscription" class="page">
   <div class="page-head">
-    <div><h2 class="desk-only">สมัครสมาชิก / แอปรายปี</h2><div class="sub">ติดตามวันต่ออายุ</div></div>
+    <div><h2 class="desk-only">สมัครสมาชิกแอพ</h2><div class="sub">ติดตามวันต่ออายุ</div></div>
     <div class="page-head-actions">
       <button class="btn btn-ghost btn-sm" onclick="sw('dashboard',null)">⌂ ภาพรวม</button>
       <button class="btn btn-pri btn-sm" onclick="openSubM()">+ เพิ่ม</button>
     </div>
   </div>
-  <div class="cards c3">
+  <div class="cards c4">
     <div class="card"><div class="lbl">ค่าบริการ/ปี</div><div class="val vb" id="sub-yr">฿0</div></div>
+    <div class="card"><div class="lbl">ค่าบริการ/เดือน</div><div class="val vb" id="sub-mo">฿0</div></div>
     <div class="card"><div class="lbl">กำลังใช้งาน</div><div class="val vg" id="sub-act">0</div></div>
-    <div class="card"><div class="lbl">ใกล้หมดอายุ (30 วัน)</div><div class="val vc" id="sub-exp">0</div></div>
+    <div class="card"><div class="lbl">ใกล้หมดอายุ (15 วัน)</div><div class="val vc" id="sub-exp">0</div></div>
   </div>
   <div class="sec">
     <div class="sec-head"><span class="sec-title"><span class="dot db"></span>รายการสมาชิก</span></div>
     <table class="tbl"><thead><tr id="sub-head">
-      <th style="width:24%">รายการ</th><th style="width:13%">สมาชิก</th>
-      <th style="width:10%" class="tr">ราคา/ปี</th><th style="width:12%">เริ่มสมัคร</th>
-      <th style="width:14%">หมดอายุ</th><th style="width:9%">สถานะ</th>
+      <th style="width:20%">รายการ</th><th style="width:11%">สมาชิก</th>
+      <th style="width:9%" class="tr">ราคา/ปี</th><th style="width:9%" class="tr">ราคา/เดือน</th><th style="width:11%">เริ่มสมัคร</th>
+      <th style="width:13%">หมดอายุ</th><th style="width:9%">สถานะ</th>
       <th style="width:13%">หมายเหตุ</th><th style="width:5%" class="tc">✏</th>
     </tr></thead><tbody id="sub-body"></tbody></table>
     <div class="tfoot"><span>รวม</span><strong id="sub-tot">฿0</strong></div>
@@ -982,7 +987,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
         <option value="invest">การลงทุน</option>
         <option value="lending">ติดตามหนี้สิน (ลูกหนี้)</option>
         <option value="gold">ออมทอง</option>
-        <option value="subscription">สมัครสมาชิก</option>
+        <option value="subscription">สมัครสมาชิกแอพ</option>
         <option value="login">User-Login</option>
         <option value="settings">ตั้งค่า/จัดการเมนู</option>
       </select>
@@ -1002,7 +1007,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
     <div class="mob-tab" data-page="debt" onclick="swMob('debt',this,'หนี้สิน')"><div class="micon">🏦</div><div class="mlbl">หนี้สิน</div></div>
     <div class="mob-tab" data-page="invest" onclick="swMob('invest',this,'การลงทุน')"><div class="micon">📈</div><div class="mlbl">ลงทุน</div></div>
     <div class="mob-tab" data-page="lending" onclick="swMob('lending',this,'ติดตามหนี้สิน')"><div class="micon">💵</div><div class="mlbl">ลูกหนี้</div></div>
-    <div class="mob-tab" data-page="subscription" onclick="swMob('subscription',this,'สมัครสมาชิก')"><div class="micon">🔔</div><div class="mlbl">สมาชิก</div></div>
+    <div class="mob-tab" data-page="subscription" onclick="swMob('subscription',this,'สมัครสมาชิกแอพ')"><div class="micon">🔔</div><div class="mlbl">สมาชิก</div></div>
     <div class="mob-tab" data-page="logins" onclick="swMob('logins',this,'User-Login')"><div class="micon">🔑</div><div class="mlbl">Login</div></div>
   </div>
 </nav>
@@ -1142,6 +1147,10 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
     <div class="f"><label>วันครบกำหนด</label><input type="date" id="tm-due"></div>
     <div class="f"><label>เวลานัดหมาย</label><input type="time" id="tm-time"></div>
   </div>
+  <div class="f-row">
+    <div class="f"><label>ราคา (฿)</label><input type="number" id="tm-price" placeholder="0" min="0"></div>
+    <div class="f"><label>วันที่ลงข้อมูล</label><input type="date" id="tm-created"></div>
+  </div>
   <div class="f"><label>ระดับความสำคัญ</label>
     <select id="tm-pri">
       <option value="high">สูง</option>
@@ -1244,23 +1253,43 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   <h3 id="sub-title">เพิ่มสมาชิก</h3>
   <div class="f"><label>ชื่อบริการ</label><input type="text" id="sub-name" placeholder="เช่น Netflix, Spotify"></div>
   <div class="f-row">
-    <div class="f"><label>สมาชิก/แพ็กเกจ</label><input type="text" id="sub-mem" placeholder="เช่น PLOY"></div>
+    <div class="f"><label>สมาชิก/แพ็กเกจ</label>
+      <div style="display:flex;gap:5px">
+        <select id="sub-mem" style="flex:1"></select>
+        <button type="button" class="btn btn-ghost btn-sm" style="padding:0 9px" title="จัดการรายชื่อสมาชิก" onclick="openSubMemMgr()">⚙</button>
+      </div>
+    </div>
     <div class="f"><label>ราคา/ปี (฿)</label><input type="number" id="sub-price" placeholder="0"></div>
   </div>
   <div class="f-row">
+    <div class="f"><label>ราคา/เดือน (฿)</label><input type="number" id="sub-price-monthly" placeholder="0"></div>
     <div class="f"><label>เริ่มสมัคร</label><input type="date" id="sub-start"></div>
-    <div class="f"><label>หมดอายุ/ต่อใหม่</label><input type="date" id="sub-end"></div>
   </div>
   <div class="f-row">
+    <div class="f"><label>หมดอายุ/ต่อใหม่</label><input type="date" id="sub-end"></div>
     <div class="f"><label>สถานะ</label>
-      <select id="sub-stat"><option value="active">Active</option><option value="inactive">Inactive</option></select>
+      <select id="sub-stat"><option value="active">เปิดใช้งาน</option><option value="inactive">ปิดใช้งาน</option></select>
     </div>
-    <div class="f"><label>หมายเหตุ</label><input type="text" id="sub-note" placeholder="บันทึก..."></div>
   </div>
+  <div class="f"><label>หมายเหตุ</label><input type="text" id="sub-note" placeholder="บันทึก..."></div>
   <div class="mbtns">
     <button class="btn btn-danger" id="sub-del" onclick="delSub()" style="display:none">ลบ</button>
     <button class="btn btn-ghost" onclick="closeOv('sub-ov')">ยกเลิก</button>
     <button class="btn btn-pri" onclick="saveSub()">บันทึก</button>
+  </div>
+</div></div>
+
+<!-- Subscription Member Manager -->
+<div class="ov" id="submgr-ov"><div class="modal">
+  <span class="modal-drag"></span>
+  <h3>จัดการรายชื่อสมาชิก</h3>
+  <div id="submgr-list" style="margin-bottom:.75rem"></div>
+  <div class="f-row">
+    <div class="f" style="flex:1"><label>เพิ่มสมาชิกใหม่</label><input type="text" id="submgr-new" placeholder="เช่น PLOY, TUU&POLOY"></div>
+  </div>
+  <div class="mbtns">
+    <button class="btn btn-ghost" onclick="closeOv('submgr-ov')">ปิด</button>
+    <button class="btn btn-pri" onclick="addSubMember()">+ เพิ่มสมาชิก</button>
   </div>
 </div></div>
 
@@ -1340,6 +1369,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
     <div class="f"><label>เงินต้นที่ให้ยืม (฿)</label><input type="number" id="lendm-principal" placeholder="0" min="0"></div>
     <div class="f"><label>ดอกเบี้ยต่อปี (%)</label>
       <select id="lendm-rate">
+        <option value="0">ไม่มีดอกเบี้ย (0%)</option>
         <option value="3">3%</option><option value="4">4%</option><option value="5">5%</option>
         <option value="6">6%</option><option value="7">7%</option><option value="8">8%</option>
         <option value="9">9%</option><option value="10">10%</option>
@@ -1632,7 +1662,7 @@ const ALL_PAGES=[
   {id:'debt',label:'🏦 หนี้สิน'},
   {id:'invest',label:'📈 การลงทุน'},
   {id:'lending',label:'💵 ติดตามหนี้สิน (ลูกหนี้)'},
-  {id:'subscription',label:'🔔 สมัครสมาชิก'},
+  {id:'subscription',label:'🔔 สมัครสมาชิกแอพ'},
   {id:'logins',label:'🔑 User-Login'},
   {id:'history',label:'🕐 ประวัติ'}
 ];
@@ -2341,9 +2371,9 @@ function exportDebt(){
 // ══ TODO — สิ่งที่ต้องทำ ══
 function addDaysISO(n){const d=new Date();d.setDate(d.getDate()+n);return d.toISOString().slice(0,10)}
 function defTodos(){return[
-  {id:1,name:'ต่อประกันรถยนต์',due:addDaysISO(3),time:'',priority:'high',done:false},
-  {id:2,name:'จ่ายค่าเช่าบ้าน',due:addDaysISO(10),time:'',priority:'medium',done:false},
-  {id:3,name:'นัดหมอฟัน',due:addDaysISO(-2),time:'14:30',priority:'low',done:false}
+  {id:1,name:'ต่อประกันรถยนต์',due:addDaysISO(3),time:'',price:0,createdDate:addDaysISO(0),priority:'high',done:false},
+  {id:2,name:'จ่ายค่าเช่าบ้าน',due:addDaysISO(10),time:'',price:0,createdDate:addDaysISO(0),priority:'medium',done:false},
+  {id:3,name:'นัดหมอฟัน',due:addDaysISO(-2),time:'14:30',price:0,createdDate:addDaysISO(-5),priority:'low',done:false}
 ]}
 function getTodos(){return ls(uKey('todos_v1'),defTodos())}
 function saveTodos(t){lss(uKey('todos_v1'),t)}
@@ -2362,6 +2392,8 @@ function openTM(id){
   document.getElementById('tm-name').value=item?.name||'';
   document.getElementById('tm-due').value=item?.due||'';
   document.getElementById('tm-time').value=item?.time||'';
+  document.getElementById('tm-price').value=item?.price||'';
+  document.getElementById('tm-created').value=item?.createdDate||new Date().toISOString().slice(0,10);
   document.getElementById('tm-pri').value=item?.priority||'medium';
   document.getElementById('tm-loc').value=item?.location||'';
   document.getElementById('tm-maplink').value=item?.mapLink||'';
@@ -2370,7 +2402,10 @@ function openTM(id){
 }
 function saveTodoItem(){
   const name=(document.getElementById('tm-name').value||'').trim();if(!name)return;
-  const obj={name,due:document.getElementById('tm-due').value,time:document.getElementById('tm-time').value,priority:document.getElementById('tm-pri').value,location:(document.getElementById('tm-loc').value||'').trim(),mapLink:(document.getElementById('tm-maplink').value||'').trim()};
+  const obj={name,due:document.getElementById('tm-due').value,time:document.getElementById('tm-time').value,
+    price:parseFloat(document.getElementById('tm-price').value)||0,
+    createdDate:document.getElementById('tm-created').value||new Date().toISOString().slice(0,10),
+    priority:document.getElementById('tm-pri').value,location:(document.getElementById('tm-loc').value||'').trim(),mapLink:(document.getElementById('tm-maplink').value||'').trim()};
   let t=getTodos();
   if(tEId){
     t=t.map(i=>i.id===tEId?{...i,...obj}:i);
@@ -2417,14 +2452,18 @@ function renderTodoRow(t,i,groupLen,today){
   const timeLabel=t.time?`${t.time} น.`:'—';
   const locHtml=t.location?`<span style="font-size:13px">${t.location}</span>`:'<span class="pill">—</span>';
   const mapHtml=t.mapLink?`<a href="${t.mapLink}" target="_blank" rel="noopener" class="loc-link" title="เปิดใน Google Maps">📍 แผนที่</a>`:'<span class="pill">—</span>';
+  const priceLabel=t.price?fmt(t.price):'—';
+  const createdLabel=t.createdDate?new Date(t.createdDate+'T00:00:00').toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric'}):'—';
   return{isOverdue,isSoon,html:`<tr class="${t.done?'dim':''}">
     <td class="tc"><div class="chk"><input type="checkbox" ${t.done?'checked':''} onchange="toggleTodoDone(${t.id})"></div></td>
     <td><div class="iname" style="font-weight:600">${t.name}</div></td>
     <td>${dueLabel}</td>
     <td class="tc">${timeLabel}</td>
+    <td class="tr">${priceLabel}</td>
     <td><span class="badge ${priCls}">${priLabel}</span></td>
     <td>${locHtml}</td>
     <td class="tc">${mapHtml}</td>
+    <td>${createdLabel}</td>
     <td>${alertHtml}</td>
     <td class="tc">${reorderBtns(`reorderTodo(${t.id},-1)`,`reorderTodo(${t.id},1)`,i>0,i<groupLen-1)}<button class="icon-btn" onclick="openTM(${t.id})">✏</button></td>
   </tr>`};
@@ -2439,7 +2478,7 @@ function renderTodo(){
   const pending=items.filter(t=>!t.done);
   const done=items.filter(t=>t.done);
   if(!pending.length){
-    body.innerHTML='<tr><td colspan="9" class="empty">ยังไม่มีรายการ</td></tr>';
+    body.innerHTML='<tr><td colspan="11" class="empty">ยังไม่มีรายการ</td></tr>';
   }else{
     body.innerHTML=pending.map((t,i)=>{
       const r=renderTodoRow(t,i,pending.length,today);
@@ -2449,7 +2488,7 @@ function renderTodo(){
     }).join('');
   }
   if(!done.length){
-    doneBody.innerHTML='<tr><td colspan="9" class="empty">ยังไม่มีรายการที่ทำเสร็จแล้ว</td></tr>';
+    doneBody.innerHTML='<tr><td colspan="11" class="empty">ยังไม่มีรายการที่ทำเสร็จแล้ว</td></tr>';
   }else{
     doneBody.innerHTML=done.map((t,i)=>renderTodoRow(t,i,done.length,today).html).join('');
   }
@@ -3175,7 +3214,7 @@ function openLendM(id){
   document.getElementById('lendm-name').value=item?.name||'';
   document.getElementById('lendm-phone').value=item?.phone||'';
   document.getElementById('lendm-principal').value=item?.principal||'';
-  document.getElementById('lendm-rate').value=item?.rate||5;
+  document.getElementById('lendm-rate').value=item&&item.rate!=null?item.rate:5;
   document.getElementById('lendm-years').value=item?.years||'';
   document.getElementById('lendm-months').value=item?.months||'';
   document.getElementById('lendm-borrowdate').value=item?.borrowDate||new Date().toISOString().slice(0,10);
@@ -3187,7 +3226,8 @@ function openLendM(id){
 function saveDebtor(){
   const name=(document.getElementById('lendm-name').value||'').trim();if(!name)return;
   const principal=parseFloat(document.getElementById('lendm-principal').value)||0;
-  const rate=parseFloat(document.getElementById('lendm-rate').value)||5;
+  const rateVal=document.getElementById('lendm-rate').value;
+  const rate=rateVal===''?5:parseFloat(rateVal);
   const years=parseInt(document.getElementById('lendm-years').value)||0;
   const months=parseInt(document.getElementById('lendm-months').value)||0;
   const borrowDate=document.getElementById('lendm-borrowdate').value;
@@ -3326,7 +3366,7 @@ function renderLending(){
       return`<tr class="${paidThisMonth&&!closed?'lend-row-paid':''}">
         <td style="font-weight:700">${d.name}${d.phone?`<div style="font-size:11px;color:var(--g400);font-weight:400">${d.phone}</div>`:''}</td>
         <td class="tr">${fmt(d.principal)}</td>
-        <td class="tc">${d.rate}%</td>
+        <td class="tc">${d.rate===0?'ไม่มีดอกเบี้ย':d.rate+'%'}</td>
         <td>${term}</td>
         <td class="tr" style="color:var(--gold);font-weight:600">${monthlyPay?fmt(monthlyPay):'—'}</td>
         <td class="tr" style="color:${remainingBalance>0?'var(--coral)':'var(--green)'};font-weight:600">${fmt(remainingBalance)}</td>
@@ -3393,14 +3433,79 @@ function defSubs(){return[
   {id:2,name:'MEITU : PLOY',member:'PLOY',price:949,start:'',end:'2026-12-11',status:'active',note:''},
   {id:3,name:'Make by Kplus : TUU&POLOY',member:'TUU&POLOY',price:1380,start:'',end:'2027-01-01',status:'active',note:''}
 ]}
+function getSubMembers(){return ls(uKey('sub_members_v1'),['PLOY','TUU&POLOY'])}
+function saveSubMembers(m){lss(uKey('sub_members_v1'),m)}
+function refreshSubMemOptions(){
+  const sel=document.getElementById('sub-mem');
+  if(!sel)return;
+  const cur=sel.value;
+  const members=getSubMembers();
+  sel.innerHTML=members.map(m=>`<option value="${m.replace(/"/g,'&quot;')}">${m.replace(/</g,'&lt;')}</option>`).join('');
+  if(members.includes(cur))sel.value=cur;
+}
+function openSubMemMgr(){
+  renderSubMemMgrList();
+  document.getElementById('submgr-new').value='';
+  document.getElementById('submgr-ov').classList.add('open');
+}
+function renderSubMemMgrList(){
+  const members=getSubMembers();
+  document.getElementById('submgr-list').innerHTML=members.length?members.map((m,i)=>
+    `<div class="f-row" style="align-items:center;margin-bottom:.4rem">
+      <input type="text" value="${m.replace(/"/g,'&quot;')}" onchange="renameSubMember(${i},this.value)" style="flex:1">
+      <button class="btn btn-danger btn-sm" onclick="deleteSubMember(${i})">ลบ</button>
+    </div>`
+  ).join(''):'<div class="empty">ยังไม่มีสมาชิก</div>';
+}
+function addSubMember(){
+  const val=(document.getElementById('submgr-new').value||'').trim();
+  if(!val)return;
+  const members=getSubMembers();
+  if(members.includes(val)){document.getElementById('submgr-new').value='';return;}
+  members.push(val);
+  saveSubMembers(members);
+  addHist('subscription','เพิ่ม',`เพิ่มสมาชิกใหม่: ${val}`);
+  document.getElementById('submgr-new').value='';
+  renderSubMemMgrList();refreshSubMemOptions();
+}
+function renameSubMember(idx,newVal){
+  newVal=(newVal||'').trim();if(!newVal)return;
+  const members=getSubMembers();
+  const oldVal=members[idx];
+  members[idx]=newVal;
+  saveSubMembers(members);
+  saveSubs(getSubs().map(s=>s.member===oldVal?{...s,member:newVal}:s));
+  addHist('subscription','แก้ไข',`เปลี่ยนชื่อสมาชิกเป็น: ${newVal}`);
+  renderSubMemMgrList();refreshSubMemOptions();renderSub();
+}
+function deleteSubMember(idx){
+  const members=getSubMembers();
+  const val=members[idx];
+  if(!confirm(`ลบสมาชิก "${val}"?`))return;
+  members.splice(idx,1);
+  saveSubMembers(members);
+  addHist('subscription','ลบ',`ลบสมาชิก: ${val}`);
+  renderSubMemMgrList();refreshSubMemOptions();
+}
+function toggleSubStatus(id){
+  const subs=getSubs();
+  const idx=subs.findIndex(s=>s.id===id);
+  if(idx<0)return;
+  subs[idx].status=subs[idx].status==='active'?'inactive':'active';
+  saveSubs(subs);
+  addHist('subscription','แก้ไข',`${subs[idx].name} — ${subs[idx].status==='active'?'เปิดใช้งาน':'ปิดใช้งาน'}`);
+  renderSub();
+}
 let subEId=null;
 function openSubM(id){
   subEId=id||null;
   const item=id?getSubs().find(s=>s.id===id):null;
   document.getElementById('sub-title').textContent=id?'แก้ไขสมาชิก':'เพิ่มสมาชิก';
   document.getElementById('sub-name').value=item?.name||'';
+  refreshSubMemOptions();
   document.getElementById('sub-mem').value=item?.member||'';
   document.getElementById('sub-price').value=item?.price||'';
+  document.getElementById('sub-price-monthly').value=item?.priceMonthly||'';
   document.getElementById('sub-start').value=item?.start||'';
   document.getElementById('sub-end').value=item?.end||'';
   document.getElementById('sub-stat').value=item?.status||'active';
@@ -3411,6 +3516,7 @@ function openSubM(id){
 function saveSub(){
   const name=(document.getElementById('sub-name').value||'').trim();if(!name)return;
   const obj={name,member:document.getElementById('sub-mem').value,price:parseFloat(document.getElementById('sub-price').value)||0,
+    priceMonthly:parseFloat(document.getElementById('sub-price-monthly').value)||0,
     start:document.getElementById('sub-start').value,end:document.getElementById('sub-end').value,
     status:document.getElementById('sub-stat').value,note:document.getElementById('sub-note').value};
   let s=getSubs();
@@ -3428,7 +3534,7 @@ function renderSub(){
   const subs=getSubs(),today=new Date();
   const active=subs.filter(s=>s.status==='active');
   const tYr=subs.reduce((s,i)=>s+i.price,0);
-  const exp=active.filter(s=>{if(!s.end)return false;const d=new Date(s.end);return(d-today)/86400000<=30&&d>=today}).length;
+  const exp=active.filter(s=>{if(!s.end)return false;const d=new Date(s.end);return(d-today)/86400000<=15&&d>=today}).length;
   document.getElementById('sub-yr').textContent=fmt(tYr);
   document.getElementById('sub-act').textContent=active.length+' รายการ';
   document.getElementById('sub-exp').textContent=exp+' รายการ';
@@ -3443,8 +3549,8 @@ function renderSub(){
     <th style="width:10%;cursor:pointer;text-align:right" onclick="sortBy('subscription','col','price')">ราคา/ปี ${si('price')}</th>
     <th style="width:12%">เริ่มสมัคร</th>
     <th style="width:14%;cursor:pointer" onclick="sortBy('subscription','col','end')">หมดอายุ ${si('end')}</th>
-    <th style="width:9%;cursor:pointer" onclick="sortBy('subscription','col','status')">สถานะ ${si('status')}</th>
-    <th style="width:13%">หมายเหตุ</th><th style="width:5%;text-align:center">✏</th>`;
+    <th style="width:11%;cursor:pointer" onclick="sortBy('subscription','col','status')">สถานะ ${si('status')}</th>
+    <th style="width:11%">หมายเหตุ</th><th style="width:5%;text-align:center">✏</th>`;
   if(!subs.length){tb.innerHTML='<tr><td colspan="8" class="empty">ยังไม่มีรายการ</td></tr>';return}
   const noSortSub=!ensureSortState('subscription','col').col;
   const sorted=applySortArr(subs,'subscription','col');
@@ -3452,15 +3558,15 @@ function renderSub(){
     let eb='<span class="badge b-gray">—</span>';
     if(s.end){const d=new Date(s.end),diff=Math.ceil((d-today)/86400000),ds=fmtDate(s.end);
       if(diff<0)eb=`<span class="badge b-over">${ds} หมดแล้ว</span>`;
-      else if(diff<=30)eb=`<span class="badge b-soon">${ds} (อีก ${diff} ว.)</span>`;
+      else if(diff<=15)eb=`<span class="badge b-soon">${ds} (อีก ${diff} ว.)</span>`;
       else eb=`<span class="badge b-gray">${ds}</span>`;}
     return`<tr>
       <td style="font-weight:700">${s.name}</td>
       <td><span class="pill">${s.member||'—'}</span></td>
-      <td class="tr ag">${fmt(s.price)}</td>
+      <td class="tr ag">${fmt(s.price)}${s.priceMonthly?`<div style="font-size:10px;color:var(--g400);font-weight:400">${fmt(s.priceMonthly)}/ด.</div>`:''}</td>
       <td style="font-size:12px;color:var(--g400)">${fmtDate(s.start)}</td>
       <td>${eb}</td>
-      <td><span class="sab ${s.status==='active'?'sab-on':'sab-off'}">${s.status==='active'?'Active':'Inactive'}</span></td>
+      <td><span class="sab ${s.status==='active'?'sab-on':'sab-off'}" style="cursor:pointer;white-space:nowrap" onclick="toggleSubStatus(${s.id})">${s.status==='active'?'✓ เปิดใช้งาน':'○ ปิดใช้งาน'}</span></td>
       <td style="font-size:11px;color:var(--g400)">${s.note||'—'}</td>
       <td class="tc">${noSortSub?reorderBtns(`reorderSub(${s.id},-1)`,`reorderSub(${s.id},1)`,i>0,i<sorted.length-1):''}<button class="icon-btn" onclick="openSubM(${s.id})">✏</button></td>
     </tr>`;
@@ -3617,7 +3723,7 @@ function renderAlerts(){
     if(!s.end||s.status!=='active')return;
     const d=new Date(s.end),diff=Math.ceil((d-today)/86400000),key=`sub_${s.id}_end`;
     if(dismissed[key])return;
-    if(diff>=0&&diff<=30)alerts.push({t:'warn',msg:`<b>${s.name}</b> หมดอายุใน ${diff} วัน`,key});
+    if(diff>=0&&diff<=15)alerts.push({t:'warn',msg:`<b>${s.name}</b> หมดอายุใน ${diff} วัน`,key});
     if(diff<0)alerts.push({t:'danger',msg:`<b>${s.name}</b> หมดอายุแล้ว`,key});
   });
   getDebts().forEach(d=>{
