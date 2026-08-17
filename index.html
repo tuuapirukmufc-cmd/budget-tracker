@@ -475,13 +475,13 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   <div class="nav-tab" data-page="todo" onclick="sw('todo',this)">📝 สิ่งที่ต้องทำ</div>
   <div class="nav-tab" data-page="fairtex" onclick="sw('fairtex',this)">🥊 Fairtex</div>
   <div class="nav-tab active" data-page="dashboard" onclick="sw('dashboard',this)">★ ภาพรวม</div>
-  <div class="nav-tab" data-page="budget" onclick="sw('budget',this)">รายรับ-รายจ่าย</div>
-  <div class="nav-tab" data-page="debt" onclick="sw('debt',this)">หนี้สิน</div>
-  <div class="nav-tab" data-page="invest" onclick="sw('invest',this)">การลงทุน</div>
+  <div class="nav-tab" data-page="budget" onclick="sw('budget',this)">🧾 รายรับ-รายจ่าย</div>
+  <div class="nav-tab" data-page="debt" onclick="sw('debt',this)">📉 หนี้สิน</div>
+  <div class="nav-tab" data-page="invest" onclick="sw('invest',this)">📊 การลงทุน</div>
   <div class="nav-tab" data-page="lending" onclick="sw('lending',this)">💵 ติดตามหนี้สิน</div>
-  <div class="nav-tab" data-page="subscription" onclick="sw('subscription',this)">สมัครสมาชิกแอพ</div>
-  <div class="nav-tab" data-page="logins" onclick="sw('logins',this)">User-Login</div>
-  <div class="nav-tab" data-page="history" onclick="sw('history',this)">ประวัติ</div>
+  <div class="nav-tab" data-page="subscription" onclick="sw('subscription',this)">🎫 สมัครสมาชิกแอพ</div>
+  <div class="nav-tab" data-page="logins" onclick="sw('logins',this)">🔐 User-Login</div>
+  <div class="nav-tab" data-page="history" onclick="sw('history',this)">📜 ประวัติ</div>
   <button class="btn btn-ghost btn-sm" style="margin-left:auto;flex-shrink:0" onclick="openPageMgr()">⚙ จัดการเมนู</button>
 </nav>
 <!-- Mobile header -->
@@ -639,7 +639,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 <!-- PAGE: BUDGET -->
 <div id="page-budget" class="page">
   <div class="page-head">
-    <div><h2 class="desk-only">💳 รายรับ - รายจ่าย</h2><div class="sub">รายการประจำ — เพิ่มครั้งเดียว ใช้ทุกเดือน</div></div>
+    <div><h2 class="desk-only">🧾 รายรับ - รายจ่าย</h2><div class="sub">รายการประจำ — เพิ่มครั้งเดียว ใช้ทุกเดือน</div></div>
     <div class="page-head-actions">
       <button class="btn btn-ghost btn-sm" onclick="sw('dashboard',null)">⌂ ภาพรวม</button>
       <div class="mnav">
@@ -690,7 +690,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 <div id="page-debt" class="page">
   <div class="db-header">
     <div>
-      <h2>🏦 จัดการหนี้สินและวงเงินผ่อนชำระ</h2>
+      <h2>📉 จัดการหนี้สินและวงเงินผ่อนชำระ</h2>
       <div class="db-sub">วงเงิน − เบิกใช้ไปแล้ว = คงเหลือ</div>
     </div>
     <div class="db-header-right">
@@ -733,7 +733,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 <!-- PAGE: INVEST (หุ้น + ออมทอง) -->
 <div id="page-invest" class="page">
   <div class="page-head">
-    <div><h2 class="desk-only">📈 การลงทุน</h2><div class="sub">หุ้นปันผล · ออมทอง · ทรัพย์สิน</div></div>
+    <div><h2 class="desk-only">📊 การลงทุน</h2><div class="sub">หุ้นปันผล · ออมทอง · ทรัพย์สิน</div></div>
     <div class="page-head-actions">
       <button class="btn btn-ghost btn-sm" onclick="sw('dashboard',null)">⌂ ภาพรวม</button>
       <span style="font-size:12px;color:var(--g400)">ปีปันผล:</span>
@@ -916,7 +916,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 <!-- PAGE: SUBSCRIPTION -->
 <div id="page-subscription" class="page">
   <div class="page-head">
-    <div><h2 class="desk-only">🔔 สมัครสมาชิกแอพ</h2><div class="sub">ติดตามวันต่ออายุ</div></div>
+    <div><h2 class="desk-only">🎫 สมัครสมาชิกแอพ</h2><div class="sub">ติดตามวันต่ออายุ</div></div>
     <div class="page-head-actions">
       <button class="btn btn-ghost btn-sm" onclick="sw('dashboard',null)">⌂ ภาพรวม</button>
       <button class="btn btn-pri btn-sm" onclick="openSubM()">+ เพิ่ม</button>
@@ -943,7 +943,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 <!-- PAGE: USER-LOGIN -->
 <div id="page-logins" class="page">
   <div class="page-head">
-    <div><h2 class="desk-only">🔑 User-Login</h2><div class="sub">บัญชี / รหัสผ่าน / บริการต่างๆ</div></div>
+    <div><h2 class="desk-only">🔐 User-Login</h2><div class="sub">บัญชี / รหัสผ่าน / บริการต่างๆ</div></div>
     <div class="page-head-actions">
       <button class="btn btn-ghost btn-sm" onclick="sw('dashboard',null)">⌂ ภาพรวม</button>
       <input type="text" id="login-search" placeholder="🔍 ค้นหาหัวข้อ, user, ประเภท..." oninput="renderLogins()"
@@ -975,7 +975,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 <!-- PAGE: HISTORY -->
 <div id="page-history" class="page">
   <div class="page-head">
-    <div><h2 class="desk-only">🕐 ประวัติการเปลี่ยนแปลง</h2><div class="sub">บันทึกทุกการเพิ่ม ลบ แก้ไข</div></div>
+    <div><h2 class="desk-only">📜 ประวัติการเปลี่ยนแปลง</h2><div class="sub">บันทึกทุกการเพิ่ม ลบ แก้ไข</div></div>
     <div class="page-head-actions">
       <button class="btn btn-ghost btn-sm" onclick="sw('dashboard',null)">⌂ ภาพรวม</button>
       <button class="btn btn-danger btn-sm" onclick="if(confirm('ลบประวัติทั้งหมด?')){saveHist([]);renderHistory()}">🗑 ล้างประวัติ</button>
@@ -1009,12 +1009,12 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
     <div class="mob-tab" data-page="todo" onclick="swMob('todo',this,'สิ่งที่ต้องทำ')"><div class="micon">📝</div><div class="mlbl">ต้องทำ</div></div>
     <div class="mob-tab" data-page="fairtex" onclick="swMob('fairtex',this,'Fairtex')"><div class="micon">🥊</div><div class="mlbl">Fairtex</div></div>
     <div class="mob-tab active" data-page="dashboard" onclick="swMob('dashboard',this,'ภาพรวม')"><div class="micon">★</div><div class="mlbl">ภาพรวม</div></div>
-    <div class="mob-tab" data-page="budget" onclick="swMob('budget',this,'รายรับ-รายจ่าย')"><div class="micon">💳</div><div class="mlbl">รายรับ-จ่าย</div></div>
-    <div class="mob-tab" data-page="debt" onclick="swMob('debt',this,'หนี้สิน')"><div class="micon">🏦</div><div class="mlbl">หนี้สิน</div></div>
-    <div class="mob-tab" data-page="invest" onclick="swMob('invest',this,'การลงทุน')"><div class="micon">📈</div><div class="mlbl">ลงทุน</div></div>
+    <div class="mob-tab" data-page="budget" onclick="swMob('budget',this,'รายรับ-รายจ่าย')"><div class="micon">🧾</div><div class="mlbl">รายรับ-จ่าย</div></div>
+    <div class="mob-tab" data-page="debt" onclick="swMob('debt',this,'หนี้สิน')"><div class="micon">📉</div><div class="mlbl">หนี้สิน</div></div>
+    <div class="mob-tab" data-page="invest" onclick="swMob('invest',this,'การลงทุน')"><div class="micon">📊</div><div class="mlbl">ลงทุน</div></div>
     <div class="mob-tab" data-page="lending" onclick="swMob('lending',this,'ติดตามหนี้สิน')"><div class="micon">💵</div><div class="mlbl">ลูกหนี้</div></div>
-    <div class="mob-tab" data-page="subscription" onclick="swMob('subscription',this,'สมัครสมาชิกแอพ')"><div class="micon">🔔</div><div class="mlbl">สมาชิก</div></div>
-    <div class="mob-tab" data-page="logins" onclick="swMob('logins',this,'User-Login')"><div class="micon">🔑</div><div class="mlbl">Login</div></div>
+    <div class="mob-tab" data-page="subscription" onclick="swMob('subscription',this,'สมัครสมาชิกแอพ')"><div class="micon">🎫</div><div class="mlbl">สมาชิก</div></div>
+    <div class="mob-tab" data-page="logins" onclick="swMob('logins',this,'User-Login')"><div class="micon">🔐</div><div class="mlbl">Login</div></div>
   </div>
 </nav>
 </div><!-- /app-screen -->
@@ -1666,13 +1666,13 @@ document.querySelectorAll('.ov').forEach(o=>o.addEventListener('click',e=>{if(e.
 const ALL_PAGES=[
   {id:'todo',label:'📝 สิ่งที่ต้องทำ'},
   {id:'fairtex',label:'🥊 Fairtex'},
-  {id:'budget',label:'💳 รายรับ-รายจ่าย'},
-  {id:'debt',label:'🏦 หนี้สิน'},
-  {id:'invest',label:'📈 การลงทุน'},
+  {id:'budget',label:'🧾 รายรับ-รายจ่าย'},
+  {id:'debt',label:'📉 หนี้สิน'},
+  {id:'invest',label:'📊 การลงทุน'},
   {id:'lending',label:'💵 ติดตามหนี้สิน (ลูกหนี้)'},
-  {id:'subscription',label:'🔔 สมัครสมาชิกแอพ'},
-  {id:'logins',label:'🔑 User-Login'},
-  {id:'history',label:'🕐 ประวัติ'}
+  {id:'subscription',label:'🎫 สมัครสมาชิกแอพ'},
+  {id:'logins',label:'🔐 User-Login'},
+  {id:'history',label:'📜 ประวัติ'}
 ];
 function getHiddenPages(){return ls(uKey('hidden_pages_v1'),[])}
 function saveHiddenPages(p){lss(uKey('hidden_pages_v1'),p)}
@@ -1723,7 +1723,7 @@ function renderHistory(){
   const all=getHist();
   const f=document.getElementById('hist-filter').value;
   const items=f?all.filter(h=>h.cat===f):all;
-  const catIcon={budget:'💳',debt:'🏦',invest:'📈',gold:'🥇',subscription:'🔔',login:'🔑',todo:'📝',fairtex:'🥊',lending:'💵',settings:'⚙'};
+  const catIcon={budget:'🧾',debt:'📉',invest:'📊',gold:'🥇',subscription:'🎫',login:'🔐',todo:'📝',fairtex:'🥊',lending:'💵',settings:'⚙'};
   const actColor={เพิ่ม:'vg',แก้ไข:'vb',ลบ:'vc'};
   const tb=document.getElementById('hist-body');
   if(!items.length){tb.innerHTML='<div class="empty">ยังไม่มีประวัติ</div>';return}
