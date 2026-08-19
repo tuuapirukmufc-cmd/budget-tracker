@@ -7,11 +7,11 @@
 <!-- ★ PWA / Add to Home Screen -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="การเงิน">
+<meta name="apple-mobile-web-app-title" content="MoneyFlow">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="application-name" content="การเงินส่วนตัว">
+<meta name="application-name" content="MoneyFlow">
 <meta name="theme-color" content="#1D9E75">
-<meta name="description" content="บันทึกรายรับ-รายจ่าย หนี้สิน และการลงทุนส่วนตัว">
+<meta name="description" content="MoneyFlow — จัดการรายรับ รายจ่าย หนี้สิน การลงทุน และงานส่วนตัวในที่เดียว">
 
 <!-- Apple Touch Icon — PNG 180x180 (required for iPhone Home Screen) -->
 <link rel="apple-touch-icon" sizes="180x180"
@@ -459,7 +459,449 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   .mob-tab{flex-direction:row;gap:6px;padding:0 8px}
   .mob-tab .mlbl{font-size:10px}
 }
+
+/* =========================================================
+   MONEYFLOW REDESIGN — refreshed UI layer
+   Keeps the original data model and business logic intact.
+   ========================================================= */
+:root{
+  --green:#20C997;
+  --gl:rgba(32,201,151,.13);
+  --gd:#59E0B4;
+  --coral:#FF8A65;
+  --cl:rgba(255,138,101,.12);
+  --blue:#60A5FA;
+  --bl:rgba(96,165,250,.12);
+  --bd:#93C5FD;
+  --amber:#F5B942;
+  --al:rgba(245,185,66,.13);
+  --red:#F87171;
+  --rl:rgba(248,113,113,.12);
+  --purple:#A78BFA;
+  --pl:rgba(167,139,250,.12);
+  --gold:#F6C453;
+  --goldl:rgba(246,196,83,.12);
+  --g50:#07110F;
+  --g100:#0B1A16;
+  --g200:#123028;
+  --g300:#1A4438;
+  --g400:#8BA69D;
+  --g600:#BBD0C9;
+  --g900:#F2FAF7;
+  --surface:#0D1C18;
+  --surface2:#10231E;
+  --input-bg:#0A1714;
+  --r:14px;
+  --rsm:9px;
+  --nav-h:64px;
+  --bottom-h:64px;
+  --font:'Sarabun',sans-serif;
+}
+html{background:var(--g50)}
+body{
+  background:
+    radial-gradient(circle at 10% -10%,rgba(32,201,151,.10),transparent 32rem),
+    radial-gradient(circle at 90% 0%,rgba(96,165,250,.07),transparent 28rem),
+    var(--g50);
+  color:var(--g900);
+}
+#app-screen{background:transparent}
+.desk-nav{
+  height:var(--nav-h);
+  background:rgba(13,28,24,.92);
+  border-bottom:1px solid rgba(139,166,157,.16);
+  padding:0 22px;
+  backdrop-filter:blur(18px);
+  box-shadow:0 6px 24px rgba(0,0,0,.14);
+}
+.brand{
+  gap:10px;
+  margin-right:18px;
+  font-size:17px;
+  letter-spacing:-.02em;
+}
+.brand small{
+  color:var(--g400);
+  font-size:10px;
+  font-weight:400;
+  margin-left:-4px;
+  align-self:flex-end;
+  margin-bottom:12px;
+}
+.brand .app-icon{
+  width:34px;height:34px;border-radius:10px;
+  box-shadow:0 0 0 5px rgba(32,201,151,.08);
+}
+.nav-tab{
+  border-radius:10px;
+  margin:0 2px;
+  padding:10px 12px;
+  color:var(--g400);
+  transition:.18s ease;
+}
+.nav-tab:hover{background:rgba(255,255,255,.045);color:var(--g900)}
+.nav-tab.active{
+  color:var(--g900);
+  background:linear-gradient(135deg,rgba(32,201,151,.18),rgba(32,201,151,.06));
+  box-shadow:inset 0 0 0 1px rgba(32,201,151,.18);
+}
+#cloud-bar{
+  background:rgba(16,35,30,.86)!important;
+  border-bottom:1px solid rgba(139,166,157,.10)!important;
+}
+.page-wrap{
+  width:min(1480px,100%);
+  margin:0 auto;
+  padding:22px 24px 88px;
+}
+.page-head{
+  margin-bottom:18px;
+  align-items:flex-end;
+}
+.page-head h2,.db-header h2{
+  font-size:24px;
+  letter-spacing:-.025em;
+}
+.page-head .sub,.db-sub{color:var(--g400)}
+.cards{gap:14px}
+.card,.db-card{
+  background:linear-gradient(145deg,rgba(13,28,24,.98),rgba(16,35,30,.88));
+  border:1px solid rgba(139,166,157,.14)!important;
+  border-radius:var(--r)!important;
+  box-shadow:0 10px 28px rgba(0,0,0,.12);
+  transition:transform .18s ease,border-color .18s ease;
+}
+.card:hover{transform:translateY(-2px);border-color:rgba(32,201,151,.25)!important}
+.card .lbl,.db-card-lbl{
+  color:var(--g400);
+  font-size:11px;
+  letter-spacing:.01em;
+}
+.card .val,.db-card-val{font-variant-numeric:tabular-nums}
+.sec{
+  background:rgba(13,28,24,.82)!important;
+  border:1px solid rgba(139,166,157,.13)!important;
+  border-radius:var(--r)!important;
+  box-shadow:0 8px 24px rgba(0,0,0,.10);
+  overflow:hidden;
+}
+.sec-head{
+  min-height:52px;
+  padding:12px 16px;
+  border-bottom:1px solid rgba(139,166,157,.10)!important;
+  background:rgba(255,255,255,.012);
+}
+.sec-title{font-weight:650}
+.tbl{background:transparent}
+.tbl th{
+  background:rgba(255,255,255,.018)!important;
+  color:var(--g400)!important;
+  font-size:11px!important;
+  letter-spacing:.01em;
+}
+.tbl td{
+  border-bottom:1px solid rgba(139,166,157,.075)!important;
+}
+.tbl tr:hover td{background:rgba(32,201,151,.025)!important}
+.btn{
+  border-radius:9px!important;
+  font-weight:600;
+  transition:.16s ease;
+}
+.btn-pri{
+  background:linear-gradient(135deg,#20C997,#16B58A)!important;
+  border:0!important;
+  box-shadow:0 5px 14px rgba(32,201,151,.16);
+}
+.btn-pri:hover{filter:brightness(1.07);transform:translateY(-1px)}
+.btn-ghost{
+  background:rgba(255,255,255,.035)!important;
+  border:1px solid rgba(139,166,157,.15)!important;
+}
+.styled,input,select,textarea{
+  background:var(--input-bg)!important;
+  color:var(--g900)!important;
+  border-color:rgba(139,166,157,.18)!important;
+  border-radius:9px!important;
+}
+input:focus,select:focus,textarea:focus{
+  border-color:rgba(32,201,151,.55)!important;
+  box-shadow:0 0 0 3px rgba(32,201,151,.08);
+  outline:none!important;
+}
+.ov .modal{
+  background:linear-gradient(160deg,#10231E,#0D1C18)!important;
+  border:1px solid rgba(139,166,157,.18)!important;
+  border-radius:18px!important;
+  box-shadow:0 30px 80px rgba(0,0,0,.48)!important;
+}
+.modal h3{font-size:19px}
+.combo-wrap,.db-combo-wrap{
+  border-radius:12px!important;
+  border:1px solid rgba(139,166,157,.10);
+  background:rgba(13,28,24,.72)!important;
+  padding:12px!important;
+}
+.mob-header{
+  background:rgba(13,28,24,.94)!important;
+  border-bottom:1px solid rgba(139,166,157,.12)!important;
+  backdrop-filter:blur(18px);
+}
+.mob-nav{
+  background:rgba(13,28,24,.96)!important;
+  border-top:1px solid rgba(139,166,157,.14)!important;
+  backdrop-filter:blur(18px);
+}
+.mob-tab.active{color:var(--green)!important}
+.empty{color:var(--g400)!important;padding:28px!important}
+.tfoot{background:rgba(255,255,255,.015)!important}
+.auth-box{
+  background:linear-gradient(150deg,#10231E,#0D1C18)!important;
+  border:1px solid rgba(139,166,157,.15);
+}
+.auth-btn{
+  background:linear-gradient(135deg,#20C997,#16B58A)!important;
+}
+.auth-tab.active{
+  background:rgba(32,201,151,.10)!important;
+  color:var(--g900)!important;
+}
+@media(max-width:900px){
+  .page-wrap{padding:16px 14px 82px}
+  .page-head h2{font-size:21px}
+  .cards.c5,.cards.c4,.cards.c3{grid-template-columns:repeat(2,1fr)!important}
+  .page-head-actions{gap:6px}
+}
+@media(max-width:560px){
+  .page-wrap{padding:12px 10px 82px}
+  .cards.c5,.cards.c4,.cards.c3{grid-template-columns:1fr 1fr!important;gap:9px}
+  .card{padding:12px!important}
+  .card .val{font-size:18px!important}
+  .sec{border-radius:12px!important}
+  .tbl{min-width:760px}
+  .sec:has(.tbl){overflow-x:auto}
+}
+
 </style>
+
+<style id="ironman-theme">
+:root{
+  --im-red:#c91524;
+  --im-red2:#ff3344;
+  --im-gold:#f5b82e;
+  --im-gold2:#ffd86a;
+  --im-black:#07090c;
+  --im-panel:#11151b;
+  --im-panel2:#171c23;
+  --im-line:#343b45;
+  --im-text:#f4f6f8;
+  --im-muted:#aeb7c2;
+  --im-blue:#42d9ff;
+}
+
+/* Global */
+html,body{
+  background:
+    radial-gradient(circle at 50% -10%,rgba(245,184,46,.13),transparent 30%),
+    radial-gradient(circle at 100% 40%,rgba(201,21,36,.10),transparent 30%),
+    #07090c !important;
+  color:var(--im-text) !important;
+  font-family:Inter,Segoe UI,Roboto,Arial,sans-serif !important;
+}
+body:before{
+  content:"";
+  position:fixed; inset:0; pointer-events:none; z-index:9999;
+  background:linear-gradient(rgba(255,255,255,.012) 50%,transparent 50%);
+  background-size:100% 4px;
+  opacity:.18;
+}
+
+/* Main shell / navigation */
+.desk-nav{
+  background:linear-gradient(180deg,#161a20,#0a0d11) !important;
+  border-bottom:1px solid #4a3a1a !important;
+  box-shadow:0 4px 25px rgba(0,0,0,.55),0 0 30px rgba(201,21,36,.08) !important;
+}
+.brand{
+  color:var(--im-gold2) !important;
+  font-weight:900 !important;
+  letter-spacing:.5px;
+  text-shadow:0 0 12px rgba(245,184,46,.25);
+}
+.app-icon{
+  background:linear-gradient(145deg,#ff3344,#850b15) !important;
+  box-shadow:0 0 18px rgba(255,35,50,.35),inset 0 1px 0 rgba(255,255,255,.25) !important;
+}
+.nav-tab{
+  color:#b9c0c8 !important;
+  border-radius:8px !important;
+  transition:.2s ease !important;
+}
+.nav-tab:hover{
+  color:#fff !important;
+  background:rgba(201,21,36,.13) !important;
+}
+.nav-tab.active{
+  color:#fff !important;
+  background:linear-gradient(135deg,rgba(201,21,36,.88),rgba(116,7,16,.88)) !important;
+  border:1px solid rgba(255,216,106,.35) !important;
+  box-shadow:0 0 15px rgba(201,21,36,.22),inset 0 1px 0 rgba(255,255,255,.15) !important;
+}
+
+/* Cloud bar */
+#cloud-bar{
+  background:#0b0e13 !important;
+  border-bottom:1px solid #252b33 !important;
+}
+
+/* Cards */
+.card,.sec,.panel,.box{
+  background:linear-gradient(145deg,rgba(24,29,36,.98),rgba(12,15,19,.98)) !important;
+  border:1px solid #303741 !important;
+  box-shadow:0 8px 25px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.025) !important;
+}
+.card:hover{
+  border-color:rgba(245,184,46,.42) !important;
+  box-shadow:0 10px 30px rgba(0,0,0,.38),0 0 18px rgba(245,184,46,.07) !important;
+}
+.card .lbl,.lbl,.sub{
+  color:var(--im-muted) !important;
+}
+.val{
+  color:#fff !important;
+  font-weight:900 !important;
+  text-shadow:0 0 10px rgba(255,255,255,.06);
+}
+.vb{color:#55dfff !important}
+.vc{color:#58e58a !important}
+.vgold{color:var(--im-gold2) !important}
+.vneg{color:#ff5866 !important}
+
+/* Section titles */
+.sec-title,h2,h3{
+  color:#fff !important;
+  font-weight:850 !important;
+}
+.dot{
+  box-shadow:0 0 10px currentColor !important;
+}
+.page-head{
+  border-bottom-color:#303741 !important;
+}
+
+/* Buttons */
+.btn{
+  color:#f7f8fa !important;
+  border:1px solid #3c434c !important;
+  background:linear-gradient(145deg,#1b2027,#0e1115) !important;
+  box-shadow:0 3px 10px rgba(0,0,0,.25) !important;
+  font-weight:750 !important;
+}
+.btn:hover{
+  transform:translateY(-1px);
+  border-color:var(--im-gold) !important;
+  box-shadow:0 5px 15px rgba(245,184,46,.12) !important;
+}
+.btn-pri{
+  background:linear-gradient(135deg,#e21b2d,#8d0b15) !important;
+  border-color:#ff4a57 !important;
+  box-shadow:0 0 18px rgba(201,21,36,.22) !important;
+}
+.btn-pri:hover{
+  background:linear-gradient(135deg,#ff2639,#a40d18) !important;
+}
+.btn-ghost{
+  background:#151a20 !important;
+}
+
+/* Tables */
+.tbl{
+  background:#0d1116 !important;
+  border-color:#303741 !important;
+}
+.tbl th{
+  background:linear-gradient(180deg,#242a32,#151a20) !important;
+  color:var(--im-gold2) !important;
+  border-color:#343b45 !important;
+  font-weight:800 !important;
+}
+.tbl td{
+  color:#edf0f3 !important;
+  border-color:#262c34 !important;
+}
+.tbl tr:hover td{
+  background:rgba(201,21,36,.07) !important;
+}
+
+/* Inputs */
+input,select,textarea{
+  background:#0b0e12 !important;
+  color:#fff !important;
+  border:1px solid #3a424d !important;
+  border-radius:7px !important;
+}
+input:focus,select:focus,textarea:focus{
+  border-color:var(--im-gold) !important;
+  box-shadow:0 0 0 2px rgba(245,184,46,.12),0 0 15px rgba(245,184,46,.07) !important;
+  outline:none !important;
+}
+label{
+  color:#c7ced6 !important;
+}
+
+/* Modals / overlays */
+.ov{
+  background:rgba(0,0,0,.78) !important;
+  backdrop-filter:blur(5px);
+}
+.modal{
+  background:linear-gradient(145deg,#1b2027,#0c1014) !important;
+  border:1px solid #55421d !important;
+  box-shadow:0 25px 80px rgba(0,0,0,.7),0 0 35px rgba(201,21,36,.12) !important;
+}
+.modal h3{
+  color:var(--im-gold2) !important;
+}
+
+/* Bottom mobile nav */
+.mob-nav{
+  background:rgba(9,12,16,.97) !important;
+  border-top:1px solid #44351b !important;
+  box-shadow:0 -8px 25px rgba(0,0,0,.45) !important;
+}
+.mob-tab{
+  color:#aeb5bd !important;
+}
+.mob-tab.active{
+  color:#fff !important;
+  background:rgba(201,21,36,.16) !important;
+  border-top:2px solid var(--im-red2) !important;
+}
+.mob-tab.active .micon{
+  color:var(--im-gold2) !important;
+  text-shadow:0 0 10px rgba(245,184,46,.35);
+}
+
+/* Links/status */
+a{color:#54dfff !important}
+.cloud-status{color:#aeb7c2 !important}
+
+/* Special Iron Man HUD accents */
+.page-head h2:after{
+  content:"";
+  display:block;
+  width:54px;
+  height:3px;
+  margin-top:8px;
+  background:linear-gradient(90deg,var(--im-red2),var(--im-gold),transparent);
+  border-radius:4px;
+  box-shadow:0 0 10px rgba(255,51,68,.35);
+}
+.divider-label{
+  color:var(--im-gold2) !important;
+}
+</style>
+
 </head>
 <body>
 <div id="app-screen">
@@ -471,9 +913,8 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 </div>
 <!-- Desktop nav -->
 <nav class="desk-nav">
-  <div class="brand"><span class="app-icon"></span>การเงินส่วนตัว</div>
+  <div class="brand"><span class="app-icon"></span><span>MoneyFlow</span><small>การเงินส่วนตัว</small></div>
   <div class="nav-tab" data-page="todo" onclick="sw('todo',this)">📝 สิ่งที่ต้องทำ</div>
-  <div class="nav-tab" data-page="fairtex" onclick="sw('fairtex',this)">🥊 Fairtex</div>
   <div class="nav-tab active" data-page="dashboard" onclick="sw('dashboard',this)">★ ภาพรวม</div>
   <div class="nav-tab" data-page="budget" onclick="sw('budget',this)">🧾 รายรับ-รายจ่าย</div>
   <div class="nav-tab" data-page="debt" onclick="sw('debt',this)">📉 หนี้สิน</div>
@@ -987,7 +1428,6 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
       <select class="styled" id="hist-filter" onchange="renderHistory()" style="font-size:12px;padding:3px 8px">
         <option value="">ทุกหมวด</option>
         <option value="todo">สิ่งที่ต้องทำ</option>
-        <option value="fairtex">Fairtex</option>
         <option value="budget">รายรับ-รายจ่าย</option>
         <option value="debt">หนี้สิน</option>
         <option value="invest">การลงทุน</option>
@@ -1006,8 +1446,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 <!-- Mobile bottom nav -->
 <nav class="mob-nav">
   <div class="mob-nav-inner">
-    <div class="mob-tab" data-page="todo" onclick="swMob('todo',this,'สิ่งที่ต้องทำ')"><div class="micon">📝</div><div class="mlbl">ต้องทำ</div></div>
-    <div class="mob-tab" data-page="fairtex" onclick="swMob('fairtex',this,'Fairtex')"><div class="micon">🥊</div><div class="mlbl">Fairtex</div></div>
+    <div class="mob-tab" data-page="todo" onclick="swMob('todo',this,'สิ่งที่ต้องทำ')"><div class="micon">📝</div><div class="mlbl">ต้องทำ</div></div><div class="mlbl">Fairtex</div></div>
     <div class="mob-tab active" data-page="dashboard" onclick="swMob('dashboard',this,'ภาพรวม')"><div class="micon">★</div><div class="mlbl">ภาพรวม</div></div>
     <div class="mob-tab" data-page="budget" onclick="swMob('budget',this,'รายรับ-รายจ่าย')"><div class="micon">🧾</div><div class="mlbl">รายรับ-จ่าย</div></div>
     <div class="mob-tab" data-page="debt" onclick="swMob('debt',this,'หนี้สิน')"><div class="micon">📉</div><div class="mlbl">หนี้สิน</div></div>
