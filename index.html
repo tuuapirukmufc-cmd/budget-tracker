@@ -421,6 +421,9 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   .desk-nav{display:none}
   .mob-nav{display:flex}
   .mob-header{display:flex}
+  #cloud-bar{flex-wrap:wrap;gap:6px;padding:5px 10px}
+  #realtime-clock{font-size:10.5px}
+  #cloud-bar>div{gap:6px}
   .page{padding:.75rem;padding-bottom:calc(var(--bottom-h) + .75rem + env(safe-area-inset-bottom));background:var(--g50)}
   .page-wrap{background:var(--g50)}
   /* Table */
@@ -464,10 +467,13 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 <body>
 <div id="app-screen">
 <!-- Cloud Sync Bar (Google Sheets via Apps Script) -->
-<div id="cloud-bar" style="background:var(--surface2);border-bottom:1px solid var(--g200);padding:5px 16px;display:flex;align-items:center;gap:10px;font-size:12px;justify-content:flex-end">
+<div id="cloud-bar" style="background:var(--surface2);border-bottom:1px solid var(--g200);padding:5px 16px;display:flex;align-items:center;gap:10px;font-size:12px;justify-content:space-between">
+  <span id="realtime-clock" style="color:var(--gold);font-weight:600;letter-spacing:.02em;white-space:nowrap;text-shadow:0 0 6px rgba(255,199,44,.25)"></span>
+  <div style="display:flex;align-items:center;gap:10px">
   <span id="cloud-status" class="cloud-status"></span>
   <button class="btn btn-sm" id="cloud-upload-btn" onclick="cloudUpload()" style="background:var(--gl);color:var(--gd);border:1px solid var(--green);font-size:11px;padding:3px 10px;border-radius:6px">☁ บันทึกขึ้นคลาวด์</button>
   <button class="btn btn-sm" id="cloud-download-btn" onclick="cloudDownload()" style="background:var(--bl);color:var(--bd);border:1px solid var(--blue);font-size:11px;padding:3px 10px;border-radius:6px">⬇ โหลดจากคลาวด์</button>
+  </div>
 </div>
 <!-- Desktop nav -->
 <nav class="desk-nav">
@@ -1555,8 +1561,19 @@ async function cloudAutoLoadOnStart(){
 // ══ INIT — ไม่มีระบบ login เปิดแอปตรงเลย ══
 function uKey(k){return k}
 
+function updateRealtimeClock(){
+  const el=document.getElementById('realtime-clock');
+  if(!el)return;
+  const now=new Date();
+  const dateStr=now.toLocaleDateString('th-TH',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  const timeStr=now.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+  el.textContent=dateStr+' • '+timeStr+' น.';
+}
+
 document.addEventListener('DOMContentLoaded',async function(){
   document.getElementById('app-screen').style.display='block';
+  updateRealtimeClock();
+  setInterval(updateRealtimeClock,1000);
   await cloudAutoLoadOnStart();
   initYearSelectors();
   applyPageVisibility();
