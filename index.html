@@ -1002,7 +1002,12 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   </div>
   <div class="f">
     <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
-      <input type="checkbox" id="bm-recurring" style="width:16px;height:16px;accent-color:var(--green)"> ทำซ้ำชื่อรายการทุกเดือน (ยอดเงินต้องกรอกใหม่ทุกเดือน)
+      <input type="checkbox" id="bm-recurring" onchange="toggleLockAmtVisibility()" style="width:16px;height:16px;accent-color:var(--green)"> ทำซ้ำชื่อรายการทุกเดือน (ยอดเงินต้องกรอกใหม่ทุกเดือน)
+    </label>
+  </div>
+  <div class="f" id="bm-lock-wrap">
+    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding-left:24px">
+      <input type="checkbox" id="bm-lock-amt" style="width:16px;height:16px;accent-color:var(--gold)"> 🔒 ล็อคยอดเงิน (ใช้ยอดเดิมทุกเดือน ไม่ต้องกรอกใหม่)
     </label>
   </div>
   <div class="f"><label>หมวดหมู่</label>
@@ -1790,6 +1795,7 @@ function getMI(y,m){
     const dels=o[type+'_del']||[],adds=o[type+'_add']||[],edits=o[type+'_edit']||{},amts=o[type+'_amt']||{};
     return[...base.filter(i=>!dels.includes(i.id)).map(i=>{
       let out=edits[i.id]?{...i,...edits[i.id]}:i;
+      if(out.lockAmount)return out; // ล็อคยอด — ใช้ค่าจากต้นแบบเดิมทุกเดือน ไม่ต้องกรอกใหม่
       const a=amts[i.id];
       if(a){
         out={...out,amount:a.amount,subItems:a.subItems||null};
@@ -1897,12 +1903,20 @@ function openBM(type,id){
   document.getElementById('bm-note').value=item?.note||'';
   const t=getTmpls(),isTmpl=id?t[type].some(i=>i.id===id):false;
   document.getElementById('bm-recurring').checked=id?isTmpl:true;
+  document.getElementById('bm-lock-amt').checked=item?.lockAmount||false;
+  toggleLockAmtVisibility();
   bPayMethod=item?.payMethod||'cash';
   selectPayMethod(bPayMethod);
   bImgData=item?.image||null;
   updateBmImgPreview();
   document.getElementById('bm-del').style.display=id?'inline-flex':'none';
   document.getElementById('bm-ov').classList.add('open');
+}
+function toggleLockAmtVisibility(){
+  const on=document.getElementById('bm-recurring').checked;
+  const wrap=document.getElementById('bm-lock-wrap');
+  wrap.style.display=on?'block':'none';
+  if(!on)document.getElementById('bm-lock-amt').checked=false;
 }
 function saveBudget(){
   const rows=[...document.querySelectorAll('#bm-items-list .bm-item-row')].map(r=>({
@@ -1919,29 +1933,32 @@ function saveBudget(){
   const payMethod=bPayMethod;
   const image=bImgData;
   const recurring=document.getElementById('bm-recurring').checked;
+  const lockAmount=recurring&&document.getElementById('bm-lock-amt').checked;
   if(amount<0)return;
   const t=getTmpls(),isTmpl=bEId&&t[bEType].some(i=>i.id===bEId);
-  // โครงสร้างรายการ (ชื่อ/รายการย่อย/กำหนดวัน ฯลฯ) เท่านั้นที่ซ้ำทุกเดือน — ยอดเงินในต้นแบบตั้งเป็น 0 เสมอ
-  const structTmpl=id=>({id,name,amount:0,subItems:subItems?subItems.map(s=>({name:s.name,amount:0})):null,dueDay,tag,note,payMethod,image});
+  // โครงสร้างรายการ (ชื่อ/รายการย่อย/กำหนดวัน ฯลฯ) ซ้ำทุกเดือนเสมอ
+  // ถ้าไม่ล็อคยอด — ยอดในต้นแบบตั้งเป็น 0 (ต้องกรอกใหม่ทุกเดือน) / ถ้าล็อคยอด — เก็บยอดจริงไว้ในต้นแบบ ใช้ซ้ำทุกเดือน
+  const structTmpl=id=>({id,name,amount:lockAmount?amount:0,subItems:subItems?subItems.map(s=>({name:s.name,amount:lockAmount?s.amount:0})):null,dueDay,tag,note,payMethod,image,lockAmount});
   function saveMonthlyAmt(id){
     const o=getOv(cy,cm);const k=bEType+'_amt';o[k]=o[k]||{};o[k][id]={amount,subItems};saveOv(cy,cm,o);
   }
   if(bEId){
     if(isTmpl&&recurring){
-      // รายการประจำ — โครงสร้างอัปเดตที่ต้นแบบ มีผลทุกเดือน / ยอดเงินบันทึกเฉพาะเดือนนี้เดือนเดียว
+      // รายการประจำ — โครงสร้างอัปเดตที่ต้นแบบ มีผลทุกเดือน / ยอดเงินขึ้นกับว่าล็อคหรือไม่
       const nt={...t,[bEType]:t[bEType].map(i=>i.id===bEId?structTmpl(bEId):i)};saveTmpls(nt);
       clearItemOverrides(bEType,bEId);
-      saveMonthlyAmt(bEId);
+      if(lockAmount)clearItemAmtOverrides(bEType,bEId);else saveMonthlyAmt(bEId);
     }else if(isTmpl&&!recurring){
       // เลิกเป็นรายการประจำ — เอาออกจากเทมเพลต แล้วเก็บไว้เฉพาะเดือนนี้แทน (มีทั้งชื่อและยอด)
       const nt={...t,[bEType]:t[bEType].filter(i=>i.id!==bEId)};saveTmpls(nt);
       clearItemOverrides(bEType,bEId);
+      clearItemAmtOverrides(bEType,bEId);
       const o=getOv(cy,cm);const k=bEType+'_add';o[k]=[...(o[k]||[]),{id:Date.now(),name,amount,subItems,dueDay,tag,note,payMethod,image}];saveOv(cy,cm,o);
     }else if(!isTmpl&&recurring){
-      // แปลงรายการเฉพาะเดือนนี้ ให้กลายเป็นรายการประจำทุกเดือน (คงรหัสเดิมไว้) — ยอดเดือนนี้ยังเก็บไว้ เดือนอื่นเริ่มจาก 0
+      // แปลงรายการเฉพาะเดือนนี้ ให้กลายเป็นรายการประจำทุกเดือน (คงรหัสเดิมไว้)
       const o=getOv(cy,cm);const k=bEType+'_add';o[k]=(o[k]||[]).filter(i=>i.id!==bEId);saveOv(cy,cm,o);
       const nt={...t,[bEType]:[...t[bEType],structTmpl(bEId)]};saveTmpls(nt);
-      saveMonthlyAmt(bEId);
+      if(!lockAmount)saveMonthlyAmt(bEId);
     }else{
       const o=getOv(cy,cm);const k=bEType+'_add';o[k]=(o[k]||[]).map(i=>i.id===bEId?{...i,name,amount,subItems,dueDay,tag,note,payMethod,image}:i);saveOv(cy,cm,o);
     }
@@ -1949,8 +1966,8 @@ function saveBudget(){
   }else if(recurring){
     const newId=Date.now();
     const nt={...t,[bEType]:[...t[bEType],structTmpl(newId)]};saveTmpls(nt);
-    saveMonthlyAmt(newId);
-    addHist('budget','เพิ่ม',`${bEType==='income'?'รายรับ':'รายจ่าย'} (ประจำทุกเดือน — ชื่อซ้ำ ยอดกรอกทีละเดือน): ${name} = ${fmt(amount)}`);
+    if(!lockAmount)saveMonthlyAmt(newId);
+    addHist('budget','เพิ่ม',`${bEType==='income'?'รายรับ':'รายจ่าย'} (ประจำทุกเดือน${lockAmount?' — ล็อคยอด':' — ยอดกรอกทีละเดือน'}): ${name} = ${fmt(amount)}`);
   }else{
     const o=getOv(cy,cm);const k=bEType+'_add';o[k]=[...(o[k]||[]),{id:Date.now(),name,amount,subItems,dueDay,tag,note,payMethod,image}];saveOv(cy,cm,o);
     addHist('budget','เพิ่ม',`${bEType==='income'?'รายรับ':'รายจ่าย'}: ${name} = ${fmt(amount)}`);
@@ -1970,6 +1987,16 @@ function clearItemOverrides(type,id){
     if(changed)lss(key,o);
   }
 }
+// ล้างยอดเงินรายเดือนที่เคยกรอกไว้ของรายการหนึ่ง ๆ ทิ้ง (ใช้ตอนล็อคยอด ไม่ต้องใช้ค่าที่กรอกไว้แต่ละเดือนแล้ว)
+function clearItemAmtOverrides(type,id){
+  const k=type+'_amt';
+  for(let i=0;i<localStorage.length;i++){
+    const key=localStorage.key(i);
+    if(!key||!key.startsWith('ov_'))continue;
+    const o=ls(key,{});
+    if(o[k]&&o[k][id]!==undefined){delete o[k][id];lss(key,o);}
+  }
+}
 function delBudget(){
   const t=getTmpls(),isTmpl=t[bEType].some(i=>i.id===bEId);
   const item=getMI(cy,cm)[bEType].find(i=>i.id===bEId);
@@ -1978,6 +2005,7 @@ function delBudget(){
     if(all){
       const nt={...t,[bEType]:t[bEType].filter(i=>i.id!==bEId)};saveTmpls(nt);
       clearItemOverrides(bEType,bEId);
+      clearItemAmtOverrides(bEType,bEId);
     }else{
       const o=getOv(cy,cm);const k=bEType+'_del';o[k]=[...(o[k]||[]),bEId];saveOv(cy,cm,o);
     }
@@ -2065,13 +2093,13 @@ function renderBBody(id,headId,items,type){
     const pmBadge=pm==='credit'?'<span class="badge b-credit">💳 บัตร</span>':pm==='transfer'?'<span class="badge b-transfer">🏦 โอน</span>':'<span class="badge b-cash">💵 สด</span>';
     const imgCell=item.image?`<img class="row-thumb" src="${item.image}" onclick="openImgLightbox('${item.image}')">`:'—';
     const nameHtml=hasSubs
-      ?`<div>${item.subItems.map(s=>s.name).join(' + ')}</div>
+      ?`<div>${item.lockAmount?'🔒 ':''}${item.subItems.map(s=>s.name).join(' + ')}</div>
          <div style="margin-top:3px">${item.subItems.map((s,idx)=>`
            <label style="display:flex;align-items:center;gap:6px;font-size:11px;margin-top:2px;cursor:pointer;font-weight:400">
              <input type="checkbox" ${subPaidStates[idx]?'checked':''} onchange="togSubPaid('${type}',${item.id},${idx},this.checked)" style="width:13px;height:13px;accent-color:var(--green);flex-shrink:0">
              <span style="${subPaidStates[idx]?'text-decoration:line-through;color:var(--g400)':'color:var(--g600)'}">${s.name} (${fmt(s.amount)})</span>
            </label>`).join('')}</div>`
-      :item.name;
+      :`${item.lockAmount?'🔒 ':''}${item.name}`;
     const paidCell=hasSubs
       ?`<span style="font-size:11px;color:var(--g400)">${subPaidStates.filter(p=>p).length}/${subPaidStates.length}</span>`
       :`<div class="chk"><input type="checkbox" ${paid?'checked':''} onchange="togPaid('${type}',${item.id},this.checked)"></div>`;
