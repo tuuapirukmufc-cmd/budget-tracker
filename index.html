@@ -1002,7 +1002,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   </div>
   <div class="f">
     <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
-      <input type="checkbox" id="bm-recurring" style="width:16px;height:16px;accent-color:var(--green)"> ทำซ้ำทุกเดือนอัตโนมัติ (รายการประจำ)
+      <input type="checkbox" id="bm-recurring" style="width:16px;height:16px;accent-color:var(--green)"> ทำซ้ำชื่อรายการทุกเดือน (ยอดเงินต้องกรอกใหม่ทุกเดือน)
     </label>
   </div>
   <div class="f"><label>หมวดหมู่</label>
@@ -1787,8 +1787,17 @@ function defTmpls(){return{income:[
 function getMI(y,m){
   const t=getTmpls(),o=getOv(y,m);
   function merge(base,type){
-    const dels=o[type+'_del']||[],adds=o[type+'_add']||[],edits=o[type+'_edit']||{};
-    return[...base.filter(i=>!dels.includes(i.id)).map(i=>edits[i.id]?{...i,...edits[i.id]}:i),...adds];
+    const dels=o[type+'_del']||[],adds=o[type+'_add']||[],edits=o[type+'_edit']||{},amts=o[type+'_amt']||{};
+    return[...base.filter(i=>!dels.includes(i.id)).map(i=>{
+      let out=edits[i.id]?{...i,...edits[i.id]}:i;
+      const a=amts[i.id];
+      if(a){
+        out={...out,amount:a.amount,subItems:a.subItems||null};
+      }else{
+        out={...out,amount:0,subItems:out.subItems?out.subItems.map(s=>({name:s.name,amount:0})):null};
+      }
+      return out;
+    }),...adds];
   }
   return{income:merge(t.income,'income'),expense:merge(t.expense,'expense')}
 }
@@ -1912,28 +1921,36 @@ function saveBudget(){
   const recurring=document.getElementById('bm-recurring').checked;
   if(amount<0)return;
   const t=getTmpls(),isTmpl=bEId&&t[bEType].some(i=>i.id===bEId);
+  // โครงสร้างรายการ (ชื่อ/รายการย่อย/กำหนดวัน ฯลฯ) เท่านั้นที่ซ้ำทุกเดือน — ยอดเงินในต้นแบบตั้งเป็น 0 เสมอ
+  const structTmpl=id=>({id,name,amount:0,subItems:subItems?subItems.map(s=>({name:s.name,amount:0})):null,dueDay,tag,note,payMethod,image});
+  function saveMonthlyAmt(id){
+    const o=getOv(cy,cm);const k=bEType+'_amt';o[k]=o[k]||{};o[k][id]={amount,subItems};saveOv(cy,cm,o);
+  }
   if(bEId){
     if(isTmpl&&recurring){
-      // รายการประจำ — แก้ไขที่ต้นแบบ (template) โดยตรง ให้มีผลกับทุกเดือน (รวมรายการย่อย)
-      const nt={...t,[bEType]:t[bEType].map(i=>i.id===bEId?{id:bEId,name,amount,subItems,dueDay,tag,note,payMethod,image}:i)};saveTmpls(nt);
-      // ล้าง override เฉพาะเดือนของรายการนี้ทุกเดือนที่เคยตั้งไว้ ไม่ให้บังค่าใหม่จากต้นแบบ
+      // รายการประจำ — โครงสร้างอัปเดตที่ต้นแบบ มีผลทุกเดือน / ยอดเงินบันทึกเฉพาะเดือนนี้เดือนเดียว
+      const nt={...t,[bEType]:t[bEType].map(i=>i.id===bEId?structTmpl(bEId):i)};saveTmpls(nt);
       clearItemOverrides(bEType,bEId);
+      saveMonthlyAmt(bEId);
     }else if(isTmpl&&!recurring){
-      // เลิกเป็นรายการประจำ — เอาออกจากเทมเพลต แล้วเก็บไว้เฉพาะเดือนนี้แทน
+      // เลิกเป็นรายการประจำ — เอาออกจากเทมเพลต แล้วเก็บไว้เฉพาะเดือนนี้แทน (มีทั้งชื่อและยอด)
       const nt={...t,[bEType]:t[bEType].filter(i=>i.id!==bEId)};saveTmpls(nt);
       clearItemOverrides(bEType,bEId);
       const o=getOv(cy,cm);const k=bEType+'_add';o[k]=[...(o[k]||[]),{id:Date.now(),name,amount,subItems,dueDay,tag,note,payMethod,image}];saveOv(cy,cm,o);
     }else if(!isTmpl&&recurring){
-      // แปลงรายการเฉพาะเดือนนี้ ให้กลายเป็นรายการประจำทุกเดือน (คงรหัสเดิมไว้)
+      // แปลงรายการเฉพาะเดือนนี้ ให้กลายเป็นรายการประจำทุกเดือน (คงรหัสเดิมไว้) — ยอดเดือนนี้ยังเก็บไว้ เดือนอื่นเริ่มจาก 0
       const o=getOv(cy,cm);const k=bEType+'_add';o[k]=(o[k]||[]).filter(i=>i.id!==bEId);saveOv(cy,cm,o);
-      const nt={...t,[bEType]:[...t[bEType],{id:bEId,name,amount,subItems,dueDay,tag,note,payMethod,image}]};saveTmpls(nt);
+      const nt={...t,[bEType]:[...t[bEType],structTmpl(bEId)]};saveTmpls(nt);
+      saveMonthlyAmt(bEId);
     }else{
       const o=getOv(cy,cm);const k=bEType+'_add';o[k]=(o[k]||[]).map(i=>i.id===bEId?{...i,name,amount,subItems,dueDay,tag,note,payMethod,image}:i);saveOv(cy,cm,o);
     }
     addHist('budget','แก้ไข',`${bEType==='income'?'รายรับ':'รายจ่าย'}: ${name} = ${fmt(amount)}`);
   }else if(recurring){
-    const nt={...t,[bEType]:[...t[bEType],{id:Date.now(),name,amount,subItems,dueDay,tag,note,payMethod,image}]};saveTmpls(nt);
-    addHist('budget','เพิ่ม',`${bEType==='income'?'รายรับ':'รายจ่าย'} (ประจำทุกเดือน): ${name} = ${fmt(amount)}`);
+    const newId=Date.now();
+    const nt={...t,[bEType]:[...t[bEType],structTmpl(newId)]};saveTmpls(nt);
+    saveMonthlyAmt(newId);
+    addHist('budget','เพิ่ม',`${bEType==='income'?'รายรับ':'รายจ่าย'} (ประจำทุกเดือน — ชื่อซ้ำ ยอดกรอกทีละเดือน): ${name} = ${fmt(amount)}`);
   }else{
     const o=getOv(cy,cm);const k=bEType+'_add';o[k]=[...(o[k]||[]),{id:Date.now(),name,amount,subItems,dueDay,tag,note,payMethod,image}];saveOv(cy,cm,o);
     addHist('budget','เพิ่ม',`${bEType==='income'?'รายรับ':'รายจ่าย'}: ${name} = ${fmt(amount)}`);
