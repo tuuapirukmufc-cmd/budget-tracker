@@ -1000,6 +1000,11 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
     <div class="f"><label>รวมจำนวนเงิน (฿)</label><input type="number" id="bm-amt" readonly style="background:var(--g100);font-weight:700;color:var(--g900)"></div>
     <div class="f"><label>ทุกวันที่</label><input type="number" id="bm-due" placeholder="1–31" min="1" max="31"></div>
   </div>
+  <div class="f">
+    <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+      <input type="checkbox" id="bm-recurring" style="width:16px;height:16px;accent-color:var(--green)"> ทำซ้ำทุกเดือนอัตโนมัติ (รายการประจำ)
+    </label>
+  </div>
   <div class="f"><label>หมวดหมู่</label>
     <select id="bm-tag"><option>ประจำ</option><option>Fixed Cost</option><option>ผ่อนชำระ</option><option>ยูทิลิตี้</option><option>อื่นๆ</option></select>
   </div>
@@ -1745,6 +1750,7 @@ function onBudgetPeriodChange(){
   renderBudget();
 }
 function getTmpls(){return ls(uKey('tmpl_v2'),defTmpls())}
+function saveTmpls(t){lss(uKey('tmpl_v2'),t)}
 function getOv(y,m){return ls(uKey(`ov_${y}_${m}`),{})}
 function saveOv(y,m,o){lss(uKey(`ov_${y}_${m}`),o)}
 function getPaid(y,m,t,id){return ls(uKey(`paid_${y}_${m}_${t}_${id}`),false)}
@@ -1880,6 +1886,8 @@ function openBM(type,id){
   document.getElementById('bm-due').value=item?.dueDay||'';
   document.getElementById('bm-tag').value=item?item.tag:'ประจำ';
   document.getElementById('bm-note').value=item?.note||'';
+  const t=getTmpls(),isTmpl=id?t[type].some(i=>i.id===id):false;
+  document.getElementById('bm-recurring').checked=id?isTmpl:true;
   bPayMethod=item?.payMethod||'cash';
   selectPayMethod(bPayMethod);
   bImgData=item?.image||null;
@@ -1901,25 +1909,64 @@ function saveBudget(){
   const note=document.getElementById('bm-note').value;
   const payMethod=bPayMethod;
   const image=bImgData;
+  const recurring=document.getElementById('bm-recurring').checked;
   if(amount<0)return;
   const t=getTmpls(),isTmpl=bEId&&t[bEType].some(i=>i.id===bEId);
   if(bEId){
-    if(isTmpl){const o=getOv(cy,cm);const k=bEType+'_edit';o[k]=o[k]||{};o[k][bEId]={name,amount,subItems,dueDay,tag,note,payMethod,image};saveOv(cy,cm,o);}
-    else{const o=getOv(cy,cm);const k=bEType+'_add';o[k]=(o[k]||[]).map(i=>i.id===bEId?{...i,name,amount,subItems,dueDay,tag,note,payMethod,image}:i);saveOv(cy,cm,o);}
+    if(isTmpl&&recurring){
+      // รายการประจำ — แก้ไขที่ต้นแบบ (template) โดยตรง ให้มีผลกับทุกเดือน (รวมรายการย่อย)
+      const nt={...t,[bEType]:t[bEType].map(i=>i.id===bEId?{id:bEId,name,amount,subItems,dueDay,tag,note,payMethod,image}:i)};saveTmpls(nt);
+      // ล้าง override เฉพาะเดือนของรายการนี้ทุกเดือนที่เคยตั้งไว้ ไม่ให้บังค่าใหม่จากต้นแบบ
+      clearItemOverrides(bEType,bEId);
+    }else if(isTmpl&&!recurring){
+      // เลิกเป็นรายการประจำ — เอาออกจากเทมเพลต แล้วเก็บไว้เฉพาะเดือนนี้แทน
+      const nt={...t,[bEType]:t[bEType].filter(i=>i.id!==bEId)};saveTmpls(nt);
+      clearItemOverrides(bEType,bEId);
+      const o=getOv(cy,cm);const k=bEType+'_add';o[k]=[...(o[k]||[]),{id:Date.now(),name,amount,subItems,dueDay,tag,note,payMethod,image}];saveOv(cy,cm,o);
+    }else if(!isTmpl&&recurring){
+      // แปลงรายการเฉพาะเดือนนี้ ให้กลายเป็นรายการประจำทุกเดือน (คงรหัสเดิมไว้)
+      const o=getOv(cy,cm);const k=bEType+'_add';o[k]=(o[k]||[]).filter(i=>i.id!==bEId);saveOv(cy,cm,o);
+      const nt={...t,[bEType]:[...t[bEType],{id:bEId,name,amount,subItems,dueDay,tag,note,payMethod,image}]};saveTmpls(nt);
+    }else{
+      const o=getOv(cy,cm);const k=bEType+'_add';o[k]=(o[k]||[]).map(i=>i.id===bEId?{...i,name,amount,subItems,dueDay,tag,note,payMethod,image}:i);saveOv(cy,cm,o);
+    }
     addHist('budget','แก้ไข',`${bEType==='income'?'รายรับ':'รายจ่าย'}: ${name} = ${fmt(amount)}`);
+  }else if(recurring){
+    const nt={...t,[bEType]:[...t[bEType],{id:Date.now(),name,amount,subItems,dueDay,tag,note,payMethod,image}]};saveTmpls(nt);
+    addHist('budget','เพิ่ม',`${bEType==='income'?'รายรับ':'รายจ่าย'} (ประจำทุกเดือน): ${name} = ${fmt(amount)}`);
   }else{
     const o=getOv(cy,cm);const k=bEType+'_add';o[k]=[...(o[k]||[]),{id:Date.now(),name,amount,subItems,dueDay,tag,note,payMethod,image}];saveOv(cy,cm,o);
     addHist('budget','เพิ่ม',`${bEType==='income'?'รายรับ':'รายจ่าย'}: ${name} = ${fmt(amount)}`);
   }
   closeOv('bm-ov');renderBudget();
 }
+// ล้าง override (edit/del) ของรายการหนึ่ง ๆ ที่เคยตั้งไว้เฉพาะบางเดือน ให้ทุกเดือนกลับไปใช้ค่าจากต้นแบบ
+function clearItemOverrides(type,id){
+  const k=type+'_edit',dk=type+'_del';
+  for(let i=0;i<localStorage.length;i++){
+    const key=localStorage.key(i);
+    if(!key||!key.startsWith('ov_'))continue;
+    let changed=false;
+    const o=ls(key,{});
+    if(o[k]&&o[k][id]!==undefined){delete o[k][id];changed=true;}
+    if(o[dk]&&o[dk].includes(id)){o[dk]=o[dk].filter(x=>x!==id);changed=true;}
+    if(changed)lss(key,o);
+  }
+}
 function delBudget(){
   const t=getTmpls(),isTmpl=t[bEType].some(i=>i.id===bEId);
   const item=getMI(cy,cm)[bEType].find(i=>i.id===bEId);
-  const o=getOv(cy,cm);
-  if(isTmpl){const k=bEType+'_del';o[k]=[...(o[k]||[]),bEId];}
-  else{const k=bEType+'_add';o[k]=(o[k]||[]).filter(i=>i.id!==bEId);}
-  saveOv(cy,cm,o);
+  if(isTmpl){
+    const all=confirm('รายการนี้เป็นรายการประจำทุกเดือน\n\nตกลง = ลบออกจากรายการประจำทั้งหมด (ทุกเดือน)\nยกเลิก = ข้ามเฉพาะเดือนนี้เดือนเดียว');
+    if(all){
+      const nt={...t,[bEType]:t[bEType].filter(i=>i.id!==bEId)};saveTmpls(nt);
+      clearItemOverrides(bEType,bEId);
+    }else{
+      const o=getOv(cy,cm);const k=bEType+'_del';o[k]=[...(o[k]||[]),bEId];saveOv(cy,cm,o);
+    }
+  }else{
+    const o=getOv(cy,cm);const k=bEType+'_add';o[k]=(o[k]||[]).filter(i=>i.id!==bEId);saveOv(cy,cm,o);
+  }
   addHist('budget','ลบ',`${bEType==='income'?'รายรับ':'รายจ่าย'}: ${item?.name||''}`);
   closeOv('bm-ov');renderBudget();
 }
