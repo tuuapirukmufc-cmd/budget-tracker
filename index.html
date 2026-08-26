@@ -1462,9 +1462,10 @@ function applySortArr(arr,page,sub){
 }
 const MN=['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
 const MNS=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
-const MIN_PY=2026,MIN_PM=4; // ตัวกรองเริ่มได้ตั้งแต่ พ.ค. 2569 (พ.ศ.) เป็นต้นไป
+const MIN_PY=2026,MIN_PM=4,MAX_PY=2037; // ตัวกรองเริ่มได้ตั้งแต่ พ.ค. 2569 (พ.ศ.) ถึง พ.ศ. 2580
 function clampPeriod(y,m){
   if(y<MIN_PY||(y===MIN_PY&&m<MIN_PM))return{y:MIN_PY,m:MIN_PM};
+  if(y>MAX_PY||(y===MAX_PY&&m>11))return{y:MAX_PY,m:11};
   return{y,m};
 }
 const now=new Date();
@@ -1730,7 +1731,7 @@ function fillPeriodSelect(yearId,monthId,y,m){
   if(!yearSel||!moSel)return;
   const p=clampPeriod(y,m);y=p.y;m=p.m;
   if(!yearSel.dataset.filled){
-    const maxY=Math.max(now.getFullYear()+1,MIN_PY+2);
+    const maxY=MAX_PY;
     for(let yy=MIN_PY;yy<=maxY;yy++){
       const o=document.createElement('option');o.value=yy;o.textContent='พ.ศ. '+(yy+543);yearSel.appendChild(o);
     }
