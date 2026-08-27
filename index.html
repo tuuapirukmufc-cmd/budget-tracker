@@ -2156,13 +2156,25 @@ function openCatMgr(){
   document.getElementById('catmgr-new').value='';
   document.getElementById('catmgr-ov').classList.add('open');
 }
+function reorderDebtCat(id,direction){
+  saveDebtCats(reorderWithinGroup(getDebtCats(),()=>true,id,direction));
+  renderCatMgrList();renderDebt();
+}
+function toggleDebtCatHidden(id,hidden){
+  saveDebtCats(getDebtCats().map(c=>c.id===id?{...c,hidden}:c));
+  renderCatMgrList();renderDebt();
+}
 function renderCatMgrList(){
   const cats=getDebtCats();
   const debts=getDebts();
-  document.getElementById('catmgr-list').innerHTML=cats.length?cats.map(c=>{
+  document.getElementById('catmgr-list').innerHTML=cats.length?cats.map((c,i)=>{
     const count=debts.filter(d=>d.cat===c.id).length;
-    return`<div class="f-row" style="align-items:center;margin-bottom:.4rem">
+    return`<div class="f-row" style="align-items:center;margin-bottom:.4rem;gap:6px">
+      ${reorderBtns(`reorderDebtCat('${c.id}',-1)`,`reorderDebtCat('${c.id}',1)`,i>0,i<cats.length-1)}
       <input type="text" value="${c.label.replace(/"/g,'&quot;')}" onchange="renameDebtCat('${c.id}',this.value)" style="flex:1">
+      <label style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--g400);white-space:nowrap;cursor:${count>0?'not-allowed':'pointer'}" title="${count>0?'ยังมี'+count+'รายการอยู่ในประเภทนี้ ซ่อนไม่ได้':'ซ่อนตารางนี้จากหน้าหลัก (ใช้ได้เมื่อไม่มีรายการ)'}">
+        <input type="checkbox" ${c.hidden?'checked':''} ${count>0?'disabled':''} onchange="toggleDebtCatHidden('${c.id}',this.checked)" style="width:14px;height:14px;accent-color:var(--green)"> ซ่อน
+      </label>
       <button class="btn btn-danger btn-sm" ${count>0?'disabled title="ยังมี '+count+' รายการอยู่ในประเภทนี้ ย้าย/ลบรายการก่อนถึงจะลบได้"':''} onclick="deleteDebtCat('${c.id}')">ลบ</button>
     </div>`;
   }).join(''):'<div class="empty">ยังไม่มีประเภท</div>';
@@ -2324,7 +2336,11 @@ function renderDebt(){
   const debts=getDebts();
   const cats=getDebtCats();
   const container=document.getElementById('debt-sections');
-  if(container)container.innerHTML=cats.map(c=>`
+  const visibleCats=cats.filter(c=>{
+    const count=debts.filter(d=>d.cat===c.id).length;
+    return !(c.hidden&&count===0); // ซ่อนได้เฉพาะตารางที่ไม่มีรายการ — กันไม่ให้ข้อมูลหายโดยไม่ตั้งใจ
+  });
+  if(container)container.innerHTML=visibleCats.map(c=>`
     <div class="db-sec">
       <div class="db-sec-head"><span class="db-dot"></span>${c.label}</div>
       <div class="db-table-wrap"><table class="db-tbl"><thead><tr id="cat-head-${c.id}"></tr></thead><tbody id="cat-body-${c.id}"></tbody></table></div>
@@ -2344,7 +2360,7 @@ function renderDebt(){
   document.getElementById('d-combo-rem').style.width=remPct+'%';
   document.getElementById('d-combo-used-pct').textContent=utilPct+'%';
   document.getElementById('d-combo-rem-pct').textContent=remPct+'%';
-  cats.forEach(c=>
+  visibleCats.forEach(c=>
     renderDBody('cat-body-'+c.id,'cat-tot-'+c.id,'cat-head-'+c.id,debts.filter(d=>d.cat===c.id),c.id)
   );
 }
