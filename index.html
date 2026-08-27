@@ -1950,7 +1950,8 @@ function saveBudget(){
       clearItemOverrides(bEType,bEId);
       if(lockAmount)clearItemAmtOverrides(bEType,bEId);else saveMonthlyAmt(bEId);
     }else if(isTmpl&&!recurring){
-      // เลิกเป็นรายการประจำ — เอาออกจากเทมเพลต แล้วเก็บไว้เฉพาะเดือนนี้แทน (มีทั้งชื่อและยอด)
+      // เลิกเป็นรายการประจำ — เก็บประวัติเดือนเก่าที่เคยกรอกยอดไว้ทั้งหมดก่อน แล้วค่อยเอาออกจากเทมเพลต / เดือนนี้บันทึกยอดที่กรอกใหม่แยกไว้
+      preserveHistoricalMonths(bEType,bEId,t[bEType].find(i=>i.id===bEId),uKey(`ov_${cy}_${cm}`));
       const nt={...t,[bEType]:t[bEType].filter(i=>i.id!==bEId)};saveTmpls(nt);
       clearItemOverrides(bEType,bEId);
       clearItemAmtOverrides(bEType,bEId);
@@ -2000,10 +2001,12 @@ function clearItemAmtOverrides(type,id){
 }
 function delBudget(){
   const t=getTmpls(),isTmpl=t[bEType].some(i=>i.id===bEId);
+  const tmplItem=t[bEType].find(i=>i.id===bEId);
   const item=getMI(cy,cm)[bEType].find(i=>i.id===bEId);
   if(isTmpl){
-    const all=confirm('รายการนี้เป็นรายการประจำทุกเดือน\n\nตกลง = ลบออกจากรายการประจำทั้งหมด (ทุกเดือน)\nยกเลิก = ข้ามเฉพาะเดือนนี้เดือนเดียว');
+    const all=confirm('รายการนี้เป็นรายการประจำทุกเดือน\n\nตกลง = หยุดทำซ้ำจากนี้ไป (เดือนก่อนหน้าที่เคยกรอกยอดไว้แล้วจะยังคงอยู่ครบ ไม่ถูกลบ)\nยกเลิก = ข้ามเฉพาะเดือนนี้เดือนเดียว (เดือนอื่นไม่กระทบ)');
     if(all){
+      preserveHistoricalMonths(bEType,bEId,tmplItem);
       const nt={...t,[bEType]:t[bEType].filter(i=>i.id!==bEId)};saveTmpls(nt);
       clearItemOverrides(bEType,bEId);
       clearItemAmtOverrides(bEType,bEId);
@@ -2015,6 +2018,23 @@ function delBudget(){
   }
   addHist('budget','ลบ',`${bEType==='income'?'รายรับ':'รายจ่าย'}: ${item?.name||''}`);
   closeOv('bm-ov');renderBudget();
+}
+// ก่อนหยุดทำซ้ำ/ลบรายการประจำ — เก็บทุกเดือนที่เคยกรอกยอดไว้แล้วให้กลายเป็นรายการเดี่ยวถาวรของเดือนนั้น กันประวัติหาย
+// skipKey: ข้ามเดือนนี้ (เผื่อกรณีกำลังจะบันทึกยอดใหม่ของเดือนปัจจุบันแยกต่างหากอยู่แล้ว จะได้ไม่ซ้ำกัน
+function preserveHistoricalMonths(type,id,tmplItem,skipKey){
+  if(!tmplItem)return;
+  const k=type+'_amt';
+  for(let i=0;i<localStorage.length;i++){
+    const key=localStorage.key(i);
+    if(!key||!key.startsWith('ov_')||key===skipKey)continue;
+    const o=ls(key,{});
+    const a=o[k]&&o[k][id];
+    if(!a)continue;
+    const addK=type+'_add';
+    o[addK]=[...(o[addK]||[]),{id:Date.now()+Math.floor(Math.random()*1000),name:tmplItem.name,amount:a.amount,subItems:a.subItems||null,dueDay:tmplItem.dueDay,tag:tmplItem.tag,note:tmplItem.note,payMethod:tmplItem.payMethod,image:tmplItem.image}];
+    delete o[k][id];
+    lss(key,o);
+  }
 }
 function togPaid(type,id,v){setPaid(cy,cm,type,id,v);renderBudget();if(v)clearDismissed()}
 function dueBadge(dueDay,paid){
