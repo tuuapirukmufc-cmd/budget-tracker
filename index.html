@@ -499,6 +499,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   <span id="cloud-status" class="cloud-status"></span>
   <button class="btn btn-sm" id="cloud-upload-btn" onclick="cloudUpload()" style="background:var(--gl);color:var(--gd);border:1px solid var(--green);font-size:11px;padding:3px 10px;border-radius:6px">☁ บันทึกขึ้นคลาวด์</button>
   <button class="btn btn-sm" id="cloud-download-btn" onclick="cloudDownload()" style="background:var(--bl);color:var(--bd);border:1px solid var(--blue);font-size:11px;padding:3px 10px;border-radius:6px">⬇ โหลดจากคลาวด์</button>
+  <button class="btn btn-sm" id="cloud-cleanup-btn" onclick="runCloudCleanup()" style="background:var(--al);color:var(--amber);border:1px solid var(--amber);font-size:11px;padding:3px 10px;border-radius:6px" title="ล้างรูปภาพแนบในรายการเดือนเก่า เพื่อลดขนาดข้อมูลก่อนบันทึกขึ้นคลาวด์">🧹 ล้างข้อมูลเก่า</button>
   </div>
 </div>
 
@@ -1514,16 +1515,70 @@ function findOversizedKey(allData){
   });
   return found?{key:found,len:max}:null;
 }
+// นับจำนวนรูปภาพ (base64) ที่ฝังอยู่ในรายการรายรับ-รายจ่ายทุกเดือน ว่ากินพื้นที่เท่าไหร่
+function scanEmbeddedImages(){
+  let count=0,bytes=0;
+  for(let i=0;i<localStorage.length;i++){
+    const key=localStorage.key(i);
+    if(!key||!key.startsWith('ov_'))continue;
+    const o=ls(key,{});
+    ['income_add','expense_add'].forEach(k=>{
+      (o[k]||[]).forEach(item=>{
+        if(item.image){count++;bytes+=item.image.length;}
+      });
+    });
+  }
+  return{count,bytes};
+}
+// ล้างรูปภาพที่แนบไว้ในรายการของเดือนเก่า (ไม่ใช่เดือนปัจจุบัน) เพื่อลดขนาดข้อมูลก่อนซิงค์ขึ้นคลาวด์
+// เก็บยอดเงิน/ชื่อรายการไว้ครบ ตัดออกเฉพาะตัวรูปภาพที่หนักที่สุด
+function cleanupOldImages(){
+  const curKey=uKey(`ov_${cy}_${cm}`);
+  let removed=0,freedBytes=0;
+  for(let i=0;i<localStorage.length;i++){
+    const key=localStorage.key(i);
+    if(!key||!key.startsWith('ov_')||key===curKey)continue;
+    const o=ls(key,{});
+    let changed=false;
+    ['income_add','expense_add'].forEach(k=>{
+      (o[k]||[]).forEach(item=>{
+        if(item.image){freedBytes+=item.image.length;item.image=null;removed++;changed=true;}
+      });
+    });
+    if(changed)lss(key,o);
+  }
+  return{removed,freedBytes};
+}
+function runCloudCleanup(){
+  const scan=scanEmbeddedImages();
+  if(scan.count===0){alert('ไม่พบรูปภาพแนบในรายการเดือนเก่าที่ต้องล้าง (ข้อมูลรวมอาจใหญ่จากสาเหตุอื่น)');return;}
+  const mb=(scan.bytes/1024/1024).toFixed(2);
+  if(!confirm(`พบรูปภาพแนบในรายการเดือนเก่า ${scan.count} รูป (~${mb} MB)\n\nกด "ตกลง" เพื่อล้างรูปเหล่านี้ทิ้ง — ยอดเงิน/ชื่อรายการจะยังอยู่ครบ ตัดออกเฉพาะรูปที่แนบไว้เท่านั้น (เดือนปัจจุบันจะไม่ถูกแตะ)`))return;
+  const result=cleanupOldImages();
+  const freedMB=(result.freedBytes/1024/1024).toFixed(2);
+  alert(`ล้างแล้ว ${result.removed} รูป ลดขนาดข้อมูลลง ~${freedMB} MB\n\nลองกด "บันทึกขึ้นคลาวด์" อีกครั้งได้เลย`);
+}
 async function cloudUpload(){
   try{
     updateCloudStatus('กำลังบันทึก...','saving');
     const allData=getAllAppData();
     const oversized=findOversizedKey(allData);
+    const body=JSON.stringify({action:'setAll',data:allData});
+    const sizeMB=(body.length/1024/1024).toFixed(1);
+    if(body.length>8*1024*1024){
+      updateCloudStatus(`❌ ข้อมูลรวมใหญ่เกินไป (${sizeMB} MB) — ลองลบ/ลดขนาดรูปภาพที่แนบไว้ก่อนบันทึกขึ้นคลาวด์`,'err');
+      return;
+    }
     const res=await fetch(APPS_SCRIPT_URL,{
       method:'POST',
       headers:{'Content-Type':'text/plain;charset=utf-8'}, // กัน CORS preflight (Apps Script ไม่รองรับ custom header)
-      body:JSON.stringify({action:'setAll',data:allData})
+      body
     });
+    if(!res.ok){
+      updateCloudStatus(`❌ เซิร์ฟเวอร์ตอบกลับผิดพลาด (HTTP ${res.status})`,'err');
+      console.error('Cloud upload: HTTP',res.status,res.statusText);
+      return;
+    }
     const raw=await res.text();
     let json;
     try{json=JSON.parse(raw);}catch(e){
@@ -1541,7 +1596,7 @@ async function cloudUpload(){
       else{updateCloudStatus('❌ บันทึกไม่สำเร็จ','err');}
       console.error(json.error);
     }
-  }catch(e){updateCloudStatus('❌ เชื่อมต่อคลาวด์ไม่ได้','err');console.error(e);}
+  }catch(e){updateCloudStatus('❌ เชื่อมต่อคลาวด์ไม่ได้ — '+(e?.message||e),'err');console.error('Cloud upload error:',e);}
 }
 async function cloudDownload(){
   try{
@@ -1558,7 +1613,7 @@ async function cloudDownload(){
       applyPageVisibility();
       renderDashboard();renderBudget();renderDebt();renderInvest();renderSub();renderHistory();renderTodo();renderLending();
     }else{updateCloudStatus('ยกเลิก','');}
-  }catch(e){updateCloudStatus('❌ เชื่อมต่อคลาวด์ไม่ได้','err');console.error(e);}
+  }catch(e){updateCloudStatus('❌ เชื่อมต่อคลาวด์ไม่ได้ — '+(e?.message||e),'err');console.error('Cloud download error:',e);}
 }
 async function cloudAutoLoadOnStart(){
   try{
@@ -2077,7 +2132,7 @@ function preserveHistoricalMonths(type,id,tmplItem,skipKey){
     const a=o[k]&&o[k][id];
     if(!a)continue;
     const addK=type+'_add';
-    o[addK]=[...(o[addK]||[]),{id:Date.now()+Math.floor(Math.random()*1000),name:tmplItem.name,amount:a.amount,subItems:a.subItems||null,dueDay:tmplItem.dueDay,tag:tmplItem.tag,note:tmplItem.note,payMethod:tmplItem.payMethod,image:tmplItem.image}];
+    o[addK]=[...(o[addK]||[]),{id:Date.now()+Math.floor(Math.random()*1000),name:tmplItem.name,amount:a.amount,subItems:a.subItems||null,dueDay:tmplItem.dueDay,tag:tmplItem.tag,note:tmplItem.note,payMethod:tmplItem.payMethod,image:null}];
     delete o[k][id];
     lss(key,o);
   }
