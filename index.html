@@ -1200,94 +1200,165 @@ function runCloudCleanup(){
   const freedMB=(result.freedBytes/1024/1024).toFixed(2);
   alert(`ล้างแล้ว ${result.removed} รูป ลดขนาดข้อมูลลง ~${freedMB} MB\n\nลองกด "บันทึกขึ้นคลาวด์" อีกครั้งได้เลย`);
 }
-async function cloudUpload(){
+function cloudUpload(){
   try{
     updateCloudStatus('กำลังบันทึก...','saving');
+
     const allData=getAllAppData();
-    const oversized=findOversizedKey(allData);
     const body=JSON.stringify({action:'setAll',data:allData});
     const sizeMB=(body.length/1024/1024).toFixed(1);
+
     if(body.length>8*1024*1024){
       updateCloudStatus(`❌ ข้อมูลรวมใหญ่เกินไป (${sizeMB} MB) — ลองลบ/ลดขนาดรูปภาพที่แนบไว้ก่อนบันทึกขึ้นคลาวด์`,'err');
       return;
     }
-    try{
-      const res=await fetch(APPS_SCRIPT_URL,{
-        method:'POST',
-        headers:{'Content-Type':'text/plain;charset=utf-8'}, // กัน CORS preflight (Apps Script ไม่รองรับ custom header)
-        body
-      });
-      if(!res.ok){
-        updateCloudStatus(`❌ เซิร์ฟเวอร์ตอบกลับผิดพลาด (HTTP ${res.status})`,'err');
-        console.error('Cloud upload: HTTP',res.status,res.statusText);
-        return;
-      }
-      const raw=await res.text();
-      let json;
-      try{json=JSON.parse(raw);}catch(e){
-        console.error('Cloud upload: non-JSON response',raw.slice(0,300));
-        if(oversized){updateCloudStatus(`❌ ข้อมูล "${oversized.key}" ใหญ่เกินไป (${oversized.len.toLocaleString()} ตัวอักษร) ลองลบ/ลดขนาดรูปภาพ`,'err');}
-        else{updateCloudStatus('❌ บันทึกไม่สำเร็จ (เซิร์ฟเวอร์ตอบกลับผิดรูปแบบ)','err');}
-        return;
-      }
-      if(json.success){
-        const t1=new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
-        updateCloudStatus('✓ บันทึกแล้ว '+t1,'ok');
-        lss('cloud_last_sync',Date.now());
-      }else{
-        if(oversized){updateCloudStatus(`❌ บันทึกไม่สำเร็จ — "${oversized.key}" อาจใหญ่เกินไป`,'err');}
-        else{updateCloudStatus('❌ บันทึกไม่สำเร็จ','err');}
-        console.error(json.error);
-      }
-    }catch(corsErr){
-      // บาง deployment ของ Apps Script ไม่ส่ง CORS header กลับมาตอนตอบ POST
-      // ทั้งที่บันทึกสำเร็จจริงฝั่งเซิร์ฟเวอร์ (เห็นจาก log ว่า POST ได้ 200 OK เสมอ)
-      // เบราว์เซอร์เลยอ่านผลไม่ได้ — ลองส่งซ้ำแบบ no-cors (ยิงคำขอไป ไม่ต้องรอผลตอบกลับ)
-      console.warn('Cloud upload: normal fetch ถูก CORS บล็อก กำลังส่งซ้ำแบบ no-cors:',corsErr);
-      await fetch(APPS_SCRIPT_URL,{
-        method:'POST',
-        mode:'no-cors',
-        headers:{'Content-Type':'text/plain;charset=utf-8'},
-        body
-      });
-      const t1=new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
-      updateCloudStatus('✓ ส่งข้อมูลขึ้นคลาวด์แล้ว '+t1+' (ยืนยันผลไม่ได้เพราะ CORS — กด "โหลดจากคลาวด์" เพื่อเช็คว่าถึงจริง)','ok');
-      lss('cloud_last_sync',Date.now());
-    }
-  }catch(e){updateCloudStatus('❌ สำรองขึ้นคลาวด์ไม่สำเร็จ (ข้อมูลในเครื่องยังปลอดภัย) — '+(e?.message||e),'err');console.error('Cloud upload error:',e);}
-}
-async function cloudDownload(){
-  try{
-    updateCloudStatus('กำลังโหลด...','saving');
-    const res=await fetch(`${APPS_SCRIPT_URL}?action=getAll`);
-    const json=await res.json();
-    if(!json.success){updateCloudStatus('❌ โหลดไม่สำเร็จ','err');console.error(json.error);return;}
-    const allData=json.data;
-    if(!allData||!Object.keys(allData).length){updateCloudStatus('ยังไม่มีข้อมูลในคลาวด์','err');return;}
-    if(confirm('โหลดข้อมูลจากคลาวด์? (จะแทนที่ข้อมูลปัจจุบันในเครื่องนี้)')){
-      restoreAllAppData(allData);
-      const t1=new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
-      updateCloudStatus('✓ โหลดแล้ว '+t1,'ok');
-      applyPageVisibility();
-      renderDashboard();renderBudget();renderDebt();renderSub();renderTodo();
-    }else{updateCloudStatus('ยกเลิก','');}
-  }catch(e){updateCloudStatus('❌ โหลดจากคลาวด์ไม่สำเร็จ (ข้อมูลในเครื่องไม่กระทบ) — '+(e?.message||e),'err');console.error('Cloud download error:',e);}
-}
-async function cloudAutoLoadOnStart(){
-  try{
-    updateCloudStatus('กำลังเช็คข้อมูล...','saving');
-    const res=await fetch(`${APPS_SCRIPT_URL}?action=getAll`);
-    const json=await res.json();
-    if(json.success&&json.data&&Object.keys(json.data).length){
-      restoreAllAppData(json.data);
-      updateCloudStatus('✓ ซิงค์ล่าสุดแล้ว','ok');
-    }else{
-      updateCloudStatus('','');
-    }
+
+    // ส่งข้อมูลผ่าน hidden form เพื่อหลีกเลี่ยงปัญหา CORS ของ Apps Script
+    const frameName='cloudUploadFrame_'+Date.now();
+
+    const iframe=document.createElement('iframe');
+    iframe.name=frameName;
+    iframe.style.display='none';
+    document.body.appendChild(iframe);
+
+    const form=document.createElement('form');
+    form.method='POST';
+    form.action=APPS_SCRIPT_URL;
+    form.target=frameName;
+    form.style.display='none';
+
+    const input=document.createElement('input');
+    input.type='hidden';
+    input.name='payload';
+    input.value=body;
+
+    form.appendChild(input);
+    document.body.appendChild(form);
+
+    form.submit();
+
+    const t1=new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+    updateCloudStatus('✓ ส่งข้อมูลขึ้นคลาวด์แล้ว '+t1,'ok');
+    lss('cloud_last_sync',Date.now());
+
+    setTimeout(function(){
+      try{form.remove();iframe.remove();}catch(e){}
+    },10000);
+
   }catch(e){
-    updateCloudStatus('⚠ ออฟไลน์ — ใช้ข้อมูลในเครื่อง','err');
-    console.error(e);
+    updateCloudStatus('❌ สำรองขึ้นคลาวด์ไม่สำเร็จ (ข้อมูลในเครื่องยังปลอดภัย) — '+(e?.message||e),'err');
+    console.error('Cloud upload error:',e);
   }
+}
+function cloudDownload(){
+  updateCloudStatus('กำลังโหลด...','saving');
+
+  const callbackName='cloudCallback_'+Date.now();
+  const script=document.createElement('script');
+  let finished=false;
+
+  function cleanup(){
+    if(finished)return;
+    finished=true;
+    try{delete window[callbackName];}catch(e){}
+    try{script.remove();}catch(e){}
+  }
+
+  window[callbackName]=function(json){
+    try{
+      if(!json||!json.success){
+        updateCloudStatus('❌ โหลดไม่สำเร็จ'+(json?.error?' — '+json.error:''),'err');
+        return;
+      }
+
+      const allData=json.data;
+      if(!allData||!Object.keys(allData).length){
+        updateCloudStatus('ยังไม่มีข้อมูลในคลาวด์','err');
+        return;
+      }
+
+      if(confirm('โหลดข้อมูลจากคลาวด์? (จะแทนที่ข้อมูลปัจจุบันในเครื่องนี้)')){
+        restoreAllAppData(allData);
+        const t1=new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+        updateCloudStatus('✓ โหลดแล้ว '+t1,'ok');
+        applyPageVisibility();
+        renderDashboard();renderBudget();renderDebt();renderSub();renderTodo();
+      }else{
+        updateCloudStatus('ยกเลิก','');
+      }
+
+    }catch(e){
+      updateCloudStatus('❌ ประมวลผลข้อมูลไม่ได้ — '+(e?.message||e),'err');
+      console.error('Cloud download error:',e);
+    }finally{
+      cleanup();
+    }
+  };
+
+  script.id=callbackName;
+  script.src=APPS_SCRIPT_URL+'?action=getAll&callback='+encodeURIComponent(callbackName);
+
+  script.onerror=function(){
+    updateCloudStatus('❌ ติดต่อคลาวด์ไม่ได้','err');
+    cleanup();
+  };
+
+  document.body.appendChild(script);
+
+  setTimeout(function(){
+    if(!finished){
+      updateCloudStatus('❌ คลาวด์ตอบสนองช้าเกินไป','err');
+      cleanup();
+    }
+  },15000);
+}
+function cloudAutoLoadOnStart(){
+  return new Promise(function(resolve){
+    const callbackName='cloudAuto_'+Date.now();
+    const script=document.createElement('script');
+    let finished=false;
+
+    function done(){
+      if(finished)return;
+      finished=true;
+      try{delete window[callbackName];}catch(e){}
+      try{script.remove();}catch(e){}
+      resolve();
+    }
+
+    window[callbackName]=function(json){
+      try{
+        if(json&&json.success&&json.data&&Object.keys(json.data).length){
+          restoreAllAppData(json.data);
+          updateCloudStatus('✓ ซิงค์ล่าสุดแล้ว','ok');
+        }else{
+          updateCloudStatus('','');
+        }
+      }catch(e){
+        console.error('Cloud auto load error:',e);
+        updateCloudStatus('⚠ ใช้ข้อมูลในเครื่อง','err');
+      }finally{
+        done();
+      }
+    };
+
+    script.id=callbackName;
+    script.src=APPS_SCRIPT_URL+'?action=getAll&callback='+encodeURIComponent(callbackName);
+
+    script.onerror=function(){
+      updateCloudStatus('⚠ ออฟไลน์ — ใช้ข้อมูลในเครื่อง','err');
+      done();
+    };
+
+    document.body.appendChild(script);
+
+    setTimeout(function(){
+      if(!finished){
+        updateCloudStatus('⚠ คลาวด์ตอบช้า — ใช้ข้อมูลในเครื่อง','err');
+        done();
+      }
+    },10000);
+  });
 }
 
 // ══ INIT — ไม่มีระบบ login เปิดแอปตรงเลย ══
