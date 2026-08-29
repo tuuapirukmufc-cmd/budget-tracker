@@ -495,9 +495,9 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 <div id="cloud-bar" style="background:var(--surface2);border-bottom:1px solid var(--g200);padding:5px 16px;display:flex;align-items:center;gap:10px;font-size:12px;justify-content:space-between">
   <span id="realtime-clock" style="color:var(--gold);font-weight:600;letter-spacing:.02em;white-space:nowrap"></span>
   <div style="display:flex;align-items:center;gap:10px">
-  <span id="cloud-status" class="cloud-status"></span>
-  <button class="btn btn-sm" id="cloud-upload-btn" onclick="cloudUpload()" style="background:var(--gl);color:var(--gd);border:1px solid var(--green);font-size:11px;padding:3px 10px;border-radius:6px">☁ บันทึกขึ้นคลาวด์</button>
-  <button class="btn btn-sm" id="cloud-download-btn" onclick="cloudDownload()" style="background:var(--bl);color:var(--bd);border:1px solid var(--blue);font-size:11px;padding:3px 10px;border-radius:6px">⬇ โหลดจากคลาวด์</button>
+  <span id="cloud-status" title="ซิงค์ข้อมูลกับ Google Sheet กลาง" class="cloud-status"></span>
+  <button class="btn btn-sm" id="cloud-upload-btn" onclick="cloudUpload()" style="background:var(--gl);color:var(--gd);border:1px solid var(--green);font-size:11px;padding:3px 10px;border-radius:6px">☁ ซิงค์ขึ้น Google Sheet</button>
+  <button class="btn btn-sm" id="cloud-download-btn" onclick="cloudDownload()" style="background:var(--bl);color:var(--bd);border:1px solid var(--blue);font-size:11px;padding:3px 10px;border-radius:6px">⬇ โหลดจาก Google Sheet</button>
   <button class="btn btn-sm" id="cloud-cleanup-btn" onclick="runCloudCleanup()" style="background:var(--al);color:var(--amber);border:1px solid var(--amber);font-size:11px;padding:3px 10px;border-radius:6px" title="ล้างรูปภาพแนบในรายการเดือนเก่า เพื่อลดขนาดข้อมูลก่อนบันทึกขึ้นคลาวด์">🧹 ล้างข้อมูลเก่า</button>
   </div>
 </div>
@@ -1118,10 +1118,24 @@ const fmt=n=>'฿'+Math.round(n||0).toLocaleString('th-TH');
 const fmtN=(n,d=2)=>(n||0).toFixed(d);
 const fmtDate=s=>{if(!s)return'—';const d=new Date(s);return d.toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'2-digit'})};
 function ls(k,d){try{const r=localStorage.getItem(k);return r?JSON.parse(r):d}catch(e){return d}}
-function lss(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+
+// ══ AUTO SYNC STATE ══
+let cloudReady=false;
+let cloudRestoring=false;
+let cloudSaveTimer=null;
+function queueCloudSave(){
+  if(!cloudReady||cloudRestoring)return;
+  if(cloudSaveTimer)clearTimeout(cloudSaveTimer);
+  cloudSaveTimer=setTimeout(()=>cloudUpload(true),1200);
+}
+function lss(k,v){
+  try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}
+  if(k!=='cloud_last_sync')queueCloudSave();
+}
 
 // ══ CLOUD SYNC (Google Sheets ผ่าน Apps Script) ══
-const APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbxSpkQ8T_bkR2pvtXJbW2iCm72qc8WIfwIlz9f1fLGYObveOlCQYrkv68QPrL01OBFkGQ/exec';
+// เมื่อเปิดผ่าน Google Apps Script Web App จะใช้ google.script.run โดยตรง
+const APPS_SCRIPT_URL=''; // ไม่ต้องใส่ URL เมื่อ deploy ไฟล์นี้คู่กับ Code.gs
 
 function getAllAppData(){
   const data={};
@@ -1200,123 +1214,116 @@ function runCloudCleanup(){
   const freedMB=(result.freedBytes/1024/1024).toFixed(2);
   alert(`ล้างแล้ว ${result.removed} รูป ลดขนาดข้อมูลลง ~${freedMB} MB\n\nลองกด "บันทึกขึ้นคลาวด์" อีกครั้งได้เลย`);
 }
-function cloudUpload(){
+function cloudUpload(silent=false){
   try{
-    updateCloudStatus('กำลังบันทึก...','saving');
-
+    if(!silent)updateCloudStatus('กำลังบันทึก...','saving');
     const allData=getAllAppData();
     const body=JSON.stringify({action:'setAll',data:allData});
     const sizeMB=(body.length/1024/1024).toFixed(1);
-
     if(body.length>8*1024*1024){
-      updateCloudStatus(`❌ ข้อมูลรวมใหญ่เกินไป (${sizeMB} MB) — ลองลบ/ลดขนาดรูปภาพที่แนบไว้ก่อนบันทึกขึ้นคลาวด์`,'err');
+      updateCloudStatus(`❌ ข้อมูลรวมใหญ่เกินไป (${sizeMB} MB) — ลองลบ/ลดขนาดรูปภาพที่แนบไว้ก่อน`,'err');
       return;
     }
 
-    const frameName='cloudUploadFrame_'+Date.now();
+    // ทางหลัก: แอปที่ deploy จาก Google Apps Script
+    if(window.google?.script?.run){
+      google.script.run
+        .withSuccessHandler(function(res){
+          if(!res||!res.success){
+            updateCloudStatus('❌ บันทึกไม่สำเร็จ'+(res?.error?' — '+res.error:''),'err');
+            return;
+          }
+          const t1=new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+          try{localStorage.setItem('cloud_last_sync',JSON.stringify(Date.now()));}catch(e){}
+          updateCloudStatus('✓ ซิงค์แล้ว '+t1,'ok');
+        })
+        .withFailureHandler(function(err){
+          updateCloudStatus('❌ ติดต่อ Google Sheet ไม่ได้ — '+(err?.message||err),'err');
+        })
+        .setAllAppData(allData);
+      return;
+    }
 
-    const iframe=document.createElement('iframe');
-    iframe.name=frameName;
-    iframe.style.display='none';
-    document.body.appendChild(iframe);
-
-    const form=document.createElement('form');
-    form.method='POST';
-    form.action=APPS_SCRIPT_URL;
-    form.target=frameName;
-    form.style.display='none';
-
-    const input=document.createElement('input');
-    input.type='hidden';
-    input.name='payload';
-    input.value=body;
-
-    form.appendChild(input);
-    document.body.appendChild(form);
-
-    form.submit();
-
-    const t1=new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
-    updateCloudStatus('✓ ส่งข้อมูลขึ้นคลาวด์แล้ว '+t1,'ok');
-    lss('cloud_last_sync',Date.now());
-
-    setTimeout(function(){
-      try{form.remove();iframe.remove();}catch(e){}
-    },10000);
-
+    updateCloudStatus('❌ กรุณาเปิดผ่าน Google Apps Script Web App เพื่อใช้งานซิงค์','err');
   }catch(e){
-    updateCloudStatus('❌ สำรองขึ้นคลาวด์ไม่สำเร็จ (ข้อมูลในเครื่องยังปลอดภัย) — '+(e?.message||e),'err');
+    updateCloudStatus('❌ สำรองขึ้นคลาวด์ไม่สำเร็จ — '+(e?.message||e),'err');
     console.error('Cloud upload error:',e);
   }
 }
 
-
-function cloudDownload(){
-  updateCloudStatus('กำลังโหลด...','saving');
-
-  const callbackName='cloudCallback_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);
-  const script=document.createElement('script');
-  let finished=false;
-
-  function cleanup(){
-    if(finished)return;
-    finished=true;
-    try{delete window[callbackName];}catch(e){}
-    try{script.remove();}catch(e){}
+function applyCloudData(allData){
+  cloudRestoring=true;
+  try{
+    restoreAllAppData(allData||{});
+    applyPageVisibility();
+    renderDashboard();renderBudget();renderDebt();renderSub();renderTodo();renderLogins();
+  }finally{
+    cloudRestoring=false;
   }
-
-  window[callbackName]=function(json){
-    try{
-      if(!json||!json.success){
-        updateCloudStatus('❌ โหลดไม่สำเร็จ'+(json?.error?' — '+json.error:''),'err');
-        return;
-      }
-
-      const allData=json.data;
-      if(!allData||!Object.keys(allData).length){
-        updateCloudStatus('ยังไม่มีข้อมูลในคลาวด์','err');
-        return;
-      }
-
-      if(confirm('โหลดข้อมูลจากคลาวด์? (จะแทนที่ข้อมูลปัจจุบันในเครื่องนี้)')){
-        restoreAllAppData(allData);
-        const t1=new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
-        updateCloudStatus('✓ โหลดแล้ว '+t1,'ok');
-        applyPageVisibility();
-        renderDashboard();renderBudget();renderDebt();renderSub();renderTodo();
-      }else{
-        updateCloudStatus('ยกเลิก','');
-      }
-    }catch(e){
-      updateCloudStatus('❌ ประมวลผลข้อมูลไม่ได้ — '+(e?.message||e),'err');
-      console.error('Cloud download error:',e);
-    }finally{
-      cleanup();
-    }
-  };
-
-  script.id=callbackName;
-  script.src=APPS_SCRIPT_URL+'?action=getAll&callback='+encodeURIComponent(callbackName)+'&_t='+Date.now();
-
-  script.onerror=function(){
-    updateCloudStatus('❌ ติดต่อคลาวด์ไม่ได้','err');
-    cleanup();
-  };
-
-  document.body.appendChild(script);
-
-  setTimeout(function(){
-    if(!finished){
-      updateCloudStatus('❌ คลาวด์ตอบสนองช้าเกินไป','err');
-      cleanup();
-    }
-  },15000);
 }
-function cloudAutoLoadOnStart(){
-  // ปิดการโหลดคลาวด์อัตโนมัติ เพื่อป้องกันข้อมูลเก่าบนคลาวด์ทับข้อมูลใหม่ในเครื่อง
-  // หากต้องการดึงข้อมูลจากคลาวด์ ให้กดปุ่ม "⬇ โหลดจากคลาวด์" เอง
-  updateCloudStatus('','');
-  return Promise.resolve();
+
+function cloudDownload(manual=true){
+  updateCloudStatus('กำลังโหลด...','saving');
+  return new Promise((resolve)=>{
+    if(!window.google?.script?.run){
+      updateCloudStatus('❌ กรุณาเปิดผ่าน Google Apps Script Web App เพื่อใช้งานซิงค์','err');
+      resolve(false);return;
+    }
+    google.script.run
+      .withSuccessHandler(function(json){
+        try{
+          if(!json||!json.success){
+            updateCloudStatus('❌ โหลดไม่สำเร็จ'+(json?.error?' — '+json.error:''),'err');
+            resolve(false);return;
+          }
+          const allData=json.data||{};
+          if(!Object.keys(allData).length){
+            updateCloudStatus('ยังไม่มีข้อมูลใน Google Sheet','');
+            resolve(null);return;
+          }
+          if(manual && !confirm('โหลดข้อมูลจาก Google Sheet? (จะแทนที่ข้อมูลปัจจุบันในเครื่องนี้)')){
+            updateCloudStatus('ยกเลิก','');resolve(false);return;
+          }
+          applyCloudData(allData);
+          const t1=new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+          updateCloudStatus('✓ โหลดแล้ว '+t1,'ok');
+          resolve(true);
+        }catch(e){
+          updateCloudStatus('❌ ประมวลผลข้อมูลไม่ได้ — '+(e?.message||e),'err');
+          resolve(false);
+        }
+      })
+      .withFailureHandler(function(err){
+        updateCloudStatus('❌ ติดต่อ Google Sheet ไม่ได้ — '+(err?.message||err),'err');
+        resolve(false);
+      })
+      .getAllAppDataFromSheet();
+  });
+}
+
+async function cloudAutoLoadOnStart(){
+  updateCloudStatus('กำลังเชื่อม Google Sheet...','saving');
+  if(!window.google?.script?.run){
+    cloudReady=false;
+    updateCloudStatus('โหมดเครื่องนี้ — เปิดผ่าน Web App เพื่อซิงค์ข้ามอุปกรณ์','err');
+    return;
+  }
+  const result=await cloudDownload(false);
+  cloudReady=true;
+  if(result===null){
+    // ชีตยังว่าง: ใช้ข้อมูลในเครื่องนี้เป็นข้อมูลตั้งต้น
+    const local=getAllAppData();
+    const useful=Object.keys(local).filter(k=>k!=='cloud_last_sync');
+    if(useful.length){
+      updateCloudStatus('กำลังสร้างข้อมูลตั้งต้นบน Google Sheet...','saving');
+      cloudUpload(true);
+    }else{
+      updateCloudStatus('✓ พร้อมซิงค์','ok');
+    }
+  }else if(result===false){
+    // เชื่อมได้ไม่สำเร็จ: ยังเปิดแอปจาก localStorage ได้ แต่ไม่ auto-save จนกว่าจะ refresh
+    cloudReady=false;
+  }
 }
 
 // ══ INIT — ไม่มีระบบ login เปิดแอปตรงเลย ══
