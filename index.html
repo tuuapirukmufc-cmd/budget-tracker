@@ -1211,32 +1211,48 @@ async function cloudUpload(){
       updateCloudStatus(`❌ ข้อมูลรวมใหญ่เกินไป (${sizeMB} MB) — ลองลบ/ลดขนาดรูปภาพที่แนบไว้ก่อนบันทึกขึ้นคลาวด์`,'err');
       return;
     }
-    const res=await fetch(APPS_SCRIPT_URL,{
-      method:'POST',
-      headers:{'Content-Type':'text/plain;charset=utf-8'}, // กัน CORS preflight (Apps Script ไม่รองรับ custom header)
-      body
-    });
-    if(!res.ok){
-      updateCloudStatus(`❌ เซิร์ฟเวอร์ตอบกลับผิดพลาด (HTTP ${res.status})`,'err');
-      console.error('Cloud upload: HTTP',res.status,res.statusText);
-      return;
-    }
-    const raw=await res.text();
-    let json;
-    try{json=JSON.parse(raw);}catch(e){
-      console.error('Cloud upload: non-JSON response',raw.slice(0,300));
-      if(oversized){updateCloudStatus(`❌ ข้อมูล "${oversized.key}" ใหญ่เกินไป (${oversized.len.toLocaleString()} ตัวอักษร) ลองลบ/ลดขนาดรูปภาพ`,'err');}
-      else{updateCloudStatus('❌ บันทึกไม่สำเร็จ (เซิร์ฟเวอร์ตอบกลับผิดรูปแบบ)','err');}
-      return;
-    }
-    if(json.success){
+    try{
+      const res=await fetch(APPS_SCRIPT_URL,{
+        method:'POST',
+        headers:{'Content-Type':'text/plain;charset=utf-8'}, // กัน CORS preflight (Apps Script ไม่รองรับ custom header)
+        body
+      });
+      if(!res.ok){
+        updateCloudStatus(`❌ เซิร์ฟเวอร์ตอบกลับผิดพลาด (HTTP ${res.status})`,'err');
+        console.error('Cloud upload: HTTP',res.status,res.statusText);
+        return;
+      }
+      const raw=await res.text();
+      let json;
+      try{json=JSON.parse(raw);}catch(e){
+        console.error('Cloud upload: non-JSON response',raw.slice(0,300));
+        if(oversized){updateCloudStatus(`❌ ข้อมูล "${oversized.key}" ใหญ่เกินไป (${oversized.len.toLocaleString()} ตัวอักษร) ลองลบ/ลดขนาดรูปภาพ`,'err');}
+        else{updateCloudStatus('❌ บันทึกไม่สำเร็จ (เซิร์ฟเวอร์ตอบกลับผิดรูปแบบ)','err');}
+        return;
+      }
+      if(json.success){
+        const t1=new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+        updateCloudStatus('✓ บันทึกแล้ว '+t1,'ok');
+        lss('cloud_last_sync',Date.now());
+      }else{
+        if(oversized){updateCloudStatus(`❌ บันทึกไม่สำเร็จ — "${oversized.key}" อาจใหญ่เกินไป`,'err');}
+        else{updateCloudStatus('❌ บันทึกไม่สำเร็จ','err');}
+        console.error(json.error);
+      }
+    }catch(corsErr){
+      // บาง deployment ของ Apps Script ไม่ส่ง CORS header กลับมาตอนตอบ POST
+      // ทั้งที่บันทึกสำเร็จจริงฝั่งเซิร์ฟเวอร์ (เห็นจาก log ว่า POST ได้ 200 OK เสมอ)
+      // เบราว์เซอร์เลยอ่านผลไม่ได้ — ลองส่งซ้ำแบบ no-cors (ยิงคำขอไป ไม่ต้องรอผลตอบกลับ)
+      console.warn('Cloud upload: normal fetch ถูก CORS บล็อก กำลังส่งซ้ำแบบ no-cors:',corsErr);
+      await fetch(APPS_SCRIPT_URL,{
+        method:'POST',
+        mode:'no-cors',
+        headers:{'Content-Type':'text/plain;charset=utf-8'},
+        body
+      });
       const t1=new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
-      updateCloudStatus('✓ บันทึกแล้ว '+t1,'ok');
+      updateCloudStatus('✓ ส่งข้อมูลขึ้นคลาวด์แล้ว '+t1+' (ยืนยันผลไม่ได้เพราะ CORS — กด "โหลดจากคลาวด์" เพื่อเช็คว่าถึงจริง)','ok');
       lss('cloud_last_sync',Date.now());
-    }else{
-      if(oversized){updateCloudStatus(`❌ บันทึกไม่สำเร็จ — "${oversized.key}" อาจใหญ่เกินไป`,'err');}
-      else{updateCloudStatus('❌ บันทึกไม่สำเร็จ','err');}
-      console.error(json.error);
     }
   }catch(e){updateCloudStatus('❌ สำรองขึ้นคลาวด์ไม่สำเร็จ (ข้อมูลในเครื่องยังปลอดภัย) — '+(e?.message||e),'err');console.error('Cloud upload error:',e);}
 }
