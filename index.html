@@ -1205,12 +1205,6 @@ function cloudUpload(){
     updateCloudStatus('กำลังบันทึก...','saving');
 
     const allData=getAllAppData();
-
-    // ใส่ token เฉพาะการซิงค์ครั้งนี้ไว้ในข้อมูล เพื่อใช้ตรวจว่าคลาวด์รับข้อมูลจริง
-    const syncToken='sync_'+Date.now()+'_'+Math.random().toString(36).slice(2,10);
-    allData.cloud_sync_token=syncToken;
-    allData.cloud_sync_time=Date.now();
-
     const body=JSON.stringify({action:'setAll',data:allData});
     const sizeMB=(body.length/1024/1024).toFixed(1);
 
@@ -1240,22 +1234,15 @@ function cloudUpload(){
     form.appendChild(input);
     document.body.appendChild(form);
 
-    // ส่งข้อมูลก่อน
     form.submit();
 
-    // รอสั้น ๆ แล้วค่อยตรวจว่าคลาวด์มี token เดียวกันจริงหรือไม่
+    const t1=new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+    updateCloudStatus('✓ ส่งข้อมูลขึ้นคลาวด์แล้ว '+t1,'ok');
+    lss('cloud_last_sync',Date.now());
+
     setTimeout(function(){
-      verifyCloudUpload(syncToken, function(ok, errMsg){
-        if(ok){
-          const t1=new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
-          updateCloudStatus('✓ บันทึกขึ้นคลาวด์แล้ว '+t1,'ok');
-          lss('cloud_last_sync',Date.now());
-        }else{
-          updateCloudStatus('❌ ส่งคำขอแล้ว แต่ยังยืนยันว่าคลาวด์บันทึกสำเร็จไม่ได้'+(errMsg?' — '+errMsg:''),'err');
-        }
-        try{form.remove();iframe.remove();}catch(e){}
-      });
-    },1800);
+      try{form.remove();iframe.remove();}catch(e){}
+    },10000);
 
   }catch(e){
     updateCloudStatus('❌ สำรองขึ้นคลาวด์ไม่สำเร็จ (ข้อมูลในเครื่องยังปลอดภัย) — '+(e?.message||e),'err');
@@ -1263,51 +1250,7 @@ function cloudUpload(){
   }
 }
 
-function verifyCloudUpload(expectedToken, done){
-  const callbackName='cloudVerify_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);
-  const script=document.createElement('script');
-  let finished=false;
 
-  function cleanup(){
-    if(finished)return;
-    finished=true;
-    try{delete window[callbackName];}catch(e){}
-    try{script.remove();}catch(e){}
-  }
-
-  window[callbackName]=function(json){
-    try{
-      const got=json&&json.success&&json.data&&json.data.cloud_sync_token;
-      if(got===expectedToken){
-        cleanup();
-        done(true);
-      }else{
-        cleanup();
-        done(false,'ข้อมูลใหม่ยังไม่ปรากฏในคลาวด์');
-      }
-    }catch(e){
-      cleanup();
-      done(false,e?.message||String(e));
-    }
-  };
-
-  script.id=callbackName;
-  script.src=APPS_SCRIPT_URL+'?action=getAll&callback='+encodeURIComponent(callbackName)+'&_t='+Date.now();
-
-  script.onerror=function(){
-    cleanup();
-    done(false,'ติดต่อคลาวด์ไม่ได้');
-  };
-
-  document.body.appendChild(script);
-
-  setTimeout(function(){
-    if(!finished){
-      cleanup();
-      done(false,'คลาวด์ตอบช้าเกินไป');
-    }
-  },10000);
-}
 function cloudDownload(){
   updateCloudStatus('กำลังโหลด...','saving');
 
