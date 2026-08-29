@@ -1121,7 +1121,7 @@ function ls(k,d){try{const r=localStorage.getItem(k);return r?JSON.parse(r):d}ca
 function lss(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 
 // ══ CLOUD SYNC (Google Sheets ผ่าน Apps Script) ══
-const APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbyY3h3P2mSaL_CHQRfuiWxfb6Og1RWL-4KPgIAbBEj5jziw947bdleZqr5V2V64LyIGtA/exec';
+const APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbxSpkQ8T_bkR2pvtXJbW2iCm72qc8WIfwIlz9f1fLGYObveOlCQYrkv68QPrL01OBFkGQ/exec';
 
 function getAllAppData(){
   const data={};
@@ -1137,9 +1137,15 @@ function restoreAllAppData(data){
     try{localStorage.setItem(k,typeof v==='string'?v:JSON.stringify(v));}catch(e){}
   });
 }
+let cloudStatusTimer=null;
 function updateCloudStatus(msg,cls){
   const el=document.getElementById('cloud-status');
   if(el){el.textContent=msg;el.className='cloud-status '+(cls||'');}
+  if(cloudStatusTimer){clearTimeout(cloudStatusTimer);cloudStatusTimer=null;}
+  // ข้อความ error ไม่ควรค้างอยู่ตลอดไป ไม่งั้นจะดูเหมือนเกี่ยวกับสิ่งที่ทำถัดไปทั้งที่จริงเป็นแค่ผลค้างจากครั้งก่อน
+  if(cls==='err'){
+    cloudStatusTimer=setTimeout(()=>{if(el)el.textContent='';},10000);
+  }
 }
 function findOversizedKey(allData){
   // Google Sheets จำกัดความยาวข้อความต่อเซลล์ที่ 50,000 ตัวอักษร เช็คว่ามี key ไหนใกล้เกินไหม
@@ -1232,7 +1238,7 @@ async function cloudUpload(){
       else{updateCloudStatus('❌ บันทึกไม่สำเร็จ','err');}
       console.error(json.error);
     }
-  }catch(e){updateCloudStatus('❌ เชื่อมต่อคลาวด์ไม่ได้ — '+(e?.message||e),'err');console.error('Cloud upload error:',e);}
+  }catch(e){updateCloudStatus('❌ สำรองขึ้นคลาวด์ไม่สำเร็จ (ข้อมูลในเครื่องยังปลอดภัย) — '+(e?.message||e),'err');console.error('Cloud upload error:',e);}
 }
 async function cloudDownload(){
   try{
@@ -1249,7 +1255,7 @@ async function cloudDownload(){
       applyPageVisibility();
       renderDashboard();renderBudget();renderDebt();renderSub();renderTodo();
     }else{updateCloudStatus('ยกเลิก','');}
-  }catch(e){updateCloudStatus('❌ เชื่อมต่อคลาวด์ไม่ได้ — '+(e?.message||e),'err');console.error('Cloud download error:',e);}
+  }catch(e){updateCloudStatus('❌ โหลดจากคลาวด์ไม่สำเร็จ (ข้อมูลในเครื่องไม่กระทบ) — '+(e?.message||e),'err');console.error('Cloud download error:',e);}
 }
 async function cloudAutoLoadOnStart(){
   try{
