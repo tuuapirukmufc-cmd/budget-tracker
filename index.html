@@ -805,6 +805,12 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   <div class="f"><label>หมวดหมู่</label>
     <select id="bm-tag"><option>ประจำ</option><option>Fixed Cost</option><option>ผ่อนชำระ</option><option>ยูทิลิตี้</option><option>อื่นๆ</option></select>
   </div>
+  <div class="f" id="bm-exptype-wrap" style="display:none"><label>ประเภทรายจ่าย</label>
+    <div style="display:flex;gap:5px">
+      <select id="bm-exptype" style="flex:1"></select>
+      <button type="button" class="btn btn-ghost btn-sm" style="padding:0 9px" title="จัดการประเภทรายจ่าย" onclick="openExpCatMgr()">⚙</button>
+    </div>
+  </div>
   <div class="f"><label>หมายเหตุ</label><input type="text" id="bm-note" placeholder="บันทึกเพิ่มเติม..."></div>
   <div class="f"><label>จ่ายผ่าน</label>
     <div class="pay-toggle-group" id="bm-pay-group">
@@ -897,6 +903,20 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   <div class="mbtns">
     <button class="btn btn-ghost" onclick="closeOv('catmgr-ov')">ปิด</button>
     <button class="btn btn-pri" onclick="addDebtCat()">+ เพิ่มประเภท</button>
+  </div>
+</div></div>
+
+<!-- Expense Category Manager -->
+<div class="ov" id="expcatmgr-ov"><div class="modal">
+  <span class="modal-drag"></span>
+  <h3>จัดการหมวดหมู่รายจ่าย</h3>
+  <div id="expcatmgr-list" style="margin-bottom:.75rem"></div>
+  <div class="f-row">
+    <div class="f" style="flex:1"><label>เพิ่มหมวดหมู่ใหม่</label><input type="text" id="expcatmgr-new" placeholder="เช่น ค่าเสื้อผ้า"></div>
+  </div>
+  <div class="mbtns">
+    <button class="btn btn-ghost" onclick="closeOv('expcatmgr-ov')">ปิด</button>
+    <button class="btn btn-pri" onclick="addExpenseCat()">+ เพิ่มหมวดหมู่</button>
   </div>
 </div></div>
 
@@ -1661,6 +1681,8 @@ function openBM(type,id){
   }
   document.getElementById('bm-due').value=item?.dueDay||'';
   document.getElementById('bm-tag').value=item?item.tag:'ประจำ';
+  document.getElementById('bm-exptype-wrap').style.display=type==='expense'?'block':'none';
+  if(type==='expense')refreshExpTypeOptions(item?item.expType:getExpenseCats()[0]);
   document.getElementById('bm-note').value=item?.note||'';
   const t=getTmpls(),isTmpl=id?t[type].some(i=>i.id===id):false;
   document.getElementById('bm-recurring').checked=id?isTmpl:true;
@@ -1690,6 +1712,7 @@ function saveBudget(){
   const subItems=rows.length>1?rows:null;
   const dueDay=parseInt(document.getElementById('bm-due').value)||null;
   const tag=document.getElementById('bm-tag').value;
+  const expType=bEType==='expense'?document.getElementById('bm-exptype').value:null;
   const note=document.getElementById('bm-note').value;
   const payMethod=bPayMethod;
   const image=bImgData;
@@ -1699,7 +1722,7 @@ function saveBudget(){
   const t=getTmpls(),isTmpl=bEId&&t[bEType].some(i=>i.id===bEId);
   // โครงสร้างรายการ (ชื่อ/รายการย่อย/กำหนดวัน ฯลฯ) ซ้ำทุกเดือนเสมอ
   // ถ้าไม่ล็อคยอด — ยอดในต้นแบบตั้งเป็น 0 (ต้องกรอกใหม่ทุกเดือน) / ถ้าล็อคยอด — เก็บยอดจริงไว้ในต้นแบบ ใช้ซ้ำทุกเดือน
-  const structTmpl=id=>({id,name,amount:lockAmount?amount:0,subItems:subItems?subItems.map(s=>({name:s.name,amount:lockAmount?s.amount:0})):null,dueDay,tag,note,payMethod,image,lockAmount});
+  const structTmpl=id=>({id,name,amount:lockAmount?amount:0,subItems:subItems?subItems.map(s=>({name:s.name,amount:lockAmount?s.amount:0})):null,dueDay,tag,expType,note,payMethod,image,lockAmount});
   function saveMonthlyAmt(id){
     const o=getOv(cy,cm);const k=bEType+'_amt';o[k]=o[k]||{};o[k][id]={amount,subItems};saveOv(cy,cm,o);
   }
@@ -1715,14 +1738,14 @@ function saveBudget(){
       const nt={...t,[bEType]:t[bEType].filter(i=>i.id!==bEId)};saveTmpls(nt);
       clearItemOverrides(bEType,bEId);
       clearItemAmtOverrides(bEType,bEId);
-      const o=getOv(cy,cm);const k=bEType+'_add';o[k]=[...(o[k]||[]),{id:Date.now(),name,amount,subItems,dueDay,tag,note,payMethod,image}];saveOv(cy,cm,o);
+      const o=getOv(cy,cm);const k=bEType+'_add';o[k]=[...(o[k]||[]),{id:Date.now(),name,amount,subItems,dueDay,tag,expType,note,payMethod,image}];saveOv(cy,cm,o);
     }else if(!isTmpl&&recurring){
       // แปลงรายการเฉพาะเดือนนี้ ให้กลายเป็นรายการประจำทุกเดือน (คงรหัสเดิมไว้)
       const o=getOv(cy,cm);const k=bEType+'_add';o[k]=(o[k]||[]).filter(i=>i.id!==bEId);saveOv(cy,cm,o);
       const nt={...t,[bEType]:[...t[bEType],structTmpl(bEId)]};saveTmpls(nt);
       if(!lockAmount)saveMonthlyAmt(bEId);
     }else{
-      const o=getOv(cy,cm);const k=bEType+'_add';o[k]=(o[k]||[]).map(i=>i.id===bEId?{...i,name,amount,subItems,dueDay,tag,note,payMethod,image}:i);saveOv(cy,cm,o);
+      const o=getOv(cy,cm);const k=bEType+'_add';o[k]=(o[k]||[]).map(i=>i.id===bEId?{...i,name,amount,subItems,dueDay,tag,expType,note,payMethod,image}:i);saveOv(cy,cm,o);
     }
     addHist('budget','แก้ไข',`${bEType==='income'?'รายรับ':'รายจ่าย'}: ${name} = ${fmt(amount)}`);
   }else if(recurring){
@@ -1731,7 +1754,7 @@ function saveBudget(){
     if(!lockAmount)saveMonthlyAmt(newId);
     addHist('budget','เพิ่ม',`${bEType==='income'?'รายรับ':'รายจ่าย'} (ประจำทุกเดือน${lockAmount?' — ล็อคยอด':' — ยอดกรอกทีละเดือน'}): ${name} = ${fmt(amount)}`);
   }else{
-    const o=getOv(cy,cm);const k=bEType+'_add';o[k]=[...(o[k]||[]),{id:Date.now(),name,amount,subItems,dueDay,tag,note,payMethod,image}];saveOv(cy,cm,o);
+    const o=getOv(cy,cm);const k=bEType+'_add';o[k]=[...(o[k]||[]),{id:Date.now(),name,amount,subItems,dueDay,tag,expType,note,payMethod,image}];saveOv(cy,cm,o);
     addHist('budget','เพิ่ม',`${bEType==='income'?'รายรับ':'รายจ่าย'}: ${name} = ${fmt(amount)}`);
   }
   closeOv('bm-ov');renderBudget();
@@ -1791,7 +1814,7 @@ function preserveHistoricalMonths(type,id,tmplItem,skipKey){
     const a=o[k]&&o[k][id];
     if(!a)continue;
     const addK=type+'_add';
-    o[addK]=[...(o[addK]||[]),{id:Date.now()+Math.floor(Math.random()*1000),name:tmplItem.name,amount:a.amount,subItems:a.subItems||null,dueDay:tmplItem.dueDay,tag:tmplItem.tag,note:tmplItem.note,payMethod:tmplItem.payMethod,image:null}];
+    o[addK]=[...(o[addK]||[]),{id:Date.now()+Math.floor(Math.random()*1000),name:tmplItem.name,amount:a.amount,subItems:a.subItems||null,dueDay:tmplItem.dueDay,tag:tmplItem.tag,expType:tmplItem.expType,note:tmplItem.note,payMethod:tmplItem.payMethod,image:null}];
     delete o[k][id];
     lss(key,o);
   }
@@ -1858,13 +1881,14 @@ function renderBBody(id,headId,items,type){
   if(headEl)headEl.innerHTML=`
     <th style="width:22%;cursor:pointer" onclick="sortBy('budget','${type}','name')">รายการ ${si('name')}</th>
     <th style="width:9%;cursor:pointer" onclick="sortBy('budget','${type}','tag')">หมวด ${si('tag')}</th>
+    <th style="width:9%;cursor:pointer" onclick="sortBy('budget','${type}','expType')">ประเภทรายจ่าย ${si('expType')}</th>
     <th style="width:9%">วันที่</th>
     <th style="width:11%;cursor:pointer;text-align:right" onclick="sortBy('budget','${type}','amount')">จำนวน ${si('amount')}</th>
     <th style="width:8%;text-align:center">${type==='income'?'รับแล้ว':'จ่ายแล้ว'}</th>
     <th style="width:9%;text-align:center">จ่ายผ่าน</th>
     <th style="width:6%;text-align:center">รูป</th>
-    <th style="width:21%">หมายเหตุ</th><th style="width:5%;text-align:center">✏</th>`;
-  if(!sorted.length){tb.innerHTML='<tr><td colspan="9" class="empty">ยังไม่มีรายการ</td></tr>';return}
+    <th style="width:18%">หมายเหตุ</th><th style="width:5%;text-align:center">✏</th>`;
+  if(!sorted.length){tb.innerHTML='<tr><td colspan="10" class="empty">ยังไม่มีรายการ</td></tr>';return}
   tb.innerHTML=sorted.map((item,i)=>{
     const hasSubs=item.subItems?.length>0;
     const subPaidStates=hasSubs?item.subItems.map((s,idx)=>getSubPaid(cy,cm,type,item.id,idx)):[];
@@ -1887,6 +1911,7 @@ function renderBBody(id,headId,items,type){
     return`<tr class="${paid?'dim':''}">
       <td class="iname">${nameHtml}</td>
       <td><span class="pill">${item.tag||''}</span></td>
+      <td>${item.expType?(()=>{const st=expTypeStyle(item.expType);return`<span class="pill" style="background:${st.color}1a;color:${st.color};border:1px solid ${st.color}40;font-weight:600">${st.icon} ${item.expType}</span>`})():'<span class="pill" style="color:var(--g300)">—</span>'}</td>
       <td>${dueBadge(item.dueDay,paid)}</td>
       <td class="tr ${type==='income'?'ag':'ac'}">${fmt(item.amount)}</td>
       <td class="tc">${paidCell}</td>
@@ -1990,6 +2015,97 @@ function deleteDebtCat(id){
   saveDebtCats(getDebtCats().filter(c=>c.id!==id));
   addHist('debt','ลบ',`ลบประเภท: ${cat?.label||''}`);
   renderCatMgrList();refreshDMCatOptions();renderDebt();
+}
+
+// ── หมวดหมู่รายจ่าย — เพิ่ม/แก้ไข/ลบเองได้ ──
+function defExpenseCats(){return['ค่าที่พัก','ค่าอาหาร','ค่าเดินทาง','ค่าสาธารณูปโภค','หนี้สินส่วนตัว','เงินลงทุน','ค่าซื้อความสุข']}
+const expTypeStyleMap={
+  'ค่าที่พัก':{icon:'🏠',color:'#2563EB'},
+  'ค่าอาหาร':{icon:'🍽️',color:'#F97316'},
+  'ค่าเดินทาง':{icon:'🚗',color:'#0EA5E9'},
+  'ค่าสาธารณูปโภค':{icon:'💡',color:'#D97706'},
+  'หนี้สินส่วนตัว':{icon:'💳',color:'#DC2626'},
+  'เงินลงทุน':{icon:'📈',color:'#16A34A'},
+  'ค่าซื้อความสุข':{icon:'🎉',color:'#7C3AED'}
+};
+const expTypeFallbackPalette=['#DB2777','#0891B2','#65A30D','#9333EA','#EA580C','#0D9488','#4F46E5'];
+function expTypeStyle(label){
+  if(expTypeStyleMap[label])return expTypeStyleMap[label];
+  const idx=getExpenseCats().indexOf(label);
+  const color=expTypeFallbackPalette[(idx<0?0:idx)%expTypeFallbackPalette.length];
+  return{icon:'🏷️',color};
+}
+function getExpenseCats(){return ls(uKey('expense_categories_v1'),defExpenseCats())}
+function saveExpenseCats(c){lss(uKey('expense_categories_v1'),c)}
+function refreshExpTypeOptions(keepValue){
+  const sel=document.getElementById('bm-exptype');
+  if(!sel)return;
+  let opts=getExpenseCats().slice();
+  if(keepValue&&!opts.includes(keepValue))opts.push(keepValue);
+  sel.innerHTML=opts.map(c=>`<option value="${c.replace(/"/g,'&quot;')}">${expTypeStyle(c).icon} ${c}</option>`).join('');
+  if(keepValue)sel.value=keepValue;
+}
+function expCatUsageCount_(label){
+  const t=(getTmpls().expense||[]).filter(i=>i.expType===label).length;
+  const cur=(getMI(cy,cm).expense||[]).filter(i=>i.expType===label).length;
+  return t+cur;
+}
+function openExpCatMgr(){
+  renderExpCatMgrList();
+  document.getElementById('expcatmgr-new').value='';
+  document.getElementById('expcatmgr-ov').classList.add('open');
+}
+function renderExpCatMgrList(){
+  const cats=getExpenseCats();
+  document.getElementById('expcatmgr-list').innerHTML=cats.length?cats.map((c,i)=>{
+    const count=expCatUsageCount_(c);
+    const st=expTypeStyle(c);
+    return`<div class="f-row" style="align-items:center;margin-bottom:.4rem;gap:6px">
+      ${reorderBtns(`reorderExpenseCat(${i},-1)`,`reorderExpenseCat(${i},1)`,i>0,i<cats.length-1)}
+      <span style="width:28px;height:28px;border-radius:50%;background:${st.color}1a;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">${st.icon}</span>
+      <input type="text" value="${c.replace(/"/g,'&quot;')}" onchange="renameExpenseCat(${i},this.value)" style="flex:1">
+      <button class="btn btn-danger btn-sm" ${count>0?'disabled title="ยังมี '+count+' รายการใช้หมวดนี้อยู่ (รายการประจำ/เดือนปัจจุบัน) ย้ายหรือลบรายการก่อนถึงจะลบได้"':''} onclick="deleteExpenseCat(${i})">ลบ</button>
+    </div>`;
+  }).join(''):'<div class="empty">ยังไม่มีหมวดหมู่</div>';
+}
+function reorderExpenseCat(idx,direction){
+  const cats=getExpenseCats();
+  const ni=idx+direction;
+  if(ni<0||ni>=cats.length)return;
+  [cats[idx],cats[ni]]=[cats[ni],cats[idx]];
+  saveExpenseCats(cats);
+  renderExpCatMgrList();refreshExpTypeOptions(document.getElementById('bm-exptype')?.value);
+}
+function addExpenseCat(){
+  const label=(document.getElementById('expcatmgr-new').value||'').trim();
+  if(!label)return;
+  const cats=getExpenseCats();
+  if(cats.includes(label)){alert('มีหมวดหมู่นี้อยู่แล้ว');return;}
+  cats.push(label);
+  saveExpenseCats(cats);
+  addHist('budget','เพิ่ม',`เพิ่มหมวดหมู่รายจ่ายใหม่: ${label}`);
+  document.getElementById('expcatmgr-new').value='';
+  renderExpCatMgrList();refreshExpTypeOptions(document.getElementById('bm-exptype')?.value);
+}
+function renameExpenseCat(idx,newLabel){
+  newLabel=(newLabel||'').trim();if(!newLabel)return;
+  const cats=getExpenseCats();
+  const oldLabel=cats[idx];
+  if(oldLabel===newLabel)return;
+  cats[idx]=newLabel;
+  saveExpenseCats(cats);
+  addHist('budget','แก้ไข',`เปลี่ยนชื่อหมวดหมู่รายจ่ายจาก "${oldLabel}" เป็น "${newLabel}"`);
+  renderExpCatMgrList();refreshExpTypeOptions(document.getElementById('bm-exptype')?.value);renderBudget();
+}
+function deleteExpenseCat(idx){
+  const cats=getExpenseCats();
+  const label=cats[idx];
+  if(expCatUsageCount_(label)>0){alert('ยังมีรายการใช้หมวดนี้อยู่ ย้ายหรือลบรายการก่อนถึงจะลบหมวดนี้ได้');return;}
+  if(!confirm('ลบหมวดหมู่นี้?'))return;
+  cats.splice(idx,1);
+  saveExpenseCats(cats);
+  addHist('budget','ลบ',`ลบหมวดหมู่รายจ่าย: ${label}`);
+  renderExpCatMgrList();refreshExpTypeOptions(document.getElementById('bm-exptype')?.value);
 }
 
 // ── สถานะ — เพิ่ม/แก้ไข/ลบเองได้ ──
