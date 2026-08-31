@@ -1352,7 +1352,12 @@ const fmt=n=>'฿'+Math.round(n||0).toLocaleString('th-TH');
 const fmtN=(n,d=2)=>(n||0).toFixed(d);
 const fmtDate=s=>{if(!s)return'—';const d=new Date(s);return d.toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'2-digit'})};
 function ls(k,d){try{const r=localStorage.getItem(k);return r?JSON.parse(r):d}catch(e){return d}}
-function lss(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+function lss(k,v){
+  try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}
+  if(k!=='_data_meta'){
+    try{localStorage.setItem('_data_meta',JSON.stringify({updatedAt:Date.now()}))}catch(e){}
+  }
+}
 
 // ══ CLOUD SYNC (Google Sheets ผ่าน Apps Script) ══
 const APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbxSpkQ8T_bkR2pvtXJbW2iCm72qc8WIfwIlz9f1fLGYObveOlCQYrkv68QPrL01OBFkGQ/exec';
@@ -1517,7 +1522,7 @@ function cloudDownload(){
         const t1=new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
         updateCloudStatus('✓ โหลดแล้ว '+t1,'ok');
         applyPageVisibility();
-        renderDashboard();renderBudget();renderDebt();renderSub();renderTodo();
+        renderDashboard();renderBudget();renderDebt();renderInvest();renderSub();renderTodo();
       }else{
         updateCloudStatus('ยกเลิก','');
       }
@@ -1547,10 +1552,39 @@ function cloudDownload(){
   },15000);
 }
 function cloudAutoLoadOnStart(){
-  // ปิดการโหลดคลาวด์อัตโนมัติ เพื่อป้องกันข้อมูลเก่าบนคลาวด์ทับข้อมูลใหม่ในเครื่อง
-  // หากต้องการดึงข้อมูลจากคลาวด์ ให้กดปุ่ม "⬇ โหลดจากคลาวด์" เอง
-  updateCloudStatus('','');
-  return Promise.resolve();
+  // ดึงข้อมูลจากคลาวด์อัตโนมัติตอนเปิดแอป — แต่จะทับข้อมูลในเครื่องก็ต่อเมื่อ
+  // ข้อมูลบนคลาวด์ "ใหม่กว่า" ข้อมูลล่าสุดที่มีอยู่ในเครื่องนี้เท่านั้น (กันข้อมูลที่ยังไม่ได้อัปโหลดหาย)
+  return new Promise(resolve=>{
+    const callbackName='cloudAutoCallback_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);
+    const script=document.createElement('script');
+    let finished=false;
+    function cleanup(){
+      if(finished)return;
+      finished=true;
+      try{delete window[callbackName];}catch(e){}
+      try{script.remove();}catch(e){}
+      resolve();
+    }
+    window[callbackName]=function(json){
+      try{
+        if(json&&json.success&&json.data&&Object.keys(json.data).length){
+          const cloudTime=json.data._data_meta?.updatedAt||0;
+          const localTime=ls('_data_meta',null)?.updatedAt||0;
+          if(cloudTime>localTime){
+            restoreAllAppData(json.data);
+            const t1=new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+            updateCloudStatus('✓ ซิงค์ข้อมูลล่าสุดจากคลาวด์แล้ว '+t1,'ok');
+          }
+        }
+      }catch(e){console.error('Auto cloud load error:',e);}
+      cleanup();
+    };
+    script.id=callbackName;
+    script.src=APPS_SCRIPT_URL+'?action=getAll&callback='+encodeURIComponent(callbackName)+'&_t='+Date.now();
+    script.onerror=function(){cleanup();};
+    document.body.appendChild(script);
+    setTimeout(cleanup,8000); // เน็ตช้า/ล่ม — อย่าค้างหน้าจอ เปิดแอปต่อด้วยข้อมูลในเครื่อง
+  });
 }
 
 // ══ INIT — ไม่มีระบบ login เปิดแอปตรงเลย ══
