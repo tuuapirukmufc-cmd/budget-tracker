@@ -699,6 +699,140 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   <div id="debt-sections"></div>
 </div>
 
+<!-- PAGE: INVEST -->
+<div id="page-invest" class="page">
+  <div class="page-head">
+    <div><h2 class="desk-only">💹 การลงทุน</h2><div class="sub">หุ้นปันผล · ออมทอง · ทรัพย์สิน</div></div>
+    <div class="page-head-actions">
+      <button class="btn btn-ghost btn-sm" onclick="sw('dashboard',null)">⌂ ภาพรวม</button>
+      <span style="font-size:12px;color:var(--g400)">ปีปันผล:</span>
+      <select class="styled" id="stk-yr-sel" onchange="renderInvest()"></select>
+      <button class="btn btn-export btn-sm" onclick="exportInvest()">↓ Export</button>
+    </div>
+  </div>
+
+  <!-- SUMMARY BANNER -->
+  <div id="invest-summary-banner" style="background:linear-gradient(135deg,var(--amber) 0%,#e6a817 100%);border-radius:14px;padding:1.1rem 1.4rem;margin-bottom:1rem;display:grid;grid-template-columns:repeat(4,1fr);gap:1rem">
+    <div>
+      <div style="font-size:11px;color:rgba(255,255,255,.75);font-weight:500;margin-bottom:2px">มูลค่าทรัพย์สินรวม</div>
+      <div style="font-size:22px;font-weight:700;color:#fff" id="inv-total-net">฿0</div>
+    </div>
+    <div>
+      <div style="font-size:11px;color:rgba(255,255,255,.75);font-weight:500;margin-bottom:2px">เงินลงทุน (หุ้น+ทอง)</div>
+      <div style="font-size:18px;font-weight:700;color:rgba(255,255,255,.9)" id="inv-total-invest">฿0</div>
+    </div>
+    <div>
+      <div style="font-size:11px;color:rgba(255,255,255,.75);font-weight:500;margin-bottom:2px">ปันผลคาดหวัง/ปี</div>
+      <div style="font-size:18px;font-weight:700;color:rgba(255,255,255,.9)" id="inv-total-div">฿0</div>
+    </div>
+    <div>
+      <div style="font-size:11px;color:rgba(255,255,255,.75);font-weight:500;margin-bottom:2px">มูลค่าทรัพย์สินส่วนตัว</div>
+      <div style="font-size:18px;font-weight:700;color:rgba(255,255,255,.9)" id="inv-total-asset">฿0</div>
+    </div>
+  </div>
+
+  <!-- ══ SECTION 1: หุ้นปันผล ══ -->
+  <div style="display:flex;align-items:center;gap:10px;margin:1.2rem 0 .5rem">
+    <div style="width:4px;height:22px;background:var(--amber);border-radius:2px"></div>
+    <span style="font-size:15px;font-weight:700;color:var(--g900)">หุ้นปันผล</span>
+    <span style="flex:1;height:1px;background:var(--g100)"></span>
+    <button class="btn btn-pri btn-sm" onclick="openStkM()">+ เพิ่มหุ้น</button>
+  </div>
+  <div class="cards c4">
+    <div class="card"><div class="lbl">เงินลงทุนหุ้นรวม</div><div class="val vb" id="st-inv">฿0</div></div>
+    <div class="card"><div class="lbl">ปันผลคาดหวัง/ปี</div><div class="val vgold" id="st-ediv">฿0</div></div>
+    <div class="card"><div class="lbl">ได้รับปันผลแล้ว</div><div class="val vg" id="st-got">฿0</div></div>
+    <div class="card"><div class="lbl">รอรับปันผล</div><div class="val vc" id="st-pend">฿0</div></div>
+  </div>
+  <div class="sec" style="margin-top:.5rem">
+    <table class="tbl"><thead><tr id="stk-head">
+      <th style="width:11%">หุ้น/กองทุน</th>
+      <th style="width:6%" class="tr">สัดส่วน</th>
+      <th style="width:10%" class="tr">เงินลงทุน</th>
+      <th style="width:7%" class="tr">Yield</th>
+      <th style="width:9%" class="tr">ปันผล/ปี</th>
+      <th style="width:8%" class="tr">เฉลี่ย/ด.</th>
+      <th style="width:26%" class="tc">รอบปันผล (คลิกติ๊ก / วันที่คาด)</th>
+      <th style="width:15%">หมายเหตุ</th>
+      <th style="width:8%" class="tc">✏</th>
+    </tr></thead><tbody id="stk-body"></tbody></table>
+    <div class="tfoot" id="stk-foot"></div>
+  </div>
+
+  <!-- ══ SECTION 2: ออมทอง ══ -->
+  <div style="display:flex;align-items:center;gap:10px;margin:1.4rem 0 .5rem">
+    <div style="width:4px;height:22px;background:#c8960c;border-radius:2px"></div>
+    <span style="font-size:15px;font-weight:700;color:var(--g900)">ออมทอง</span>
+    <span style="flex:1;height:1px;background:var(--g100)"></span>
+    <button class="btn btn-pri btn-sm" onclick="openGoldM()">+ เพิ่มออมทอง</button>
+  </div>
+  <div class="cards c4">
+    <div class="card"><div class="lbl">ออมทองรวม (บาท)</div><div class="val vgold" id="gd-baht">0 บาท</div></div>
+    <div class="card"><div class="lbl">มูลค่าโดยประมาณ</div><div class="val vgold" id="gd-val">฿0</div></div>
+    <div class="card" style="position:relative">
+      <div class="lbl" style="display:flex;align-items:center;justify-content:space-between">
+        <span style="display:flex;align-items:center;gap:5px">
+          ราคาทอง/บาท (96.5%)
+          <span id="gd-live-badge" style="display:none;font-size:9px;font-weight:700;background:var(--gl);color:var(--gd);padding:1px 6px;border-radius:999px;animation:pulse 2s infinite">● LIVE</span>
+        </span>
+        <a href="https://xn--o3cw4hcsd57d.com" target="_blank" rel="noopener"
+          style="font-size:10px;color:var(--blue);text-decoration:none;display:flex;align-items:center;gap:2px"
+          title="เปิดเว็บราคาทอง">↗ ดูราคา</a>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;margin-top:4px">
+        <input type="number" id="gd-price" placeholder="กรอกราคาทอง..."
+          style="flex:1;border:none;border-bottom:1.5px dashed var(--g200);background:none;font-size:20px;font-weight:700;color:var(--amber);font-family:var(--font);outline:none;min-width:0;padding-bottom:2px"
+          onchange="saveManualGoldPrice()">
+        <button onclick="fetchGoldPrice()" id="gd-refresh-btn"
+          title="ดึงราคาล่าสุด (ต้องออนไลน์)"
+          style="background:var(--gl);border:none;border-radius:6px;padding:5px 9px;cursor:pointer;font-size:14px;flex-shrink:0;transition:.1s">🔄</button>
+      </div>
+      <div id="gd-source" style="font-size:10px;color:var(--g400);margin-top:4px;line-height:1.4"></div>
+    </div>
+    <div class="card"><div class="lbl">กำไร/ขาดทุน</div><div class="val vpos" id="gd-pnl">฿0</div></div>
+  </div>
+  <div id="gd-banner" style="display:none;background:var(--al);border:1px solid #E8C26A;border-radius:var(--rsm);padding:.5rem .85rem;margin-bottom:.65rem;font-size:12px;color:#7A4E0D;display:flex;align-items:center;gap:8px">
+    <span>💡</span>
+    <span>ราคาทองอัปเดตอัตโนมัติทุก 5 นาที · กด 🔄 หรือกรอกเองก็ได้ · 
+    <a href="https://xn--o3cw4hcsd57d.com" target="_blank" rel="noopener" style="color:var(--amber);font-weight:600">เปิดเว็บราคาทอง ↗</a></span>
+  </div>
+  <div class="sec" style="margin-top:.5rem">
+    <table class="tbl"><thead><tr>
+      <th style="width:20%">วันที่ซื้อ</th><th style="width:10%" class="tr">น้ำหนัก (บาท)</th>
+      <th style="width:13%" class="tr">ราคาซื้อ/บาท</th><th style="width:13%" class="tr">มูลค่าที่ซื้อ</th>
+      <th style="width:13%" class="tr">มูลค่าปัจจุบัน</th><th style="width:13%" class="tr">กำไร/ขาดทุน</th>
+      <th style="width:13%">หมายเหตุ</th><th style="width:5%" class="tc">✏</th>
+    </tr></thead><tbody id="gold-body"></tbody></table>
+    <div class="tfoot" id="gold-foot"></div>
+  </div>
+
+  <!-- ══ SECTION 3: ทรัพย์สินส่วนตัว ══ -->
+  <div style="display:flex;align-items:center;gap:10px;margin:1.4rem 0 .5rem">
+    <div style="width:4px;height:22px;background:var(--blue);border-radius:2px"></div>
+    <span style="font-size:15px;font-weight:700;color:var(--g900)">ทรัพย์สินส่วนตัว</span>
+    <span style="flex:1;height:1px;background:var(--g100)"></span>
+    <button class="btn btn-pri btn-sm" onclick="openAssetM()">+ เพิ่มทรัพย์สิน</button>
+  </div>
+  <div class="cards c3" style="margin-bottom:.5rem">
+    <div class="card"><div class="lbl">มูลค่ารวม</div><div class="val vb" id="ast-total">฿0</div></div>
+    <div class="card"><div class="lbl">จำนวนรายการ</div><div class="val" id="ast-count">0 รายการ</div></div>
+    <div class="card"><div class="lbl">หมวดหมู่</div><div class="val" id="ast-cats">0 ประเภท</div></div>
+  </div>
+  <div class="sec" style="margin-top:.5rem">
+    <table class="tbl"><thead><tr id="ast-head">
+      <th style="width:20%">รายการ</th>
+      <th style="width:12%">หมวดหมู่</th>
+      <th style="width:12%" class="tr">มูลค่า (฿)</th>
+      <th style="width:13%">วันที่ซื้อ/ได้มา</th>
+      <th style="width:13%">ราคาซื้อ (฿)</th>
+      <th style="width:13%" class="tr">กำไร/ขาดทุน</th>
+      <th style="width:12%">หมายเหตุ</th>
+      <th style="width:5%" class="tc">✏</th>
+    </tr></thead><tbody id="ast-body"></tbody></table>
+    <div class="tfoot" id="ast-foot"></div>
+  </div>
+</div>
+
 <!-- PAGE: SUBSCRIPTION -->
 <div id="page-subscription" class="page">
   <div class="page-head">
@@ -768,6 +902,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
     <div class="mob-tab active" data-page="dashboard" onclick="swMob('dashboard',this,'ภาพรวม')"><div class="micon">★</div><div class="mlbl">ภาพรวม</div></div>
     <div class="mob-tab" data-page="budget" onclick="swMob('budget',this,'รายรับ-รายจ่าย')"><div class="micon">🧾</div><div class="mlbl">รายรับ-จ่าย</div></div>
     <div class="mob-tab" data-page="debt" onclick="swMob('debt',this,'หนี้สิน')"><div class="micon">📉</div><div class="mlbl">หนี้สิน</div></div>
+    <div class="mob-tab" data-page="invest" onclick="swMob('invest',this,'การลงทุน')"><div class="micon">💹</div><div class="mlbl">ลงทุน</div></div>
     <div class="mob-tab" data-page="subscription" onclick="swMob('subscription',this,'สมัครสมาชิกแอพ')"><div class="micon">🎫</div><div class="mlbl">สมาชิก</div></div>
     <div class="mob-tab" data-page="logins" onclick="swMob('logins',this,'User-Login')"><div class="micon">🔐</div><div class="mlbl">Login</div></div>
   </div>
@@ -889,6 +1024,85 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
     <button class="btn btn-danger" id="dm-del" onclick="delDebt()" style="display:none">ลบ</button>
     <button class="btn btn-ghost" onclick="closeOv('dm-ov')">ยกเลิก</button>
     <button class="btn btn-pri" onclick="saveDebt()">บันทึก</button>
+  </div>
+</div></div>
+
+<!-- Stock -->
+<div class="ov" id="stk-ov"><div class="modal">
+  <span class="modal-drag"></span>
+  <h3 id="stk-title">เพิ่มหุ้น/กองทุน</h3>
+  <div class="f"><label>ชื่อหุ้น / กองทุน</label><input type="text" id="stk-name" placeholder="เช่น SCB, PTT"></div>
+  <div class="f"><label>เงินลงทุน (฿) <span style="font-size:11px;color:var(--g400)">— ระบบคำนวณ % สัดส่วนให้อัตโนมัติ</span></label><input type="number" id="stk-inv" placeholder="0" min="0" oninput="previewPct(this)">
+    <div id="stk-pct-preview" style="font-size:11px;color:var(--green);margin-top:3px"></div>
+  </div>
+  <div class="f"><label>ปันผลเฉลี่ย/ปี (%)</label><input type="number" id="stk-yield" placeholder="7.00" min="0" step="0.01"></div>
+  <div class="f"><label>หมายเหตุ</label><input type="text" id="stk-note" placeholder="บันทึกเพิ่มเติม..."></div>
+
+  <div class="divider-label">🗓 รอบที่ 1 — วันที่คาดว่าจะได้รับปันผล</div>
+  <div class="f-row">
+    <div class="f"><label>วันที่คาด (รอบ 1)</label><input type="date" id="stk-exp1" title="วันที่คาดว่าจะได้รับปันผลรอบ 1"></div>
+    <div class="f"><label>วันที่รับจริง (รอบ 1)</label><input type="date" id="stk-d1"></div>
+  </div>
+  <div class="f"><label>จำนวนที่รับ รอบ 1 (฿)</label><input type="number" id="stk-r1" placeholder="0" min="0"></div>
+
+  <div class="divider-label">🗓 รอบที่ 2 — วันที่คาดว่าจะได้รับปันผล</div>
+  <div class="f-row">
+    <div class="f"><label>วันที่คาด (รอบ 2)</label><input type="date" id="stk-exp2" title="วันที่คาดว่าจะได้รับปันผลรอบ 2"></div>
+    <div class="f"><label>วันที่รับจริง (รอบ 2)</label><input type="date" id="stk-d2"></div>
+  </div>
+  <div class="f"><label>จำนวนที่รับ รอบ 2 (฿)</label><input type="number" id="stk-r2" placeholder="0" min="0"></div>
+
+  <div class="mbtns">
+    <button class="btn btn-danger" id="stk-del" onclick="delStock()" style="display:none">ลบ</button>
+    <button class="btn btn-ghost" onclick="closeOv('stk-ov')">ยกเลิก</button>
+    <button class="btn btn-pri" onclick="saveStock()">บันทึก</button>
+  </div>
+</div></div>
+
+<!-- Gold -->
+<div class="ov" id="gold-ov"><div class="modal">
+  <span class="modal-drag"></span>
+  <h3 id="gold-title">เพิ่มออมทอง</h3>
+  <div class="f"><label>วันที่ซื้อ</label><input type="date" id="gold-date"></div>
+  <div class="f-row">
+    <div class="f"><label>น้ำหนัก (บาท)</label><input type="number" id="gold-wt" placeholder="0.5" min="0" step="0.1"></div>
+    <div class="f"><label>ราคาซื้อ/บาท (฿)</label><input type="number" id="gold-bp" placeholder="37000" min="0"></div>
+  </div>
+  <div class="f"><label>หมายเหตุ</label><input type="text" id="gold-note" placeholder="บันทึกเพิ่มเติม..."></div>
+  <div class="mbtns">
+    <button class="btn btn-danger" id="gold-del" onclick="delGold()" style="display:none">ลบ</button>
+    <button class="btn btn-ghost" onclick="closeOv('gold-ov')">ยกเลิก</button>
+    <button class="btn btn-pri" onclick="saveGold()">บันทึก</button>
+  </div>
+</div></div>
+
+<!-- Asset modal -->
+<div class="ov" id="ast-ov"><div class="modal">
+  <span class="modal-drag"></span>
+  <h3 id="ast-title">เพิ่มทรัพย์สิน</h3>
+  <div class="f"><label>ชื่อทรัพย์สิน</label><input type="text" id="ast-name" placeholder="เช่น รถ Grand Filano, มือถือ iPhone"></div>
+  <div class="f-row">
+    <div class="f"><label>หมวดหมู่</label>
+      <select id="ast-cat">
+        <option value="รถยนต์/มอเตอร์ไซค์">🚗 รถยนต์/มอเตอร์ไซค์</option>
+        <option value="อสังหาริมทรัพย์">🏠 อสังหาริมทรัพย์</option>
+        <option value="อิเล็กทรอนิกส์">📱 อิเล็กทรอนิกส์</option>
+        <option value="เฟอร์นิเจอร์/เครื่องใช้">🪑 เฟอร์นิเจอร์/เครื่องใช้</option>
+        <option value="เครื่องประดับ">💎 เครื่องประดับ</option>
+        <option value="อื่นๆ">📦 อื่นๆ</option>
+      </select>
+    </div>
+    <div class="f"><label>มูลค่าปัจจุบัน (฿)</label><input type="number" id="ast-val" placeholder="0" min="0"></div>
+  </div>
+  <div class="f-row">
+    <div class="f"><label>วันที่ซื้อ/ได้มา</label><input type="date" id="ast-date"></div>
+    <div class="f"><label>ราคาซื้อ (฿)</label><input type="number" id="ast-buy" placeholder="0" min="0"></div>
+  </div>
+  <div class="f"><label>หมายเหตุ</label><input type="text" id="ast-note" placeholder="บันทึกเพิ่มเติม..."></div>
+  <div class="mbtns">
+    <button class="btn btn-danger" id="ast-del" onclick="delAsset()" style="display:none">ลบ</button>
+    <button class="btn btn-ghost" onclick="closeOv('ast-ov')">ยกเลิก</button>
+    <button class="btn btn-pri" onclick="saveAsset()">บันทึก</button>
   </div>
 </div></div>
 
@@ -1372,6 +1586,7 @@ function sw(id,el){
   if(id==='dashboard')renderDashboard();
   else if(id==='budget')renderBudget();
   else if(id==='debt')renderDebt();
+  else if(id==='invest')renderInvest();
   else if(id==='subscription')renderSub();
   else if(id==='logins')renderLogins();
   else if(id==='todo')renderTodo();
@@ -1393,6 +1608,7 @@ const ALL_PAGES=[
   {id:'todo',label:'📝 สิ่งที่ต้องทำ'},
   {id:'budget',label:'🧾 รายรับ-รายจ่าย'},
   {id:'debt',label:'📉 หนี้สิน'},
+  {id:'invest',label:'💹 การลงทุน'},
   {id:'subscription',label:'🎫 สมัครสมาชิกแอพ'},
   {id:'logins',label:'🔐 User-Login'}
 ];
@@ -2490,6 +2706,412 @@ function renderTodo(){
   document.getElementById('td-total').textContent=items.length;
   document.getElementById('td-soon').textContent=soonCount;
   document.getElementById('td-over').textContent=overCount;
+}
+
+// ══ INVEST — STOCKS ══
+let stkEId=null;
+function getStocks(){return ls(uKey('stocks_v3'),defStocks())}
+function saveStocks(s){lss(uKey('stocks_v3'),s)}
+function getDivData(yr){return ls(uKey('div_'+yr),{})}
+function saveDivData(yr,d){lss(uKey('div_'+yr),d)}
+function defStocks(){return[]}
+function previewPct(input){
+  const newInv=parseFloat(input.value)||0;
+  const stocks=getStocks();
+  const othersInv=stkEId?stocks.filter(s=>s.id!==stkEId).reduce((s,i)=>s+i.invest,0):stocks.reduce((s,i)=>s+i.invest,0);
+  const total=othersInv+newInv;
+  const pct=total>0?Math.round(newInv/total*100):0;
+  const el=document.getElementById('stk-pct-preview');
+  if(el)el.textContent=newInv>0?`สัดส่วนประมาณ ${pct}% จากพอร์ตรวม ${(total/1000000).toFixed(2)}M`:'';
+}
+function openStkM(id){
+  stkEId=id||null;
+  const stocks=getStocks(),item=id?stocks.find(s=>s.id===id):null;
+  const yr=parseInt(document.getElementById('stk-yr-sel').value)||now.getFullYear();
+  const dr=item?getDivData(yr)[item.id]||{}:{};
+  document.getElementById('stk-title').textContent=id?'แก้ไขหุ้น':'เพิ่มหุ้น/กองทุน';
+  document.getElementById('stk-name').value=item?.name||'';
+  document.getElementById('stk-inv').value=item?.invest||'';
+  document.getElementById('stk-yield').value=item?.yield||'';
+  document.getElementById('stk-note').value=item?.note||'';
+  document.getElementById('stk-r1').value=dr.r1||'';
+  document.getElementById('stk-r2').value=dr.r2||'';
+  document.getElementById('stk-d1').value=dr.d1||'';
+  document.getElementById('stk-d2').value=dr.d2||'';
+  document.getElementById('stk-exp1').value=dr.exp1||'';
+  document.getElementById('stk-exp2').value=dr.exp2||'';
+  document.getElementById('stk-del').style.display=id?'inline-flex':'none';
+  const el=document.getElementById('stk-pct-preview');if(el)el.textContent='';
+  document.getElementById('stk-ov').classList.add('open');
+}
+function saveStock(){
+  const name=(document.getElementById('stk-name').value||'').trim();if(!name)return;
+  const invest=parseFloat(document.getElementById('stk-inv').value)||0;
+  const obj={name,invest,
+    yield:parseFloat(document.getElementById('stk-yield').value)||0,
+    note:document.getElementById('stk-note').value};
+  let stocks=getStocks();let sid;
+  if(stkEId){stocks=stocks.map(s=>s.id===stkEId?{...s,...obj}:s);sid=stkEId;addHist('invest','แก้ไข',`${name} ลงทุน ${fmt(obj.invest)} yield ${obj.yield}%`);}
+  else{sid=Date.now();stocks.push({id:sid,...obj});addHist('invest','เพิ่ม',`${name} ลงทุน ${fmt(obj.invest)} yield ${obj.yield}%`);}
+  const tInv=stocks.reduce((s,i)=>s+i.invest,0);
+  stocks=stocks.map(s=>({...s,pct:tInv>0?Math.round(s.invest/tInv*100):0}));
+  saveStocks(stocks);
+  const yr=parseInt(document.getElementById('stk-yr-sel').value)||now.getFullYear();
+  const divD=getDivData(yr);
+  divD[sid]={r1:parseFloat(document.getElementById('stk-r1').value)||0,r2:parseFloat(document.getElementById('stk-r2').value)||0,
+    d1:document.getElementById('stk-d1').value,d2:document.getElementById('stk-d2').value,
+    exp1:document.getElementById('stk-exp1').value,exp2:document.getElementById('stk-exp2').value};
+  saveDivData(yr,divD);
+  closeOv('stk-ov');renderInvest();
+}
+function delStock(){
+  const item=getStocks().find(s=>s.id===stkEId);
+  let stocks=getStocks().filter(s=>s.id!==stkEId);
+  const tInv=stocks.reduce((s,i)=>s+i.invest,0);
+  stocks=stocks.map(s=>({...s,pct:tInv>0?Math.round(s.invest/tInv*100):0}));
+  saveStocks(stocks);
+  addHist('invest','ลบ',`${item?.name||''}`);
+  closeOv('stk-ov');renderInvest();
+}
+function togDiv(stkId,round,val){
+  const yr=parseInt(document.getElementById('stk-yr-sel').value)||now.getFullYear();
+  const divD=getDivData(yr);
+  if(!divD[stkId])divD[stkId]={r1:0,r2:0,d1:'',d2:'',exp1:'',exp2:''};
+  const stk=getStocks().find(s=>s.id===stkId);
+  const est=stk?Math.round(stk.invest*stk.yield/100/2):0;
+  if(round===1)divD[stkId].r1=val?est:0;
+  else divD[stkId].r2=val?est:0;
+  saveDivData(yr,divD);renderInvest();
+}
+
+// ══ INVEST — GOLD ══
+function getGolds(){return ls(uKey('golds_v1'),[])}
+function saveGolds(g){lss(uKey('golds_v1'),g)}
+let goldEId=null;
+function openGoldM(id){
+  goldEId=id||null;
+  const item=id?getGolds().find(g=>g.id===id):null;
+  document.getElementById('gold-title').textContent=id?'แก้ไขออมทอง':'เพิ่มออมทอง';
+  document.getElementById('gold-date').value=item?.date||new Date().toISOString().slice(0,10);
+  document.getElementById('gold-wt').value=item?.weight||'';
+  document.getElementById('gold-bp').value=item?.buyPrice||'';
+  document.getElementById('gold-note').value=item?.note||'';
+  document.getElementById('gold-del').style.display=id?'inline-flex':'none';
+  document.getElementById('gold-ov').classList.add('open');
+}
+function saveGold(){
+  const date=document.getElementById('gold-date').value;
+  const weight=parseFloat(document.getElementById('gold-wt').value)||0;
+  const buyPrice=parseFloat(document.getElementById('gold-bp').value)||0;
+  const note=document.getElementById('gold-note').value;
+  if(!weight||!buyPrice)return;
+  let g=getGolds();let gid;
+  if(goldEId){g=g.map(i=>i.id===goldEId?{...i,date,weight,buyPrice,note}:i);gid=goldEId;addHist('gold','แก้ไข',`ออมทอง ${weight} บาท ราคา ${fmt(buyPrice)}/บาท`);}
+  else{gid=Date.now();g.push({id:gid,date,weight,buyPrice,note});addHist('gold','เพิ่ม',`ออมทอง ${weight} บาท ราคา ${fmt(buyPrice)}/บาท`);}
+  saveGolds(g);closeOv('gold-ov');renderInvest();
+}
+function delGold(){
+  const item=getGolds().find(g=>g.id===goldEId);
+  saveGolds(getGolds().filter(g=>g.id!==goldEId));
+  addHist('gold','ลบ',`ออมทอง ${item?.weight||''}บาท`);
+  closeOv('gold-ov');renderInvest();
+}
+function getCurGoldPrice(){
+  return parseFloat(document.getElementById('gd-price').value)||ls(uKey('goldPrice'),0);
+}
+function saveManualGoldPrice(){
+  const p=getCurGoldPrice();
+  if(p>0){
+    lss(uKey('goldPrice'),p);
+    lss(uKey('goldPriceTime'),Date.now());
+    lss(uKey('goldPriceSrc'),'กรอกเอง');
+    setGoldDisplay(p,'กรอกเอง',Date.now());
+  }
+  renderInvest();
+}
+function setGoldDisplay(price,sourceName,ts){
+  const el=document.getElementById('gd-price');
+  const src=document.getElementById('gd-source');
+  const badge=document.getElementById('gd-live-badge');
+  const banner=document.getElementById('gd-banner');
+  if(el)el.value=price;
+  const t=new Date(ts).toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  if(src)src.innerHTML=`<span style="color:var(--green)">✓</span> อัปเดต ${t} · ${sourceName}`;
+  if(badge)badge.style.display='inline';
+  if(banner)banner.style.display='flex';
+}
+// ── ดึงราคาทองแบบ real-time ──
+let goldRefreshTimer=null;
+async function fetchGoldPrice(){
+  const btn=document.getElementById('gd-refresh-btn');
+  const src=document.getElementById('gd-source');
+  if(btn){btn.textContent='⏳';btn.disabled=true}
+  if(src)src.textContent='กำลังดึงราคา...';
+  let price=null,sourceName='';
+  const parseThaiNum=(s)=>parseFloat(String(s).replace(/,/g,''));
+  const apis=[
+    async ()=>{
+      const r=await fetch('https://api.chnwt.dev/thai-gold-api/latest',{signal:AbortSignal.timeout(6000)});
+      const d=await r.json();
+      const buy=d?.response?.price?.gold?.buy;
+      if(buy){return {p:Math.round(parseThaiNum(buy)),src:'สมาคมค้าทองคำ (ทองรูปพรรณ รับซื้อ)'};}
+      return null;
+    },
+    async ()=>{
+      const r=await fetch('https://api.allorigins.win/raw?url='+
+        encodeURIComponent('https://api.chnwt.dev/thai-gold-api/latest'),
+        {signal:AbortSignal.timeout(6000)});
+      const d=await r.json();
+      const buy=d?.response?.price?.gold?.buy;
+      if(buy){return {p:Math.round(parseThaiNum(buy)),src:'สมาคมค้าทองคำ (ทองรูปพรรณ รับซื้อ)'};}
+      return null;
+    },
+    async ()=>{
+      const [rg,rx]=await Promise.all([
+        fetch('https://api.gold-api.com/price/XAU',{signal:AbortSignal.timeout(6000)}),
+        fetch('https://open.er-api.com/v6/latest/USD',{signal:AbortSignal.timeout(6000)})
+      ]);
+      const dg=await rg.json();
+      const dx=await rx.json();
+      const usdPerOz=dg?.price;
+      const thbPerUsd=dx?.rates?.THB;
+      if(usdPerOz&&thbPerUsd){
+        const thbPerOz=usdPerOz*thbPerUsd;
+        return {p:Math.round(thbPerOz*15.244/31.1035),src:'Gold-API.com spot (USD→THB) — ประมาณการ'};
+      }
+      return null;
+    },
+  ];
+  for(const apiFn of apis){
+    try{
+      const res=await apiFn();
+      if(res&&res.p>5000&&res.p<200000){price=res.p;sourceName=res.src;break;}
+    }catch(e){/* ลองแหล่งถัดไป */}
+  }
+  if(price){
+    lss(uKey('goldPrice'),price);
+    lss(uKey('goldPriceTime'),Date.now());
+    lss(uKey('goldPriceSrc'),sourceName);
+    setGoldDisplay(price,sourceName,Date.now());
+    renderInvest();
+    if(goldRefreshTimer)clearInterval(goldRefreshTimer);
+    goldRefreshTimer=setInterval(fetchGoldPrice,5*60*1000);
+  }else{
+    const saved=ls(uKey('goldPrice'),0);
+    const savedTime=ls(uKey('goldPriceTime'),0);
+    if(saved&&saved>0){
+      const el=document.getElementById('gd-price');
+      if(el)el.value=saved;
+      const ago=savedTime?Math.round((Date.now()-savedTime)/60000):0;
+      if(src)src.innerHTML=`<span style="color:var(--amber)">⚠</span> ดึงออนไลน์ไม่ได้ · ใช้ราคาล่าสุด (${ago} นาทีที่แล้ว)
+        <br><a href="https://xn--o3cw4hcsd57d.com" target="_blank" rel="noopener" 
+        style="color:var(--blue)">ดูราคาที่ ทองคำราคา.com ↗</a>`;
+    }else{
+      if(src)src.innerHTML=`ดึงราคาอัตโนมัติไม่ได้ · กรอกเองหรือ 
+        <a href="https://xn--o3cw4hcsd57d.com" target="_blank" rel="noopener" 
+        style="color:var(--blue)">ดูราคาที่นี่ ↗</a>`;
+    }
+  }
+  if(btn){btn.textContent='🔄';btn.disabled=false}
+}
+function autoFetchGoldIfStale(){
+  const lastTime=ls(uKey('goldPriceTime'),0);
+  const stale=!lastTime||Date.now()-lastTime>5*60*1000;
+  if(stale){
+    fetchGoldPrice();
+  }else{
+    const saved=ls(uKey('goldPrice'),0);
+    const savedSrc=ls(uKey('goldPriceSrc'),'');
+    if(saved>0){
+      setGoldDisplay(saved,savedSrc,lastTime);
+      renderInvest();
+      const remaining=5*60*1000-(Date.now()-lastTime);
+      setTimeout(()=>{
+        fetchGoldPrice();
+        goldRefreshTimer=setInterval(fetchGoldPrice,5*60*1000);
+      },Math.max(0,remaining));
+    }else{
+      fetchGoldPrice();
+    }
+  }
+}
+function renderInvest(){
+  const yrSel=document.getElementById('stk-yr-sel');
+  if(!yrSel)return;
+  const yr=parseInt(yrSel.value)||now.getFullYear();
+  const stocks=getStocks(),divD=getDivData(yr);
+  const tInvAll=stocks.reduce((s,i)=>s+i.invest,0);
+  let tInv=0,tDiv=0,tGot=0;
+  stocks.forEach(s=>{tInv+=s.invest;const ad=Math.round(s.invest*s.yield/100);tDiv+=ad;const dr=divD[s.id]||{};tGot+=(dr.r1||0)+(dr.r2||0)});
+  document.getElementById('st-inv').textContent=fmt(tInv);
+  document.getElementById('st-ediv').textContent=fmt(tDiv);
+  document.getElementById('st-got').textContent=fmt(tGot);
+  document.getElementById('st-pend').textContent=fmt(Math.max(0,tDiv-tGot));
+  const avgY=tInv>0?(tDiv/tInv*100):0;
+  document.getElementById('stk-foot').innerHTML=`<span>ลงทุน: <strong class="ab">${fmt(tInv)}</strong> &nbsp; ปันผล/ปี: <strong class="agold">${fmt(tDiv)}</strong> &nbsp; Yield เฉลี่ย: <strong>~${fmtN(avgY,2)}%</strong></span>`;
+  const tb=document.getElementById('stk-body');
+  const si=sortIcon.bind(null,'invest','stock');
+  const stkHead=document.getElementById('stk-head');
+  if(stkHead)stkHead.innerHTML=`
+    <th style="width:11%;cursor:pointer" onclick="sortBy('invest','stock','name')">หุ้น/กองทุน ${si('name')}</th>
+    <th style="width:6%;text-align:right">สัดส่วน</th>
+    <th style="width:10%;cursor:pointer;text-align:right" onclick="sortBy('invest','stock','invest')">เงินลงทุน ${si('invest')}</th>
+    <th style="width:7%;cursor:pointer;text-align:right" onclick="sortBy('invest','stock','yield')">Yield ${si('yield')}</th>
+    <th style="width:9%;text-align:right">ปันผล/ปี</th>
+    <th style="width:8%;text-align:right">เฉลี่ย/ด.</th>
+    <th style="width:26%;text-align:center">รอบปันผล</th>
+    <th style="width:15%">หมายเหตุ</th>
+    <th style="width:8%;text-align:center">✏</th>`;
+  if(!stocks.length){tb.innerHTML='<tr><td colspan="9" class="empty">ยังไม่มีหุ้น</td></tr>';}
+  else{
+    const sorted=applySortArr(stocks,'invest','stock');
+    tb.innerHTML=sorted.map(s=>{
+      const pct=tInvAll>0?Math.round(s.invest/tInvAll*100):0;
+      const ad=Math.round(s.invest*s.yield/100),pm=Math.round(ad/12),est=Math.round(ad/2);
+      const dr=divD[s.id]||{};const r1G=dr.r1>0,r2G=dr.r2>0;
+      const d1S=dr.d1
+        ?`<div style="font-size:9px;color:var(--green);font-weight:600">✓ ${fmtDate(dr.d1)}</div>`
+        :(dr.exp1?`<div style="font-size:9px;color:var(--amber)">📅 ${fmtDate(dr.exp1)}</div>`:'');
+      const d2S=dr.d2
+        ?`<div style="font-size:9px;color:var(--green);font-weight:600">✓ ${fmtDate(dr.d2)}</div>`
+        :(dr.exp2?`<div style="font-size:9px;color:var(--amber)">📅 ${fmtDate(dr.exp2)}</div>`:'');
+      return`<tr>
+        <td style="font-weight:700">${s.name}</td>
+        <td class="tr">${pct}%</td>
+        <td class="tr ab">${s.invest>=1000000?(s.invest/1000000).toFixed(2)+'M':fmt(s.invest)}</td>
+        <td class="tr">${fmtN(s.yield,2)}%</td>
+        <td class="tr agold">${fmt(ad)}</td>
+        <td class="tr" style="color:var(--g600)">${fmt(pm)}</td>
+        <td class="tc">
+          <div class="div-circles">
+            <div>
+              <div class="divc ${r1G?'got':'pending'}" onclick="togDiv(${s.id},1,${!r1G})" title="รอบ 1 ${r1G?fmt(dr.r1):'(ประมาณ '+fmt(est)+')'}">
+                ${r1G?'✓':'1'}
+              </div>${d1S}
+            </div>
+            <div>
+              <div class="divc ${r2G?'got':'pending'}" onclick="togDiv(${s.id},2,${!r2G})" title="รอบ 2 ${r2G?fmt(dr.r2):'(ประมาณ '+fmt(est)+')'}">
+                ${r2G?'✓':'2'}
+              </div>${d2S}
+            </div>
+          </div>
+          <div style="font-size:10px;color:var(--g400);text-align:center;margin-top:2px">${r1G&&r2G?'ครบแล้ว ✓':r1G?'รอ ร.2':r2G?'ร.1 ค้าง':'รอทั้งคู่'}</div>
+        </td>
+        <td style="font-size:11px;color:var(--g400)">${s.note||'—'}</td>
+        <td class="tc"><button class="icon-btn" onclick="openStkM(${s.id})">✏</button></td>
+      </tr>`;
+    }).join('');
+  }
+  // Gold
+  const golds=getGolds(),curP=getCurGoldPrice();
+  setTimeout(autoFetchGoldIfStale, 50);
+  let tWt=0,tBuy=0,tCur=0;
+  golds.forEach(g=>{tWt+=g.weight;tBuy+=g.weight*g.buyPrice;tCur+=g.weight*curP});
+  document.getElementById('gd-baht').textContent=tWt+' บาท';
+  document.getElementById('gd-val').textContent=fmt(tCur);
+  const pnl=tCur-tBuy;
+  const pe=document.getElementById('gd-pnl');pe.textContent=(pnl>=0?'+':'')+fmt(pnl);pe.className='val '+(pnl>=0?'vpos':'vneg');
+  document.getElementById('gold-foot').innerHTML=`<span>รวม ${tWt} บาททอง &nbsp; ซื้อมา ${fmt(tBuy)} &nbsp; ปัจจุบัน ${fmt(tCur)} &nbsp; กำไร <strong class="${pnl>=0?'ag':'ac'}">${pnl>=0?'+':''}${fmt(pnl)}</strong></span>`;
+  const gb=document.getElementById('gold-body');
+  if(!golds.length){gb.innerHTML='<tr><td colspan="8" class="empty">ยังไม่มีรายการออมทอง</td></tr>';}
+  else{
+    gb.innerHTML=golds.slice().sort((a,b)=>new Date(b.date)-new Date(a.date)).map(g=>{
+      const curVal=g.weight*curP,pnl=curVal-(g.weight*g.buyPrice);
+      return`<tr>
+        <td>${fmtDate(g.date)}</td>
+        <td class="tr">${g.weight} บ.</td>
+        <td class="tr">${fmt(g.buyPrice)}</td>
+        <td class="tr ab">${fmt(g.weight*g.buyPrice)}</td>
+        <td class="tr agold">${fmt(curVal)}</td>
+        <td class="tr ${pnl>=0?'ag':'ac'}">${pnl>=0?'+':''}${fmt(pnl)}</td>
+        <td style="font-size:11px;color:var(--g400)">${g.note||'—'}</td>
+        <td class="tc"><button class="icon-btn" onclick="openGoldM(${g.id})">✏</button></td>
+      </tr>`;
+    }).join('');
+  }
+  // Assets + summary banner
+  renderAssets();
+  const astTotal=getAssets().reduce((s,a)=>s+a.val,0);
+  document.getElementById('inv-total-net').textContent=fmt(tInv+tCur+astTotal);
+  document.getElementById('inv-total-invest').textContent=fmt(tInv+tCur);
+  document.getElementById('inv-total-div').textContent=fmt(tDiv);
+  document.getElementById('inv-total-asset').textContent=fmt(astTotal);
+}
+function exportInvest(){
+  const yr=parseInt(document.getElementById('stk-yr-sel').value)||now.getFullYear();
+  const stocks=getStocks(),divD=getDivData(yr),golds=getGolds(),curP=getCurGoldPrice();
+  const rows=[['=== หุ้นปันผล ==='],['ชื่อหุ้น','สัดส่วน','เงินลงทุน','Yield%','ปันผล/ปี','รอบ1','วันรอบ1','รอบ2','วันรอบ2','หมายเหตุ'],
+    ...stocks.map(s=>{const dr=divD[s.id]||{};const ad=Math.round(s.invest*s.yield/100);return[s.name,s.pct+'%',s.invest,s.yield+'%',ad,dr.r1||0,dr.d1||'',dr.r2||0,dr.d2||'',s.note]}),
+    [],[' === ออมทอง ==='],['วันที่ซื้อ','น้ำหนัก(บาท)','ราคาซื้อ/บาท','มูลค่าที่ซื้อ','ราคาปัจจุบัน','มูลค่าปัจจุบัน','กำไร/ขาดทุน','หมายเหตุ'],
+    ...golds.map(g=>[g.date,g.weight,g.buyPrice,g.weight*g.buyPrice,curP,g.weight*curP,g.weight*curP-g.weight*g.buyPrice,g.note])
+  ];
+  dlCSV(rows,'invest_export.csv');
+}
+
+// ══ PERSONAL ASSETS ══
+function getAssets(){return ls(uKey('assets_v1'),[])}
+function saveAssets(a){lss(uKey('assets_v1'),a)}
+let astEId=null;
+function openAssetM(id){
+  astEId=id||null;
+  const item=id?getAssets().find(a=>a.id===id):null;
+  document.getElementById('ast-title').textContent=id?'แก้ไขทรัพย์สิน':'เพิ่มทรัพย์สิน';
+  document.getElementById('ast-name').value=item?.name||'';
+  document.getElementById('ast-cat').value=item?.cat||'อื่นๆ';
+  document.getElementById('ast-val').value=item?.val||'';
+  document.getElementById('ast-buy').value=item?.buy||'';
+  document.getElementById('ast-date').value=item?.date||'';
+  document.getElementById('ast-note').value=item?.note||'';
+  document.getElementById('ast-del').style.display=id?'inline-flex':'none';
+  document.getElementById('ast-ov').classList.add('open');
+}
+function saveAsset(){
+  const name=(document.getElementById('ast-name').value||'').trim();if(!name)return;
+  const obj={name,cat:document.getElementById('ast-cat').value,
+    val:parseFloat(document.getElementById('ast-val').value)||0,
+    buy:parseFloat(document.getElementById('ast-buy').value)||0,
+    date:document.getElementById('ast-date').value,
+    note:document.getElementById('ast-note').value};
+  let assets=getAssets();
+  if(astEId){assets=assets.map(a=>a.id===astEId?{...a,...obj}:a);addHist('invest','แก้ไขทรัพย์สิน',name);}
+  else{assets.push({id:Date.now(),...obj});addHist('invest','เพิ่มทรัพย์สิน',name);}
+  saveAssets(assets);closeOv('ast-ov');renderInvest();
+}
+function delAsset(){
+  const item=getAssets().find(a=>a.id===astEId);
+  saveAssets(getAssets().filter(a=>a.id!==astEId));
+  addHist('invest','ลบทรัพย์สิน',item?.name||'');
+  closeOv('ast-ov');renderInvest();
+}
+function renderAssets(){
+  const assets=getAssets();
+  const tVal=assets.reduce((s,a)=>s+a.val,0);
+  const cats=new Set(assets.map(a=>a.cat)).size;
+  document.getElementById('ast-total').textContent=fmt(tVal);
+  document.getElementById('ast-count').textContent=assets.length+' รายการ';
+  document.getElementById('ast-cats').textContent=cats+' ประเภท';
+  const tb=document.getElementById('ast-body');
+  if(!assets.length){
+    tb.innerHTML='<tr><td colspan="8" class="empty">ยังไม่มีทรัพย์สิน</td></tr>';
+    document.getElementById('ast-foot').innerHTML='';
+    return;
+  }
+  const catIcon={'รถยนต์/มอเตอร์ไซค์':'🚗','อสังหาริมทรัพย์':'🏠','อิเล็กทรอนิกส์':'📱','เฟอร์นิเจอร์/เครื่องใช้':'🪑','เครื่องประดับ':'💎','อื่นๆ':'📦'};
+  const sorted=applySortArr(assets,'invest','asset');
+  tb.innerHTML=sorted.map(a=>{
+    const pnl=a.val-a.buy;
+    return`<tr>
+      <td style="font-weight:700">${a.name}</td>
+      <td><span class="pill">${catIcon[a.cat]||'📦'} ${a.cat}</span></td>
+      <td class="tr ab">${fmt(a.val)}</td>
+      <td style="font-size:12px;color:var(--g400)">${fmtDate(a.date)||'—'}</td>
+      <td class="tr" style="color:var(--g500)">${a.buy?fmt(a.buy):'—'}</td>
+      <td class="tr ${pnl>=0?'ag':'ac'}">${a.buy?(pnl>=0?'+':'')+fmt(pnl):'—'}</td>
+      <td style="font-size:11px;color:var(--g400)">${a.note||'—'}</td>
+      <td class="tc"><button class="icon-btn" onclick="openAssetM(${a.id})">✏</button></td>
+    </tr>`;
+  }).join('');
+  document.getElementById('ast-foot').innerHTML=`<span>รวมมูลค่าทรัพย์สิน <strong class="ab">${fmt(tVal)}</strong></span>`;
 }
 
 // ══ SUBSCRIPTION ══
