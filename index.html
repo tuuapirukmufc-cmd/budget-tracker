@@ -1357,6 +1357,13 @@ function lss(k,v){
   if(k!=='_data_meta'){
     try{localStorage.setItem('_data_meta',JSON.stringify({updatedAt:Date.now()}))}catch(e){}
   }
+  if(k!=='_data_meta'&&k!=='cloud_last_sync')scheduleAutoUpload();
+}
+let autoUploadTimer=null;
+function scheduleAutoUpload(){
+  // รวมการแก้ไขหลายๆครั้งที่ติดกันเป็นการอัปโหลดครั้งเดียว กันยิง request รัวเกินไป
+  if(autoUploadTimer)clearTimeout(autoUploadTimer);
+  autoUploadTimer=setTimeout(()=>{autoUploadTimer=null;cloudUpload();},2500);
 }
 
 // ══ CLOUD SYNC (Google Sheets ผ่าน Apps Script) ══
@@ -1476,7 +1483,7 @@ function cloudUpload(){
     form.submit();
 
     const t1=new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
-    updateCloudStatus('✓ ส่งข้อมูลขึ้นคลาวด์แล้ว '+t1,'ok');
+    updateCloudStatus('✓ บันทึกขึ้นคลาวด์อัตโนมัติแล้ว '+t1,'ok');
     lss('cloud_last_sync',Date.now());
 
     setTimeout(function(){
@@ -1570,7 +1577,9 @@ function cloudAutoLoadOnStart(){
         if(json&&json.success&&json.data&&Object.keys(json.data).length){
           const cloudTime=json.data._data_meta?.updatedAt||0;
           const localTime=ls('_data_meta',null)?.updatedAt||0;
-          if(cloudTime>localTime){
+          // เครื่องนี้ยังไม่เคยมีข้อมูล/ไม่เคยแก้อะไรเลย (localTime=0) → ดึงคลาวด์มาเสมอ
+          // ไม่ว่าคลาวด์จะมี timestamp หรือไม่ (กันเคสอัปโหลดไว้ด้วยโค้ดเวอร์ชันเก่าที่ยังไม่มีระบบนี้)
+          if(localTime===0||cloudTime>localTime){
             restoreAllAppData(json.data);
             const t1=new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
             updateCloudStatus('✓ ซิงค์ข้อมูลล่าสุดจากคลาวด์แล้ว '+t1,'ok');
