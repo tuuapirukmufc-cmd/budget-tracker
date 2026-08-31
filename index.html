@@ -497,7 +497,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   <span style="color:var(--g300);font-size:10px;white-space:nowrap" title="เทียบเลขนี้ระหว่างเครื่อง ถ้าไม่ตรงกันแปลว่าเครื่องนั้นยังไม่โหลดโค้ดล่าสุด">build 20260831-1</span>
   <div style="display:flex;align-items:center;gap:10px">
   <span id="cloud-status" class="cloud-status"></span>
-  <button class="btn btn-sm" id="cloud-upload-btn" onclick="cloudUpload()" style="background:var(--gl);color:var(--gd);border:1px solid var(--green);font-size:11px;padding:3px 10px;border-radius:6px">☁ บันทึกขึ้นคลาวด์</button>
+  <button class="btn btn-sm" id="cloud-upload-btn" onclick="cloudUpload(true)" style="background:var(--gl);color:var(--gd);border:1px solid var(--green);font-size:11px;padding:3px 10px;border-radius:6px">☁ บันทึกขึ้นคลาวด์ (ทั้งหมด)</button>
   <button class="btn btn-sm" id="cloud-download-btn" onclick="cloudDownload()" style="background:var(--bl);color:var(--bd);border:1px solid var(--blue);font-size:11px;padding:3px 10px;border-radius:6px">⬇ โหลดจากคลาวด์</button>
   <button class="btn btn-sm" id="cloud-cleanup-btn" onclick="runCloudCleanup()" style="background:var(--al);color:var(--amber);border:1px solid var(--amber);font-size:11px;padding:3px 10px;border-radius:6px" title="ล้างรูปภาพแนบในรายการเดือนเก่า เพื่อลดขนาดข้อมูลก่อนบันทึกขึ้นคลาวด์">🧹 ล้างข้อมูลเก่า</button>
   </div>
@@ -1355,11 +1355,20 @@ const fmtDate=s=>{if(!s)return'—';const d=new Date(s);return d.toLocaleDateStr
 function ls(k,d){try{const r=localStorage.getItem(k);return r?JSON.parse(r):d}catch(e){return d}}
 function lss(k,v){
   try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}
-  if(k!=='_data_meta'){
+  if(k!=='_data_meta'&&k!=='_dirty_keys'&&k!=='cloud_last_sync'){
     try{localStorage.setItem('_data_meta',JSON.stringify({updatedAt:Date.now()}))}catch(e){}
+    addDirtyKey(k);
+    scheduleAutoUpload();
   }
-  if(k!=='_data_meta'&&k!=='cloud_last_sync')scheduleAutoUpload();
 }
+function getDirtyKeys(){try{return JSON.parse(localStorage.getItem('_dirty_keys')||'[]')}catch(e){return[]}}
+function addDirtyKey(k){
+  try{
+    const s=new Set(getDirtyKeys());s.add(k);
+    localStorage.setItem('_dirty_keys',JSON.stringify([...s]));
+  }catch(e){}
+}
+function clearDirtyKeys(){try{localStorage.setItem('_dirty_keys','[]')}catch(e){}}
 let autoUploadTimer=null;
 function scheduleAutoUpload(){
   // รวมการแก้ไขหลายๆครั้งที่ติดกันเป็นการอัปโหลดครั้งเดียว กันยิง request รัวเกินไป
@@ -1368,7 +1377,7 @@ function scheduleAutoUpload(){
 }
 
 // ══ CLOUD SYNC (Google Sheets ผ่าน Apps Script) ══
-const APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbxSpkQ8T_bkR2pvtXJbW2iCm72qc8WIfwIlz9f1fLGYObveOlCQYrkv68QPrL01OBFkGQ/exec';
+const APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbwTT5iZpJ4zZq5ampD09gatdG5n8HiSFaMcW0-aclbXF0O87RFYp9qSCNMukVVkFoFF7Q/exec';
 
 function getAllAppData(){
   const data={};
@@ -1447,12 +1456,26 @@ function runCloudCleanup(){
   const freedMB=(result.freedBytes/1024/1024).toFixed(2);
   alert(`ล้างแล้ว ${result.removed} รูป ลดขนาดข้อมูลลง ~${freedMB} MB\n\nลองกด "บันทึกขึ้นคลาวด์" อีกครั้งได้เลย`);
 }
-function cloudUpload(){
+function cloudUpload(full){
   try{
+    // full=true (กดปุ่มเอง) → ส่งข้อมูลทั้งหมด ใช้บังคับซิงค์ใหม่ทั้งชุด
+    // full=false (auto-sync ตอนแก้ไข) → ส่งเฉพาะ key ที่เพิ่งแก้ กันไปทับเมนูอื่นที่เครื่องนี้ไม่ได้แตะ
+    const dirty=getDirtyKeys();
+    if(!full&&!dirty.length)return; // ไม่มีอะไรเปลี่ยน ไม่ต้องอัปโหลด
     updateCloudStatus('กำลังบันทึก...','saving');
 
-    const allData=getAllAppData();
-    const body=JSON.stringify({action:'setAll',data:allData});
+    let payload;
+    if(full){
+      payload=getAllAppData();
+    }else{
+      payload={};
+      dirty.forEach(k=>{
+        const raw=localStorage.getItem(k);
+        if(raw!==null){try{payload[k]=JSON.parse(raw)}catch(e){payload[k]=raw}}
+      });
+      payload._data_meta=ls('_data_meta',{updatedAt:Date.now()});
+    }
+    const body=JSON.stringify({action:'setAll',data:payload});
     const sizeMB=(body.length/1024/1024).toFixed(1);
 
     if(body.length>8*1024*1024){
@@ -1483,6 +1506,7 @@ function cloudUpload(){
 
     form.submit();
 
+    clearDirtyKeys(); // ส่งไปแล้ว เคลียร์รายการที่รอซิงค์
     const t1=new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
     updateCloudStatus('✓ บันทึกขึ้นคลาวด์อัตโนมัติแล้ว '+t1,'ok');
     lss('cloud_last_sync',Date.now());
