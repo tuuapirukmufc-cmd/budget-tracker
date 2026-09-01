@@ -472,7 +472,15 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 </style>
 </head>
 <body>
-<div id="app-screen">
+<div id="startup-gate" style="position:fixed;inset:0;z-index:99999;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:24px">
+  <div style="max-width:440px;width:100%;background:var(--surface);border:1px solid var(--g200);border-radius:18px;padding:28px;text-align:center;box-shadow:var(--shadow)">
+    <div style="font-size:40px;margin-bottom:10px">☁️</div>
+    <h2 style="margin:0 0 8px">กำลังซิงค์ข้อมูล</h2>
+    <p id="startup-gate-text" style="color:var(--g500);font-size:14px;line-height:1.6;margin:0 0 18px">กำลังดึงข้อมูลล่าสุดจาก Google Sheets…</p>
+    <button id="startup-retry" class="btn btn-pri" onclick="retryStartupSync()" style="display:none">ลองเชื่อมต่อใหม่</button>
+  </div>
+</div>
+<div id="app-screen" style="display:none">
 <!-- Sidebar (desktop) -->
 <nav class="sidebar">
   <div class="brand"><span class="app-icon"></span>Happy <span class="brand-accent">Money</span></div>
@@ -491,14 +499,14 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 </div>
 
 <div class="main-content">
-<!-- Cloud Sync Bar (Google Sheets via Apps Script) -->
+<!-- Cloud Sync Bar — Google Sheets is source of truth -->
 <div id="cloud-bar" style="background:var(--surface2);border-bottom:1px solid var(--g200);padding:5px 16px;display:flex;align-items:center;gap:10px;font-size:12px;justify-content:space-between">
   <span id="realtime-clock" style="color:var(--gold);font-weight:600;letter-spacing:.02em;white-space:nowrap"></span>
   <span style="color:var(--g300);font-size:10px;white-space:nowrap" title="เทียบเลขนี้ระหว่างเครื่อง ถ้าไม่ตรงกันแปลว่าเครื่องนั้นยังไม่โหลดโค้ดล่าสุด">build 20260831-1</span>
   <div style="display:flex;align-items:center;gap:10px">
   <span id="cloud-status" class="cloud-status"></span>
-  <button class="btn btn-sm" id="cloud-upload-btn" onclick="cloudUpload(true)" style="background:var(--gl);color:var(--gd);border:1px solid var(--green);font-size:11px;padding:3px 10px;border-radius:6px">☁ บันทึกขึ้นคลาวด์ (ทั้งหมด)</button>
-  <button class="btn btn-sm" id="cloud-download-btn" onclick="cloudDownload()" style="background:var(--bl);color:var(--bd);border:1px solid var(--blue);font-size:11px;padding:3px 10px;border-radius:6px">⬇ โหลดจากคลาวด์</button>
+  <button class="btn btn-sm" id="cloud-upload-btn" onclick="cloudUpload(true)" style="background:var(--gl);color:var(--gd);border:1px solid var(--green);font-size:11px;padding:3px 10px;border-radius:6px">☁ ซิงค์ทั้งหมดตอนนี้</button>
+  <button class="btn btn-sm" id="cloud-download-btn" onclick="cloudDownload()" style="background:var(--bl);color:var(--bd);border:1px solid var(--blue);font-size:11px;padding:3px 10px;border-radius:6px">⬇ ดึงข้อมูลล่าสุด</button>
   <button class="btn btn-sm" id="cloud-cleanup-btn" onclick="runCloudCleanup()" style="background:var(--al);color:var(--amber);border:1px solid var(--amber);font-size:11px;padding:3px 10px;border-radius:6px" title="ล้างรูปภาพแนบในรายการเดือนเก่า เพื่อลดขนาดข้อมูลก่อนบันทึกขึ้นคลาวด์">🧹 ล้างข้อมูลเก่า</button>
   </div>
 </div>
@@ -1377,22 +1385,35 @@ function scheduleAutoUpload(){
 }
 
 // ══ CLOUD SYNC (Google Sheets ผ่าน Apps Script) ══
-const APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbycjrMezDcmh1HG8AeMZFdXOy77VoICm4QuPAkyoZeK3H6wGSxJRPc4Nx6Sc7xXkt2u8w/exec';
+const APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbwWbs0mIhBu065P_fXJ0S6rA8Hp4-op-Fve6FM4Bv5rLnU0tQ6XlEyN1352NVKoOaO2tA/exec';
+const CLOUD_SHEET_URL='https://docs.google.com/spreadsheets/d/1xZCvghyklvjyFEVMi4kPthajxiL29sd4uNtYvky6kAc/edit?gid=1644719234#gid=1644719234';
+const CLOUD_POLL_MS=30000;
 
+const LOCAL_ONLY_KEYS=new Set(['_dirty_keys','cloud_last_sync']);
 function getAllAppData(){
   const data={};
   for(let i=0;i<localStorage.length;i++){
     const k=localStorage.key(i);
+    if(LOCAL_ONLY_KEYS.has(k))continue;
     try{data[k]=JSON.parse(localStorage.getItem(k));}catch(e){data[k]=localStorage.getItem(k);}
   }
   return data;
 }
 function restoreAllAppData(data){
-  Object.keys(data).forEach(k=>{
+  // Google Sheets คือฐานข้อมูลหลัก: ล้างข้อมูลแอปในเครื่องก่อน แล้วค่อยใส่ snapshot จากคลาวด์
+  // เพื่อไม่ให้ key เก่าที่ถูกลบจากอุปกรณ์อื่นตกค้างในเครื่องนี้
+  const keep={};
+  LOCAL_ONLY_KEYS.forEach(k=>{const v=localStorage.getItem(k);if(v!==null)keep[k]=v;});
+  localStorage.clear();
+  Object.keys(data||{}).forEach(k=>{
+    if(LOCAL_ONLY_KEYS.has(k))return;
     const v=data[k];
     try{localStorage.setItem(k,typeof v==='string'?v:JSON.stringify(v));}catch(e){}
   });
+  Object.keys(keep).forEach(k=>localStorage.setItem(k,keep[k]));
+  clearDirtyKeys();
 }
+function isCloudConfigured(){return /^https:\/\/script\.google\.com\/macros\/s\/.+\/exec/.test(APPS_SCRIPT_URL)}
 let cloudStatusTimer=null;
 function updateCloudStatus(msg,cls){
   const el=document.getElementById('cloud-status');
@@ -1475,7 +1496,7 @@ function cloudUpload(full){
       });
       payload._data_meta=ls('_data_meta',{updatedAt:Date.now()});
     }
-    const body=JSON.stringify({action:'setAll',data:payload});
+    const body=JSON.stringify({action:'setAll',replace:!!full,data:payload});
     const sizeMB=(body.length/1024/1024).toFixed(1);
 
     if(body.length>8*1024*1024){
@@ -1583,42 +1604,110 @@ function cloudDownload(){
     }
   },15000);
 }
-function cloudAutoLoadOnStart(){
-  // ดึงข้อมูลจากคลาวด์อัตโนมัติตอนเปิดแอป — แต่จะทับข้อมูลในเครื่องก็ต่อเมื่อ
-  // ข้อมูลบนคลาวด์ "ใหม่กว่า" ข้อมูลล่าสุดที่มีอยู่ในเครื่องนี้เท่านั้น (กันข้อมูลที่ยังไม่ได้อัปโหลดหาย)
-  return new Promise(resolve=>{
-    const callbackName='cloudAutoCallback_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);
-    const script=document.createElement('script');
-    let finished=false;
-    function cleanup(){
-      if(finished)return;
-      finished=true;
-      try{delete window[callbackName];}catch(e){}
-      try{script.remove();}catch(e){}
-      resolve();
+function fetchCloudSnapshot(timeoutMs=15000){
+  return new Promise((resolve,reject)=>{
+    if(!isCloudConfigured()){
+      reject(new Error('ยังไม่ได้ตั้งค่า Apps Script Web App URL'));
+      return;
     }
-    window[callbackName]=function(json){
-      try{
-        if(json&&json.success&&json.data&&Object.keys(json.data).length){
-          const cloudTime=json.data._data_meta?.updatedAt||0;
-          const localTime=ls('_data_meta',null)?.updatedAt||0;
-          // เครื่องนี้ยังไม่เคยมีข้อมูล/ไม่เคยแก้อะไรเลย (localTime=0) → ดึงคลาวด์มาเสมอ
-          // ไม่ว่าคลาวด์จะมี timestamp หรือไม่ (กันเคสอัปโหลดไว้ด้วยโค้ดเวอร์ชันเก่าที่ยังไม่มีระบบนี้)
-          if(localTime===0||cloudTime>localTime){
-            restoreAllAppData(json.data);
-            const t1=new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
-            updateCloudStatus('✓ ซิงค์ข้อมูลล่าสุดจากคลาวด์แล้ว '+t1,'ok');
-          }
-        }
-      }catch(e){console.error('Auto cloud load error:',e);}
-      cleanup();
+    const callbackName='cloudFetch_'+Date.now()+'_'+Math.random().toString(36).slice(2,8);
+    const script=document.createElement('script');
+    let done=false;
+    const finish=(err,value)=>{
+      if(done)return;done=true;
+      try{delete window[callbackName]}catch(e){}
+      try{script.remove()}catch(e){}
+      clearTimeout(timer);
+      err?reject(err):resolve(value);
     };
-    script.id=callbackName;
+    window[callbackName]=json=>{
+      if(!json||!json.success){finish(new Error(json?.error||'โหลดฐานข้อมูลไม่สำเร็จ'));return;}
+      finish(null,json.data||{});
+    };
     script.src=APPS_SCRIPT_URL+'?action=getAll&callback='+encodeURIComponent(callbackName)+'&_t='+Date.now();
-    script.onerror=function(){cleanup();};
+    script.onerror=()=>finish(new Error('ติดต่อฐานข้อมูลไม่ได้'));
     document.body.appendChild(script);
-    setTimeout(cleanup,8000); // เน็ตช้า/ล่ม — อย่าค้างหน้าจอ เปิดแอปต่อด้วยข้อมูลในเครื่อง
+    const timer=setTimeout(()=>finish(new Error('ฐานข้อมูลตอบสนองช้าเกินไป')),timeoutMs);
   });
+}
+function setStartupGate(state,msg){
+  const gate=document.getElementById('startup-gate');
+  const text=document.getElementById('startup-gate-text');
+  const retry=document.getElementById('startup-retry');
+  if(text)text.textContent=msg||'';
+  if(retry)retry.style.display=state==='error'?'inline-flex':'none';
+  if(gate)gate.style.display=state==='ready'?'none':'flex';
+  const app=document.getElementById('app-screen');
+  if(app)app.style.display=state==='ready'?'block':'none';
+}
+async function cloudAutoLoadOnStart(){
+  // ข้อกำหนด: ทุกครั้งก่อนใช้งาน ต้องอ่าน Google Sheets ก่อนเสมอ
+  setStartupGate('loading','กำลังดึงข้อมูลล่าสุดจาก Google Sheets…');
+  updateCloudStatus('กำลังโหลดข้อมูลกลาง...','saving');
+  try{
+    const cloudData=await fetchCloudSnapshot(15000);
+    if(cloudData&&Object.keys(cloudData).length){
+      restoreAllAppData(cloudData);
+    }else{
+      // ฐานข้อมูลยังว่าง: ใช้ข้อมูลในเครื่องนี้เป็นชุดตั้งต้น และอัปโหลดขึ้นคลาวด์ทันที
+      const localData=getAllAppData();
+      if(Object.keys(localData).length){
+        localStorage.setItem('_data_meta',JSON.stringify({updatedAt:Date.now()}));
+        cloudUpload(true);
+      }
+    }
+    const t1=new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+    updateCloudStatus('✓ โหลดข้อมูลกลางแล้ว '+t1,'ok');
+    setStartupGate('ready','');
+    return true;
+  }catch(e){
+    updateCloudStatus('❌ '+(e?.message||e),'err');
+    setStartupGate('error','ไม่สามารถดึงข้อมูลจากฐานข้อมูลได้ จึงยังไม่เปิดให้ใช้งานเพื่อป้องกันข้อมูลชนกัน');
+    return false;
+  }
+}
+async function retryStartupSync(){
+  const ok=await cloudAutoLoadOnStart();
+  if(ok)initializeAppAfterCloud();
+}
+function renderAllCurrentData(){
+  applyPageVisibility();
+  if(curPage==='dashboard')renderDashboard();
+  else if(curPage==='budget')renderBudget();
+  else if(curPage==='debt')renderDebt();
+  else if(curPage==='invest')renderInvest();
+  else if(curPage==='subscription')renderSub();
+  else if(curPage==='logins')renderLogins();
+  else if(curPage==='todo')renderTodo();
+}
+let cloudRefreshBusy=false;
+async function refreshFromCloudIfSafe(){
+  if(cloudRefreshBusy||getDirtyKeys().length)return;
+  cloudRefreshBusy=true;
+  try{
+    const cloudData=await fetchCloudSnapshot(12000);
+    const cloudTime=cloudData?._data_meta?.updatedAt||0;
+    const localTime=ls('_data_meta',null)?.updatedAt||0;
+    if(cloudTime>localTime){
+      restoreAllAppData(cloudData);
+      renderAllCurrentData();
+      const t1=new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+      updateCloudStatus('✓ รับข้อมูลใหม่จากอุปกรณ์อื่น '+t1,'ok');
+    }
+  }catch(e){
+    console.warn('Background cloud refresh failed:',e);
+  }finally{cloudRefreshBusy=false;}
+}
+let appInitialized=false;
+function initializeAppAfterCloud(){
+  if(appInitialized)return;
+  appInitialized=true;
+  initYearSelectors();
+  applyPageVisibility();
+  renderDashboard();
+  setInterval(refreshFromCloudIfSafe,CLOUD_POLL_MS);
+  window.addEventListener('focus',refreshFromCloudIfSafe);
+  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')refreshFromCloudIfSafe();});
 }
 
 // ══ INIT — ไม่มีระบบ login เปิดแอปตรงเลย ══
@@ -1634,13 +1723,10 @@ function updateRealtimeClock(){
 }
 
 document.addEventListener('DOMContentLoaded',async function(){
-  document.getElementById('app-screen').style.display='block';
   updateRealtimeClock();
   setInterval(updateRealtimeClock,1000);
-  await cloudAutoLoadOnStart();
-  initYearSelectors();
-  applyPageVisibility();
-  renderDashboard();
+  const ok=await cloudAutoLoadOnStart();
+  if(ok)initializeAppAfterCloud();
 });
 
 // ══ PAGE SWITCH ══
