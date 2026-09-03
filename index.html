@@ -562,6 +562,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
 <div id="startup-gate" class="sync-loading">
@@ -574,7 +575,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
       </div>
       <h2 class="hero-sync-title" id="startup-title">กำลังเชื่อมต่อฐานข้อมูล</h2>
       <div class="hero-sync-sub">HAPPY MONEY • CLOUD SYNC</div>
-      <p id="startup-gate-text">กำลังดึงข้อมูลล่าสุดจาก Google Sheets…</p>
+      <p id="startup-gate-text">กำลังเชื่อมต่อ Firebase Firestore…</p>
       <div class="hero-progress"><span></span></div>
       <div class="hero-sync-meta"><span class="secure">● SECURE</span><span>•</span><span>กำลังประสานข้อมูลทุกอุปกรณ์</span></div>
       <button id="startup-retry" class="btn btn-pri" onclick="retryStartupSync()" style="display:none">↻ เชื่อมต่อใหม่</button>
@@ -601,14 +602,15 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 </div>
 
 <div class="main-content">
-<!-- Cloud Sync Bar — Google Sheets is source of truth -->
+<!-- Cloud Sync Bar — Firebase Firestore is source of truth; Google Sheets is backup -->
 <div id="cloud-bar" style="background:var(--surface2);border-bottom:1px solid var(--g200);padding:5px 16px;display:flex;align-items:center;gap:10px;font-size:12px;justify-content:space-between">
   <span id="realtime-clock" style="color:var(--gold);font-weight:600;letter-spacing:.02em;white-space:nowrap"></span>
-  <span style="color:var(--g300);font-size:10px;white-space:nowrap" title="เทียบเลขนี้ระหว่างเครื่อง ถ้าไม่ตรงกันแปลว่าเครื่องนั้นยังไม่โหลดโค้ดล่าสุด">build 20260831-1</span>
+  <span style="color:var(--g300);font-size:10px;white-space:nowrap" title="เทียบเลขนี้ระหว่างเครื่อง ถ้าไม่ตรงกันแปลว่าเครื่องนั้นยังไม่โหลดโค้ดล่าสุด">Firestore • realtime</span>
   <div style="display:flex;align-items:center;gap:10px">
   <span id="cloud-status" class="cloud-status"></span>
-  <button class="btn btn-sm" id="cloud-upload-btn" onclick="cloudUpload(true)" style="background:var(--gl);color:var(--gd);border:1px solid var(--green);font-size:11px;padding:3px 10px;border-radius:6px">☁ ซิงค์ทั้งหมดตอนนี้</button>
-  <button class="btn btn-sm" id="cloud-download-btn" onclick="cloudDownload()" style="background:var(--bl);color:var(--bd);border:1px solid var(--blue);font-size:11px;padding:3px 10px;border-radius:6px">⬇ ดึงข้อมูลล่าสุด</button>
+  <button class="btn btn-sm" id="cloud-upload-btn" onclick="firestoreUploadAll()" style="background:var(--gl);color:var(--gd);border:1px solid var(--green);font-size:11px;padding:3px 10px;border-radius:6px">☁ ซิงค์ Firestore ตอนนี้</button>
+  <button class="btn btn-sm" id="cloud-download-btn" onclick="firestoreDownload(true)" style="background:var(--bl);color:var(--bd);border:1px solid var(--blue);font-size:11px;padding:3px 10px;border-radius:6px">⬇ ดึง Firestore ล่าสุด</button>
+  <button class="btn btn-sm" id="sheet-backup-btn" onclick="cloudUpload(true)" style="background:var(--surface);color:var(--g500);border:1px solid var(--g300);font-size:11px;padding:3px 10px;border-radius:6px" title="สำรอง snapshot ปัจจุบันไป Google Sheets">📊 สำรอง Google Sheet</button>
   <button class="btn btn-sm" id="cloud-cleanup-btn" onclick="runCloudCleanup()" style="background:var(--al);color:var(--amber);border:1px solid var(--amber);font-size:11px;padding:3px 10px;border-radius:6px" title="ล้างรูปภาพแนบในรายการเดือนเก่า เพื่อลดขนาดข้อมูลก่อนบันทึกขึ้นคลาวด์">🧹 ล้างข้อมูลเก่า</button>
   </div>
 </div>
@@ -1480,10 +1482,16 @@ function addDirtyKey(k){
 }
 function clearDirtyKeys(){try{localStorage.setItem('_dirty_keys','[]')}catch(e){}}
 let autoUploadTimer=null;
+let sheetBackupTimer=null;
 function scheduleAutoUpload(){
-  // รวมการแก้ไขหลายๆครั้งที่ติดกันเป็นการอัปโหลดครั้งเดียว กันยิง request รัวเกินไป
+  // Firestore เป็นฐานหลัก: รวมการแก้ไขติดกันก่อนเขียน เพื่อไม่ยิง write รัวเกินไป
   if(autoUploadTimer)clearTimeout(autoUploadTimer);
-  autoUploadTimer=setTimeout(()=>{autoUploadTimer=null;cloudUpload();},2500);
+  autoUploadTimer=setTimeout(()=>{autoUploadTimer=null;firestoreUploadDirty();},900);
+}
+function scheduleSheetBackup(){
+  // Google Sheets เก็บเป็นสำรอง โดยหน่วงให้นานกว่า Firestore
+  if(sheetBackupTimer)clearTimeout(sheetBackupTimer);
+  sheetBackupTimer=setTimeout(()=>{sheetBackupTimer=null;cloudUpload(true);},12000);
 }
 
 // ══ FIREBASE AUTH — ล็อกอินก่อนเข้าถึงข้อมูล ══
@@ -1546,8 +1554,8 @@ async function firebaseGoogleLogin(){
     const result=await firebaseAuth.signInWithPopup(provider);
     firebaseUser=result.user;
     if(btn)btn.style.display='none';
-    setStartupGate('loading','ยืนยันตัวตนสำเร็จ กำลังโหลดข้อมูลล่าสุดจาก Google Sheets…');
-    const ok=await cloudAutoLoadOnStart();
+    setStartupGate('loading','ยืนยันตัวตนสำเร็จ กำลังเชื่อมต่อ Firebase Firestore…');
+    const ok=await firestoreAutoLoadOnStart();
     if(ok)initializeAppAfterCloud();
   }catch(e){
     console.error('Google sign-in error:',e);
@@ -1572,6 +1580,181 @@ async function ensureFirebaseAuthBeforeStart(){
     return true;
   }catch(e){
     setStartupGate('error','ตรวจสอบ Firebase Authentication ไม่สำเร็จ — '+(e?.message||e));
+    return false;
+  }
+}
+
+// ══ FIRESTORE DATABASE — ฐานข้อมูลหลัก + Realtime Sync ══
+let firestoreDb=null;
+let firestoreUnsubscribe=null;
+let firestoreReady=false;
+let firestoreWriteBusy=false;
+const FIRESTORE_DATA_SUBCOLLECTION='appData';
+const FIRESTORE_SYSTEM_SUBCOLLECTION='system';
+const FIRESTORE_SCHEMA_VERSION=1;
+
+function initFirestore(){
+  try{
+    if(typeof firebase==='undefined'||!firebase.firestore)throw new Error('โหลด Firestore SDK ไม่สำเร็จ');
+    if(!firebase.apps.length)firebase.initializeApp(firebaseConfig);
+    firestoreDb=firebase.firestore();
+    return true;
+  }catch(e){console.error('Firestore init error:',e);return false;}
+}
+function firestoreUserRoot(){
+  if(!firebaseUser||!firebaseUser.uid)throw new Error('ยังไม่ได้เข้าสู่ระบบ Firebase');
+  if(!firestoreDb&&!initFirestore())throw new Error('Firestore ยังไม่พร้อม');
+  return firestoreDb.collection('users').doc(firebaseUser.uid);
+}
+function firestoreDataCol(){return firestoreUserRoot().collection(FIRESTORE_DATA_SUBCOLLECTION)}
+function firestoreSystemCol(){return firestoreUserRoot().collection(FIRESTORE_SYSTEM_SUBCOLLECTION)}
+function firestoreDocIdForKey(key){return encodeURIComponent(String(key)).replace(/%/g,'_')}
+function parseStoredPayload(payload){
+  if(typeof payload!=='string')return payload;
+  try{return JSON.parse(payload)}catch(e){return payload}
+}
+function getLocalRawValue(key){
+  const raw=localStorage.getItem(key);
+  if(raw===null)return null;
+  try{return JSON.parse(raw)}catch(e){return raw}
+}
+async function firestoreWriteKey(key,value,batch=null){
+  if(LOCAL_ONLY_KEYS.has(key))return;
+  const ref=firestoreDataCol().doc(firestoreDocIdForKey(key));
+  const data={key:String(key),payload:JSON.stringify(value),updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
+  if(batch){batch.set(ref,data,{merge:false});return;}
+  await ref.set(data,{merge:false});
+}
+async function firestoreWriteAllData(data){
+  const entries=Object.entries(data||{}).filter(([k])=>!LOCAL_ONLY_KEYS.has(k));
+  // Firestore batch จำกัด 500 operations: แบ่งเป็นชุดละ 400 เผื่อ meta
+  for(let i=0;i<entries.length;i+=400){
+    const batch=firestoreDb.batch();
+    for(const [k,v] of entries.slice(i,i+400))await firestoreWriteKey(k,v,batch);
+    await batch.commit();
+  }
+  await firestoreSystemCol().doc('meta').set({
+    schemaVersion:FIRESTORE_SCHEMA_VERSION,
+    initialized:true,
+    migratedFromGoogleSheets:true,
+    updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+  },{merge:true});
+}
+async function firestoreReadAllData(){
+  const snap=await firestoreDataCol().get();
+  const data={};
+  snap.forEach(doc=>{
+    const d=doc.data()||{};
+    if(!d.key)return;
+    data[d.key]=parseStoredPayload(d.payload);
+  });
+  return data;
+}
+async function firestoreUploadDirty(){
+  if(!firestoreReady||firestoreWriteBusy)return;
+  const dirty=getDirtyKeys();
+  if(!dirty.length)return;
+  firestoreWriteBusy=true;
+  updateCloudStatus('กำลังซิงค์ Firestore...','saving');
+  try{
+    for(let i=0;i<dirty.length;i+=400){
+      const batch=firestoreDb.batch();
+      for(const key of dirty.slice(i,i+400)){
+        const raw=localStorage.getItem(key);
+        const ref=firestoreDataCol().doc(firestoreDocIdForKey(key));
+        if(raw===null)batch.delete(ref);
+        else batch.set(ref,{key:String(key),payload:raw,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:false});
+      }
+      await batch.commit();
+    }
+    clearDirtyKeys();
+    const t1=new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+    updateCloudStatus('✓ Firestore ซิงค์แล้ว '+t1,'ok');
+    scheduleSheetBackup();
+  }catch(e){
+    updateCloudStatus('❌ Firestore ซิงค์ไม่สำเร็จ — '+(e?.message||e),'err');
+    console.error('Firestore upload error:',e);
+  }finally{firestoreWriteBusy=false;}
+}
+async function firestoreUploadAll(){
+  if(!firestoreReady){updateCloudStatus('Firestore ยังไม่พร้อม','err');return;}
+  updateCloudStatus('กำลังซิงค์ข้อมูลทั้งหมดไป Firestore...','saving');
+  try{
+    await firestoreWriteAllData(getAllAppData());
+    clearDirtyKeys();
+    const t1=new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+    updateCloudStatus('✓ ซิงค์ Firestore ทั้งหมดแล้ว '+t1,'ok');
+    scheduleSheetBackup();
+  }catch(e){updateCloudStatus('❌ ซิงค์ Firestore ไม่สำเร็จ — '+(e?.message||e),'err');console.error(e);}
+}
+async function firestoreDownload(ask=false){
+  updateCloudStatus('กำลังดึงข้อมูลจาก Firestore...','saving');
+  try{
+    const data=await firestoreReadAllData();
+    if(!Object.keys(data).length){updateCloudStatus('Firestore ยังไม่มีข้อมูล','err');return false;}
+    if(ask&&!confirm('ดึงข้อมูลล่าสุดจาก Firestore? ข้อมูลในเครื่องนี้จะถูกแทนที่ด้วยฐานข้อมูลกลาง')){updateCloudStatus('ยกเลิก','');return false;}
+    restoreAllAppData(data);
+    renderAllCurrentData();
+    const t1=new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+    updateCloudStatus('✓ ดึง Firestore แล้ว '+t1,'ok');
+    return true;
+  }catch(e){updateCloudStatus('❌ ดึง Firestore ไม่สำเร็จ — '+(e?.message||e),'err');console.error(e);return false;}
+}
+function startFirestoreRealtime(){
+  if(firestoreUnsubscribe)try{firestoreUnsubscribe()}catch(e){}
+  let firstSnapshot=true;
+  firestoreUnsubscribe=firestoreDataCol().onSnapshot(snap=>{
+    if(firstSnapshot){firstSnapshot=false;return;}
+    let changed=false;
+    snap.docChanges().forEach(ch=>{
+      // write จากเครื่องนี้จะสะท้อนกลับมาใน listener ด้วย ไม่ต้องประมวลผลซ้ำ
+      if(ch.doc.metadata&&ch.doc.metadata.hasPendingWrites)return;
+      const d=ch.doc.data()||{};
+      const key=d.key;
+      if(!key||LOCAL_ONLY_KEYS.has(key))return;
+      if(ch.type==='removed')localStorage.removeItem(key);
+      else if(typeof d.payload==='string')localStorage.setItem(key,d.payload);
+      changed=true;
+    });
+    if(changed){
+      clearDirtyKeys();
+      renderAllCurrentData();
+      const t1=new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+      updateCloudStatus('⚡ รับข้อมูลใหม่แบบเรียลไทม์ '+t1,'ok');
+    }
+  },err=>{console.warn('Firestore realtime listener:',err);updateCloudStatus('❌ Realtime ถูกตัด — '+(err?.message||err),'err');});
+}
+async function firestoreAutoLoadOnStart(){
+  // ทุกครั้งก่อนใช้งาน: ต้องอ่าน Firestore ก่อนเสมอ
+  setStartupGate('loading','กำลังดึงข้อมูลล่าสุดจาก Firebase Firestore…');
+  updateCloudStatus('กำลังเชื่อมต่อ Firestore...','saving');
+  try{
+    if(!initFirestore())throw new Error('เชื่อมต่อ Firestore ไม่สำเร็จ');
+    const fsData=await firestoreReadAllData();
+    if(Object.keys(fsData).length){
+      // Firestore มีข้อมูลแล้ว: ใช้เป็น source of truth
+      restoreAllAppData(fsData);
+      updateCloudStatus('✓ โหลดข้อมูลจาก Firestore แล้ว','ok');
+    }else{
+      // ย้ายครั้งแรก: ดึง snapshot เดิมจาก Google Sheets แล้ว copy เข้า Firestore
+      setStartupGate('loading','Firestore ยังว่าง กำลังย้ายข้อมูลเดิมจาก Google Sheets…');
+      updateCloudStatus('กำลังย้าย Google Sheets → Firestore...','saving');
+      const sheetData=await fetchCloudSnapshot(20000);
+      const seed=sheetData&&Object.keys(sheetData).length?sheetData:getAllAppData();
+      if(!Object.keys(seed).length)throw new Error('ไม่พบข้อมูลตั้งต้นสำหรับย้ายเข้า Firestore');
+      restoreAllAppData(seed);
+      await firestoreWriteAllData(seed);
+      updateCloudStatus('✓ ย้าย Google Sheets → Firestore สำเร็จ','ok');
+    }
+    firestoreReady=true;
+    clearDirtyKeys();
+    setStartupGate('ready','');
+    return true;
+  }catch(e){
+    firestoreReady=false;
+    updateCloudStatus('❌ '+(e?.message||e),'err');
+    setStartupGate('error','ไม่สามารถดึงข้อมูลจาก Firestore ได้ จึงยังไม่เปิดใช้งานเพื่อป้องกันข้อมูลไม่ตรงกัน');
+    console.error('Firestore startup error:',e);
     return false;
   }
 }
@@ -1719,7 +1902,7 @@ function cloudUpload(full){
 
     form.submit();
 
-    clearDirtyKeys(); // ส่งไปแล้ว เคลียร์รายการที่รอซิงค์
+    // Google Sheets เป็นสำรองเท่านั้น; dirty keys จะเคลียร์เมื่อ Firestore บันทึกสำเร็จ
     const t1=new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
     updateCloudStatus('✓ บันทึกขึ้นคลาวด์อัตโนมัติแล้ว '+t1,'ok');
     lss('cloud_last_sync',Date.now());
@@ -1871,7 +2054,7 @@ async function cloudAutoLoadOnStart(){
 async function retryStartupSync(){
   const authed=await ensureFirebaseAuthBeforeStart();
   if(!authed)return;
-  const ok=await cloudAutoLoadOnStart();
+  const ok=await firestoreAutoLoadOnStart();
   if(ok)initializeAppAfterCloud();
 }
 function renderAllCurrentData(){
@@ -1909,9 +2092,7 @@ function initializeAppAfterCloud(){
   initYearSelectors();
   applyPageVisibility();
   renderDashboard();
-  setInterval(refreshFromCloudIfSafe,CLOUD_POLL_MS);
-  window.addEventListener('focus',refreshFromCloudIfSafe);
-  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')refreshFromCloudIfSafe();});
+  startFirestoreRealtime();
 }
 
 // ══ INIT — ไม่มีระบบ login เปิดแอปตรงเลย ══
@@ -1931,7 +2112,7 @@ document.addEventListener('DOMContentLoaded',async function(){
   setInterval(updateRealtimeClock,1000);
   const authed=await ensureFirebaseAuthBeforeStart();
   if(!authed)return;
-  const ok=await cloudAutoLoadOnStart();
+  const ok=await firestoreAutoLoadOnStart();
   if(ok)initializeAppAfterCloud();
 });
 
