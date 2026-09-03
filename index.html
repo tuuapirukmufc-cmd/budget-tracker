@@ -540,6 +540,8 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 #startup-retry{position:relative;z-index:2;margin:18px auto 0!important;border:1px solid rgba(255,255,255,.28)!important;border-radius:10px!important;padding:9px 18px!important;
   color:#fff!important;background:linear-gradient(135deg,var(--hero-red),#a60d14)!important;box-shadow:0 8px 26px rgba(237,29,36,.28)!important;font-weight:800!important}
 #startup-retry:hover{transform:translateY(-1px);filter:brightness(1.08)}
+#firebase-login-btn{position:relative;z-index:2;border:1px solid rgba(255,255,255,.28)!important;border-radius:12px!important;padding:11px 18px!important;color:#0b1220!important;background:#fff!important;box-shadow:0 10px 30px rgba(0,0,0,.28)!important;font-weight:900!important}
+#firebase-login-btn:hover{transform:translateY(-1px);filter:brightness(.97)}
 #startup-gate.sync-error .hero-sync-shell{background:linear-gradient(135deg,#ff3340,#6f1118,#ff8a00)}
 #startup-gate.sync-error .hero-ring,#startup-gate.sync-error .hero-ring2{border-color:rgba(255,78,78,.65)}
 #startup-gate.sync-error .hero-core{filter:drop-shadow(0 0 18px rgba(255,50,64,.5))}
@@ -557,6 +559,9 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 @media(prefers-reduced-motion:reduce){#startup-gate *,#startup-gate::before{animation:none!important}}
 
 </style>
+
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 </head>
 <body>
 <div id="startup-gate" class="sync-loading">
@@ -573,6 +578,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
       <div class="hero-progress"><span></span></div>
       <div class="hero-sync-meta"><span class="secure">● SECURE</span><span>•</span><span>กำลังประสานข้อมูลทุกอุปกรณ์</span></div>
       <button id="startup-retry" class="btn btn-pri" onclick="retryStartupSync()" style="display:none">↻ เชื่อมต่อใหม่</button>
+      <button id="firebase-login-btn" class="btn btn-pri" onclick="firebaseGoogleLogin()" style="display:none;margin:18px auto 0">G&nbsp; เข้าสู่ระบบด้วย Google</button>
     </div>
   </div>
 </div>
@@ -1480,6 +1486,96 @@ function scheduleAutoUpload(){
   autoUploadTimer=setTimeout(()=>{autoUploadTimer=null;cloudUpload();},2500);
 }
 
+// ══ FIREBASE AUTH — ล็อกอินก่อนเข้าถึงข้อมูล ══
+const firebaseConfig = {
+  apiKey: "AIzaSyBZcGTwKHmdZcZylC4KiIYnxxxYpqhjy7k",
+  authDomain: "happy-money-2e93a.firebaseapp.com",
+  projectId: "happy-money-2e93a",
+  storageBucket: "happy-money-2e93a.firebasestorage.app",
+  messagingSenderId: "388913159912",
+  appId: "1:388913159912:web:25be1bb54382d01741335d",
+  measurementId: "G-SYWQ28661D"
+};
+let firebaseAuth=null;
+let firebaseUser=null;
+function initFirebaseAuth(){
+  try{
+    if(typeof firebase==='undefined')throw new Error('โหลด Firebase SDK ไม่สำเร็จ');
+    if(!firebase.apps.length)firebase.initializeApp(firebaseConfig);
+    firebaseAuth=firebase.auth();
+    return true;
+  }catch(e){
+    console.error('Firebase init error:',e);
+    return false;
+  }
+}
+function waitForFirebaseUser(){
+  return new Promise((resolve,reject)=>{
+    if(!firebaseAuth){reject(new Error('Firebase Authentication ยังไม่พร้อม'));return;}
+    let done=false;
+    const timer=setTimeout(()=>{if(!done){done=true;reject(new Error('ตรวจสอบสถานะการเข้าสู่ระบบนานเกินไป'));}},12000);
+    const unsub=firebaseAuth.onAuthStateChanged(user=>{
+      if(done)return;
+      done=true;clearTimeout(timer);try{unsub()}catch(e){}
+      firebaseUser=user||null;resolve(firebaseUser);
+    },err=>{if(done)return;done=true;clearTimeout(timer);reject(err);});
+  });
+}
+function showFirebaseLogin(message){
+  const title=document.getElementById('startup-title');
+  const kicker=document.getElementById('startup-kicker');
+  const text=document.getElementById('startup-gate-text');
+  const retry=document.getElementById('startup-retry');
+  const login=document.getElementById('firebase-login-btn');
+  const gate=document.getElementById('startup-gate');
+  if(title)title.textContent='ยืนยันตัวตนก่อนเข้าใช้งาน';
+  if(kicker)kicker.textContent='FIREBASE AUTHENTICATION';
+  if(text)text.textContent=message||'เข้าสู่ระบบด้วยบัญชี Google ของคุณเพื่อเชื่อมต่อ Happy Money';
+  if(retry)retry.style.display='none';
+  if(login)login.style.display='inline-flex';
+  if(gate){gate.classList.remove('sync-error');gate.classList.add('sync-loading');gate.style.display='flex';}
+  const app=document.getElementById('app-screen');if(app)app.style.display='none';
+}
+async function firebaseGoogleLogin(){
+  const btn=document.getElementById('firebase-login-btn');
+  if(btn){btn.disabled=true;btn.textContent='กำลังเข้าสู่ระบบ…';}
+  try{
+    if(!firebaseAuth&&!initFirebaseAuth())throw new Error('เชื่อมต่อ Firebase ไม่สำเร็จ');
+    const provider=new firebase.auth.GoogleAuthProvider();
+    provider.setCustomParameters({prompt:'select_account'});
+    const result=await firebaseAuth.signInWithPopup(provider);
+    firebaseUser=result.user;
+    if(btn)btn.style.display='none';
+    setStartupGate('loading','ยืนยันตัวตนสำเร็จ กำลังโหลดข้อมูลล่าสุดจาก Google Sheets…');
+    const ok=await cloudAutoLoadOnStart();
+    if(ok)initializeAppAfterCloud();
+  }catch(e){
+    console.error('Google sign-in error:',e);
+    let msg=e?.message||String(e);
+    if(location.protocol==='file:')msg='Google Login มักใช้งานไม่ได้เมื่อเปิดไฟล์แบบ file:// กรุณาเปิดเว็บผ่าน HTTPS หรือ localhost แล้วลองใหม่';
+    showFirebaseLogin('เข้าสู่ระบบไม่สำเร็จ — '+msg);
+  }finally{
+    if(btn){btn.disabled=false;btn.textContent='G  เข้าสู่ระบบด้วย Google';}
+  }
+}
+async function ensureFirebaseAuthBeforeStart(){
+  setStartupGate('loading','กำลังตรวจสอบสิทธิ์ Firebase…');
+  const login=document.getElementById('firebase-login-btn');if(login)login.style.display='none';
+  if(!initFirebaseAuth()){
+    setStartupGate('error','โหลด Firebase Authentication ไม่สำเร็จ กรุณาตรวจสอบอินเทอร์เน็ตแล้วลองใหม่');
+    return false;
+  }
+  try{
+    const user=await waitForFirebaseUser();
+    if(!user){showFirebaseLogin();return false;}
+    firebaseUser=user;
+    return true;
+  }catch(e){
+    setStartupGate('error','ตรวจสอบ Firebase Authentication ไม่สำเร็จ — '+(e?.message||e));
+    return false;
+  }
+}
+
 // ══ CLOUD SYNC (Google Sheets ผ่าน Apps Script) ══
 const APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbwWbs0mIhBu065P_fXJ0S6rA8Hp4-op-Fve6FM4Bv5rLnU0tQ6XlEyN1352NVKoOaO2tA/exec';
 const CLOUD_SHEET_URL='https://docs.google.com/spreadsheets/d/1xZCvghyklvjyFEVMi4kPthajxiL29sd4uNtYvky6kAc/edit?gid=1644719234#gid=1644719234';
@@ -1730,12 +1826,14 @@ function setStartupGate(state,msg){
   const gate=document.getElementById('startup-gate');
   const text=document.getElementById('startup-gate-text');
   const retry=document.getElementById('startup-retry');
+  const login=document.getElementById('firebase-login-btn');
   const title=document.getElementById('startup-title');
   const kicker=document.getElementById('startup-kicker');
   if(text)text.textContent=msg||'';
   if(title)title.textContent=state==='error'?'การเชื่อมต่อถูกขัดจังหวะ':'กำลังเชื่อมต่อฐานข้อมูล';
   if(kicker)kicker.textContent=state==='error'?'LINK INTERRUPTED':'SECURE DATA LINK';
   if(retry)retry.style.display=state==='error'?'inline-flex':'none';
+  if(login)login.style.display='none';
   if(gate){
     gate.classList.toggle('sync-error',state==='error');
     gate.classList.toggle('sync-loading',state!=='error'&&state!=='ready');
@@ -1771,6 +1869,8 @@ async function cloudAutoLoadOnStart(){
   }
 }
 async function retryStartupSync(){
+  const authed=await ensureFirebaseAuthBeforeStart();
+  if(!authed)return;
   const ok=await cloudAutoLoadOnStart();
   if(ok)initializeAppAfterCloud();
 }
@@ -1829,6 +1929,8 @@ function updateRealtimeClock(){
 document.addEventListener('DOMContentLoaded',async function(){
   updateRealtimeClock();
   setInterval(updateRealtimeClock,1000);
+  const authed=await ensureFirebaseAuthBeforeStart();
+  if(!authed)return;
   const ok=await cloudAutoLoadOnStart();
   if(ok)initializeAppAfterCloud();
 });
