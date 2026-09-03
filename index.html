@@ -602,7 +602,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 </div>
 
 <div class="main-content">
-<!-- Cloud Sync Bar — Firebase Firestore is source of truth; Google Sheets is backup -->
+<!-- Cloud Sync Bar — Firebase Firestore only -->
 <div id="cloud-bar" style="background:var(--surface2);border-bottom:1px solid var(--g200);padding:5px 16px;display:flex;align-items:center;gap:10px;font-size:12px;justify-content:space-between">
   <span id="realtime-clock" style="color:var(--gold);font-weight:600;letter-spacing:.02em;white-space:nowrap"></span>
   <span style="color:var(--g300);font-size:10px;white-space:nowrap" title="เทียบเลขนี้ระหว่างเครื่อง ถ้าไม่ตรงกันแปลว่าเครื่องนั้นยังไม่โหลดโค้ดล่าสุด">Firestore • realtime</span>
@@ -610,7 +610,6 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   <span id="cloud-status" class="cloud-status"></span>
   <button class="btn btn-sm" id="cloud-upload-btn" onclick="firestoreUploadAll()" style="background:var(--gl);color:var(--gd);border:1px solid var(--green);font-size:11px;padding:3px 10px;border-radius:6px">☁ ซิงค์ Firestore ตอนนี้</button>
   <button class="btn btn-sm" id="cloud-download-btn" onclick="firestoreDownload(true)" style="background:var(--bl);color:var(--bd);border:1px solid var(--blue);font-size:11px;padding:3px 10px;border-radius:6px">⬇ ดึง Firestore ล่าสุด</button>
-  <button class="btn btn-sm" id="sheet-backup-btn" onclick="cloudUpload(true)" style="background:var(--surface);color:var(--g500);border:1px solid var(--g300);font-size:11px;padding:3px 10px;border-radius:6px" title="สำรอง snapshot ปัจจุบันไป Google Sheets">📊 สำรอง Google Sheet</button>
   <button class="btn btn-sm" id="cloud-cleanup-btn" onclick="runCloudCleanup()" style="background:var(--al);color:var(--amber);border:1px solid var(--amber);font-size:11px;padding:3px 10px;border-radius:6px" title="ล้างรูปภาพแนบในรายการเดือนเก่า เพื่อลดขนาดข้อมูลก่อนบันทึกขึ้นคลาวด์">🧹 ล้างข้อมูลเก่า</button>
   </div>
 </div>
@@ -1482,16 +1481,10 @@ function addDirtyKey(k){
 }
 function clearDirtyKeys(){try{localStorage.setItem('_dirty_keys','[]')}catch(e){}}
 let autoUploadTimer=null;
-let sheetBackupTimer=null;
 function scheduleAutoUpload(){
   // Firestore เป็นฐานหลัก: รวมการแก้ไขติดกันก่อนเขียน เพื่อไม่ยิง write รัวเกินไป
   if(autoUploadTimer)clearTimeout(autoUploadTimer);
   autoUploadTimer=setTimeout(()=>{autoUploadTimer=null;firestoreUploadDirty();},900);
-}
-function scheduleSheetBackup(){
-  // Google Sheets เก็บเป็นสำรอง โดยหน่วงให้นานกว่า Firestore
-  if(sheetBackupTimer)clearTimeout(sheetBackupTimer);
-  sheetBackupTimer=setTimeout(()=>{sheetBackupTimer=null;cloudUpload(true);},12000);
 }
 
 // ══ FIREBASE AUTH — ล็อกอินก่อนเข้าถึงข้อมูล ══
@@ -1636,7 +1629,7 @@ async function firestoreWriteAllData(data){
   await firestoreSystemCol().doc('meta').set({
     schemaVersion:FIRESTORE_SCHEMA_VERSION,
     initialized:true,
-    migratedFromGoogleSheets:true,
+    source:'firestore',
     updatedAt:firebase.firestore.FieldValue.serverTimestamp()
   },{merge:true});
 }
@@ -1670,7 +1663,6 @@ async function firestoreUploadDirty(){
     clearDirtyKeys();
     const t1=new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
     updateCloudStatus('✓ Firestore ซิงค์แล้ว '+t1,'ok');
-    scheduleSheetBackup();
   }catch(e){
     updateCloudStatus('❌ Firestore ซิงค์ไม่สำเร็จ — '+(e?.message||e),'err');
     console.error('Firestore upload error:',e);
@@ -1684,7 +1676,6 @@ async function firestoreUploadAll(){
     clearDirtyKeys();
     const t1=new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
     updateCloudStatus('✓ ซิงค์ Firestore ทั้งหมดแล้ว '+t1,'ok');
-    scheduleSheetBackup();
   }catch(e){updateCloudStatus('❌ ซิงค์ Firestore ไม่สำเร็จ — '+(e?.message||e),'err');console.error(e);}
 }
 async function firestoreDownload(ask=false){
@@ -1731,21 +1722,12 @@ async function firestoreAutoLoadOnStart(){
   try{
     if(!initFirestore())throw new Error('เชื่อมต่อ Firestore ไม่สำเร็จ');
     const fsData=await firestoreReadAllData();
-    if(Object.keys(fsData).length){
-      // Firestore มีข้อมูลแล้ว: ใช้เป็น source of truth
-      restoreAllAppData(fsData);
-      updateCloudStatus('✓ โหลดข้อมูลจาก Firestore แล้ว','ok');
-    }else{
-      // ย้ายครั้งแรก: ดึง snapshot เดิมจาก Google Sheets แล้ว copy เข้า Firestore
-      setStartupGate('loading','Firestore ยังว่าง กำลังย้ายข้อมูลเดิมจาก Google Sheets…');
-      updateCloudStatus('กำลังย้าย Google Sheets → Firestore...','saving');
-      const sheetData=await fetchCloudSnapshot(20000);
-      const seed=sheetData&&Object.keys(sheetData).length?sheetData:getAllAppData();
-      if(!Object.keys(seed).length)throw new Error('ไม่พบข้อมูลตั้งต้นสำหรับย้ายเข้า Firestore');
-      restoreAllAppData(seed);
-      await firestoreWriteAllData(seed);
-      updateCloudStatus('✓ ย้าย Google Sheets → Firestore สำเร็จ','ok');
+    if(!Object.keys(fsData).length){
+      throw new Error('Firestore ยังไม่มีข้อมูล จึงหยุดการเปิดเว็บเพื่อป้องกันการใช้ข้อมูลเก่าจากเครื่องนี้');
     }
+    // Firestore เป็นฐานข้อมูลหลักเพียงแหล่งเดียว
+    restoreAllAppData(fsData);
+    updateCloudStatus('✓ โหลดข้อมูลจาก Firestore แล้ว','ok');
     firestoreReady=true;
     clearDirtyKeys();
     setStartupGate('ready','');
@@ -1759,11 +1741,7 @@ async function firestoreAutoLoadOnStart(){
   }
 }
 
-// ══ CLOUD SYNC (Google Sheets ผ่าน Apps Script) ══
-const APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbwWbs0mIhBu065P_fXJ0S6rA8Hp4-op-Fve6FM4Bv5rLnU0tQ6XlEyN1352NVKoOaO2tA/exec';
-const CLOUD_SHEET_URL='https://docs.google.com/spreadsheets/d/1xZCvghyklvjyFEVMi4kPthajxiL29sd4uNtYvky6kAc/edit?gid=1644719234#gid=1644719234';
-const CLOUD_POLL_MS=30000;
-
+// ══ FIRESTORE SYNC HELPERS ══
 const LOCAL_ONLY_KEYS=new Set(['_dirty_keys','cloud_last_sync']);
 function getAllAppData(){
   const data={};
@@ -1775,7 +1753,7 @@ function getAllAppData(){
   return data;
 }
 function restoreAllAppData(data){
-  // Google Sheets คือฐานข้อมูลหลัก: ล้างข้อมูลแอปในเครื่องก่อน แล้วค่อยใส่ snapshot จากคลาวด์
+  // Firestore คือฐานข้อมูลหลัก: ล้าง snapshot แอปในเครื่องก่อน แล้วใส่ชุดล่าสุดจาก Firestore
   // เพื่อไม่ให้ key เก่าที่ถูกลบจากอุปกรณ์อื่นตกค้างในเครื่องนี้
   const keep={};
   LOCAL_ONLY_KEYS.forEach(k=>{const v=localStorage.getItem(k);if(v!==null)keep[k]=v;});
@@ -1788,28 +1766,14 @@ function restoreAllAppData(data){
   Object.keys(keep).forEach(k=>localStorage.setItem(k,keep[k]));
   clearDirtyKeys();
 }
-function isCloudConfigured(){return /^https:\/\/script\.google\.com\/macros\/s\/.+\/exec/.test(APPS_SCRIPT_URL)}
 let cloudStatusTimer=null;
 function updateCloudStatus(msg,cls){
   const el=document.getElementById('cloud-status');
   if(el){el.textContent=msg;el.className='cloud-status '+(cls||'');}
   if(cloudStatusTimer){clearTimeout(cloudStatusTimer);cloudStatusTimer=null;}
-  // ข้อความ error ไม่ควรค้างอยู่ตลอดไป ไม่งั้นจะดูเหมือนเกี่ยวกับสิ่งที่ทำถัดไปทั้งที่จริงเป็นแค่ผลค้างจากครั้งก่อน
-  if(cls==='err'){
-    cloudStatusTimer=setTimeout(()=>{if(el)el.textContent='';},10000);
-  }
+  if(cls==='err')cloudStatusTimer=setTimeout(()=>{if(el)el.textContent='';},10000);
 }
-function findOversizedKey(allData){
-  // Google Sheets จำกัดความยาวข้อความต่อเซลล์ที่ 50,000 ตัวอักษร เช็คว่ามี key ไหนใกล้เกินไหม
-  let found=null,max=0;
-  Object.keys(allData).forEach(k=>{
-    let len=0;
-    try{len=JSON.stringify(allData[k]).length;}catch(e){}
-    if(len>45000&&len>max){max=len;found=k;}
-  });
-  return found?{key:found,len:max}:null;
-}
-// นับจำนวนรูปภาพ (base64) ที่ฝังอยู่ในรายการรายรับ-รายจ่ายทุกเดือน ว่ากินพื้นที่เท่าไหร่
+// รูปภาพ base64 ทำให้ Firestore document โตเร็ว จึงมีเครื่องมือล้างรูปเก่าหากจำเป็น
 function scanEmbeddedImages(){
   let count=0,bytes=0;
   for(let i=0;i<localStorage.length;i++){
@@ -1817,15 +1781,11 @@ function scanEmbeddedImages(){
     if(!key||!key.startsWith('ov_'))continue;
     const o=ls(key,{});
     ['income_add','expense_add'].forEach(k=>{
-      (o[k]||[]).forEach(item=>{
-        if(item.image){count++;bytes+=item.image.length;}
-      });
+      (o[k]||[]).forEach(item=>{if(item.image){count++;bytes+=item.image.length;}});
     });
   }
   return{count,bytes};
 }
-// ล้างรูปภาพที่แนบไว้ในรายการของเดือนเก่า (ไม่ใช่เดือนปัจจุบัน) เพื่อลดขนาดข้อมูลก่อนซิงค์ขึ้นคลาวด์
-// เก็บยอดเงิน/ชื่อรายการไว้ครบ ตัดออกเฉพาะตัวรูปภาพที่หนักที่สุด
 function cleanupOldImages(){
   const curKey=uKey(`ov_${cy}_${cm}`);
   let removed=0,freedBytes=0;
@@ -1845,165 +1805,12 @@ function cleanupOldImages(){
 }
 function runCloudCleanup(){
   const scan=scanEmbeddedImages();
-  if(scan.count===0){alert('ไม่พบรูปภาพแนบในรายการเดือนเก่าที่ต้องล้าง (ข้อมูลรวมอาจใหญ่จากสาเหตุอื่น)');return;}
+  if(scan.count===0){alert('ไม่พบรูปภาพแนบในรายการเดือนเก่าที่ต้องล้าง');return;}
   const mb=(scan.bytes/1024/1024).toFixed(2);
-  if(!confirm(`พบรูปภาพแนบในรายการเดือนเก่า ${scan.count} รูป (~${mb} MB)\n\nกด "ตกลง" เพื่อล้างรูปเหล่านี้ทิ้ง — ยอดเงิน/ชื่อรายการจะยังอยู่ครบ ตัดออกเฉพาะรูปที่แนบไว้เท่านั้น (เดือนปัจจุบันจะไม่ถูกแตะ)`))return;
+  if(!confirm(`พบรูปภาพแนบในรายการเดือนเก่า ${scan.count} รูป (~${mb} MB)\n\nกด "ตกลง" เพื่อล้างรูปเหล่านี้ทิ้ง — ยอดเงิน/ชื่อรายการจะยังอยู่ครบ และเดือนปัจจุบันจะไม่ถูกแตะ`))return;
   const result=cleanupOldImages();
   const freedMB=(result.freedBytes/1024/1024).toFixed(2);
-  alert(`ล้างแล้ว ${result.removed} รูป ลดขนาดข้อมูลลง ~${freedMB} MB\n\nลองกด "บันทึกขึ้นคลาวด์" อีกครั้งได้เลย`);
-}
-function cloudUpload(full){
-  try{
-    // full=true (กดปุ่มเอง) → ส่งข้อมูลทั้งหมด ใช้บังคับซิงค์ใหม่ทั้งชุด
-    // full=false (auto-sync ตอนแก้ไข) → ส่งเฉพาะ key ที่เพิ่งแก้ กันไปทับเมนูอื่นที่เครื่องนี้ไม่ได้แตะ
-    const dirty=getDirtyKeys();
-    if(!full&&!dirty.length)return; // ไม่มีอะไรเปลี่ยน ไม่ต้องอัปโหลด
-    updateCloudStatus('กำลังบันทึก...','saving');
-
-    let payload;
-    if(full){
-      payload=getAllAppData();
-    }else{
-      payload={};
-      dirty.forEach(k=>{
-        const raw=localStorage.getItem(k);
-        if(raw!==null){try{payload[k]=JSON.parse(raw)}catch(e){payload[k]=raw}}
-      });
-      payload._data_meta=ls('_data_meta',{updatedAt:Date.now()});
-    }
-    const body=JSON.stringify({action:'setAll',replace:!!full,data:payload});
-    const sizeMB=(body.length/1024/1024).toFixed(1);
-
-    if(body.length>8*1024*1024){
-      updateCloudStatus(`❌ ข้อมูลรวมใหญ่เกินไป (${sizeMB} MB) — ลองลบ/ลดขนาดรูปภาพที่แนบไว้ก่อนบันทึกขึ้นคลาวด์`,'err');
-      return;
-    }
-
-    const frameName='cloudUploadFrame_'+Date.now();
-
-    const iframe=document.createElement('iframe');
-    iframe.name=frameName;
-    iframe.style.display='none';
-    document.body.appendChild(iframe);
-
-    const form=document.createElement('form');
-    form.method='POST';
-    form.action=APPS_SCRIPT_URL;
-    form.target=frameName;
-    form.style.display='none';
-
-    const input=document.createElement('input');
-    input.type='hidden';
-    input.name='payload';
-    input.value=body;
-
-    form.appendChild(input);
-    document.body.appendChild(form);
-
-    form.submit();
-
-    // Google Sheets เป็นสำรองเท่านั้น; dirty keys จะเคลียร์เมื่อ Firestore บันทึกสำเร็จ
-    const t1=new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
-    updateCloudStatus('✓ บันทึกขึ้นคลาวด์อัตโนมัติแล้ว '+t1,'ok');
-    lss('cloud_last_sync',Date.now());
-
-    setTimeout(function(){
-      try{form.remove();iframe.remove();}catch(e){}
-    },10000);
-
-  }catch(e){
-    updateCloudStatus('❌ สำรองขึ้นคลาวด์ไม่สำเร็จ (ข้อมูลในเครื่องยังปลอดภัย) — '+(e?.message||e),'err');
-    console.error('Cloud upload error:',e);
-  }
-}
-
-
-function cloudDownload(){
-  updateCloudStatus('กำลังโหลด...','saving');
-
-  const callbackName='cloudCallback_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);
-  const script=document.createElement('script');
-  let finished=false;
-
-  function cleanup(){
-    if(finished)return;
-    finished=true;
-    try{delete window[callbackName];}catch(e){}
-    try{script.remove();}catch(e){}
-  }
-
-  window[callbackName]=function(json){
-    try{
-      if(!json||!json.success){
-        updateCloudStatus('❌ โหลดไม่สำเร็จ'+(json?.error?' — '+json.error:''),'err');
-        return;
-      }
-
-      const allData=json.data;
-      if(!allData||!Object.keys(allData).length){
-        updateCloudStatus('ยังไม่มีข้อมูลในคลาวด์','err');
-        return;
-      }
-
-      if(confirm('โหลดข้อมูลจากคลาวด์? (จะแทนที่ข้อมูลปัจจุบันในเครื่องนี้)')){
-        restoreAllAppData(allData);
-        const t1=new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
-        updateCloudStatus('✓ โหลดแล้ว '+t1,'ok');
-        applyPageVisibility();
-        renderDashboard();renderBudget();renderDebt();renderInvest();renderSub();renderTodo();
-      }else{
-        updateCloudStatus('ยกเลิก','');
-      }
-    }catch(e){
-      updateCloudStatus('❌ ประมวลผลข้อมูลไม่ได้ — '+(e?.message||e),'err');
-      console.error('Cloud download error:',e);
-    }finally{
-      cleanup();
-    }
-  };
-
-  script.id=callbackName;
-  script.src=APPS_SCRIPT_URL+'?action=getAll&callback='+encodeURIComponent(callbackName)+'&_t='+Date.now();
-
-  script.onerror=function(){
-    updateCloudStatus('❌ ติดต่อคลาวด์ไม่ได้','err');
-    cleanup();
-  };
-
-  document.body.appendChild(script);
-
-  setTimeout(function(){
-    if(!finished){
-      updateCloudStatus('❌ คลาวด์ตอบสนองช้าเกินไป','err');
-      cleanup();
-    }
-  },15000);
-}
-function fetchCloudSnapshot(timeoutMs=15000){
-  return new Promise((resolve,reject)=>{
-    if(!isCloudConfigured()){
-      reject(new Error('ยังไม่ได้ตั้งค่า Apps Script Web App URL'));
-      return;
-    }
-    const callbackName='cloudFetch_'+Date.now()+'_'+Math.random().toString(36).slice(2,8);
-    const script=document.createElement('script');
-    let done=false;
-    const finish=(err,value)=>{
-      if(done)return;done=true;
-      try{delete window[callbackName]}catch(e){}
-      try{script.remove()}catch(e){}
-      clearTimeout(timer);
-      err?reject(err):resolve(value);
-    };
-    window[callbackName]=json=>{
-      if(!json||!json.success){finish(new Error(json?.error||'โหลดฐานข้อมูลไม่สำเร็จ'));return;}
-      finish(null,json.data||{});
-    };
-    script.src=APPS_SCRIPT_URL+'?action=getAll&callback='+encodeURIComponent(callbackName)+'&_t='+Date.now();
-    script.onerror=()=>finish(new Error('ติดต่อฐานข้อมูลไม่ได้'));
-    document.body.appendChild(script);
-    const timer=setTimeout(()=>finish(new Error('ฐานข้อมูลตอบสนองช้าเกินไป')),timeoutMs);
-  });
+  alert(`ล้างแล้ว ${result.removed} รูป ลดขนาดข้อมูลลง ~${freedMB} MB`);
 }
 function setStartupGate(state,msg){
   const gate=document.getElementById('startup-gate');
@@ -2025,32 +1832,6 @@ function setStartupGate(state,msg){
   const app=document.getElementById('app-screen');
   if(app)app.style.display=state==='ready'?'block':'none';
 }
-async function cloudAutoLoadOnStart(){
-  // ข้อกำหนด: ทุกครั้งก่อนใช้งาน ต้องอ่าน Google Sheets ก่อนเสมอ
-  setStartupGate('loading','กำลังดึงข้อมูลล่าสุดจาก Google Sheets…');
-  updateCloudStatus('กำลังโหลดข้อมูลกลาง...','saving');
-  try{
-    const cloudData=await fetchCloudSnapshot(15000);
-    if(cloudData&&Object.keys(cloudData).length){
-      restoreAllAppData(cloudData);
-    }else{
-      // ฐานข้อมูลยังว่าง: ใช้ข้อมูลในเครื่องนี้เป็นชุดตั้งต้น และอัปโหลดขึ้นคลาวด์ทันที
-      const localData=getAllAppData();
-      if(Object.keys(localData).length){
-        localStorage.setItem('_data_meta',JSON.stringify({updatedAt:Date.now()}));
-        cloudUpload(true);
-      }
-    }
-    const t1=new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
-    updateCloudStatus('✓ โหลดข้อมูลกลางแล้ว '+t1,'ok');
-    setStartupGate('ready','');
-    return true;
-  }catch(e){
-    updateCloudStatus('❌ '+(e?.message||e),'err');
-    setStartupGate('error','ไม่สามารถดึงข้อมูลจากฐานข้อมูลได้ จึงยังไม่เปิดให้ใช้งานเพื่อป้องกันข้อมูลชนกัน');
-    return false;
-  }
-}
 async function retryStartupSync(){
   const authed=await ensureFirebaseAuthBeforeStart();
   if(!authed)return;
@@ -2066,24 +1847,6 @@ function renderAllCurrentData(){
   else if(curPage==='subscription')renderSub();
   else if(curPage==='logins')renderLogins();
   else if(curPage==='todo')renderTodo();
-}
-let cloudRefreshBusy=false;
-async function refreshFromCloudIfSafe(){
-  if(cloudRefreshBusy||getDirtyKeys().length)return;
-  cloudRefreshBusy=true;
-  try{
-    const cloudData=await fetchCloudSnapshot(12000);
-    const cloudTime=cloudData?._data_meta?.updatedAt||0;
-    const localTime=ls('_data_meta',null)?.updatedAt||0;
-    if(cloudTime>localTime){
-      restoreAllAppData(cloudData);
-      renderAllCurrentData();
-      const t1=new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
-      updateCloudStatus('✓ รับข้อมูลใหม่จากอุปกรณ์อื่น '+t1,'ok');
-    }
-  }catch(e){
-    console.warn('Background cloud refresh failed:',e);
-  }finally{cloudRefreshBusy=false;}
 }
 let appInitialized=false;
 function initializeAppAfterCloud(){
@@ -2350,7 +2113,7 @@ function selectPayMethod(v){
   bPayMethod=v;
   document.querySelectorAll('#bm-pay-group .pay-toggle-btn').forEach(b=>b.classList.toggle('active',b.dataset.val===v));
 }
-// Google Sheets จำกัดความยาวข้อความต่อเซลล์ไว้ที่ 50,000 ตัวอักษร — บีบอัดรูปให้เหลือพื้นที่เผื่อไว้
+// บีบอัดรูปก่อนเก็บ เพื่อไม่ให้ Firestore document มีขนาดใหญ่เกินจำเป็น
 const IMG_TARGET_CHARS=38000;
 function renderImgDataURL(img,maxDim,quality){
   let w=img.width,h=img.height;
@@ -2373,7 +2136,7 @@ function handleBmImage(event){
       let dim=800,quality=0.72;
       let dataUrl=renderImgDataURL(img,dim,quality);
       let tries=0;
-      // ลดคุณภาพก่อน แล้วค่อยลดขนาดภาพ จนกว่าจะเล็กพอสำหรับซิงค์ขึ้น Google Sheets
+      // ลดคุณภาพก่อน แล้วค่อยลดขนาดภาพ เพื่อให้ซิงค์ขึ้น Firestore ได้รวดเร็วและประหยัดพื้นที่
       while(dataUrl.length>IMG_TARGET_CHARS&&tries<10){
         if(quality>0.35){quality=Math.round((quality-0.12)*100)/100;}
         else{dim=Math.round(dim*0.8);quality=0.5;}
