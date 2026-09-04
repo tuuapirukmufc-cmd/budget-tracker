@@ -2090,11 +2090,19 @@ function defTmpls(){return{income:[
   {id:20,name:'line bk / true money / card x / aeon / finix',amount:5000,tag:'ประจำ',dueDay:1,note:''},
   {id:21,name:'ทำฟัน (พลอย)',amount:1500,tag:'ประจำ',dueDay:1,note:''}
 ]}}
+function periodNo(y,m){return y*12+m}
+function prevPeriod(y,m){return m>0?{y,m:m-1}:{y:y-1,m:11}}
+function recurringActiveIn(item,y,m){
+  const p=periodNo(y,m);
+  const sp=(Number.isInteger(item.startYear)&&Number.isInteger(item.startMonth))?periodNo(item.startYear,item.startMonth):periodNo(MIN_PY,MIN_PM);
+  const ep=(Number.isInteger(item.endYear)&&Number.isInteger(item.endMonth))?periodNo(item.endYear,item.endMonth):Infinity;
+  return p>=sp&&p<=ep;
+}
 function getMI(y,m){
   const t=getTmpls(),o=getOv(y,m);
   function merge(base,type){
     const dels=o[type+'_del']||[],adds=o[type+'_add']||[],edits=o[type+'_edit']||{},amts=o[type+'_amt']||{};
-    return[...base.filter(i=>!dels.includes(i.id)).map(i=>{
+    return[...base.filter(i=>recurringActiveIn(i,y,m)&&!dels.includes(i.id)).map(i=>{
       let out=edits[i.id]?{...i,...edits[i.id]}:i;
       if(out.lockAmount)return out; // ล็อคยอด — ใช้ค่าจากต้นแบบเดิมทุกเดือน ไม่ต้องกรอกใหม่
       const a=amts[i.id];
@@ -2240,29 +2248,35 @@ function saveBudget(){
   const lockAmount=recurring&&document.getElementById('bm-lock-amt').checked;
   if(amount<0)return;
   const t=getTmpls(),isTmpl=bEId&&t[bEType].some(i=>i.id===bEId);
-  // โครงสร้างรายการ (ชื่อ/รายการย่อย/กำหนดวัน ฯลฯ) ซ้ำทุกเดือนเสมอ
+  // รายการประจำมีช่วงเวลาที่มีผล: เริ่มตั้งแต่เดือนที่สร้าง และถ้าหยุด จะไม่ย้อนลบประวัติเดือนเก่า
   // ถ้าไม่ล็อคยอด — ยอดในต้นแบบตั้งเป็น 0 (ต้องกรอกใหม่ทุกเดือน) / ถ้าล็อคยอด — เก็บยอดจริงไว้ในต้นแบบ ใช้ซ้ำทุกเดือน
-  const structTmpl=id=>({id,name,amount:lockAmount?amount:0,subItems:subItems?subItems.map(s=>({name:s.name,amount:lockAmount?s.amount:0})):null,dueDay,tag,expType,note,payMethod,image,lockAmount});
+  const structTmpl=(id,oldItem)=>({
+    id,name,amount:lockAmount?amount:0,
+    subItems:subItems?subItems.map(s=>({name:s.name,amount:lockAmount?s.amount:0})):null,
+    dueDay,tag,expType,note,payMethod,image,lockAmount,
+    startYear:Number.isInteger(oldItem?.startYear)?oldItem.startYear:cy,
+    startMonth:Number.isInteger(oldItem?.startMonth)?oldItem.startMonth:cm,
+    ...(Number.isInteger(oldItem?.endYear)&&Number.isInteger(oldItem?.endMonth)?{endYear:oldItem.endYear,endMonth:oldItem.endMonth}:{})
+  });
   function saveMonthlyAmt(id){
     const o=getOv(cy,cm);const k=bEType+'_amt';o[k]=o[k]||{};o[k][id]={amount,subItems};saveOv(cy,cm,o);
   }
   if(bEId){
     if(isTmpl&&recurring){
       // รายการประจำ — โครงสร้างอัปเดตที่ต้นแบบ มีผลทุกเดือน / ยอดเงินขึ้นกับว่าล็อคหรือไม่
-      const nt={...t,[bEType]:t[bEType].map(i=>i.id===bEId?structTmpl(bEId):i)};saveTmpls(nt);
+      const oldTmpl=t[bEType].find(i=>i.id===bEId);
+      const nt={...t,[bEType]:t[bEType].map(i=>i.id===bEId?structTmpl(bEId,oldTmpl):i)};saveTmpls(nt);
       clearItemOverrides(bEType,bEId);
       if(lockAmount)clearItemAmtOverrides(bEType,bEId);else saveMonthlyAmt(bEId);
     }else if(isTmpl&&!recurring){
-      // เลิกเป็นรายการประจำ — เก็บประวัติเดือนเก่าที่เคยกรอกยอดไว้ทั้งหมดก่อน แล้วค่อยเอาออกจากเทมเพลต / เดือนนี้บันทึกยอดที่กรอกใหม่แยกไว้
-      preserveHistoricalMonths(bEType,bEId,t[bEType].find(i=>i.id===bEId),uKey(`ov_${cy}_${cm}`));
-      const nt={...t,[bEType]:t[bEType].filter(i=>i.id!==bEId)};saveTmpls(nt);
-      clearItemOverrides(bEType,bEId);
-      clearItemAmtOverrides(bEType,bEId);
+      // เลิกเป็นรายการประจำตั้งแต่เดือนนี้ — ปิดช่วงรายการประจำไว้ที่เดือนก่อนหน้า แต่เก็บประวัติทั้งหมดไว้
+      const pp=prevPeriod(cy,cm);
+      const nt={...t,[bEType]:t[bEType].map(i=>i.id===bEId?{...i,endYear:pp.y,endMonth:pp.m}:i)};saveTmpls(nt);
       const o=getOv(cy,cm);const k=bEType+'_add';o[k]=[...(o[k]||[]),{id:Date.now(),name,amount,subItems,dueDay,tag,expType,note,payMethod,image}];saveOv(cy,cm,o);
     }else if(!isTmpl&&recurring){
       // แปลงรายการเฉพาะเดือนนี้ ให้กลายเป็นรายการประจำทุกเดือน (คงรหัสเดิมไว้)
       const o=getOv(cy,cm);const k=bEType+'_add';o[k]=(o[k]||[]).filter(i=>i.id!==bEId);saveOv(cy,cm,o);
-      const nt={...t,[bEType]:[...t[bEType],structTmpl(bEId)]};saveTmpls(nt);
+      const nt={...t,[bEType]:[...t[bEType],structTmpl(bEId,null)]};saveTmpls(nt);
       if(!lockAmount)saveMonthlyAmt(bEId);
     }else{
       const o=getOv(cy,cm);const k=bEType+'_add';o[k]=(o[k]||[]).map(i=>i.id===bEId?{...i,name,amount,subItems,dueDay,tag,expType,note,payMethod,image}:i);saveOv(cy,cm,o);
@@ -2270,7 +2284,7 @@ function saveBudget(){
     addHist('budget','แก้ไข',`${bEType==='income'?'รายรับ':'รายจ่าย'}: ${name} = ${fmt(amount)}`);
   }else if(recurring){
     const newId=Date.now();
-    const nt={...t,[bEType]:[...t[bEType],structTmpl(newId)]};saveTmpls(nt);
+    const nt={...t,[bEType]:[...t[bEType],structTmpl(newId,null)]};saveTmpls(nt);
     if(!lockAmount)saveMonthlyAmt(newId);
     addHist('budget','เพิ่ม',`${bEType==='income'?'รายรับ':'รายจ่าย'} (ประจำทุกเดือน${lockAmount?' — ล็อคยอด':' — ยอดกรอกทีละเดือน'}): ${name} = ${fmt(amount)}`);
   }else{
@@ -2307,12 +2321,10 @@ function delBudget(){
   const tmplItem=t[bEType].find(i=>i.id===bEId);
   const item=getMI(cy,cm)[bEType].find(i=>i.id===bEId);
   if(isTmpl){
-    const all=confirm('รายการนี้เป็นรายการประจำทุกเดือน\n\nตกลง = หยุดทำซ้ำจากนี้ไป (เดือนก่อนหน้าที่เคยกรอกยอดไว้แล้วจะยังคงอยู่ครบ ไม่ถูกลบ)\nยกเลิก = ข้ามเฉพาะเดือนนี้เดือนเดียว (เดือนอื่นไม่กระทบ)');
+    const all=confirm('รายการนี้เป็นรายการประจำทุกเดือน\n\nตกลง = หยุดทำซ้ำตั้งแต่เดือนนี้เป็นต้นไป (ประวัติเดือนก่อนหน้าจะคงอยู่ครบ)\nยกเลิก = ข้ามเฉพาะเดือนนี้เดือนเดียว (เดือนถัดไปยังทำซ้ำตามปกติ)');
     if(all){
-      preserveHistoricalMonths(bEType,bEId,tmplItem);
-      const nt={...t,[bEType]:t[bEType].filter(i=>i.id!==bEId)};saveTmpls(nt);
-      clearItemOverrides(bEType,bEId);
-      clearItemAmtOverrides(bEType,bEId);
+      const pp=prevPeriod(cy,cm);
+      const nt={...t,[bEType]:t[bEType].map(i=>i.id===bEId?{...i,endYear:pp.y,endMonth:pp.m}:i)};saveTmpls(nt);
     }else{
       const o=getOv(cy,cm);const k=bEType+'_del';o[k]=[...(o[k]||[]),bEId];saveOv(cy,cm,o);
     }
