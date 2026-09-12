@@ -955,8 +955,8 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
     </div>
   </div>
   <div class="cards c4">
-    <div class="card"><div class="lbl">ค่าบริการ/ปี</div><div class="val vb" id="sub-yr">฿0</div></div>
-    <div class="card"><div class="lbl">ค่าบริการ/เดือน</div><div class="val vb" id="sub-mo">฿0</div></div>
+    <div class="card"><div class="lbl">รวมค่าใช้จ่าย/เดือน</div><div class="val vb" id="sub-mo">฿0</div><div class="sub" id="sub-mo-note">เฉพาะรายการที่เปิดใช้งาน</div></div>
+    <div class="card"><div class="lbl">รวมค่าใช้จ่าย/ปี</div><div class="val vb" id="sub-yr">฿0</div><div class="sub" id="sub-yr-note">เฉพาะรายการที่เปิดใช้งาน</div></div>
     <div class="card"><div class="lbl">กำลังใช้งาน</div><div class="val vg" id="sub-act">0</div></div>
     <div class="card"><div class="lbl">ใกล้หมดอายุ (15 วัน)</div><div class="val vc" id="sub-exp">0</div></div>
   </div>
@@ -3538,9 +3538,19 @@ function delSub(){
 function renderSub(){
   const subs=getSubs(),today=new Date();
   const active=subs.filter(s=>s.status==='active');
-  const tYr=subs.reduce((s,i)=>s+i.price,0);
+  // สรุปสมาชิก: นับเฉพาะรายการที่กำลังใช้งาน
+  // ราคา/ปี นำมาเฉลี่ยเป็นรายเดือน และราคา/เดือนนำไปคูณ 12 สำหรับยอดรายปี
+  const annualPlans=active.reduce((sum,i)=>sum+(parseFloat(i.price)||0),0);
+  const monthlyPlans=active.reduce((sum,i)=>sum+(parseFloat(i.priceMonthly)||0),0);
+  const tMo=annualPlans/12+monthlyPlans;
+  const tYr=annualPlans+(monthlyPlans*12);
   const exp=active.filter(s=>{if(!s.end)return false;const d=new Date(s.end);return(d-today)/86400000<=15&&d>=today}).length;
+  document.getElementById('sub-mo').textContent=fmt(tMo);
   document.getElementById('sub-yr').textContent=fmt(tYr);
+  const moNote=document.getElementById('sub-mo-note');
+  if(moNote)moNote.textContent=`รายปีเฉลี่ย/เดือน ${fmt(annualPlans/12)} + รายเดือน ${fmt(monthlyPlans)}`;
+  const yrNote=document.getElementById('sub-yr-note');
+  if(yrNote)yrNote.textContent=`รายปี ${fmt(annualPlans)} + รายเดือน × 12 ${fmt(monthlyPlans*12)}`;
   document.getElementById('sub-act').textContent=active.length+' รายการ';
   document.getElementById('sub-exp').textContent=exp+' รายการ';
   document.getElementById('sub-tot').textContent=fmt(tYr);
