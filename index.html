@@ -1458,32 +1458,38 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 .rider-calendar{border:1px solid var(--g200);border-radius:12px;overflow:hidden;background:var(--surface)}
 .rider-weekdays,.rider-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
 .rider-weekdays{background:var(--surface2);border-bottom:1px solid var(--g200)}
-.rider-weekdays>div{text-align:center;padding:8px 3px;font-size:11px;font-weight:700;color:var(--g400)}
-.rider-day{min-height:142px;padding:7px;border-right:1px solid var(--g100);border-bottom:1px solid var(--g100);background:var(--surface);position:relative}
+.rider-weekdays>div{text-align:center;padding:12px 5px;font-size:13px;font-weight:800;color:var(--g600)}
+.rider-day{min-height:205px;padding:10px;border-right:1px solid var(--g100);border-bottom:1px solid var(--g100);background:var(--surface);position:relative}
 .rider-day:nth-child(7n){border-right:none}
 .rider-day.blank{background:var(--surface2)}
 .rider-day.today{box-shadow:inset 0 0 0 2px var(--blue)}
-.rider-day-num{font-size:12px;font-weight:800;color:var(--g900);margin-bottom:6px;display:flex;justify-content:space-between;align-items:center}
+.rider-day-num{font-size:15px;font-weight:900;color:var(--g900);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
 .rider-today-badge{font-size:9px;font-weight:700;color:var(--bd);background:var(--bl);padding:1px 5px;border-radius:999px}
 .rider-status-btns{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:6px}
-.rider-status-btn{border:1px solid var(--g200);border-radius:6px;background:var(--input-bg);padding:5px 2px;font:600 10px var(--font);color:var(--g600);cursor:pointer}
+.rider-status-btn{border:1px solid var(--g200);border-radius:7px;background:var(--input-bg);padding:7px 3px;font:700 11px var(--font);color:var(--g600);cursor:pointer}
 .rider-status-btn.work.active{background:var(--gl);border-color:var(--green);color:var(--gd)}
 .rider-status-btn.off.active{background:var(--rl);border-color:var(--red);color:var(--red)}
 .rider-money{display:grid;gap:4px}
-.rider-money label{font-size:9px;color:var(--g400);font-weight:600}
-.rider-money input{width:100%;min-width:0;padding:5px 6px;border:1px solid var(--g200);border-radius:6px;background:var(--input-bg);color:var(--g900);font:600 11px var(--font)}
+.rider-money label{font-size:11px;color:var(--g500);font-weight:700}
+.rider-money input{width:100%;min-width:0;padding:7px 7px;border:1px solid var(--g200);border-radius:7px;background:var(--input-bg);color:var(--g900);font:700 12px var(--font)}
 .rider-money input:focus{outline:none;border-color:var(--blue)}
 .rider-expenses{display:grid;gap:4px;margin-top:2px}
 .rider-exp-row{display:grid;grid-template-columns:minmax(0,1fr) 70px 24px;gap:3px;align-items:center}
-.rider-exp-row input{padding:4px 5px;font-size:10px}
+.rider-exp-row input{padding:6px 6px;font-size:11px}
 .rider-exp-del{border:1px solid var(--g200);background:var(--surface2);color:var(--red);border-radius:5px;height:27px;cursor:pointer;font-weight:800}
-.rider-exp-add{border:1px dashed var(--g300);background:var(--surface2);color:var(--g600);border-radius:6px;padding:4px;font:700 9px var(--font);cursor:pointer}
-.rider-exp-total{font-size:9px;font-weight:700;color:var(--red);text-align:right}
+.rider-exp-add{border:1px dashed var(--g300);background:var(--surface2);color:var(--g600);border-radius:6px;padding:6px;font:700 10px var(--font);cursor:pointer}
+.rider-exp-total{font-size:10px;font-weight:800;color:var(--red);text-align:right}
 
-.rider-day-off-note{text-align:center;color:var(--g400);font-size:10px;padding-top:12px}
+.rider-day-off-note{text-align:center;color:var(--g400);font-size:11px;padding-top:16px}
+.rider-day.past{background:var(--surface2);opacity:.82}
+.rider-day.past .rider-day-num{color:var(--g500)}
+.rider-day.past input,.rider-day.past button{cursor:not-allowed}
+.rider-day.past input{background:var(--g100);color:var(--g500)}
+.rider-locked-badge{font-size:9px;font-weight:800;color:var(--g500);background:var(--g200);padding:2px 6px;border-radius:999px}
+.rider-locked-note{text-align:center;color:var(--g500);font-size:10px;font-weight:700;padding-top:8px}
 @media(max-width:900px){
   #page-sideincome .cards.c5{grid-template-columns:repeat(2,1fr)}
-  .rider-day{min-height:126px;padding:5px}
+  .rider-day{min-height:180px;padding:7px}
   .rider-status-btns{grid-template-columns:1fr}
 }
 @media(max-width:640px){
@@ -1492,8 +1498,8 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   .rider-filter{width:100%;justify-content:center}
   .rider-head .mnav{width:100%;justify-content:center}
   .rider-calendar{overflow-x:auto}
-  .rider-weekdays,.rider-grid{min-width:720px}
-  .rider-day{min-height:138px}
+  .rider-weekdays,.rider-grid{min-width:980px}
+  .rider-day{min-height:190px}
   #page-sideincome .cards.c5{grid-template-columns:repeat(2,1fr)}
   #page-sideincome .cards.c5 .card:last-child{grid-column:1/-1}
 }
@@ -3544,6 +3550,13 @@ let riderY=now.getFullYear(),riderM=now.getMonth();
 function getRiderDays(){return ls(uKey('rider_days_v1'),{})}
 function saveRiderDays(d){lss(uKey('rider_days_v1'),d)}
 function riderDateKey(y,m,d){return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`}
+function riderIsPastKey(key){
+  const m=String(key||'').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if(!m)return false;
+  const d=new Date(Number(m[1]),Number(m[2])-1,Number(m[3]));
+  const t=new Date();t.setHours(0,0,0,0);d.setHours(0,0,0,0);
+  return d<t;
+}
 function riderEsc(v){return String(v??'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')}
 function riderExpenseItems(it){
   if(Array.isArray(it?.expenses))return it.expenses;
@@ -3572,6 +3585,7 @@ function changeRiderMonth(step){
 }
 function goRiderToday(){const d=new Date();riderY=d.getFullYear();riderM=d.getMonth();renderRider()}
 function setRiderStatus(key,status){
+  if(riderIsPastKey(key))return;
   const all=getRiderDays();
   const cur=all[key]||{};
   if(cur.status===status){
@@ -3583,6 +3597,7 @@ function setRiderStatus(key,status){
   saveRiderDays(all);renderRider();
 }
 function setRiderMoney(key,field,value){
+  if(riderIsPastKey(key))return;
   const all=getRiderDays();
   const cur=all[key]||{status:'work'};
   cur.status='work';
@@ -3600,11 +3615,13 @@ function ensureRiderExpenses(cur){
   return cur.expenses;
 }
 function addRiderExpense(key){
+  if(riderIsPastKey(key))return;
   const all=getRiderDays(),cur=all[key]||{status:'work'};
   cur.status='work';const ex=ensureRiderExpenses(cur);ex.push({name:'',amount:0});all[key]=cur;
   saveRiderDays(all);renderRider();
 }
 function setRiderExpenseItem(key,idx,field,value){
+  if(riderIsPastKey(key))return;
   const all=getRiderDays(),cur=all[key]||{status:'work'};
   cur.status='work';const ex=ensureRiderExpenses(cur);
   while(ex.length<=idx)ex.push({name:'',amount:0});
@@ -3613,6 +3630,7 @@ function setRiderExpenseItem(key,idx,field,value){
   const t=document.getElementById(`rider-exp-total-${key}`);if(t)t.textContent=`รวม ${fmt(riderExpenseTotal(cur))}`;
 }
 function removeRiderExpense(key,idx){
+  if(riderIsPastKey(key))return;
   const all=getRiderDays(),cur=all[key];if(!cur)return;
   const ex=ensureRiderExpenses(cur);ex.splice(idx,1);all[key]=cur;saveRiderDays(all);renderRider();
 }
@@ -3652,23 +3670,26 @@ function renderRider(){
   for(let d=1;d<=days;d++){
     const key=riderDateKey(riderY,riderM,d),it=all[key]||{};
     const isToday=today.getFullYear()===riderY&&today.getMonth()===riderM&&today.getDate()===d;
+    const isPast=riderIsPastKey(key);
+    const lockAttr=isPast?' disabled':'';
     const work=it.status==='work',off=it.status==='off',expenses=riderExpenseItems(it);
     const expHtml=expenses.map((e,i)=>`<div class="rider-exp-row">
-      <input type="text" value="${riderEsc(e.name||'')}" placeholder="เช่น ค่าน้ำมัน" onchange="setRiderExpenseItem('${key}',${i},'name',this.value)">
-      <input type="number" min="0" step="0.01" value="${riderEsc(e.amount||'')}" placeholder="฿0" onchange="setRiderExpenseItem('${key}',${i},'amount',this.value)">
-      <button class="rider-exp-del" onclick="removeRiderExpense('${key}',${i})" title="ลบรายจ่าย">×</button>
+      <input type="text" value="${riderEsc(e.name||'')}" placeholder="เช่น ค่าน้ำมัน" onchange="setRiderExpenseItem('${key}',${i},'name',this.value)"${lockAttr}>
+      <input type="number" min="0" step="0.01" value="${riderEsc(e.amount||'')}" placeholder="฿0" onchange="setRiderExpenseItem('${key}',${i},'amount',this.value)"${lockAttr}>
+      <button class="rider-exp-del" onclick="removeRiderExpense('${key}',${i})" title="ลบรายจ่าย"${lockAttr}>×</button>
     </div>`).join('');
-    html+=`<div class="rider-day${isToday?' today':''}">
-      <div class="rider-day-num"><span>${d}</span>${isToday?'<span class="rider-today-badge">วันนี้</span>':''}</div>
+    html+=`<div class="rider-day${isToday?' today':''}${isPast?' past':''}">
+      <div class="rider-day-num"><span>${d}</span>${isToday?'<span class="rider-today-badge">วันนี้</span>':isPast?'<span class="rider-locked-badge">ล็อกแล้ว</span>':''}</div>
       <div class="rider-status-btns">
-        <button class="rider-status-btn work${work?' active':''}" onclick="setRiderStatus('${key}','work')">✓ ทำงาน</button>
-        <button class="rider-status-btn off${off?' active':''}" onclick="setRiderStatus('${key}','off')">หยุดงาน</button>
+        <button class="rider-status-btn work${work?' active':''}" onclick="setRiderStatus('${key}','work')"${lockAttr}>✓ ทำงาน</button>
+        <button class="rider-status-btn off${off?' active':''}" onclick="setRiderStatus('${key}','off')"${lockAttr}>หยุดงาน</button>
       </div>
       ${work?`<div class="rider-money">
-        <label>รายรับ (฿)</label><input type="number" min="0" step="0.01" value="${riderEsc(it.income||'')}" placeholder="0" onchange="setRiderMoney('${key}','income',this.value)">
+        <label>รายรับ (฿)</label><input type="number" min="0" step="0.01" value="${riderEsc(it.income||'')}" placeholder="0" onchange="setRiderMoney('${key}','income',this.value)"${lockAttr}>
         <label>รายละเอียดรายจ่าย</label>
-        <div class="rider-expenses">${expHtml}<button class="rider-exp-add" onclick="addRiderExpense('${key}')">+ เพิ่มรายจ่าย</button><div class="rider-exp-total" id="rider-exp-total-${key}">รวม ${fmt(riderExpenseTotal(it))}</div></div>
-      </div>`:off?'<div class="rider-day-off-note">พักวันนี้</div>':'<div class="rider-day-off-note">ยังไม่ระบุ</div>'}
+        <div class="rider-expenses">${expHtml}${isPast?'':`<button class="rider-exp-add" onclick="addRiderExpense('${key}')">+ เพิ่มรายจ่าย</button>`}<div class="rider-exp-total" id="rider-exp-total-${key}">รวม ${fmt(riderExpenseTotal(it))}</div></div>
+        ${isPast?'<div class="rider-locked-note">🔒 วันที่ผ่านแล้ว แก้ไขไม่ได้</div>':''}
+      </div>`:off?`<div class="rider-day-off-note">พักวันนี้${isPast?'<br><span class="rider-locked-note">🔒 ล็อกแล้ว</span>':''}</div>`:`<div class="rider-day-off-note">${isPast?'🔒 วันที่ผ่านแล้ว':'ยังไม่ระบุ'}</div>`}
     </div>`;
   }
   const total=firstDay+days,trail=(7-total%7)%7;
