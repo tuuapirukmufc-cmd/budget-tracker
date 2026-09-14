@@ -991,11 +991,17 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
         <div class="rider-title">🛵 Rider App</div>
         <div class="sub">เลือกวันทำงาน/หยุดงาน และบันทึกรายรับ-รายจ่ายในแต่ละวัน</div>
       </div>
-      <div class="mnav">
-        <button onclick="changeRiderMonth(-1)">‹</button>
-        <span class="mnav-label" id="rider-month-label">—</span>
-        <button onclick="changeRiderMonth(1)">›</button>
-        <button onclick="goRiderToday()" title="กลับเดือนปัจจุบัน">วันนี้</button>
+      <div class="rider-period-tools">
+        <div class="rider-filter">
+          <select id="rider-year-sel" onchange="onRiderPeriodChange()" aria-label="เลือกปี"></select>
+          <select id="rider-month-sel" onchange="onRiderPeriodChange()" aria-label="เลือกเดือน"></select>
+        </div>
+        <div class="mnav">
+          <button onclick="changeRiderMonth(-1)">‹</button>
+          <span class="mnav-label" id="rider-month-label">—</span>
+          <button onclick="changeRiderMonth(1)">›</button>
+          <button onclick="goRiderToday()" title="กลับเดือนปัจจุบัน">วันนี้</button>
+        </div>
       </div>
     </div>
 
@@ -1444,6 +1450,9 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 .sideincome-tab.active{background:var(--green);color:#fff;border-color:var(--green)}
 .rider-wrap{padding:.9rem;overflow:visible}
 .rider-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:.75rem;flex-wrap:wrap}
+.rider-period-tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.rider-filter{display:flex;gap:6px;align-items:center}
+.rider-filter select{border:1px solid var(--g200);border-radius:8px;background:var(--input-bg);color:var(--g900);padding:6px 8px;font:600 11px var(--font)}
 .rider-title{font-size:16px;font-weight:800;color:var(--g900)}
 .rider-summary{margin-bottom:.75rem}
 .rider-calendar{border:1px solid var(--g200);border-radius:12px;overflow:hidden;background:var(--surface)}
@@ -1464,6 +1473,13 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 .rider-money label{font-size:9px;color:var(--g400);font-weight:600}
 .rider-money input{width:100%;min-width:0;padding:5px 6px;border:1px solid var(--g200);border-radius:6px;background:var(--input-bg);color:var(--g900);font:600 11px var(--font)}
 .rider-money input:focus{outline:none;border-color:var(--blue)}
+.rider-expenses{display:grid;gap:4px;margin-top:2px}
+.rider-exp-row{display:grid;grid-template-columns:minmax(0,1fr) 70px 24px;gap:3px;align-items:center}
+.rider-exp-row input{padding:4px 5px;font-size:10px}
+.rider-exp-del{border:1px solid var(--g200);background:var(--surface2);color:var(--red);border-radius:5px;height:27px;cursor:pointer;font-weight:800}
+.rider-exp-add{border:1px dashed var(--g300);background:var(--surface2);color:var(--g600);border-radius:6px;padding:4px;font:700 9px var(--font);cursor:pointer}
+.rider-exp-total{font-size:9px;font-weight:700;color:var(--red);text-align:right}
+
 .rider-day-off-note{text-align:center;color:var(--g400);font-size:10px;padding-top:12px}
 @media(max-width:900px){
   #page-sideincome .cards.c5{grid-template-columns:repeat(2,1fr)}
@@ -1472,6 +1488,8 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 }
 @media(max-width:640px){
   .rider-wrap{padding:.55rem}
+  .rider-period-tools{width:100%;justify-content:center}
+  .rider-filter{width:100%;justify-content:center}
   .rider-head .mnav{width:100%;justify-content:center}
   .rider-calendar{overflow-x:auto}
   .rider-weekdays,.rider-grid{min-width:720px}
@@ -3527,6 +3545,26 @@ function getRiderDays(){return ls(uKey('rider_days_v1'),{})}
 function saveRiderDays(d){lss(uKey('rider_days_v1'),d)}
 function riderDateKey(y,m,d){return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`}
 function riderEsc(v){return String(v??'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')}
+function riderExpenseItems(it){
+  if(Array.isArray(it?.expenses))return it.expenses;
+  const legacy=parseFloat(it?.expense)||0;
+  return legacy>0?[{name:'รายจ่ายเดิม',amount:legacy}]:[];
+}
+function riderExpenseTotal(it){return riderExpenseItems(it).reduce((s,e)=>s+(parseFloat(e.amount)||0),0)}
+function syncRiderPeriodSelectors(){
+  const ys=document.getElementById('rider-year-sel'),ms=document.getElementById('rider-month-sel');
+  if(!ys||!ms)return;
+  const minY=Math.min(MIN_PY,riderY),maxY=Math.max(MAX_PY,new Date().getFullYear()+10,riderY);
+  ys.innerHTML='';
+  for(let y=minY;y<=maxY;y++)ys.innerHTML+=`<option value="${y}">${y+543}</option>`;
+  ms.innerHTML=MN.map((m,i)=>`<option value="${i}">${m}</option>`).join('');
+  ys.value=String(riderY);ms.value=String(riderM);
+}
+function onRiderPeriodChange(){
+  const ys=document.getElementById('rider-year-sel'),ms=document.getElementById('rider-month-sel');
+  if(!ys||!ms)return;
+  riderY=parseInt(ys.value);riderM=parseInt(ms.value);renderRider();
+}
 function changeRiderMonth(step){
   riderM+=step;
   if(riderM<0){riderM=11;riderY--}else if(riderM>11){riderM=0;riderY++}
@@ -3540,7 +3578,7 @@ function setRiderStatus(key,status){
     delete all[key];
   }else{
     all[key]={...cur,status};
-    if(status==='off'){all[key].income=0;all[key].expense=0}
+    if(status==='off'){all[key].income=0;all[key].expense=0;all[key].expenses=[]}
   }
   saveRiderDays(all);renderRider();
 }
@@ -3552,6 +3590,31 @@ function setRiderMoney(key,field,value){
   all[key]=cur;
   saveRiderDays(all);
   renderRiderSummary();
+}
+function ensureRiderExpenses(cur){
+  if(!Array.isArray(cur.expenses)){
+    const legacy=parseFloat(cur.expense)||0;
+    cur.expenses=legacy>0?[{name:'รายจ่ายเดิม',amount:legacy}]:[];
+  }
+  delete cur.expense;
+  return cur.expenses;
+}
+function addRiderExpense(key){
+  const all=getRiderDays(),cur=all[key]||{status:'work'};
+  cur.status='work';const ex=ensureRiderExpenses(cur);ex.push({name:'',amount:0});all[key]=cur;
+  saveRiderDays(all);renderRider();
+}
+function setRiderExpenseItem(key,idx,field,value){
+  const all=getRiderDays(),cur=all[key]||{status:'work'};
+  cur.status='work';const ex=ensureRiderExpenses(cur);
+  while(ex.length<=idx)ex.push({name:'',amount:0});
+  ex[idx][field]=field==='amount'?Math.max(0,parseFloat(value)||0):String(value||'');
+  all[key]=cur;saveRiderDays(all);renderRiderSummary();
+  const t=document.getElementById(`rider-exp-total-${key}`);if(t)t.textContent=`รวม ${fmt(riderExpenseTotal(cur))}`;
+}
+function removeRiderExpense(key,idx){
+  const all=getRiderDays(),cur=all[key];if(!cur)return;
+  const ex=ensureRiderExpenses(cur);ex.splice(idx,1);all[key]=cur;saveRiderDays(all);renderRider();
 }
 function getRiderMonthRows(){
   const all=getRiderDays(),rows=[];
@@ -3567,7 +3630,7 @@ function renderRiderSummary(){
   const work=rows.filter(r=>r.status==='work').length;
   const off=rows.filter(r=>r.status==='off').length;
   const income=rows.reduce((s,r)=>s+(r.status==='work'?(parseFloat(r.income)||0):0),0);
-  const expense=rows.reduce((s,r)=>s+(r.status==='work'?(parseFloat(r.expense)||0):0),0);
+  const expense=rows.reduce((s,r)=>s+(r.status==='work'?riderExpenseTotal(r):0),0);
   const net=income-expense;
   const put=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};
   put('rider-work-days',work+' วัน');put('rider-off-days',off+' วัน');
@@ -3578,6 +3641,7 @@ function renderRider(){
   const label=document.getElementById('rider-month-label');
   const grid=document.getElementById('rider-calendar-grid');
   if(!label||!grid)return;
+  syncRiderPeriodSelectors();
   label.textContent=`${MN[riderM]} ${riderY+543}`;
   const all=getRiderDays();
   const firstDay=new Date(riderY,riderM,1).getDay();
@@ -3588,7 +3652,12 @@ function renderRider(){
   for(let d=1;d<=days;d++){
     const key=riderDateKey(riderY,riderM,d),it=all[key]||{};
     const isToday=today.getFullYear()===riderY&&today.getMonth()===riderM&&today.getDate()===d;
-    const work=it.status==='work',off=it.status==='off';
+    const work=it.status==='work',off=it.status==='off',expenses=riderExpenseItems(it);
+    const expHtml=expenses.map((e,i)=>`<div class="rider-exp-row">
+      <input type="text" value="${riderEsc(e.name||'')}" placeholder="เช่น ค่าน้ำมัน" onchange="setRiderExpenseItem('${key}',${i},'name',this.value)">
+      <input type="number" min="0" step="0.01" value="${riderEsc(e.amount||'')}" placeholder="฿0" onchange="setRiderExpenseItem('${key}',${i},'amount',this.value)">
+      <button class="rider-exp-del" onclick="removeRiderExpense('${key}',${i})" title="ลบรายจ่าย">×</button>
+    </div>`).join('');
     html+=`<div class="rider-day${isToday?' today':''}">
       <div class="rider-day-num"><span>${d}</span>${isToday?'<span class="rider-today-badge">วันนี้</span>':''}</div>
       <div class="rider-status-btns">
@@ -3597,7 +3666,8 @@ function renderRider(){
       </div>
       ${work?`<div class="rider-money">
         <label>รายรับ (฿)</label><input type="number" min="0" step="0.01" value="${riderEsc(it.income||'')}" placeholder="0" onchange="setRiderMoney('${key}','income',this.value)">
-        <label>รายจ่าย (฿)</label><input type="number" min="0" step="0.01" value="${riderEsc(it.expense||'')}" placeholder="0" onchange="setRiderMoney('${key}','expense',this.value)">
+        <label>รายละเอียดรายจ่าย</label>
+        <div class="rider-expenses">${expHtml}<button class="rider-exp-add" onclick="addRiderExpense('${key}')">+ เพิ่มรายจ่าย</button><div class="rider-exp-total" id="rider-exp-total-${key}">รวม ${fmt(riderExpenseTotal(it))}</div></div>
       </div>`:off?'<div class="rider-day-off-note">พักวันนี้</div>':'<div class="rider-day-off-note">ยังไม่ระบุ</div>'}
     </div>`;
   }
