@@ -1462,6 +1462,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 .sideincome-tabs{display:flex;gap:8px;margin-bottom:.75rem}
 .sideincome-tab{border:1px solid var(--g200);background:var(--surface);color:var(--g900);padding:8px 14px;border-radius:10px;font:600 12px var(--font);box-shadow:var(--shadow)}
 .sideincome-tab.active{background:var(--green);color:#fff;border-color:var(--green)}
+#page-sideincome{max-width:1600px}
 .rider-wrap{padding:.9rem;overflow:visible}
 .rider-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:.75rem;flex-wrap:wrap}
 .rider-period-tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
@@ -1487,7 +1488,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 .rider-goal-lightning span{display:inline-block;min-width:max-content;animation:riderBoltRun 8s linear infinite}
 @keyframes riderBoltRun{from{transform:translateX(0)}to{transform:translateX(-100%)}}
 .rider-calendar{border:1px solid var(--g200);border-radius:12px;overflow-x:auto;overflow-y:hidden;background:var(--surface)}
-.rider-weekdays,.rider-grid{display:grid;grid-template-columns:repeat(7,minmax(155px,1fr));min-width:1085px}
+.rider-weekdays,.rider-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));width:100%;min-width:1120px}
 .rider-weekdays{background:var(--surface2);border-bottom:1px solid var(--g200)}
 .rider-weekdays>div{text-align:center;padding:12px 5px;font-size:13px;font-weight:800;color:var(--g600)}
 .rider-day{min-height:205px;padding:10px;border-right:1px solid var(--g100);border-bottom:1px solid var(--g100);background:var(--surface);position:relative}
