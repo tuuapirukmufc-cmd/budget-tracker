@@ -343,6 +343,94 @@ select.styled:focus{outline:none;border-color:var(--blue)}
 tr.debt-excluded td{opacity:.38}
 tr.debt-excluded .toggle-sw .slider{background:#555}
 
+
+/* ══════════ DASHBOARD — 2026 REDESIGN ══════════ */
+#page-dashboard{max-width:1320px;background:#F5F7FB}
+#page-dashboard .dash-new-head{display:flex;justify-content:space-between;align-items:flex-end;gap:1rem;margin-bottom:1rem}
+#page-dashboard .dash-eyebrow{font-size:10px;font-weight:800;letter-spacing:.16em;color:#16A34A;margin-bottom:4px}
+#page-dashboard .dash-new-head h2{font-size:24px;line-height:1.15;color:#172033;margin:0;font-weight:800}
+#page-dashboard .dash-date{font-size:12px;color:#718096;margin-top:5px}
+#page-dashboard .dash-period{display:flex;gap:7px;align-items:center;background:#fff;border:1px solid #E5E7EB;border-radius:12px;padding:6px;box-shadow:0 5px 18px rgba(15,23,42,.05)}
+#page-dashboard .dash-hero{position:relative;overflow:hidden;display:grid;grid-template-columns:1.15fr .85fr;gap:1.2rem;background:linear-gradient(130deg,#172033 0%,#0F2D25 52%,#166534 100%);border-radius:22px;padding:1.45rem 1.55rem;color:#fff;margin-bottom:1rem;box-shadow:0 18px 45px rgba(15,45,37,.18)}
+#page-dashboard .dash-hero:after{content:"";position:absolute;width:260px;height:260px;border-radius:50%;right:-80px;top:-130px;border:42px solid rgba(255,255,255,.055)}
+#page-dashboard .dash-hero-main{display:flex;flex-direction:column;justify-content:center;min-height:122px;position:relative;z-index:1}
+#page-dashboard .dash-hero-label{font-size:12px;color:rgba(255,255,255,.68);font-weight:600}
+#page-dashboard .dash-hero-value{font-size:40px;font-weight:800;letter-spacing:-1.5px;margin:4px 0 3px;font-variant-numeric:tabular-nums}
+#page-dashboard .dash-hero-foot{font-size:11.5px;color:rgba(255,255,255,.7);display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+#page-dashboard .dash-hero-foot b{color:#86EFAC}
+#page-dashboard .dash-hero-side{display:grid;grid-template-columns:1fr 1fr;gap:8px;position:relative;z-index:1}
+#page-dashboard .dash-mini{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:.75rem .85rem;backdrop-filter:blur(8px)}
+#page-dashboard .dash-mini span{display:block;font-size:10.5px;color:rgba(255,255,255,.62);margin-bottom:3px}
+#page-dashboard .dash-mini strong{display:block;font-size:16px;color:#fff;font-variant-numeric:tabular-nums}
+#page-dashboard .dash-kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem;margin-bottom:.85rem}
+#page-dashboard .dash-kpi-card{background:#fff;border:1px solid #E5E7EB;border-radius:16px;padding:.9rem;display:flex;align-items:center;gap:.75rem;box-shadow:0 5px 18px rgba(15,23,42,.045);min-width:0}
+#page-dashboard .dash-kpi-icon{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;flex:0 0 auto;font-weight:800}
+#page-dashboard .dash-kpi-card.green .dash-kpi-icon{background:#DCFCE7;color:#15803D}#page-dashboard .dash-kpi-card.orange .dash-kpi-icon{background:#FFEDD5;color:#C2410C}#page-dashboard .dash-kpi-card.blue .dash-kpi-icon{background:#DBEAFE;color:#1D4ED8}#page-dashboard .dash-kpi-card.purple .dash-kpi-icon{background:#F3E8FF;color:#7E22CE}
+#page-dashboard .dash-kpi-card>div:last-child{min-width:0}
+#page-dashboard .dash-kpi-card span{display:block;font-size:10.5px;color:#718096;font-weight:600}
+#page-dashboard .dash-kpi-card strong{display:block;font-size:18px;color:#172033;margin:1px 0;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#page-dashboard .dash-kpi-card small{display:block;font-size:10px;color:#94A3B8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#page-dashboard .dash-main-grid{display:grid;grid-template-columns:1.55fr .85fr;gap:.85rem;margin-bottom:.85rem}
+#page-dashboard .dash-panel{background:#fff;border:1px solid #E5E7EB;border-radius:18px;box-shadow:0 5px 18px rgba(15,23,42,.04);overflow:hidden}
+#page-dashboard .dash-panel-head{padding:.85rem 1rem .6rem;display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+#page-dashboard .dash-panel-kicker{display:block;font-size:9.5px;color:#16A34A;font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin-bottom:2px}
+#page-dashboard .dash-panel-head h3{margin:0;font-size:13.5px;color:#172033;font-weight:750}
+#page-dashboard .dash-chip{font-size:10.5px;background:#F1F5F9;color:#475569;padding:5px 9px;border-radius:999px;font-weight:700;white-space:nowrap}
+#page-dashboard .dash-chart-lg{height:250px;padding:.2rem .8rem .8rem}
+#page-dashboard .dash-chart-donut{height:182px;padding:.15rem .7rem .2rem}
+#page-dashboard .dash-cat-list{padding:.15rem 1rem .85rem;display:grid;gap:5px}
+#page-dashboard .dash-cat-row{display:flex;align-items:center;justify-content:space-between;font-size:10.5px;color:#64748B;gap:8px}
+#page-dashboard .dash-cat-name{display:flex;align-items:center;gap:6px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#page-dashboard .dash-cat-dot{width:7px;height:7px;border-radius:50%;flex:0 0 auto}
+#page-dashboard .dash-cat-row b{color:#334155;font-size:10.5px}
+#page-dashboard .dash-snapshot-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.85rem;margin-bottom:.85rem}
+#page-dashboard .dash-snapshot{padding-bottom:.9rem}
+#page-dashboard .dash-link{border:0;background:none;color:#16A34A;font-family:var(--font);font-size:10.5px;font-weight:700;cursor:pointer;padding:3px}
+#page-dashboard .dash-link:hover{text-decoration:underline}
+#page-dashboard .dash-snapshot-value{font-size:25px;font-weight:800;color:#172033;padding:0 1rem;font-variant-numeric:tabular-nums}
+#page-dashboard .dash-snapshot-label{font-size:10.5px;color:#94A3B8;padding:1px 1rem 9px}
+#page-dashboard .dash-progress{height:7px;border-radius:999px;background:#EEF2F7;margin:0 1rem 7px;overflow:hidden}
+#page-dashboard .dash-progress span{display:block;height:100%;width:0;background:linear-gradient(90deg,#F59E0B,#F97316);border-radius:999px;transition:width .35s}
+#page-dashboard .dash-progress.rider span{background:linear-gradient(90deg,#2563EB,#16A34A)}
+#page-dashboard .dash-snapshot-row{display:flex;justify-content:space-between;gap:8px;padding:0 1rem;font-size:10.5px;color:#718096;flex-wrap:wrap}
+#page-dashboard .dash-snapshot-row b{color:#334155}.dash-snapshot-row.two{padding-top:7px;border-top:1px solid #F1F5F9;margin:0 1rem;padding-left:0!important;padding-right:0!important}
+#page-dashboard .dash-year-panel{margin-bottom:.85rem;padding-bottom:.85rem}
+#page-dashboard .dash-year-head{align-items:center}
+#page-dashboard .dash-year-totals{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid #F1F5F9;border-bottom:1px solid #F1F5F9;margin-bottom:.7rem}
+#page-dashboard .dash-year-totals>div{padding:.7rem 1rem;border-right:1px solid #F1F5F9}.dash-year-totals>div:last-child{border-right:0}
+#page-dashboard .dash-year-totals span{display:block;font-size:10px;color:#94A3B8;margin-bottom:2px}
+#page-dashboard .dash-year-totals strong{font-size:15px;color:#172033;font-variant-numeric:tabular-nums}
+#page-dashboard .dash-year-grid{padding:0 .85rem;grid-template-columns:repeat(12,1fr);gap:5px}
+#page-dashboard .dash-year-grid .ym{min-height:66px;border:1px solid #E5E7EB;background:#F8FAFC;border-radius:10px;padding:7px 4px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:.15s}
+#page-dashboard .dash-year-grid .ym:hover{border-color:#86EFAC;background:#F0FDF4;transform:translateY(-1px)}
+#page-dashboard .dash-year-grid .ym.cur{border-color:#16A34A;box-shadow:0 0 0 1px #16A34A inset}.dash-year-grid .ym.selected{background:#DCFCE7;border-color:#16A34A}
+#page-dashboard .dash-year-grid .mn{font-size:9px;color:#64748B;font-weight:700}.dash-year-grid .mv{font-size:10.5px;font-weight:800;margin-top:3px;color:#94A3B8}.dash-year-grid .mv.pos{color:#16A34A}.dash-year-grid .mv.neg{color:#DC2626}
+#page-dashboard #month-detail-panel{padding:0 .85rem}
+#page-dashboard .month-detail{margin-top:.7rem;background:#F8FAFC;border:1px solid #E5E7EB;border-radius:12px;padding:.75rem .9rem}
+#page-dashboard .month-detail h4{margin:0 0 .45rem;font-size:12px}.month-detail .md-row{display:flex;justify-content:space-between;padding:4px 0;font-size:11px}.month-detail .mn-name{color:#64748B}.month-detail .mn-val{font-weight:700}
+#page-dashboard .dash-alert-panel{margin-bottom:0}
+@media(max-width:900px){
+  #page-dashboard .dash-main-grid{grid-template-columns:1fr}
+  #page-dashboard .dash-snapshot-grid{grid-template-columns:1fr 1fr}
+  #page-dashboard .dash-year-grid{grid-template-columns:repeat(6,1fr)}
+}
+@media(max-width:768px){
+  #page-dashboard{padding:.75rem;background:#F5F7FB}
+  #page-dashboard .dash-new-head{align-items:flex-start}.dash-period{width:auto}
+  #page-dashboard .dash-new-head h2{font-size:20px}
+  #page-dashboard .dash-hero{grid-template-columns:1fr;padding:1.1rem;border-radius:18px;gap:.8rem}
+  #page-dashboard .dash-hero-main{min-height:88px}.dash-hero-value{font-size:33px!important}
+  #page-dashboard .dash-kpi-grid{grid-template-columns:1fr 1fr;gap:.55rem}
+  #page-dashboard .dash-kpi-card{padding:.72rem;gap:.55rem}.dash-kpi-icon{width:34px!important;height:34px!important}
+  #page-dashboard .dash-kpi-card strong{font-size:15px}
+  #page-dashboard .dash-snapshot-grid{grid-template-columns:1fr}
+  #page-dashboard .dash-year-totals{grid-template-columns:1fr 1fr}
+  #page-dashboard .dash-year-totals>div:nth-child(2){border-right:0}.dash-year-totals>div:nth-child(-n+2){border-bottom:1px solid #F1F5F9}
+  #page-dashboard .dash-year-grid{grid-template-columns:repeat(4,1fr)}
+  #page-dashboard .dash-chart-lg{height:220px}
+}
+@media(max-width:430px){#page-dashboard .dash-hero-side{grid-template-columns:1fr 1fr}.dash-kpi-grid{grid-template-columns:1fr!important}.dash-year-grid{grid-template-columns:repeat(3,1fr)!important}}
+
 /* ══════════ DEBT PAGE — DARK DASHBOARD THEME ══════════ */
 #page-debt{background:#F5F7FB;border-radius:16px;color:#172033}
 #page-debt .db-header{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1.2rem}
@@ -663,58 +751,105 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   </div>
 </div>
 <div id="page-dashboard" class="page active">
-  <div class="page-head">
-    <div><h2 class="desk-only">★ ภาพรวมการเงิน</h2><div class="sub" id="dash-sub">ข้อมูลรวมทุกส่วน</div></div>
-    <div class="page-head-actions">
-      <div class="mnav">
-        <select class="styled" id="dash-yr-sel" onchange="onDashPeriodChange()"></select>
-        <select class="styled" id="dash-mo-sel" onchange="onDashPeriodChange()"></select>
-      </div>
+  <div class="dash-new-head">
+    <div>
+      <div class="dash-eyebrow">HAPPY MONEY · OVERVIEW</div>
+      <h2>ภาพรวมการเงิน</h2>
+      <div class="dash-date" id="dash-sub">ภาพรวมสถานะการเงินของคุณ</div>
+    </div>
+    <div class="dash-period">
+      <select class="styled" id="dash-yr-sel" onchange="onDashPeriodChange()"></select>
+      <select class="styled" id="dash-mo-sel" onchange="onDashPeriodChange()"></select>
     </div>
   </div>
-  <div class="cards c4" style="margin-bottom:.65rem">
-    <div class="card"><div class="lbl">รายรับเดือนนี้</div><div class="val vg" id="kpi-inc">฿0</div></div>
-    <div class="card"><div class="lbl">รายจ่ายเดือนนี้</div><div class="val vc" id="kpi-exp">฿0</div></div>
-    <div class="card"><div class="lbl">เงินเหลือ</div><div class="val vpos" id="kpi-bal">฿0</div></div>
-    <div class="card"><div class="lbl">หนี้เบิกใช้ไปแล้ว</div><div class="val vc" id="kpi-debt">฿0</div></div>
-  </div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:.85rem;margin-bottom:.85rem">
-    <div class="sec"><div class="sec-head"><span class="sec-title"><span class="dot dg"></span>รายรับ vs รายจ่าย</span></div>
-      <div style="padding:.9rem;height:210px;position:relative"><canvas id="ch-ie"></canvas></div></div>
-    <div class="sec"><div class="sec-head"><span class="sec-title"><span class="dot dc"></span>รายจ่ายแยกหมวด</span></div>
-      <div style="padding:.9rem;height:210px;position:relative"><canvas id="ch-cat"></canvas></div></div>
-  </div>
-  <div class="sec" style="margin-bottom:.85rem">
-    <div class="sec-head"><span class="sec-title"><span class="dot db"></span>หนี้สิน — วงเงิน vs เบิกใช้ไป</span></div>
-    <div style="padding:.9rem;height:230px;position:relative"><canvas id="ch-debt"></canvas></div>
-  </div>
-  <!-- Yearly -->
-  <div class="sec">
-    <div class="sec-head">
-      <span class="sec-title"><span class="dot dp"></span>สรุปรายปี</span>
-      <div class="sec-actions">
-        <span style="font-size:11px;color:var(--g400)">เลือกปี:</span>
-        <select class="styled" id="yr-sel" onchange="dashY=parseInt(this.value);renderYearSummary()"></select>
+
+  <div class="dash-hero">
+    <div class="dash-hero-main">
+      <div class="dash-hero-label">เงินคงเหลือเดือนนี้</div>
+      <div class="dash-hero-value" id="dash-net-main">฿0</div>
+      <div class="dash-hero-foot">
+        <span id="dash-net-status">กำลังคำนวณ...</span>
+        <span class="dash-hero-dot">•</span>
+        <span>อัตราเหลือ <b id="dash-save-rate">0%</b></span>
       </div>
     </div>
-    <div style="padding:.75rem .9rem">
-      <div class="cards c4" style="margin-bottom:.75rem">
-        <div class="card"><div class="lbl">รายรับรวมทั้งปี</div><div class="val vg" id="yr-inc">฿0</div></div>
-        <div class="card"><div class="lbl">รายจ่ายรวมทั้งปี</div><div class="val vc" id="yr-exp">฿0</div></div>
-        <div class="card"><div class="lbl">เงินเหลือสะสม</div><div class="val vpos" id="yr-bal">฿0</div></div>
-        <div class="card"><div class="lbl">เดือนที่มีข้อมูล</div><div class="val vb" id="yr-mo">0 เดือน</div></div>
-      </div>
-      <div class="year-grid" id="year-grid"></div>
-      <div id="month-detail-panel"></div>
+    <div class="dash-hero-side">
+      <div class="dash-mini"><span>รายรับ</span><strong id="kpi-inc">฿0</strong></div>
+      <div class="dash-mini"><span>รายจ่าย</span><strong id="kpi-exp">฿0</strong></div>
+      <div class="dash-mini"><span>จ่ายแล้ว</span><strong id="dash-paid">฿0</strong></div>
+      <div class="dash-mini"><span>ยังไม่จ่าย</span><strong id="dash-unpaid">฿0</strong></div>
     </div>
   </div>
-  <!-- Alerts -->
-  <div class="sec">
-    <div class="sec-head"><span class="sec-title"><span class="dot da"></span>การแจ้งเตือน</span>
-      <button class="btn btn-ghost btn-sm" onclick="renderAlerts()">🔄 รีเฟรช</button>
+
+  <div class="dash-kpi-grid">
+    <div class="dash-kpi-card green"><div class="dash-kpi-icon">↗</div><div><span>รายรับเดือนนี้</span><strong id="dash-kpi-income">฿0</strong><small id="dash-kpi-income-sub">—</small></div></div>
+    <div class="dash-kpi-card orange"><div class="dash-kpi-icon">↘</div><div><span>รายจ่ายเดือนนี้</span><strong id="dash-kpi-expense">฿0</strong><small id="dash-kpi-expense-sub">—</small></div></div>
+    <div class="dash-kpi-card blue"><div class="dash-kpi-icon">🛵</div><div><span>Rider สุทธิ</span><strong id="dash-kpi-rider">฿0</strong><small id="dash-kpi-rider-sub">ยังไม่มีข้อมูล</small></div></div>
+    <div class="dash-kpi-card purple"><div class="dash-kpi-icon">🎫</div><div><span>ค่าสมาชิกรายเดือน</span><strong id="dash-kpi-sub">฿0</strong><small id="dash-kpi-sub-sub">0 รายการที่ใช้งาน</small></div></div>
+  </div>
+
+  <div class="dash-main-grid">
+    <section class="dash-panel dash-wide">
+      <div class="dash-panel-head">
+        <div><span class="dash-panel-kicker">กระแสเงินสด</span><h3>รายรับ · รายจ่าย 6 เดือนล่าสุด</h3></div>
+        <span class="dash-chip" id="dash-cash-chip">คงเหลือ ฿0</span>
+      </div>
+      <div class="dash-chart-lg"><canvas id="ch-cashflow"></canvas></div>
+    </section>
+    <section class="dash-panel">
+      <div class="dash-panel-head">
+        <div><span class="dash-panel-kicker">โครงสร้างรายจ่าย</span><h3>ใช้เงินไปกับอะไร</h3></div>
+      </div>
+      <div class="dash-chart-donut"><canvas id="ch-cat"></canvas></div>
+      <div class="dash-cat-list" id="dash-cat-list"></div>
+    </section>
+  </div>
+
+  <div class="dash-snapshot-grid">
+    <section class="dash-panel dash-snapshot">
+      <div class="dash-panel-head"><div><span class="dash-panel-kicker">หนี้สิน</span><h3>สถานะวงเงิน</h3></div><button class="dash-link" onclick="sw('debt',null)">ดูทั้งหมด →</button></div>
+      <div class="dash-snapshot-value" id="dash-debt-used">฿0</div>
+      <div class="dash-snapshot-label">ยอดเบิกใช้จากหนี้ที่เปิดใช้งาน</div>
+      <div class="dash-progress"><span id="dash-debt-bar"></span></div>
+      <div class="dash-snapshot-row"><span>วงเงินรวม <b id="dash-debt-limit">฿0</b></span><span>เหลือ <b id="dash-debt-left">฿0</b></span></div>
+    </section>
+    <section class="dash-panel dash-snapshot">
+      <div class="dash-panel-head"><div><span class="dash-panel-kicker">รายได้เสริม</span><h3>Rider App</h3></div><button class="dash-link" onclick="sw('sideincome',null)">เปิด Rider →</button></div>
+      <div class="dash-snapshot-value" id="dash-rider-net">฿0</div>
+      <div class="dash-snapshot-label">คงเหลือสุทธิเดือนที่เลือก</div>
+      <div class="dash-progress rider"><span id="dash-rider-bar"></span></div>
+      <div class="dash-snapshot-row"><span>รายรับ <b id="dash-rider-inc">฿0</b></span><span>ทำงาน <b id="dash-rider-days">0 วัน</b></span></div>
+    </section>
+    <section class="dash-panel dash-snapshot">
+      <div class="dash-panel-head"><div><span class="dash-panel-kicker">ภาระประจำ</span><h3>สมาชิกแอพ</h3></div><button class="dash-link" onclick="sw('subscription',null)">ดูรายการ →</button></div>
+      <div class="dash-snapshot-value" id="dash-sub-monthly">฿0</div>
+      <div class="dash-snapshot-label">ค่าใช้จ่ายเฉลี่ยต่อเดือน</div>
+      <div class="dash-snapshot-row two"><span>ต่อปี <b id="dash-sub-yearly">฿0</b></span><span>ใช้งาน <b id="dash-sub-active">0 รายการ</b></span></div>
+    </section>
+  </div>
+
+  <section class="dash-panel dash-year-panel">
+    <div class="dash-panel-head dash-year-head">
+      <div><span class="dash-panel-kicker">ภาพรวมทั้งปี</span><h3>สรุป 12 เดือน</h3></div>
+      <select class="styled" id="yr-sel" onchange="dashY=parseInt(this.value);selMonth=null;renderYearSummary()"></select>
+    </div>
+    <div class="dash-year-totals">
+      <div><span>รายรับทั้งปี</span><strong id="yr-inc">฿0</strong></div>
+      <div><span>รายจ่ายทั้งปี</span><strong id="yr-exp">฿0</strong></div>
+      <div><span>คงเหลือสะสม</span><strong id="yr-bal">฿0</strong></div>
+      <div><span>เดือนที่มีข้อมูล</span><strong id="yr-mo">0 เดือน</strong></div>
+    </div>
+    <div class="year-grid dash-year-grid" id="year-grid"></div>
+    <div id="month-detail-panel"></div>
+  </section>
+
+  <section class="dash-panel dash-alert-panel">
+    <div class="dash-panel-head">
+      <div><span class="dash-panel-kicker">สิ่งที่ควรรู้</span><h3>การแจ้งเตือนล่าสุด</h3></div>
+      <button class="dash-link" onclick="renderAlerts()">รีเฟรช ↻</button>
     </div>
     <div id="dash-alerts"></div>
-  </div>
+  </section>
 </div>
 
 <!-- PAGE: BUDGET -->
@@ -4100,75 +4235,82 @@ function initYearSelectors(){
     }
   });
 }
+function dashPaidExpense(y,m,items){
+  return items.reduce((sum,i)=>{
+    if(getPaid(y,m,'expense',i.id))return sum+(parseFloat(i.amount)||0);
+    if(Array.isArray(i.subItems)&&i.subItems.length){
+      return sum+i.subItems.reduce((ss,x,idx)=>ss+(getSubPaid(y,m,'expense',i.id,idx)?(parseFloat(x.amount)||0):0),0);
+    }
+    return sum;
+  },0);
+}
+function dashRiderStats(y,m){
+  const all=getRiderDays(),days=new Date(y,m+1,0).getDate();let work=0,off=0,income=0,expense=0;
+  for(let d=1;d<=days;d++){
+    const r=all[riderDateKey(y,m,d)]||{};
+    if(r.status==='work'){work++;income+=parseFloat(r.income)||0;expense+=riderExpenseTotal(r)}
+    else if(r.status==='off')off++;
+  }
+  return{work,off,income,expense,net:income-expense,goal:getRiderMonthGoal(y,m)};
+}
+function dashSubStats(){
+  const active=getSubs().filter(s=>s.status==='active');
+  const annual=active.reduce((a,s)=>a+(parseFloat(s.price)||0),0);
+  const monthly=active.reduce((a,s)=>a+(parseFloat(s.priceMonthly)||0),0);
+  return{active:active.length,monthly:annual/12+monthly,yearly:annual+monthly*12};
+}
+function dashSet(id,val){const e=document.getElementById(id);if(e)e.textContent=val}
 function renderDashboard(){
   fillPeriodSelect('dash-yr-sel','dash-mo-sel',dy,dm);
-  document.getElementById('dash-sub').textContent='ข้อมูล ณ เดือน '+MN[dm]+' '+(dy+543);
+  dashSet('dash-sub','ข้อมูลเดือน'+MN[dm]+' '+(dy+543)+' · อัปเดตจากทุกส่วนของแอพ');
   const bd=getMI(dy,dm);
-  const iT=bd.income.reduce((s,i)=>s+i.amount,0),eT=bd.expense.reduce((s,i)=>s+i.amount,0);
-  const bal=iT-eT,debts=getDebts(),aD=debts.filter(d=>d.status==='active');
-  const dU=aD.reduce((s,d)=>s+d.used,0);
-  document.getElementById('kpi-inc').textContent=fmt(iT);
-  document.getElementById('kpi-exp').textContent=fmt(eT);
-  const kb=document.getElementById('kpi-bal');kb.textContent=fmt(bal);kb.className='val '+(bal>=0?'vpos':'vneg');
-  document.getElementById('kpi-debt').textContent=fmt(dU);
+  const iT=bd.income.reduce((s,i)=>s+(parseFloat(i.amount)||0),0);
+  const eT=bd.expense.reduce((s,i)=>s+(parseFloat(i.amount)||0),0);
+  const bal=iT-eT,saveRate=iT>0?(bal/iT*100):0;
+  const paid=dashPaidExpense(dy,dm,bd.expense),unpaid=Math.max(0,eT-paid);
+  dashSet('kpi-inc',fmt(iT));dashSet('kpi-exp',fmt(eT));dashSet('dash-paid',fmt(paid));dashSet('dash-unpaid',fmt(unpaid));
+  dashSet('dash-net-main',fmt(bal));dashSet('dash-save-rate',(saveRate>=0?'':'-')+Math.abs(saveRate).toFixed(0)+'%');
+  dashSet('dash-net-status',bal>=0?'เดือนนี้ยังเหลือเงิน':'รายจ่ายสูงกว่ารายรับ');
+  const netMain=document.getElementById('dash-net-main');if(netMain)netMain.style.color=bal>=0?'#FFFFFF':'#FCA5A5';
+  dashSet('dash-kpi-income',fmt(iT));dashSet('dash-kpi-expense',fmt(eT));
+  dashSet('dash-kpi-income-sub',bd.income.length+' รายการ');dashSet('dash-kpi-expense-sub',bd.expense.length+' รายการ · ค้าง '+fmt(unpaid));
+
+  const rider=dashRiderStats(dy,dm);dashSet('dash-kpi-rider',fmt(rider.net));dashSet('dash-kpi-rider-sub',rider.work+' วันทำงาน · รายรับ '+fmt(rider.income));
+  dashSet('dash-rider-net',fmt(rider.net));dashSet('dash-rider-inc',fmt(rider.income));dashSet('dash-rider-days',rider.work+' วัน');
+  const rp=rider.goal>0?Math.max(0,Math.min(100,rider.income/rider.goal*100)):0;const rb=document.getElementById('dash-rider-bar');if(rb)rb.style.width=rp+'%';
+
+  const ss=dashSubStats();dashSet('dash-kpi-sub',fmt(ss.monthly));dashSet('dash-kpi-sub-sub',ss.active+' รายการที่ใช้งาน');dashSet('dash-sub-monthly',fmt(ss.monthly));dashSet('dash-sub-yearly',fmt(ss.yearly));dashSet('dash-sub-active',ss.active+' รายการ');
+
+  const debts=getDebts().filter(d=>d.status==='active');const dLimit=debts.reduce((s,d)=>s+(parseFloat(d.limit)||0),0),dUsed=debts.reduce((s,d)=>s+(parseFloat(d.used)||0),0),dLeft=Math.max(0,dLimit-dUsed),dPct=dLimit>0?Math.min(100,dUsed/dLimit*100):0;
+  dashSet('dash-debt-used',fmt(dUsed));dashSet('dash-debt-limit',fmt(dLimit));dashSet('dash-debt-left',fmt(dLeft));const db=document.getElementById('dash-debt-bar');if(db)db.style.width=dPct+'%';
+
   if(typeof Chart==='undefined'){setTimeout(renderDashboard,400);return}
   destroyCharts();
-  const font={family:"'Sarabun',sans-serif",size:11},gc='rgba(0,0,0,.05)';
-  dCharts.ie=new Chart(document.getElementById('ch-ie'),{type:'bar',
-    data:{labels:['รายรับ','รายจ่าย','คงเหลือ'],datasets:[{data:[iT,eT,Math.abs(bal)],backgroundColor:['#D97706','#16A34A',bal>=0?'#2563EB':'#DC2626'],borderRadius:6,borderSkipped:false}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>'฿'+Math.round(c.raw).toLocaleString('th-TH')}}},
-      scales:{x:{ticks:{font},grid:{color:gc}},y:{ticks:{font,callback:v=>'฿'+(v>=1000000?(v/1000000).toFixed(1)+'M':v>=1000?(v/1000).toFixed(0)+'K':v)},grid:{color:gc}}}}});
-  const catMap={};bd.expense.forEach(i=>{const t=i.tag||'อื่นๆ';catMap[t]=(catMap[t]||0)+i.amount});
-  const cL=Object.keys(catMap);
-  if(cL.length)dCharts.cat=new Chart(document.getElementById('ch-cat'),{type:'doughnut',
-    data:{labels:cL,datasets:[{data:cL.map(k=>catMap[k]),backgroundColor:['#16A34A','#7C3AED','#8C4A1E','#2563EB','#D97706','#DC2626'],borderWidth:2,borderColor:'#fff'}]},
-    options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{position:'right',labels:{font,boxWidth:10,padding:8}},tooltip:{callbacks:{label:c=>{const pct=eT>0?Math.round(c.raw/eT*100):0;return c.label+': ฿'+Math.round(c.raw).toLocaleString('th-TH')+' ('+pct+'%)'}}}}}}); 
-  if(aD.length)dCharts.debt=new Chart(document.getElementById('ch-debt'),{type:'bar',
-    data:{labels:aD.map(d=>d.name),datasets:[{label:'วงเงิน',data:aD.map(d=>d.limit),backgroundColor:'#1D4ED8',borderRadius:4,borderSkipped:false},{label:'เบิกใช้ไป',data:aD.map(d=>d.used),backgroundColor:'#16A34A',borderRadius:4,borderSkipped:false}]},
-    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font,boxWidth:10}},tooltip:{callbacks:{label:c=>'฿'+Math.round(c.raw).toLocaleString('th-TH')}}},
-      scales:{x:{ticks:{font,callback:v=>'฿'+(v>=1000000?(v/1000000).toFixed(1)+'M':v>=1000?(v/1000).toFixed(0)+'K':v)},grid:{color:gc}},y:{ticks:{font},grid:{display:false}}}}});
-  renderYearSummary();
-  renderAlerts();
-}
+  const font={family:"'Sarabun',sans-serif",size:10},grid='rgba(148,163,184,.12)';
+  const periods=[];for(let back=5;back>=0;back--){let y=dy,m=dm-back;while(m<0){m+=12;y--}const d=getMI(y,m);periods.push({y,m,inc:d.income.reduce((s,i)=>s+(parseFloat(i.amount)||0),0),exp:d.expense.reduce((s,i)=>s+(parseFloat(i.amount)||0),0)})}
+  dCharts.cash=new Chart(document.getElementById('ch-cashflow'),{type:'bar',data:{labels:periods.map(p=>MNS[p.m]),datasets:[{label:'รายรับ',data:periods.map(p=>p.inc),backgroundColor:'rgba(22,163,74,.82)',borderRadius:6,borderSkipped:false},{label:'รายจ่าย',data:periods.map(p=>p.exp),backgroundColor:'rgba(249,115,22,.78)',borderRadius:6,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',align:'end',labels:{font,boxWidth:8,usePointStyle:true}},tooltip:{callbacks:{label:c=>c.dataset.label+' '+fmt(c.raw)}}},scales:{x:{ticks:{font},grid:{display:false}},y:{beginAtZero:true,ticks:{font,callback:v=>v>=1000000?(v/1000000).toFixed(1)+'M':v>=1000?Math.round(v/1000)+'K':v},grid:{color:grid}}}}});
+  dashSet('dash-cash-chip','คงเหลือ '+fmt(bal));
 
+  const catMap={};bd.expense.forEach(i=>{const t=i.tag||'อื่นๆ';catMap[t]=(catMap[t]||0)+(parseFloat(i.amount)||0)});const cats=Object.entries(catMap).sort((a,b)=>b[1]-a[1]);const colors=['#16A34A','#F97316','#2563EB','#7C3AED','#F59E0B','#DC2626','#0891B2','#64748B'];
+  const catCanvas=document.getElementById('ch-cat');if(catCanvas&&cats.length)dCharts.cat=new Chart(catCanvas,{type:'doughnut',data:{labels:cats.map(x=>x[0]),datasets:[{data:cats.map(x=>x[1]),backgroundColor:cats.map((_,i)=>colors[i%colors.length]),borderWidth:3,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.label+' '+fmt(c.raw)+' · '+(eT?Math.round(c.raw/eT*100):0)+'%'}}}}});
+  const cl=document.getElementById('dash-cat-list');if(cl)cl.innerHTML=cats.length?cats.slice(0,4).map(([name,val],i)=>`<div class="dash-cat-row"><span class="dash-cat-name"><i class="dash-cat-dot" style="background:${colors[i%colors.length]}"></i>${name}</span><b>${fmt(val)} · ${eT?Math.round(val/eT*100):0}%</b></div>`).join(''):'<div class="empty" style="padding:.7rem">ยังไม่มีรายจ่ายเดือนนี้</div>';
+  renderYearSummary();renderAlerts();
+}
 function renderYearSummary(){
   const sel=document.getElementById('yr-sel');if(sel)dashY=parseInt(sel.value)||now.getFullYear();
-  let yI=0,yE=0,mos=0;
-  for(let m=0;m<12;m++){const d=getMI(dashY,m);const iT=d.income.reduce((s,i)=>s+i.amount,0),eT=d.expense.reduce((s,i)=>s+i.amount,0);if(iT>0||eT>0)mos++;yI+=iT;yE+=eT}
-  const yB=yI-yE;
-  document.getElementById('yr-inc').textContent=fmt(yI);
-  document.getElementById('yr-exp').textContent=fmt(yE);
-  const yb=document.getElementById('yr-bal');yb.textContent=fmt(yB);yb.className='val '+(yB>=0?'vpos':'vneg');
-  document.getElementById('yr-mo').textContent=mos+' เดือน';
-  const grid=document.getElementById('year-grid');
-  grid.innerHTML=MNS.map((mn,m)=>{
-    const d=getMI(dashY,m),iT=d.income.reduce((s,i)=>s+i.amount,0),eT=d.expense.reduce((s,i)=>s+i.amount,0),bal=iT-eT;
-    const isCur=dashY===now.getFullYear()&&m===now.getMonth(),hasDat=iT>0||eT>0;
-    const isSel=selMonth===m&&dashY===parseInt(sel?.value||now.getFullYear());
-    const balStr=hasDat?(bal>=0?'+':'')+(bal>=1000000?(bal/1000000).toFixed(1)+'M':bal>=1000?Math.round(bal/1000)+'K':Math.round(bal)):'—';
-    return`<div class="ym${isCur?' cur':''}${isSel?' selected':''}" onclick="toggleMonthDetail(${m},${iT},${eT})">
-      <div class="mn">${mn}</div>
-      <div class="mv ${hasDat?(bal>=0?'pos':'neg'):''}">${balStr}</div>
-    </div>`;
-  }).join('');
+  let yI=0,yE=0,mos=0,monthRows=[];
+  for(let m=0;m<12;m++){const d=getMI(dashY,m),i=d.income.reduce((s,x)=>s+(parseFloat(x.amount)||0),0),e=d.expense.reduce((s,x)=>s+(parseFloat(x.amount)||0),0);if(i>0||e>0)mos++;yI+=i;yE+=e;monthRows.push({i,e,b:i-e})}
+  dashSet('yr-inc',fmt(yI));dashSet('yr-exp',fmt(yE));dashSet('yr-bal',fmt(yI-yE));dashSet('yr-mo',mos+' เดือน');
+  const yb=document.getElementById('yr-bal');if(yb)yb.style.color=(yI-yE)>=0?'#16A34A':'#DC2626';
+  const maxAbs=Math.max(1,...monthRows.map(x=>Math.abs(x.b)));
+  const gridEl=document.getElementById('year-grid');if(!gridEl)return;
+  gridEl.innerHTML=monthRows.map((r,m)=>{const isCur=dashY===now.getFullYear()&&m===now.getMonth(),isSel=selMonth===m,has=r.i>0||r.e>0;const pct=Math.max(8,Math.round(Math.abs(r.b)/maxAbs*100));return`<div class="ym${isCur?' cur':''}${isSel?' selected':''}" onclick="toggleMonthDetail(${m},${r.i},${r.e})"><div class="mn">${MNS[m]}</div><div class="mv ${has?(r.b>=0?'pos':'neg'):''}">${has?(r.b>=0?'+':'')+(Math.abs(r.b)>=1000000?(r.b/1000000).toFixed(1)+'M':Math.abs(r.b)>=1000?Math.round(r.b/1000)+'K':Math.round(r.b)):'—'}</div><div style="width:70%;height:3px;background:#E2E8F0;border-radius:9px;margin-top:5px;overflow:hidden"><i style="display:block;width:${has?pct:0}%;height:100%;background:${r.b>=0?'#16A34A':'#DC2626'}"></i></div></div>`}).join('');
 }
-
 function toggleMonthDetail(m,iT,eT){
-  const panel=document.getElementById('month-detail-panel');
-  const sel=document.getElementById('yr-sel');
-  const yr=parseInt(sel?.value||now.getFullYear());
-  if(selMonth===m){selMonth=null;panel.innerHTML='';renderYearSummary();return}
-  selMonth=m;renderYearSummary();
-  const d=getMI(yr,m),bal=iT-eT;
-  const paidT=d.expense.reduce((s,i)=>getPaid(yr,m,'expense',i.id)?s+i.amount:s,0);
-  panel.innerHTML=`<div class="month-detail">
-    <h4>รายละเอียดเดือน${MN[m]} ${yr+543}</h4>
-    <div class="md-row"><span class="mn-name">รายรับ</span><span class="mn-val ag">${fmt(iT)}</span></div>
-    <div class="md-row"><span class="mn-name">รายจ่าย</span><span class="mn-val ac">${fmt(eT)}</span></div>
-    <div class="md-row"><span class="mn-name">จ่ายแล้ว</span><span class="mn-val ab">${fmt(paidT)}</span></div>
-    <div class="md-row"><span class="mn-name">ยังไม่ได้จ่าย</span><span class="mn-val ac">${fmt(eT-paidT)}</span></div>
-    <div class="md-row" style="border-top:2px solid var(--g200);margin-top:4px;padding-top:8px"><span class="mn-name" style="font-weight:700">คงเหลือ</span><span class="mn-val" style="font-size:15px" class="${bal>=0?'ag':'ac'}">${fmt(bal)}</span></div>
-  </div>`;
+  const panel=document.getElementById('month-detail-panel'),sel=document.getElementById('yr-sel'),yr=parseInt(sel?.value||now.getFullYear());
+  if(selMonth===m){selMonth=null;panel.innerHTML='';renderYearSummary();return}selMonth=m;renderYearSummary();
+  const d=getMI(yr,m),bal=iT-eT,paid=dashPaidExpense(yr,m,d.expense),unpaid=Math.max(0,eT-paid);
+  panel.innerHTML=`<div class="month-detail"><h4>รายละเอียดเดือน${MN[m]} ${yr+543}</h4><div class="md-row"><span class="mn-name">รายรับ</span><span class="mn-val ag">${fmt(iT)}</span></div><div class="md-row"><span class="mn-name">รายจ่าย</span><span class="mn-val ac">${fmt(eT)}</span></div><div class="md-row"><span class="mn-name">จ่ายแล้ว</span><span class="mn-val ab">${fmt(paid)}</span></div><div class="md-row"><span class="mn-name">ยังไม่จ่าย</span><span class="mn-val ac">${fmt(unpaid)}</span></div><div class="md-row" style="border-top:1px solid #E2E8F0;margin-top:4px;padding-top:7px"><span class="mn-name" style="font-weight:700">คงเหลือ</span><span class="mn-val" style="color:${bal>=0?'#16A34A':'#DC2626'}">${fmt(bal)}</span></div></div>`;
 }
 
 // ══ CSV EXPORT UTIL ══
