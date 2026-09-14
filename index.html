@@ -1455,8 +1455,8 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 .rider-filter select{border:1px solid var(--g200);border-radius:8px;background:var(--input-bg);color:var(--g900);padding:6px 8px;font:600 11px var(--font)}
 .rider-title{font-size:16px;font-weight:800;color:var(--g900)}
 .rider-summary{margin-bottom:.75rem}
-.rider-calendar{border:1px solid var(--g200);border-radius:12px;overflow:hidden;background:var(--surface)}
-.rider-weekdays,.rider-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
+.rider-calendar{border:1px solid var(--g200);border-radius:12px;overflow-x:auto;overflow-y:hidden;background:var(--surface)}
+.rider-weekdays,.rider-grid{display:grid;grid-template-columns:repeat(7,minmax(155px,1fr));min-width:1085px}
 .rider-weekdays{background:var(--surface2);border-bottom:1px solid var(--g200)}
 .rider-weekdays>div{text-align:center;padding:12px 5px;font-size:13px;font-weight:800;color:var(--g600)}
 .rider-day{min-height:205px;padding:10px;border-right:1px solid var(--g100);border-bottom:1px solid var(--g100);background:var(--surface);position:relative}
@@ -1498,7 +1498,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   .rider-filter{width:100%;justify-content:center}
   .rider-head .mnav{width:100%;justify-content:center}
   .rider-calendar{overflow-x:auto}
-  .rider-weekdays,.rider-grid{min-width:980px}
+  .rider-weekdays,.rider-grid{grid-template-columns:repeat(7,155px);min-width:1085px}
   .rider-day{min-height:190px}
   #page-sideincome .cards.c5{grid-template-columns:repeat(2,1fr)}
   #page-sideincome .cards.c5 .card:last-child{grid-column:1/-1}
