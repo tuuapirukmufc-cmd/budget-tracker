@@ -1171,6 +1171,18 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   </div>
 </div>
 
+<!-- Rider daily income/expense modal -->
+<div class="ov" id="rider-entry-ov"><div class="modal rider-entry-modal">
+  <span class="modal-drag"></span>
+  <div class="rider-entry-head"><div><h3 id="rider-entry-title">บันทึกงาน Rider</h3><div class="sub" id="rider-entry-date">—</div></div><button class="icon-btn" onclick="closeOv('rider-entry-ov')">✕</button></div>
+  <div class="field"><label>รายรับวันนี้ (บาท)</label><input id="rider-entry-income" type="number" min="0" step="0.01" placeholder="0"></div>
+  <div class="rider-entry-exp-head"><strong>รายละเอียดรายจ่าย</strong><button class="btn btn-ghost btn-sm" onclick="addRiderEntryExpense()">+ เพิ่มรายจ่าย</button></div>
+  <div id="rider-entry-expenses" class="rider-entry-expenses"></div>
+  <div class="rider-entry-total"><span>รวมรายจ่าย</span><strong id="rider-entry-exp-total">฿0</strong></div>
+  <div class="rider-entry-net"><span>คงเหลือสุทธิ</span><strong id="rider-entry-net">฿0</strong></div>
+  <div class="modal-actions"><button class="btn btn-ghost" onclick="closeOv('rider-entry-ov')">ยกเลิก</button><button class="btn btn-pri" onclick="saveRiderEntry()">บันทึกข้อมูล</button></div>
+</div></div>
+
 <!-- PAGE: USER-LOGIN -->
 <div id="page-logins" class="page">
   <div class="page-head">
@@ -1594,6 +1606,14 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 /* รายได้เสริม / Rider App */
+.rider-entry-modal{max-width:560px}
+.rider-entry-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px}.rider-entry-head h3{margin:0 0 3px}
+.rider-entry-exp-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:16px 0 8px;font-size:13px}
+.rider-entry-expenses{display:grid;gap:8px}.rider-entry-exp-row{display:grid;grid-template-columns:minmax(0,1fr) 120px 34px;gap:7px;align-items:center}.rider-entry-exp-row input{width:100%;min-width:0;border:1px solid var(--g200);border-radius:8px;padding:9px;background:var(--input-bg);color:var(--g900);font:600 12px var(--font)}
+.rider-entry-exp-del{height:34px;border:0;border-radius:8px;background:var(--red50);color:var(--red);font-weight:800;cursor:pointer}.rider-entry-total,.rider-entry-net{display:flex;justify-content:space-between;align-items:center;padding:11px 12px;margin-top:10px;border-radius:10px;background:var(--g50);font-size:13px}.rider-entry-net{background:var(--blue50)}.rider-entry-net strong{color:var(--blue);font-size:16px}
+.rider-day-money-summary{margin-top:8px;padding:8px;border-radius:8px;background:var(--g50);font-size:11px;line-height:1.65}.rider-day-money-summary b{font-size:12px}.rider-entry-open{width:100%;margin-top:7px;border:1px solid var(--blue);background:var(--blue50);color:var(--blue);border-radius:8px;padding:7px 5px;font:700 11px var(--font);cursor:pointer}.rider-entry-open:disabled{opacity:.55;cursor:not-allowed}
+@media(max-width:520px){.rider-entry-exp-row{grid-template-columns:minmax(0,1fr) 92px 32px}}
+
 .sideincome-tabs{display:flex;gap:8px;margin-bottom:.75rem}
 .sideincome-tab{border:1px solid var(--g200);background:var(--surface);color:var(--g900);padding:8px 14px;border-radius:10px;font:600 12px var(--font);box-shadow:var(--shadow)}
 .sideincome-tab.active{background:var(--green);color:#fff;border-color:var(--green)}
@@ -3810,6 +3830,39 @@ function removeRiderExpense(key,idx){
   const all=getRiderDays(),cur=all[key];if(!cur)return;
   const ex=ensureRiderExpenses(cur);ex.splice(idx,1);all[key]=cur;saveRiderDays(all);renderRider();
 }
+let riderEntryKey=null,riderEntryDraft=[];
+function openRiderEntry(key){
+  if(riderIsPastKey(key))return;
+  const all=getRiderDays(),cur=all[key]||{};
+  riderEntryKey=key;
+  riderEntryDraft=riderExpenseItems(cur).map(e=>({name:String(e.name||''),amount:parseFloat(e.amount)||0}));
+  const parts=key.split('-').map(Number),dt=new Date(parts[0],parts[1]-1,parts[2]);
+  document.getElementById('rider-entry-date').textContent=`${parts[2]} ${MN[parts[1]-1]} ${parts[0]+543}`;
+  document.getElementById('rider-entry-income').value=parseFloat(cur.income)||'';
+  renderRiderEntryExpenses();
+  document.getElementById('rider-entry-ov').classList.add('open');
+  setTimeout(()=>document.getElementById('rider-entry-income')?.focus(),80);
+}
+function renderRiderEntryExpenses(){
+  const box=document.getElementById('rider-entry-expenses');if(!box)return;
+  box.innerHTML=riderEntryDraft.length?riderEntryDraft.map((e,i)=>`<div class="rider-entry-exp-row"><input type="text" value="${riderEsc(e.name)}" placeholder="เช่น ค่าน้ำมัน" oninput="updateRiderEntryExpense(${i},'name',this.value)"><input type="number" min="0" step="0.01" value="${e.amount||''}" placeholder="฿0" oninput="updateRiderEntryExpense(${i},'amount',this.value)"><button class="rider-entry-exp-del" onclick="removeRiderEntryExpense(${i})">×</button></div>`).join(''):'<div class="empty" style="padding:12px">ยังไม่มีรายจ่ายวันนี้</div>';
+  calcRiderEntryTotals();
+}
+function addRiderEntryExpense(){riderEntryDraft.push({name:'',amount:0});renderRiderEntryExpenses()}
+function updateRiderEntryExpense(i,field,value){if(!riderEntryDraft[i])return;riderEntryDraft[i][field]=field==='amount'?Math.max(0,parseFloat(value)||0):String(value||'');calcRiderEntryTotals()}
+function removeRiderEntryExpense(i){riderEntryDraft.splice(i,1);renderRiderEntryExpenses()}
+function calcRiderEntryTotals(){
+  const exp=riderEntryDraft.reduce((s,e)=>s+(parseFloat(e.amount)||0),0),inc=Math.max(0,parseFloat(document.getElementById('rider-entry-income')?.value)||0),net=inc-exp;
+  const a=document.getElementById('rider-entry-exp-total'),b=document.getElementById('rider-entry-net');if(a)a.textContent=fmt(exp);if(b){b.textContent=fmt(net);b.style.color=net<0?'var(--red)':'var(--blue)'}
+}
+function saveRiderEntry(){
+  if(!riderEntryKey||riderIsPastKey(riderEntryKey))return;
+  const all=getRiderDays(),cur=all[riderEntryKey]||{};
+  cur.status='work';cur.income=Math.max(0,parseFloat(document.getElementById('rider-entry-income').value)||0);
+  cur.expenses=riderEntryDraft.map(e=>({name:String(e.name||'').trim(),amount:Math.max(0,parseFloat(e.amount)||0)})).filter(e=>e.name||e.amount>0);delete cur.expense;
+  all[riderEntryKey]=cur;saveRiderDays(all);closeOv('rider-entry-ov');riderEntryKey=null;renderRider();
+}
+document.addEventListener('input',e=>{if(e.target&&e.target.id==='rider-entry-income')calcRiderEntryTotals()});
 function getRiderMonthRows(){
   const all=getRiderDays(),rows=[];
   const days=new Date(riderY,riderM+1,0).getDate();
@@ -3866,24 +3919,15 @@ function renderRider(){
     const isToday=today.getFullYear()===riderY&&today.getMonth()===riderM&&today.getDate()===d;
     const isPast=riderIsPastKey(key);
     const lockAttr=isPast?' disabled':'';
-    const work=it.status==='work',off=it.status==='off',expenses=riderExpenseItems(it);
-    const expHtml=expenses.map((e,i)=>`<div class="rider-exp-row">
-      <input type="text" value="${riderEsc(e.name||'')}" placeholder="เช่น ค่าน้ำมัน" onchange="setRiderExpenseItem('${key}',${i},'name',this.value)"${lockAttr}>
-      <input type="number" min="0" step="0.01" value="${riderEsc(e.amount||'')}" placeholder="฿0" onchange="setRiderExpenseItem('${key}',${i},'amount',this.value)"${lockAttr}>
-      <button class="rider-exp-del" onclick="removeRiderExpense('${key}',${i})" title="ลบรายจ่าย"${lockAttr}>×</button>
-    </div>`).join('');
+    const work=it.status==='work',off=it.status==='off';
+    const income=parseFloat(it.income)||0,expense=riderExpenseTotal(it),net=income-expense;
     html+=`<div class="rider-day${isToday?' today':''}${isPast?' past':''}">
       <div class="rider-day-num"><span>${d}</span>${isToday?'<span class="rider-today-badge">วันนี้</span>':isPast?'<span class="rider-locked-badge">ล็อกแล้ว</span>':''}</div>
       <div class="rider-status-btns">
-        <button class="rider-status-btn work${work?' active':''}" onclick="setRiderStatus('${key}','work')"${lockAttr}>✓ ทำงาน</button>
+        <button class="rider-status-btn work${work?' active':''}" onclick="${isPast?'':'setRiderStatus(\''+key+'\',\'work\');openRiderEntry(\''+key+'\')'}"${lockAttr}>✓ ทำงาน</button>
         <button class="rider-status-btn off${off?' active':''}" onclick="setRiderStatus('${key}','off')"${lockAttr}>หยุดงาน</button>
       </div>
-      ${work?`<div class="rider-money">
-        <label>รายรับ (฿)</label><input type="number" min="0" step="0.01" value="${riderEsc(it.income||'')}" placeholder="0" onchange="setRiderMoney('${key}','income',this.value)"${lockAttr}>
-        <label>รายละเอียดรายจ่าย</label>
-        <div class="rider-expenses">${expHtml}${isPast?'':`<button class="rider-exp-add" onclick="addRiderExpense('${key}')">+ เพิ่มรายจ่าย</button>`}<div class="rider-exp-total" id="rider-exp-total-${key}">รวม ${fmt(riderExpenseTotal(it))}</div></div>
-        ${isPast?'<div class="rider-locked-note">🔒 วันที่ผ่านแล้ว แก้ไขไม่ได้</div>':''}
-      </div>`:off?`<div class="rider-day-off-note">พักวันนี้${isPast?'<br><span class="rider-locked-note">🔒 ล็อกแล้ว</span>':''}</div>`:`<div class="rider-day-off-note">${isPast?'🔒 วันที่ผ่านแล้ว':'ยังไม่ระบุ'}</div>`}
+      ${work?`<div class="rider-day-money-summary"><div>รายรับ <b class="ag">${fmt(income)}</b></div><div>รายจ่าย <b class="ac">${fmt(expense)}</b></div><div>สุทธิ <b class="${net>=0?'ab':'ac'}">${fmt(net)}</b></div></div>${isPast?'<div class="rider-locked-note">🔒 แก้ไขไม่ได้</div>':`<button class="rider-entry-open" onclick="openRiderEntry('${key}')">✏ กรอกรายรับ-รายจ่าย</button>`}`:off?`<div class="rider-day-off-note">พักวันนี้${isPast?'<br><span class="rider-locked-note">🔒 ล็อกแล้ว</span>':''}</div>`:`<div class="rider-day-off-note">${isPast?'🔒 วันที่ผ่านแล้ว':'ยังไม่ระบุ'}</div>`}
     </div>`;
   }
   const total=firstDay+days,trail=(7-total%7)%7;
