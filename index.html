@@ -2243,6 +2243,7 @@ const ALL_PAGES=[
   {id:'logins',label:'🔐 User-Login'}
 ];
 function getPageNames(){return ls(uKey('page_names_v1'),{})}
+function escHtml(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function getPageLabel(page){
   if(!page)return'';
   const names=getPageNames();
@@ -2337,7 +2338,7 @@ function renderPageMgrList(){
       </span>
       <div style="flex:1;min-width:0">
         <div style="font-size:11px;color:var(--g400);margin-bottom:4px">ชื่อเมนู</div>
-        <input type="text" value="${esc(getPageLabel(p))}" onkeydown="if(event.key==='Enter'){this.blur()}" onchange="savePageName('${p.id}',this.value)" style="width:100%;box-sizing:border-box;border:1px solid var(--g200);border-radius:8px;background:var(--input-bg);color:var(--g900);padding:8px 9px;font:700 13px var(--font)" maxlength="40">
+        <input type="text" value="${escHtml(getPageLabel(p))}" onkeydown="if(event.key==='Enter'){this.blur()}" onchange="savePageName('${p.id}',this.value)" style="width:100%;box-sizing:border-box;border:1px solid var(--g200);border-radius:8px;background:var(--input-bg);color:var(--g900);padding:8px 9px;font:700 13px var(--font)" maxlength="40">
       </div>
       ${custom?`<button class="btn btn-sm btn-ghost" onclick="resetPageName('${p.id}')" title="คืนชื่อเดิม">↺</button>`:''}
       ${p.locked?'<span style="font-size:11px;color:var(--g400);white-space:nowrap">แสดงเสมอ</span>':`<button class="btn btn-sm ${isHidden?'btn-pri':'btn-ghost'}" onclick="togglePageVisibility('${p.id}')">${isHidden?'เปิดแสดง':'ซ่อน'}</button>`}
