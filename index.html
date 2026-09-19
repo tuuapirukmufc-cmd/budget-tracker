@@ -1585,8 +1585,8 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 <!-- Page Manager (ซ่อน/เปิดใช้งานหน้า) -->
 <div class="ov" id="pagemgr-ov"><div class="modal">
   <span class="modal-drag"></span>
-  <h3>จัดการเมนู — ซ่อน/เปิดใช้งานหน้า</h3>
-  <div style="font-size:12px;color:var(--g400);margin-bottom:.75rem">หน้าไหนยังไม่ได้ใช้ กด "ซ่อน" ได้ — จะไม่หายไปไหน กดเปิดกลับมาได้ตลอด ข้อมูลในหน้านั้นยังอยู่ครบ</div>
+  <h3>⚙ จัดการเมนู</h3>
+  <div style="font-size:12px;color:var(--g400);margin-bottom:.75rem">แก้ชื่อเมนูได้อิสระ จัดลำดับ หรือซ่อนหน้าที่ไม่ได้ใช้ — การเปลี่ยนชื่อไม่กระทบข้อมูลภายใน</div>
   <div id="pagemgr-list"></div>
   <div class="mbtns">
     <button class="btn btn-ghost" onclick="closeOv('pagemgr-ov')">ปิด</button>
@@ -2224,8 +2224,8 @@ function swMob(id,el,title){
   document.querySelectorAll('.mob-tab').forEach(t=>t.classList.remove('active'));
   el.classList.add('active');
   const pageInfo=typeof ALL_PAGES!=='undefined'?ALL_PAGES.find(p=>p.id===id):null;
-  const icon=pageInfo?pageInfo.label.split(' ')[0]:(id==='dashboard'?'★':'');
-  document.getElementById('mob-title').textContent=(icon?icon+' ':'')+title;
+  const label=pageInfo?getPageLabel(pageInfo):title;
+  document.getElementById('mob-title').textContent=label;
   sw(id,null);
 }
 function closeOv(id){document.getElementById(id).classList.remove('open')}
@@ -2242,6 +2242,35 @@ const ALL_PAGES=[
   {id:'sideincome',label:'💼 รายได้เสริม'},
   {id:'logins',label:'🔐 User-Login'}
 ];
+function getPageNames(){return ls(uKey('page_names_v1'),{})}
+function getPageLabel(page){
+  if(!page)return'';
+  const names=getPageNames();
+  return (names[page.id]||page.label).trim()||page.label;
+}
+function pageLabelParts(page){
+  const label=getPageLabel(page);
+  const m=label.match(/^(\S+)\s+(.+)$/);
+  return m?{icon:m[1],text:m[2]}:{icon:'•',text:label};
+}
+function savePageName(id,value){
+  const page=ALL_PAGES.find(p=>p.id===id);if(!page)return;
+  const v=String(value||'').trim();
+  const names=getPageNames();
+  if(!v||v===page.label)delete names[id];else names[id]=v;
+  lss(uKey('page_names_v1'),names);
+  addHist('settings','เปลี่ยนชื่อเมนู',`${page.label} → ${v||page.label}`);
+  renderPageMgrList();applyPageVisibility();syncCurrentPageTitle();
+}
+function resetPageName(id){
+  const page=ALL_PAGES.find(p=>p.id===id);if(!page)return;
+  const names=getPageNames();delete names[id];lss(uKey('page_names_v1'),names);
+  renderPageMgrList();applyPageVisibility();syncCurrentPageTitle();
+}
+function syncCurrentPageTitle(){
+  const page=ALL_PAGES.find(p=>p.id===curPage);if(!page)return;
+  const mt=document.getElementById('mob-title');if(mt)mt.textContent=getPageLabel(page);
+}
 function getHiddenPages(){return ls(uKey('hidden_pages_v1'),[])}
 function saveHiddenPages(p){lss(uKey('hidden_pages_v1'),p)}
 function getPageOrder(){
@@ -2265,8 +2294,8 @@ function renderSidebarNav(){
   const html=order.map(id=>{
     const p=ALL_PAGES.find(x=>x.id===id);
     if(!p)return'';
-    const parts=p.label.split(' ');
-    const icon=parts[0],text=parts.slice(1).join(' ');
+    const parts=pageLabelParts(p);
+    const icon=parts.icon,text=parts.text;
     const isActive=id===curPage;
     return`<div class="nav-tab${isActive?' active':''}" data-page="${id}" onclick="sw('${id}',this)" style="${hidden.includes(id)?'display:none':''}"><span class="nt-icon">${icon}</span>${text}</div>`;
   }).join('');
@@ -2277,7 +2306,15 @@ function applyPageVisibility(){
   const hidden=getHiddenPages();
   document.querySelectorAll('.mob-tab[data-page]').forEach(el=>{
     el.style.display=hidden.includes(el.dataset.page)?'none':'';
+    const page=ALL_PAGES.find(p=>p.id===el.dataset.page);
+    if(page){
+      const parts=pageLabelParts(page);
+      const ic=el.querySelector('.micon'),lb=el.querySelector('.mlbl');
+      if(ic)ic.textContent=parts.icon;
+      if(lb){lb.textContent=parts.text;lb.title=getPageLabel(page)}
+    }
   });
+  syncCurrentPageTitle();
   if(hidden.includes(curPage)){
     sw('dashboard',document.querySelector('.nav-tab[data-page="dashboard"]'));
   }
@@ -2289,18 +2326,21 @@ function openPageMgr(){
 function renderPageMgrList(){
   const hidden=getHiddenPages();
   const order=getPageOrder();
+  const names=getPageNames();
   const items=order.map(id=>ALL_PAGES.find(p=>p.id===id)).filter(Boolean);
   document.getElementById('pagemgr-list').innerHTML=items.map((p,i)=>{
-    const isHidden=hidden.includes(p.id);
-    return`<div class="pagemgr-row">
-      <span style="display:flex;align-items:center;gap:6px">
-        <span class="reorder-btns">
-          <button onclick="reorderPage('${p.id}',-1)" ${i>0?'':'disabled'}>▲</button>
-          <button onclick="reorderPage('${p.id}',1)" ${i<items.length-1?'':'disabled'}>▼</button>
-        </span>
-        <span class="pagemgr-name">${p.label}</span>
+    const isHidden=hidden.includes(p.id),custom=!!names[p.id];
+    return`<div class="pagemgr-row" style="gap:10px;align-items:center">
+      <span class="reorder-btns">
+        <button onclick="reorderPage('${p.id}',-1)" ${i>0?'':'disabled'}>▲</button>
+        <button onclick="reorderPage('${p.id}',1)" ${i<items.length-1?'':'disabled'}>▼</button>
       </span>
-      ${p.locked?'<span style="font-size:11px;color:var(--g400)">แสดงเสมอ</span>':`<button class="btn btn-sm ${isHidden?'btn-pri':'btn-ghost'}" onclick="togglePageVisibility('${p.id}')">${isHidden?'เปิดแสดง':'ซ่อน'}</button>`}
+      <div style="flex:1;min-width:0">
+        <div style="font-size:11px;color:var(--g400);margin-bottom:4px">ชื่อเมนู</div>
+        <input type="text" value="${esc(getPageLabel(p))}" onkeydown="if(event.key==='Enter'){this.blur()}" onchange="savePageName('${p.id}',this.value)" style="width:100%;box-sizing:border-box;border:1px solid var(--g200);border-radius:8px;background:var(--input-bg);color:var(--g900);padding:8px 9px;font:700 13px var(--font)" maxlength="40">
+      </div>
+      ${custom?`<button class="btn btn-sm btn-ghost" onclick="resetPageName('${p.id}')" title="คืนชื่อเดิม">↺</button>`:''}
+      ${p.locked?'<span style="font-size:11px;color:var(--g400);white-space:nowrap">แสดงเสมอ</span>':`<button class="btn btn-sm ${isHidden?'btn-pri':'btn-ghost'}" onclick="togglePageVisibility('${p.id}')">${isHidden?'เปิดแสดง':'ซ่อน'}</button>`}
     </div>`;
   }).join('');
 }
