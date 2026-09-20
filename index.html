@@ -3954,11 +3954,14 @@ function renderRiderSummary(){
   const put=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};
   put('rider-work-days',work+' วัน');put('rider-off-days',off+' วัน');
   put('rider-income',fmt(income));put('rider-expense',fmt(expense));put('rider-net',fmt(net));
-  const goal=getRiderMonthGoal(),pct=goal>0?(income/goal*100):0;
+  // ความคืบหน้าเป้าหมายคิดจากคงเหลือสุทธิ (รายรับ - รายจ่าย)
+  const goal=getRiderMonthGoal();
+  const goalNet=Math.max(0,net);
+  const pct=goal>0?(goalNet/goal*100):0;
   const gi=document.getElementById('rider-month-goal');if(gi&&document.activeElement!==gi)gi.value=goal||'';
-  put('rider-goal-progress',`ทำได้ ${goal>0?pct.toFixed(pct>=100?0:1):'0'}%`);
-  put('rider-goal-detail',`${fmt(income)} / ${fmt(goal)}`);
-  // เป้าหมายส่วนนี้วัดจาก “คงเหลือสุทธิ” ตามที่ผู้ใช้ต้องการ
+  put('rider-goal-progress',`ทำได้สุทธิ ${goal>0?pct.toFixed(pct>=100?0:1):'0'}%`);
+  put('rider-goal-detail',`${fmt(goalNet)} / ${fmt(goal)} · รายรับ ${fmt(income)} - รายจ่าย ${fmt(expense)}`);
+  // ยอดที่ยังต้องเก็บต่อ คำนวณจากคงเหลือสุทธิหลังหักรายจ่ายแล้ว
   const td=new Date(),daysInMonth=new Date(riderY,riderM+1,0).getDate();
   let daysLeft=0;
   if(riderY>td.getFullYear()||(riderY===td.getFullYear()&&riderM>td.getMonth()))daysLeft=daysInMonth;
