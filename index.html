@@ -721,7 +721,8 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
     <div class="sec-head"><span class="sec-title"><span class="dot dg"></span>รายการที่ต้องทำ</span></div>
     <table class="tbl"><thead><tr>
       <th style="width:4%" class="tc">สถานะ</th>
-      <th style="width:21%">ชื่อรายการ</th>
+      <th style="width:18%">ชื่อรายการ</th>
+      <th style="width:9%">ผู้ใช้งาน</th>
       <th style="width:9%">วันครบกำหนด</th>
       <th style="width:7%" class="tc">เวลานัดหมาย</th>
       <th style="width:8%" class="tr">ราคา</th>
@@ -737,7 +738,8 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
     <div class="sec-head"><span class="sec-title"><span class="dot dgold"></span>ทำแล้ว</span></div>
     <table class="tbl"><thead><tr>
       <th style="width:4%" class="tc">สถานะ</th>
-      <th style="width:21%">ชื่อรายการ</th>
+      <th style="width:18%">ชื่อรายการ</th>
+      <th style="width:9%">ผู้ใช้งาน</th>
       <th style="width:9%">วันครบกำหนด</th>
       <th style="width:7%" class="tc">เวลานัดหมาย</th>
       <th style="width:8%" class="tr">ราคา</th>
@@ -1478,6 +1480,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   <span class="modal-drag"></span>
   <h3 id="tm-title">เพิ่มรายการ</h3>
   <div class="f"><label>ชื่อรายการ</label><input type="text" id="tm-name" placeholder="เช่น ต่อประกันรถยนต์"></div>
+  <div class="f"><label>ผู้ใช้งาน</label><input type="text" id="tm-user" placeholder="เช่น อภิรักษ์"></div>
   <div class="f-row">
     <div class="f"><label>วันครบกำหนด</label><input type="date" id="tm-due"></div>
     <div class="f"><label>เวลานัดหมาย</label><input type="time" id="tm-time"></div>
@@ -3284,6 +3287,7 @@ function openTM(id){
   const item=id?getTodos().find(t=>t.id===id):null;
   document.getElementById('tm-title').textContent=id?'แก้ไขรายการ':'เพิ่มรายการ';
   document.getElementById('tm-name').value=item?.name||'';
+  document.getElementById('tm-user').value=item?.user||'';
   document.getElementById('tm-due').value=item?.due||'';
   document.getElementById('tm-time').value=item?.time||'';
   document.getElementById('tm-price').value=item?.price||'';
@@ -3296,7 +3300,7 @@ function openTM(id){
 }
 function saveTodoItem(){
   const name=(document.getElementById('tm-name').value||'').trim();if(!name)return;
-  const obj={name,due:document.getElementById('tm-due').value,time:document.getElementById('tm-time').value,
+  const obj={name,user:(document.getElementById('tm-user').value||'').trim(),due:document.getElementById('tm-due').value,time:document.getElementById('tm-time').value,
     price:parseFloat(document.getElementById('tm-price').value)||0,
     createdDate:document.getElementById('tm-created').value||new Date().toISOString().slice(0,10),
     priority:document.getElementById('tm-pri').value,location:(document.getElementById('tm-loc').value||'').trim(),mapLink:(document.getElementById('tm-maplink').value||'').trim()};
@@ -3351,6 +3355,7 @@ function renderTodoRow(t,i,groupLen,today){
   return{isOverdue,isSoon,html:`<tr class="${t.done?'dim':''}">
     <td class="tc"><div class="chk"><input type="checkbox" ${t.done?'checked':''} onchange="toggleTodoDone(${t.id})"></div></td>
     <td><div class="iname" style="font-weight:600">${t.name}</div></td>
+    <td>${t.user?`<span style="font-size:13px;font-weight:700">${t.user}</span>`:`<span class="pill">—</span>`}</td>
     <td>${dueLabel}</td>
     <td class="tc">${timeLabel}</td>
     <td class="tr">${priceLabel}</td>
@@ -3372,7 +3377,7 @@ function renderTodo(){
   const pending=items.filter(t=>!t.done);
   const done=items.filter(t=>t.done);
   if(!pending.length){
-    body.innerHTML='<tr><td colspan="11" class="empty">ยังไม่มีรายการ</td></tr>';
+    body.innerHTML='<tr><td colspan="12" class="empty">ยังไม่มีรายการ</td></tr>';
   }else{
     body.innerHTML=pending.map((t,i)=>{
       const r=renderTodoRow(t,i,pending.length,today);
@@ -3382,7 +3387,7 @@ function renderTodo(){
     }).join('');
   }
   if(!done.length){
-    doneBody.innerHTML='<tr><td colspan="11" class="empty">ยังไม่มีรายการที่ทำเสร็จแล้ว</td></tr>';
+    doneBody.innerHTML='<tr><td colspan="12" class="empty">ยังไม่มีรายการที่ทำเสร็จแล้ว</td></tr>';
   }else{
     doneBody.innerHTML=done.map((t,i)=>renderTodoRow(t,i,done.length,today).html).join('');
   }
