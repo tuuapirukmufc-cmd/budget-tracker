@@ -646,6 +646,25 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 }
 @media(prefers-reduced-motion:reduce){#startup-gate *,#startup-gate::before{animation:none!important}}
 
+
+
+
+@media(max-width:640px){
+  .rider-goal-strip{padding:12px 10px;border-radius:12px}
+  .rider-goal-head{align-items:flex-start;margin-bottom:9px}
+  .rider-goal-title{font-size:14px}
+  .rider-goal-caption{font-size:10px}
+  .rider-goal-progress{font-size:17px;text-align:right}
+  .rider-goal-metrics{grid-template-columns:1fr 1fr;gap:6px}
+  .rider-goal-metric{padding:8px;border-radius:9px}
+  .rider-goal-metric>span{font-size:10px}
+  .rider-goal-metric>strong,.rider-goal-input input{font-size:15px}
+  .rider-goal-bottom{grid-template-columns:repeat(3,1fr);margin-top:9px;padding-top:9px}
+  .rider-goal-bottom>div{padding:0 4px}
+  .rider-goal-bottom span{font-size:9px;line-height:1.25}
+  .rider-goal-bottom strong{font-size:13px}
+  .rider-goal-bar-row{margin-top:9px;gap:7px}
+}
 </style>
 
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -698,7 +717,6 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   <span id="cloud-status" class="cloud-status"></span>
   <button class="btn btn-sm" id="cloud-upload-btn" onclick="firestoreUploadAll()" style="background:var(--gl);color:var(--gd);border:1px solid var(--green);font-size:11px;padding:3px 10px;border-radius:6px">☁ ซิงค์ Firestore ตอนนี้</button>
   <button class="btn btn-sm" id="cloud-download-btn" onclick="firestoreDownload(true)" style="background:var(--bl);color:var(--bd);border:1px solid var(--blue);font-size:11px;padding:3px 10px;border-radius:6px">⬇ ดึง Firestore ล่าสุด</button>
-  <button class="btn btn-sm" id="cloud-cleanup-btn" onclick="runCloudCleanup()" style="background:var(--al);color:var(--amber);border:1px solid var(--amber);font-size:11px;padding:3px 10px;border-radius:6px" title="ล้างรูปภาพแนบในรายการเดือนเก่า เพื่อลดขนาดข้อมูลก่อนบันทึกขึ้นคลาวด์">🧹 ล้างข้อมูลเก่า</button>
   </div>
 </div>
 
@@ -1152,16 +1170,24 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 
     <div class="rider-goal-strip">
       <div class="rider-goal-lightning" aria-hidden="true"><span>⚡ ⚡ ⚡ ⚡ ⚡ ⚡ ⚡ ⚡ ⚡ ⚡ ⚡ ⚡</span><span>⚡ ⚡ ⚡ ⚡ ⚡ ⚡ ⚡ ⚡ ⚡ ⚡ ⚡ ⚡</span></div>
-      <div class="rider-goal-main">
-        <div class="rider-goal-title">⚡ เป้าหมายรายรับ/เดือน</div>
-        <div class="rider-goal-input"><span>฿</span><input id="rider-month-goal" type="number" min="0" step="100" placeholder="0" onchange="setRiderMonthGoal(this.value)"></div>
+      <div class="rider-goal-head">
+        <div><div class="rider-goal-title">⚡ เป้าหมายรายรับสุทธิ</div><div class="rider-goal-caption">หลังหักรายจ่ายแล้ว</div></div>
+        <div class="rider-goal-progress" id="rider-goal-progress">ทำได้สุทธิ 0%</div>
       </div>
-      <div class="rider-goal-stats">
-        <div class="rider-goal-progress" id="rider-goal-progress">ทำได้ 0%</div>
-        <div class="sub-val" id="rider-goal-detail">฿0 / ฿0</div>
-        <div class="rider-goal-daily" id="rider-goal-daily">เหลือ 0 วัน · ต้องเก็บสุทธิอีก ฿0/วัน</div>
+      <div class="rider-goal-metrics">
+        <div class="rider-goal-metric"><span>🎯 เป้าหมาย</span><div class="rider-goal-input"><span>฿</span><input id="rider-month-goal" type="number" min="0" step="100" placeholder="0" onchange="setRiderMonthGoal(this.value)"></div></div>
+        <div class="rider-goal-metric"><span>📈 รายรับ</span><strong id="rider-goal-income">฿0</strong></div>
+        <div class="rider-goal-metric"><span>📉 รายจ่าย</span><strong id="rider-goal-expense">฿0</strong></div>
+        <div class="rider-goal-metric highlight"><span>💰 สุทธิที่ทำได้</span><strong id="rider-goal-net">฿0</strong></div>
       </div>
-      <div class="rider-goal-bar"><span id="rider-goal-bar-fill"></span></div>
+      <div class="rider-goal-bar-row"><div class="rider-goal-bar"><span id="rider-goal-bar-fill"></span></div><strong id="rider-goal-pct">0%</strong></div>
+      <div class="rider-goal-bottom">
+        <div><span>📅 เหลืออีก</span><strong id="rider-goal-days">0 วัน</strong></div>
+        <div><span>🎯 ต้องเก็บสุทธิอีก</span><strong id="rider-goal-remaining">฿0</strong></div>
+        <div><span>📊 เฉลี่ยต่อวัน</span><strong id="rider-goal-perday">฿0 / วัน</strong></div>
+      </div>
+      <div class="rider-goal-daily" id="rider-goal-daily"></div>
+      <div class="sub-val rider-goal-detail" id="rider-goal-detail"></div>
     </div>
 
     <div class="rider-calendar">
@@ -1281,13 +1307,6 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
       <button type="button" class="pay-toggle-btn" data-val="transfer" onclick="selectPayMethod('transfer')">🏦 โอนเงิน</button>
     </div>
   </div>
-  <div class="f"><label>แนบรูปภาพ (ถ้ามี)</label>
-    <label class="file-btn">📎 เลือกรูปภาพ<input type="file" id="bm-img" accept="image/*" style="display:none" onchange="handleBmImage(event)"></label>
-    <div class="bm-img-row" id="bm-img-row" style="display:none">
-      <img id="bm-img-preview" class="bm-img-preview" onclick="openImgLightbox(bImgData)">
-      <button type="button" class="bm-img-remove" onclick="removeBmImage()">ลบรูป</button>
-    </div>
-  </div>
   <div class="mbtns">
     <button class="btn btn-danger" id="bm-del" onclick="delBudget()" style="display:none">ลบ</button>
     <button class="btn btn-ghost" onclick="closeOv('bm-ov')">ยกเลิก</button>
@@ -1295,10 +1314,6 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   </div>
 </div></div>
 
-<!-- Image lightbox -->
-<div class="img-lightbox-ov" id="img-lightbox-ov" onclick="closeImgLightbox()">
-  <img id="img-lightbox-img" src="" alt="attachment">
-</div>
 
 <!-- Debt -->
 <div class="ov" id="dm-ov"><div class="modal">
@@ -1632,21 +1647,32 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 .rider-filter select{border:1px solid var(--g200);border-radius:8px;background:var(--input-bg);color:var(--g900);padding:6px 8px;font:600 11px var(--font)}
 .rider-title{font-size:16px;font-weight:800;color:var(--g900)}
 .rider-summary{margin-bottom:.55rem}
-.rider-goal-strip{position:relative;overflow:hidden;border:1px solid rgba(245,158,11,.45);border-radius:12px;background:linear-gradient(100deg,var(--surface),rgba(245,158,11,.10),var(--surface));box-shadow:var(--shadow);padding:12px 14px 16px;margin:0 0 .85rem;display:grid;grid-template-columns:minmax(230px,1fr) minmax(170px,.7fr);gap:10px 18px;align-items:center}
+.rider-goal-strip{position:relative;overflow:hidden;border:1px solid rgba(245,158,11,.42);border-radius:14px;background:linear-gradient(110deg,var(--surface),rgba(245,158,11,.07),var(--surface));box-shadow:var(--shadow);padding:15px 16px;margin:0 0 .85rem}
 .rider-goal-strip>*:not(.rider-goal-lightning){position:relative;z-index:2}
-.rider-goal-main{display:flex;align-items:center;gap:14px;min-width:0}
-.rider-goal-title{font-size:13px;font-weight:900;color:var(--g900);white-space:nowrap}
-.rider-goal-input{display:flex;align-items:center;gap:5px;min-width:140px;max-width:230px;flex:1}
-.rider-goal-input span{font-size:17px;font-weight:900;color:var(--amber)}
-.rider-goal-input input{width:100%;min-width:0;border:1px solid rgba(245,158,11,.55);border-radius:8px;background:var(--input-bg);color:var(--g900);padding:7px 9px;font:900 15px var(--font)}
-.rider-goal-input input:focus{outline:none;border-color:var(--amber);box-shadow:0 0 0 2px rgba(245,158,11,.12)}
-.rider-goal-stats{text-align:right}
-.rider-goal-progress{font-size:20px;font-weight:900;color:var(--amber);line-height:1.15}
-.rider-goal-stats .sub-val{margin-top:2px;font-size:11px;font-weight:700;color:var(--g500)}
-.rider-goal-daily{margin-top:5px;font-size:12px;font-weight:900;color:var(--g700);line-height:1.35}
-.rider-goal-bar{grid-column:1/-1;height:9px;background:var(--g100);border-radius:999px;overflow:hidden;position:relative;z-index:2}
+.rider-goal-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:12px}
+.rider-goal-title{font-size:17px;font-weight:900;color:var(--g900)}
+.rider-goal-caption{font-size:11px;font-weight:700;color:var(--g500);margin-top:1px}
+.rider-goal-progress{font-size:22px;font-weight:900;color:var(--amber);white-space:nowrap}
+.rider-goal-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
+.rider-goal-metric{min-width:0;border:1px solid var(--g100);background:rgba(255,255,255,.62);border-radius:10px;padding:9px 11px;display:flex;flex-direction:column;justify-content:center;gap:4px}
+.rider-goal-metric>span{font-size:11px;font-weight:800;color:var(--g500)}
+.rider-goal-metric>strong{font-size:17px;font-weight:900;color:var(--g900);overflow-wrap:anywhere}
+.rider-goal-metric.highlight strong{color:var(--amber)}
+.rider-goal-input{display:flex;align-items:center;gap:4px;min-width:0}
+.rider-goal-input>span{font-size:16px;font-weight:900;color:var(--amber)}
+.rider-goal-input input{width:100%;min-width:0;border:0;background:transparent;color:var(--g900);padding:0;font:900 17px var(--font)}
+.rider-goal-input input:focus{outline:none}
+.rider-goal-bar-row{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px;margin-top:12px}
+.rider-goal-bar{height:9px;background:var(--g100);border-radius:999px;overflow:hidden}
 .rider-goal-bar span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--amber),#ffd166);border-radius:999px;transition:width .25s ease}
-.rider-goal-lightning{position:absolute;inset:0;display:flex;align-items:center;gap:40px;white-space:nowrap;opacity:.11;font-size:22px;color:var(--amber);pointer-events:none;transform:skewX(-8deg)}
+.rider-goal-bar-row>strong{font-size:13px;font-weight:900;color:var(--g900)}
+.rider-goal-bottom{display:grid;grid-template-columns:repeat(3,1fr);margin-top:12px;border-top:1px solid var(--g100);padding-top:11px}
+.rider-goal-bottom>div{display:flex;flex-direction:column;align-items:center;gap:2px;padding:0 10px;border-right:1px solid var(--g100);text-align:center}
+.rider-goal-bottom>div:last-child{border-right:0}
+.rider-goal-bottom span{font-size:11px;font-weight:800;color:var(--g500)}
+.rider-goal-bottom strong{font-size:16px;font-weight:900;color:var(--g900)}
+.rider-goal-daily,.rider-goal-detail{display:none}
+.rider-goal-lightning{position:absolute;inset:0;display:flex;align-items:center;gap:40px;white-space:nowrap;opacity:.07;font-size:22px;color:var(--amber);pointer-events:none;transform:skewX(-8deg)}
 .rider-goal-lightning span{display:inline-block;min-width:max-content;animation:riderBoltRun 8s linear infinite}
 @keyframes riderBoltRun{from{transform:translateX(0)}to{transform:translateX(-100%)}}
 .rider-calendar{border:1px solid var(--g200);border-radius:12px;overflow-x:auto;overflow-y:hidden;background:var(--surface)}
@@ -2099,45 +2125,6 @@ function updateCloudStatus(msg,cls){
   if(cloudStatusTimer){clearTimeout(cloudStatusTimer);cloudStatusTimer=null;}
   if(cls==='err')cloudStatusTimer=setTimeout(()=>{if(el)el.textContent='';},10000);
 }
-// รูปภาพ base64 ทำให้ Firestore document โตเร็ว จึงมีเครื่องมือล้างรูปเก่าหากจำเป็น
-function scanEmbeddedImages(){
-  let count=0,bytes=0;
-  for(let i=0;i<localStorage.length;i++){
-    const key=localStorage.key(i);
-    if(!key||!key.startsWith('ov_'))continue;
-    const o=ls(key,{});
-    ['income_add','expense_add'].forEach(k=>{
-      (o[k]||[]).forEach(item=>{if(item.image){count++;bytes+=item.image.length;}});
-    });
-  }
-  return{count,bytes};
-}
-function cleanupOldImages(){
-  const curKey=uKey(`ov_${cy}_${cm}`);
-  let removed=0,freedBytes=0;
-  for(let i=0;i<localStorage.length;i++){
-    const key=localStorage.key(i);
-    if(!key||!key.startsWith('ov_')||key===curKey)continue;
-    const o=ls(key,{});
-    let changed=false;
-    ['income_add','expense_add'].forEach(k=>{
-      (o[k]||[]).forEach(item=>{
-        if(item.image){freedBytes+=item.image.length;item.image=null;removed++;changed=true;}
-      });
-    });
-    if(changed)lss(key,o);
-  }
-  return{removed,freedBytes};
-}
-function runCloudCleanup(){
-  const scan=scanEmbeddedImages();
-  if(scan.count===0){alert('ไม่พบรูปภาพแนบในรายการเดือนเก่าที่ต้องล้าง');return;}
-  const mb=(scan.bytes/1024/1024).toFixed(2);
-  if(!confirm(`พบรูปภาพแนบในรายการเดือนเก่า ${scan.count} รูป (~${mb} MB)\n\nกด "ตกลง" เพื่อล้างรูปเหล่านี้ทิ้ง — ยอดเงิน/ชื่อรายการจะยังอยู่ครบ และเดือนปัจจุบันจะไม่ถูกแตะ`))return;
-  const result=cleanupOldImages();
-  const freedMB=(result.freedBytes/1024/1024).toFixed(2);
-  alert(`ล้างแล้ว ${result.removed} รูป ลดขนาดข้อมูลลง ~${freedMB} MB`);
-}
 function setStartupGate(state,msg){
   const gate=document.getElementById('startup-gate');
   const text=document.getElementById('startup-gate-text');
@@ -2486,65 +2473,11 @@ function getMI(y,m){
   }
   return{income:merge(t.income,'income'),expense:merge(t.expense,'expense')}
 }
-let bEId=null,bEType=null,bPayMethod='cash',bImgData=null;
+let bEId=null,bEType=null,bPayMethod='cash';
 function selectPayMethod(v){
   bPayMethod=v;
   document.querySelectorAll('#bm-pay-group .pay-toggle-btn').forEach(b=>b.classList.toggle('active',b.dataset.val===v));
 }
-// บีบอัดรูปก่อนเก็บ เพื่อไม่ให้ Firestore document มีขนาดใหญ่เกินจำเป็น
-const IMG_TARGET_CHARS=38000;
-function renderImgDataURL(img,maxDim,quality){
-  let w=img.width,h=img.height;
-  if(w>maxDim||h>maxDim){
-    if(w>h){h=Math.round(h*maxDim/w);w=maxDim}
-    else{w=Math.round(w*maxDim/h);h=maxDim}
-  }
-  const canvas=document.createElement('canvas');
-  canvas.width=w;canvas.height=h;
-  canvas.getContext('2d').drawImage(img,0,0,w,h);
-  return canvas.toDataURL('image/jpeg',quality);
-}
-function handleBmImage(event){
-  const file=event.target.files&&event.target.files[0];
-  if(!file)return;
-  const reader=new FileReader();
-  reader.onload=function(e){
-    const img=new Image();
-    img.onload=function(){
-      let dim=800,quality=0.72;
-      let dataUrl=renderImgDataURL(img,dim,quality);
-      let tries=0;
-      // ลดคุณภาพก่อน แล้วค่อยลดขนาดภาพ เพื่อให้ซิงค์ขึ้น Firestore ได้รวดเร็วและประหยัดพื้นที่
-      while(dataUrl.length>IMG_TARGET_CHARS&&tries<10){
-        if(quality>0.35){quality=Math.round((quality-0.12)*100)/100;}
-        else{dim=Math.round(dim*0.8);quality=0.5;}
-        dataUrl=renderImgDataURL(img,dim,quality);
-        tries++;
-      }
-      if(dataUrl.length>IMG_TARGET_CHARS){
-        alert('รูปภาพนี้มีรายละเอียดเยอะเกินไป ไม่สามารถบีบอัดให้เล็กพอสำหรับซิงค์ขึ้นคลาวด์ได้ กรุณาเลือกรูปอื่น (เช่น ถ่ายภาพสลิป/ใบเสร็จให้ใกล้และคมชัดแต่ไฟล์เล็กลง)');
-        return;
-      }
-      bImgData=dataUrl;
-      updateBmImgPreview();
-    };
-    img.src=e.target.result;
-  };
-  reader.readAsDataURL(file);
-  event.target.value='';
-}
-function updateBmImgPreview(){
-  const row=document.getElementById('bm-img-row'),prev=document.getElementById('bm-img-preview');
-  if(bImgData){row.style.display='flex';prev.src=bImgData;}
-  else{row.style.display='none';prev.src='';}
-}
-function removeBmImage(){bImgData=null;updateBmImgPreview();}
-function openImgLightbox(src){
-  if(!src)return;
-  document.getElementById('img-lightbox-img').src=src;
-  document.getElementById('img-lightbox-ov').classList.add('open');
-}
-function closeImgLightbox(){document.getElementById('img-lightbox-ov').classList.remove('open')}
 function addBmItemRow(name,amt){
   const list=document.getElementById('bm-items-list');
   const row=document.createElement('div');
@@ -2588,8 +2521,6 @@ function openBM(type,id){
   toggleLockAmtVisibility();
   bPayMethod=item?.payMethod||'cash';
   selectPayMethod(bPayMethod);
-  bImgData=item?.image||null;
-  updateBmImgPreview();
   document.getElementById('bm-del').style.display=id?'inline-flex':'none';
   document.getElementById('bm-ov').classList.add('open');
 }
@@ -2599,7 +2530,7 @@ function toggleLockAmtVisibility(){
   wrap.style.display=on?'block':'none';
   if(!on)document.getElementById('bm-lock-amt').checked=false;
 }
-function saveBudget(){
+async function saveBudget(){
   const rows=[...document.querySelectorAll('#bm-items-list .bm-item-row')].map(r=>({
     name:(r.querySelector('.bm-item-name').value||'').trim(),
     amount:parseFloat(r.querySelector('.bm-item-amt').value)||0
@@ -2613,7 +2544,7 @@ function saveBudget(){
   const expType=bEType==='expense'?document.getElementById('bm-exptype').value:null;
   const note=document.getElementById('bm-note').value;
   const payMethod=bPayMethod;
-  const image=bImgData;
+  const attachmentId=bEId||Date.now();
   const recurring=document.getElementById('bm-recurring').checked;
   const lockAmount=recurring&&document.getElementById('bm-lock-amt').checked;
   if(amount<0)return;
@@ -2623,7 +2554,7 @@ function saveBudget(){
   const structTmpl=(id,oldItem)=>({
     id,name,amount:lockAmount?amount:0,
     subItems:subItems?subItems.map(s=>({name:s.name,amount:lockAmount?s.amount:0})):null,
-    dueDay,tag,expType,note,payMethod,image,lockAmount,
+    dueDay,tag,expType,note,payMethod,lockAmount,
     startYear:Number.isInteger(oldItem?.startYear)?oldItem.startYear:cy,
     startMonth:Number.isInteger(oldItem?.startMonth)?oldItem.startMonth:cm,
     ...(Number.isInteger(oldItem?.endYear)&&Number.isInteger(oldItem?.endMonth)?{endYear:oldItem.endYear,endMonth:oldItem.endMonth}:{})
@@ -2642,23 +2573,23 @@ function saveBudget(){
       // เลิกเป็นรายการประจำตั้งแต่เดือนนี้ — ปิดช่วงรายการประจำไว้ที่เดือนก่อนหน้า แต่เก็บประวัติทั้งหมดไว้
       const pp=prevPeriod(cy,cm);
       const nt={...t,[bEType]:t[bEType].map(i=>i.id===bEId?{...i,endYear:pp.y,endMonth:pp.m}:i)};saveTmpls(nt);
-      const o=getOv(cy,cm);const k=bEType+'_add';o[k]=[...(o[k]||[]),{id:Date.now(),name,amount,subItems,dueDay,tag,expType,note,payMethod,image}];saveOv(cy,cm,o);
+      const o=getOv(cy,cm);const k=bEType+'_add';o[k]=[...(o[k]||[]),{id:attachmentId,name,amount,subItems,dueDay,tag,expType,note,payMethod}];saveOv(cy,cm,o);
     }else if(!isTmpl&&recurring){
       // แปลงรายการเฉพาะเดือนนี้ ให้กลายเป็นรายการประจำทุกเดือน (คงรหัสเดิมไว้)
       const o=getOv(cy,cm);const k=bEType+'_add';o[k]=(o[k]||[]).filter(i=>i.id!==bEId);saveOv(cy,cm,o);
       const nt={...t,[bEType]:[...t[bEType],structTmpl(bEId,null)]};saveTmpls(nt);
       if(!lockAmount)saveMonthlyAmt(bEId);
     }else{
-      const o=getOv(cy,cm);const k=bEType+'_add';o[k]=(o[k]||[]).map(i=>i.id===bEId?{...i,name,amount,subItems,dueDay,tag,expType,note,payMethod,image}:i);saveOv(cy,cm,o);
+      const o=getOv(cy,cm);const k=bEType+'_add';o[k]=(o[k]||[]).map(i=>i.id===bEId?{...i,name,amount,subItems,dueDay,tag,expType,note,payMethod}:i);saveOv(cy,cm,o);
     }
     addHist('budget','แก้ไข',`${bEType==='income'?'รายรับ':'รายจ่าย'}: ${name} = ${fmt(amount)}`);
   }else if(recurring){
-    const newId=Date.now();
+    const newId=attachmentId;
     const nt={...t,[bEType]:[...t[bEType],structTmpl(newId,null)]};saveTmpls(nt);
     if(!lockAmount)saveMonthlyAmt(newId);
     addHist('budget','เพิ่ม',`${bEType==='income'?'รายรับ':'รายจ่าย'} (ประจำทุกเดือน${lockAmount?' — ล็อคยอด':' — ยอดกรอกทีละเดือน'}): ${name} = ${fmt(amount)}`);
   }else{
-    const o=getOv(cy,cm);const k=bEType+'_add';o[k]=[...(o[k]||[]),{id:Date.now(),name,amount,subItems,dueDay,tag,expType,note,payMethod,image}];saveOv(cy,cm,o);
+    const o=getOv(cy,cm);const k=bEType+'_add';o[k]=[...(o[k]||[]),{id:attachmentId,name,amount,subItems,dueDay,tag,expType,note,payMethod}];saveOv(cy,cm,o);
     addHist('budget','เพิ่ม',`${bEType==='income'?'รายรับ':'รายจ่าย'}: ${name} = ${fmt(amount)}`);
   }
   closeOv('bm-ov');renderBudget();
@@ -2716,7 +2647,7 @@ function preserveHistoricalMonths(type,id,tmplItem,skipKey){
     const a=o[k]&&o[k][id];
     if(!a)continue;
     const addK=type+'_add';
-    o[addK]=[...(o[addK]||[]),{id:Date.now()+Math.floor(Math.random()*1000),name:tmplItem.name,amount:a.amount,subItems:a.subItems||null,dueDay:tmplItem.dueDay,tag:tmplItem.tag,expType:tmplItem.expType,note:tmplItem.note,payMethod:tmplItem.payMethod,image:null}];
+    o[addK]=[...(o[addK]||[]),{id:Date.now()+Math.floor(Math.random()*1000),name:tmplItem.name,amount:a.amount,subItems:a.subItems||null,dueDay:tmplItem.dueDay,tag:tmplItem.tag,expType:tmplItem.expType,note:tmplItem.note,payMethod:tmplItem.payMethod}];
     delete o[k][id];
     lss(key,o);
   }
@@ -2788,9 +2719,8 @@ function renderBBody(id,headId,items,type){
     <th style="width:11%;cursor:pointer;text-align:right" onclick="sortBy('budget','${type}','amount')">จำนวน ${si('amount')}</th>
     <th style="width:8%;text-align:center">${type==='income'?'รับแล้ว':'จ่ายแล้ว'}</th>
     <th style="width:9%;text-align:center">จ่ายผ่าน</th>
-    <th style="width:6%;text-align:center">รูป</th>
     <th style="width:18%">หมายเหตุ</th><th style="width:5%;text-align:center">✏</th>`;
-  if(!sorted.length){tb.innerHTML='<tr><td colspan="10" class="empty">ยังไม่มีรายการ</td></tr>';return}
+  if(!sorted.length){tb.innerHTML='<tr><td colspan="9" class="empty">ยังไม่มีรายการ</td></tr>';return}
   tb.innerHTML=sorted.map((item,i)=>{
     const hasSubs=item.subItems?.length>0;
     const subPaidStates=hasSubs?item.subItems.map((s,idx)=>getSubPaid(cy,cm,type,item.id,idx)):[];
@@ -2798,7 +2728,6 @@ function renderBBody(id,headId,items,type){
     const paid=hasSubs?allSubPaid:getPaid(cy,cm,type,item.id);
     const pm=item.payMethod||'cash';
     const pmBadge=pm==='credit'?'<span class="badge b-credit">💳 บัตร</span>':pm==='transfer'?'<span class="badge b-transfer">🏦 โอน</span>':'<span class="badge b-cash">💵 สด</span>';
-    const imgCell=item.image?`<img class="row-thumb" src="${item.image}" onclick="openImgLightbox('${item.image}')">`:'—';
     const nameHtml=hasSubs
       ?`<div>${item.lockAmount?'🔒 ':''}${item.subItems.map(s=>s.name).join(' + ')}</div>
          <div style="margin-top:3px">${item.subItems.map((s,idx)=>`
@@ -2818,7 +2747,6 @@ function renderBBody(id,headId,items,type){
       <td class="tr ${type==='income'?'ag':'ac'}">${fmt(item.amount)}</td>
       <td class="tc">${paidCell}</td>
       <td class="tc">${pmBadge}</td>
-      <td class="tc">${imgCell}</td>
       <td style="font-size:12px;color:var(--g400)">${item.note||'—'}</td>
       <td class="tc">${noSort?reorderBtns(`reorderBudgetItem('${type}',${item.id},-1)`,`reorderBudgetItem('${type}',${item.id},1)`,i>0,i<sorted.length-1):''}<button class="icon-btn" onclick="openBM('${type}',${item.id})">✏</button></td>
     </tr>`;
@@ -3101,12 +3029,13 @@ function openDM(id){
   document.getElementById('dm-del').style.display=id?'inline-flex':'none';
   document.getElementById('dm-ov').classList.add('open');
 }
-function saveDebt(){
+async function saveDebt(){
   const name=(document.getElementById('dm-name').value||'').trim();if(!name)return;
   const instSel=document.getElementById('dm-inst').value;
   const installmentPlan=instSel==='other'?(document.getElementById('dm-inst-custom').value||'อื่นๆ'):instSel;
   const dmLimit=parseFloat(document.getElementById('dm-lim').value)||0;
   const dmRemaining=parseFloat(document.getElementById('dm-remaining').value)||0;
+  const saveId=dEId||Date.now();
   const obj={name,cat:document.getElementById('dm-cat').value,status:document.getElementById('dm-stat').value,
     rate:parseFloat(document.getElementById('dm-rate').value)||null,
     limit:dmLimit,
@@ -3119,7 +3048,7 @@ function saveDebt(){
     type:document.getElementById('dm-type').value,note:document.getElementById('dm-note').value};
   let d=getDebts();
   if(dEId){d=d.map(i=>i.id===dEId?{...i,...obj}:i);addHist('debt','แก้ไข',`${name} วงเงินคงเหลือ ${fmt(dmRemaining)} / ${fmt(obj.limit)}`);}
-  else{d.push({id:Date.now(),...obj});addHist('debt','เพิ่ม',`${name} วงเงิน ${fmt(obj.limit)}`);}
+  else{d.push({id:saveId,...obj});addHist('debt','เพิ่ม',`${name} วงเงิน ${fmt(obj.limit)}`);}
   saveDebts(d);closeOv('dm-ov');renderDebt();
 }
 function delDebt(){
@@ -3298,8 +3227,9 @@ function openTM(id){
   document.getElementById('tm-del').style.display=id?'inline-flex':'none';
   document.getElementById('tm-ov').classList.add('open');
 }
-function saveTodoItem(){
+async function saveTodoItem(){
   const name=(document.getElementById('tm-name').value||'').trim();if(!name)return;
+  const saveId=tEId||(getTodos().length?Math.max(...getTodos().map(i=>i.id))+1:1);
   const obj={name,user:(document.getElementById('tm-user').value||'').trim(),due:document.getElementById('tm-due').value,time:document.getElementById('tm-time').value,
     price:parseFloat(document.getElementById('tm-price').value)||0,
     createdDate:document.getElementById('tm-created').value||new Date().toISOString().slice(0,10),
@@ -3309,7 +3239,7 @@ function saveTodoItem(){
     t=t.map(i=>i.id===tEId?{...i,...obj}:i);
     addHist('todo','แก้ไข',`${name} (ครบกำหนด ${obj.due||'—'}${obj.time?' '+obj.time+' น.':''})`);
   }else{
-    const newId=t.length?Math.max(...t.map(i=>i.id))+1:1;
+    const newId=saveId;
     t.push({id:newId,done:false,...obj});
     addHist('todo','เพิ่ม',`${name} (ครบกำหนด ${obj.due||'—'}${obj.time?' '+obj.time+' น.':''})`);
   }
@@ -3377,7 +3307,7 @@ function renderTodo(){
   const pending=items.filter(t=>!t.done);
   const done=items.filter(t=>t.done);
   if(!pending.length){
-    body.innerHTML='<tr><td colspan="12" class="empty">ยังไม่มีรายการ</td></tr>';
+    body.innerHTML='<tr><td colspan="13" class="empty">ยังไม่มีรายการ</td></tr>';
   }else{
     body.innerHTML=pending.map((t,i)=>{
       const r=renderTodoRow(t,i,pending.length,today);
@@ -3387,7 +3317,7 @@ function renderTodo(){
     }).join('');
   }
   if(!done.length){
-    doneBody.innerHTML='<tr><td colspan="12" class="empty">ยังไม่มีรายการที่ทำเสร็จแล้ว</td></tr>';
+    doneBody.innerHTML='<tr><td colspan="13" class="empty">ยังไม่มีรายการที่ทำเสร็จแล้ว</td></tr>';
   }else{
     doneBody.innerHTML=done.map((t,i)=>renderTodoRow(t,i,done.length,today).html).join('');
   }
@@ -3959,7 +3889,10 @@ function renderRiderSummary(){
   const goalNet=Math.max(0,net);
   const pct=goal>0?(goalNet/goal*100):0;
   const gi=document.getElementById('rider-month-goal');if(gi&&document.activeElement!==gi)gi.value=goal||'';
-  put('rider-goal-progress',`ทำได้สุทธิ ${goal>0?pct.toFixed(pct>=100?0:1):'0'}%`);
+  const pctText=goal>0?pct.toFixed(pct>=100?0:1):'0';
+  put('rider-goal-progress',`ทำได้สุทธิ ${pctText}%`);
+  put('rider-goal-pct',`${pctText}%`);
+  put('rider-goal-income',fmt(income));put('rider-goal-expense',fmt(expense));put('rider-goal-net',fmt(goalNet));
   put('rider-goal-detail',`${fmt(goalNet)} / ${fmt(goal)} · รายรับ ${fmt(income)} - รายจ่าย ${fmt(expense)}`);
   // ยอดที่ยังต้องเก็บต่อ คำนวณจากคงเหลือสุทธิหลังหักรายจ่ายแล้ว
   const td=new Date(),daysInMonth=new Date(riderY,riderM+1,0).getDate();
@@ -3974,6 +3907,9 @@ function renderRiderSummary(){
   else if(daysLeft>0)dailyText=`เหลือ ${daysLeft} วัน · ต้องเก็บสุทธิอีก ${fmt(netRemaining)} · เฉลี่ย ${fmt(perDay)}/วัน`;
   else dailyText=`สิ้นเดือนแล้ว · ยังขาดจากเป้าหมาย ${fmt(netRemaining)}`;
   put('rider-goal-daily',dailyText);
+  put('rider-goal-days',`${daysLeft} วัน`);
+  put('rider-goal-remaining',fmt(netRemaining));
+  put('rider-goal-perday',`${fmt(perDay)} / วัน`);
   const gf=document.getElementById('rider-goal-bar-fill');if(gf)gf.style.width=`${Math.min(100,Math.max(0,pct))}%`;
   const ne=document.getElementById('rider-net');if(ne){ne.classList.toggle('vneg',net<0);ne.classList.toggle('vb',net>=0)}
 }
