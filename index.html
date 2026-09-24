@@ -1229,6 +1229,14 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   <div class="modal-actions"><button class="btn btn-ghost" onclick="closeOv('rider-entry-ov')">ยกเลิก</button><button class="btn btn-pri" onclick="saveRiderEntry()">บันทึกข้อมูล</button></div>
 </div></div>
 
+<!-- Rider off-work reason modal -->
+<div class="ov" id="rider-off-ov"><div class="modal rider-off-modal">
+  <span class="modal-drag"></span>
+  <div class="rider-entry-head"><div><h3>เหตุผลหยุดงาน</h3><div class="sub" id="rider-off-date">—</div></div><button class="icon-btn" onclick="closeOv('rider-off-ov')">✕</button></div>
+  <div class="field"><label>เหตุผลที่หยุดงาน</label><textarea id="rider-off-reason" rows="4" maxlength="220" placeholder="เช่น พักผ่อน / ฝนตก / มีธุระ / รถเข้าศูนย์"></textarea></div>
+  <div class="modal-actions"><button class="btn btn-ghost" onclick="closeOv('rider-off-ov')">ยกเลิก</button><button class="btn btn-pri" onclick="saveRiderOffReason()">บันทึกหยุดงาน</button></div>
+</div></div>
+
 <!-- PAGE: USER-LOGIN -->
 <div id="page-logins" class="page">
   <div class="page-head">
@@ -1640,7 +1648,9 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 .rider-entry-expenses{display:grid;gap:8px;margin:0 20px}.rider-entry-exp-row{display:grid;grid-template-columns:minmax(0,1fr) 125px 38px;gap:8px;align-items:center}.rider-entry-exp-row input{box-sizing:border-box;width:100%;min-width:0;border:1px solid var(--g200);border-radius:10px;padding:10px;background:var(--input-bg);color:var(--g900);font:650 13px var(--font);outline:none}.rider-entry-exp-row input:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(59,130,246,.08)}
 .rider-entry-exp-del{height:38px;border:0;border-radius:10px;background:var(--red50);color:var(--red);font-size:18px;font-weight:900;cursor:pointer}.rider-entry-total,.rider-entry-net{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;margin:10px 20px 0;border-radius:11px;background:var(--g50);font-size:13px;font-weight:700}.rider-entry-total strong{font-size:15px;color:var(--red)}.rider-entry-net{background:var(--blue50);margin-top:7px}.rider-entry-net strong{color:var(--blue);font-size:18px}.rider-entry-modal>.modal-actions{margin-top:16px;padding:14px 20px 18px;background:var(--surface2);border-top:1px solid var(--g100);display:flex;justify-content:flex-end;gap:8px}
 .rider-day-money-summary{margin-top:8px;padding:8px;border-radius:8px;background:var(--g50);font-size:11px;line-height:1.65}.rider-day-note{margin-top:6px;padding:6px 7px;border-radius:7px;background:var(--amber50);color:var(--g700);font-size:10px;line-height:1.35;white-space:normal;overflow-wrap:anywhere}.rider-day-note b{color:var(--amber)}.rider-day-money-summary b{font-size:12px}.rider-entry-open{width:100%;margin-top:7px;border:1px solid var(--blue);background:var(--blue50);color:var(--blue);border-radius:8px;padding:7px 5px;font:700 11px var(--font);cursor:pointer}.rider-entry-open:disabled{opacity:.55;cursor:not-allowed}
-@media(max-width:520px){#rider-entry-ov{padding:10px}.rider-entry-modal{width:calc(100vw - 20px);max-height:calc(100dvh - 20px);overflow-y:auto;border-radius:15px}.rider-entry-head{padding:15px}.rider-entry-modal>.field{margin-left:15px;margin-right:15px}.rider-entry-exp-head{margin-left:15px;margin-right:15px}.rider-entry-expenses{margin-left:15px;margin-right:15px}.rider-entry-exp-row{grid-template-columns:minmax(0,1fr) 92px 34px;gap:5px}.rider-entry-total,.rider-entry-net{margin-left:15px;margin-right:15px}.rider-entry-modal>.modal-actions{padding:12px 15px 15px;position:sticky;bottom:0}.rider-entry-modal>.modal-actions .btn{flex:1}.rider-entry-head h3{font-size:16px}}
+.rider-off-modal{max-width:500px;width:min(500px,calc(100vw - 32px));border-radius:18px;padding:0;overflow:hidden;border:1px solid var(--g200);box-shadow:0 24px 70px rgba(15,23,42,.22)}
+.rider-off-modal>.field{margin:16px 20px}.rider-off-modal>.field label{display:block;margin-bottom:7px;font-size:12px;font-weight:800;color:var(--g700)}.rider-off-modal textarea{width:100%;box-sizing:border-box;border:1px solid var(--g200);border-radius:11px;background:var(--input-bg);color:var(--g900);padding:11px 12px;font:650 14px var(--font);resize:vertical;min-height:105px;outline:none}.rider-off-modal textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(59,130,246,.10)}.rider-off-modal>.modal-actions{padding:14px 20px 18px;background:var(--surface2);border-top:1px solid var(--g100);display:flex;justify-content:flex-end;gap:8px}.rider-off-reason-view{margin-top:6px;padding:6px 7px;border-radius:7px;background:var(--amber50);font-size:10px;line-height:1.4;overflow-wrap:anywhere}.rider-off-edit{width:100%;margin-top:7px;border:1px solid var(--amber);background:var(--amber50);color:var(--amber);border-radius:7px;padding:5px;font:700 10px var(--font);cursor:pointer}
+@media(max-width:520px){#rider-entry-ov{padding:10px}#rider-off-ov{padding:10px}.rider-off-modal{width:calc(100vw - 20px);max-height:calc(100dvh - 20px);overflow-y:auto;border-radius:15px}.rider-off-modal>.field{margin:15px}.rider-off-modal>.modal-actions{padding:12px 15px 15px}.rider-off-modal>.modal-actions .btn{flex:1}.rider-entry-modal{width:calc(100vw - 20px);max-height:calc(100dvh - 20px);overflow-y:auto;border-radius:15px}.rider-entry-head{padding:15px}.rider-entry-modal>.field{margin-left:15px;margin-right:15px}.rider-entry-exp-head{margin-left:15px;margin-right:15px}.rider-entry-expenses{margin-left:15px;margin-right:15px}.rider-entry-exp-row{grid-template-columns:minmax(0,1fr) 92px 34px;gap:5px}.rider-entry-total,.rider-entry-net{margin-left:15px;margin-right:15px}.rider-entry-modal>.modal-actions{padding:12px 15px 15px;position:sticky;bottom:0}.rider-entry-modal>.modal-actions .btn{flex:1}.rider-entry-head h3{font-size:16px}}
 
 .sideincome-tabs{display:flex;gap:8px;margin-bottom:.75rem}
 .sideincome-tab{border:1px solid var(--g200);background:var(--surface);color:var(--g900);padding:8px 14px;border-radius:10px;font:600 12px var(--font);box-shadow:var(--shadow)}
@@ -3820,15 +3830,37 @@ function changeRiderMonth(step){
   renderRider();
 }
 function goRiderToday(){const d=new Date();riderY=d.getFullYear();riderM=d.getMonth();renderRider()}
+let riderOffKey=null;
+function openRiderOffReason(key){
+  if(riderIsLockedKey(key))return;
+  const all=getRiderDays(),cur=all[key]||{};
+  riderOffKey=key;
+  const parts=key.split('-').map(Number);
+  document.getElementById('rider-off-date').textContent=`${parts[2]} ${MN[parts[1]-1]} ${parts[0]+543}`;
+  document.getElementById('rider-off-reason').value=String(cur.offReason||'');
+  document.getElementById('rider-off-ov').classList.add('open');
+  setTimeout(()=>document.getElementById('rider-off-reason')?.focus(),80);
+}
+function saveRiderOffReason(){
+  if(!riderOffKey||riderIsLockedKey(riderOffKey))return;
+  const reason=String(document.getElementById('rider-off-reason')?.value||'').trim();
+  if(!reason){alert('กรุณากรอกเหตุผลหยุดงาน');return}
+  const all=getRiderDays(),cur=all[riderOffKey]||{};
+  cur.status='off';cur.income=0;cur.expense=0;cur.expenses=[];cur.offReason=reason;
+  all[riderOffKey]=cur;saveRiderDays(all);
+  if(riderResetActive(riderOffKey)&&riderIsPastKey(riderOffKey))bumpRiderResetEdit(riderOffKey);
+  closeOv('rider-off-ov');riderOffKey=null;renderRider();
+}
 function setRiderStatus(key,status){
   if(riderIsLockedKey(key))return;
+  if(status==='off'){openRiderOffReason(key);return}
   const all=getRiderDays();
   const cur=all[key]||{};
   if(cur.status===status){
     delete all[key];
   }else{
     all[key]={...cur,status};
-    if(status==='off'){all[key].income=0;all[key].expense=0;all[key].expenses=[]}
+    if(status==='work')delete all[key].offReason;
   }
   saveRiderDays(all);renderRider();
 }
@@ -3978,7 +4010,7 @@ function renderRider(){
         <button class="rider-status-btn work${work?' active':''}" onclick="${isLocked?'':'setRiderStatus(\''+key+'\',\'work\');openRiderEntry(\''+key+'\')'}"${lockAttr}>✓ ทำงาน</button>
         <button class="rider-status-btn off${off?' active':''}" onclick="setRiderStatus('${key}','off')"${lockAttr}>หยุดงาน</button>
       </div>
-      ${work?`<div class="rider-day-money-summary"><div>รายรับ <b class="ag">${fmt(income)}</b></div><div>รายจ่าย <b class="ac">${fmt(expense)}</b></div><div>สุทธิ <b class="${net>=0?'ab':'ac'}">${fmt(net)}</b></div></div>${note?`<div class="rider-day-note"><b>หมายเหตุ:</b> ${riderEsc(note)}</div>`:''}${isLocked?'<div class="rider-locked-note">🔒 แก้ไขไม่ได้</div>':`<button class="rider-entry-open" onclick="openRiderEntry('${key}')">✏ กรอกรายรับ-รายจ่าย</button>`}`:off?`<div class="rider-day-off-note">พักวันนี้${isLocked?'<br><span class="rider-locked-note">🔒 ล็อกแล้ว</span>':''}</div>`:`<div class="rider-day-off-note">${isLocked?'🔒 ล็อกแล้ว':resetActive&&isPast?`แก้ย้อนหลังได้ ${Math.max(0,2-resetEdits)} ครั้ง`:'ยังไม่ระบุ'}</div>`}
+      ${work?`<div class="rider-day-money-summary"><div>รายรับ <b class="ag">${fmt(income)}</b></div><div>รายจ่าย <b class="ac">${fmt(expense)}</b></div><div>สุทธิ <b class="${net>=0?'ab':'ac'}">${fmt(net)}</b></div></div>${note?`<div class="rider-day-note"><b>หมายเหตุ:</b> ${riderEsc(note)}</div>`:''}${isLocked?'<div class="rider-locked-note">🔒 แก้ไขไม่ได้</div>':`<button class="rider-entry-open" onclick="openRiderEntry('${key}')">✏ กรอกรายรับ-รายจ่าย</button>`}`:off?`<div class="rider-day-off-note">พักวันนี้${it.offReason?`<div class="rider-off-reason-view"><b>เหตุผล:</b> ${riderEsc(it.offReason)}</div>`:''}${isLocked?'<br><span class="rider-locked-note">🔒 ล็อกแล้ว</span>':`<button class="rider-off-edit" onclick="openRiderOffReason('${key}')">✏ แก้เหตุผล</button>`}</div>`:`<div class="rider-day-off-note">${isLocked?'🔒 ล็อกแล้ว':resetActive&&isPast?`แก้ย้อนหลังได้ ${Math.max(0,2-resetEdits)} ครั้ง`:'ยังไม่ระบุ'}</div>`}
     </div>`;
   }
   const total=firstDay+days,trail=(7-total%7)%7;
