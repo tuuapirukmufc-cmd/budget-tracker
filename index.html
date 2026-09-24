@@ -3752,7 +3752,12 @@ function riderResetInfo(key){const all=getRiderResetMeta();return all[riderMonth
 function riderResetEditCount(key){const info=riderResetInfo(key);return info&&info.active?Math.max(0,parseInt(info.edits?.[key])||0):0}
 function riderResetActive(key){return !!riderResetInfo(key)?.active}
 function riderIsLockedKey(key){
-  if(riderResetActive(key))return riderResetEditCount(key)>=2;
+  // หลังเคลียร์กระดาน: จำกัด 2 ครั้งเฉพาะวันย้อนหลังเท่านั้น
+  // วันนี้และวันอนาคตยังแก้ไขได้ตามปกติ ไม่จำกัดจำนวนครั้ง
+  if(riderResetActive(key)){
+    if(!riderIsPastKey(key))return false;
+    return riderResetEditCount(key)>=2;
+  }
   return riderIsPastKey(key);
 }
 function bumpRiderResetEdit(key){
@@ -3762,12 +3767,12 @@ function bumpRiderResetEdit(key){
 }
 function clearRiderBoard(){
   const mk=riderCurrentMonthKey();
-  if(!confirm(`เคลียร์กระดาน ${MN[riderM]} ${riderY+543} ?\n\nรายรับ รายจ่าย สถานะ และหมายเหตุของเดือนนี้จะถูกล้างเป็น 0/ว่างทั้งหมด\nหลังเคลียร์ แต่ละวันจะบันทึกข้อมูลใหม่ได้สูงสุด 2 ครั้ง แล้ววันนั้นจะล็อก`))return;
+  if(!confirm(`เคลียร์กระดาน ${MN[riderM]} ${riderY+543} ?\n\nรายรับ รายจ่าย สถานะ และหมายเหตุของเดือนนี้จะถูกล้างเป็น 0/ว่างทั้งหมด\nหลังเคลียร์ วันย้อนหลังจะบันทึก/แก้ไขได้สูงสุด 2 ครั้ง แล้ววันนั้นจะล็อก\nส่วนวันนี้และวันอนาคตยังแก้ไขได้ตามปกติ`))return;
   const all=getRiderDays();
   Object.keys(all).forEach(k=>{if(k.startsWith(mk+'-'))delete all[k]});
   saveRiderDays(all);
   const meta=getRiderResetMeta(),prev=meta[mk]||{};
-  meta[mk]={active:true,clears:(parseInt(prev.clears)||0)+1,edits:prev.edits||{},clearedAt:Date.now()};
+  meta[mk]={active:true,clears:(parseInt(prev.clears)||0)+1,edits:{},clearedAt:Date.now()};
   saveRiderResetMeta(meta);
   renderRider();
 }
@@ -3897,7 +3902,7 @@ function saveRiderEntry(){
   cur.status='work';cur.income=Math.max(0,parseFloat(document.getElementById('rider-entry-income').value)||0);
   cur.note=String(document.getElementById('rider-entry-note')?.value||'').trim();
   cur.expenses=riderEntryDraft.map(e=>({name:String(e.name||'').trim(),amount:Math.max(0,parseFloat(e.amount)||0)})).filter(e=>e.name||e.amount>0);delete cur.expense;
-  all[riderEntryKey]=cur;saveRiderDays(all);bumpRiderResetEdit(riderEntryKey);closeOv('rider-entry-ov');riderEntryKey=null;renderRider();
+  all[riderEntryKey]=cur;saveRiderDays(all);if(riderResetActive(riderEntryKey)&&riderIsPastKey(riderEntryKey))bumpRiderResetEdit(riderEntryKey);closeOv('rider-entry-ov');riderEntryKey=null;renderRider();
 }
 document.addEventListener('input',e=>{if(e.target&&e.target.id==='rider-entry-income')calcRiderEntryTotals()});
 function getRiderMonthRows(){
@@ -3968,12 +3973,12 @@ function renderRider(){
     const work=it.status==='work',off=it.status==='off';
     const income=parseFloat(it.income)||0,expense=riderExpenseTotal(it),net=income-expense,note=String(it.note||'').trim();
     html+=`<div class="rider-day${isToday?' today':''}${isPast&&!resetActive?' past':''}${isLocked&&resetActive?' reset-locked':''}">
-      <div class="rider-day-num"><span>${d}</span>${isToday?'<span class="rider-today-badge">วันนี้</span>':isLocked?'<span class="rider-locked-badge">ล็อกแล้ว</span>':''}${resetActive&&!isLocked?`<span class="rider-reset-badge">กรอกใหม่ ${resetEdits}/2</span>`:''}</div>
+      <div class="rider-day-num"><span>${d}</span>${isToday?'<span class="rider-today-badge">วันนี้</span>':isLocked?'<span class="rider-locked-badge">ล็อกแล้ว</span>':''}${resetActive&&isPast&&!isLocked?`<span class="rider-reset-badge">แก้ย้อนหลัง ${resetEdits}/2</span>`:''}</div>
       <div class="rider-status-btns">
         <button class="rider-status-btn work${work?' active':''}" onclick="${isLocked?'':'setRiderStatus(\''+key+'\',\'work\');openRiderEntry(\''+key+'\')'}"${lockAttr}>✓ ทำงาน</button>
         <button class="rider-status-btn off${off?' active':''}" onclick="setRiderStatus('${key}','off')"${lockAttr}>หยุดงาน</button>
       </div>
-      ${work?`<div class="rider-day-money-summary"><div>รายรับ <b class="ag">${fmt(income)}</b></div><div>รายจ่าย <b class="ac">${fmt(expense)}</b></div><div>สุทธิ <b class="${net>=0?'ab':'ac'}">${fmt(net)}</b></div></div>${note?`<div class="rider-day-note"><b>หมายเหตุ:</b> ${riderEsc(note)}</div>`:''}${isLocked?'<div class="rider-locked-note">🔒 แก้ไขไม่ได้</div>':`<button class="rider-entry-open" onclick="openRiderEntry('${key}')">✏ กรอกรายรับ-รายจ่าย</button>`}`:off?`<div class="rider-day-off-note">พักวันนี้${isLocked?'<br><span class="rider-locked-note">🔒 ล็อกแล้ว</span>':''}</div>`:`<div class="rider-day-off-note">${isLocked?'🔒 ล็อกแล้ว':resetActive?`กรอกใหม่ได้ ${Math.max(0,2-resetEdits)} ครั้ง`:'ยังไม่ระบุ'}</div>`}
+      ${work?`<div class="rider-day-money-summary"><div>รายรับ <b class="ag">${fmt(income)}</b></div><div>รายจ่าย <b class="ac">${fmt(expense)}</b></div><div>สุทธิ <b class="${net>=0?'ab':'ac'}">${fmt(net)}</b></div></div>${note?`<div class="rider-day-note"><b>หมายเหตุ:</b> ${riderEsc(note)}</div>`:''}${isLocked?'<div class="rider-locked-note">🔒 แก้ไขไม่ได้</div>':`<button class="rider-entry-open" onclick="openRiderEntry('${key}')">✏ กรอกรายรับ-รายจ่าย</button>`}`:off?`<div class="rider-day-off-note">พักวันนี้${isLocked?'<br><span class="rider-locked-note">🔒 ล็อกแล้ว</span>':''}</div>`:`<div class="rider-day-off-note">${isLocked?'🔒 ล็อกแล้ว':resetActive&&isPast?`แก้ย้อนหลังได้ ${Math.max(0,2-resetEdits)} ครั้ง`:'ยังไม่ระบุ'}</div>`}
     </div>`;
   }
   const total=firstDay+days,trail=(7-total%7)%7;
