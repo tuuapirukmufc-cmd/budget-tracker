@@ -220,6 +220,22 @@ table.tbl tr.dim .iname{text-decoration:line-through}
 .mnav button:hover{background:var(--g100)}
 .mnav-label{font-size:13px;font-weight:600;min-width:125px;text-align:center}
 
+/* Todo sub-items */
+.todo-main-name{font-weight:800;color:var(--g900)}
+.todo-sub-list{margin-top:7px;display:flex;flex-direction:column;gap:5px}
+.todo-sub-item{display:grid;grid-template-columns:minmax(110px,1fr) minmax(120px,1.4fr) auto;gap:7px;align-items:center;padding:6px 8px;border:1px solid var(--g100);border-radius:8px;background:var(--surface2);font-size:11px}
+.todo-sub-item .sub-name{font-weight:750;color:var(--g800)}
+.todo-sub-item .sub-detail{color:var(--g500);white-space:normal;overflow-wrap:anywhere}
+.todo-sub-item .sub-price{font-weight:800;color:var(--green);white-space:nowrap}
+.todo-sub-editor{margin-top:10px;padding:10px;border:1px solid var(--g200);border-radius:10px;background:var(--surface2)}
+.todo-sub-editor-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;font-weight:800;font-size:12px}
+.todo-sub-edit-row{display:grid;grid-template-columns:1fr 1.4fr 100px 34px;gap:6px;margin-bottom:6px;align-items:center}
+.todo-sub-edit-row input{width:100%;min-width:0}
+.todo-sub-total{text-align:right;font-size:11px;font-weight:800;color:var(--g600);margin-top:5px}
+@media(max-width:640px){
+ .todo-sub-item{grid-template-columns:1fr auto}.todo-sub-item .sub-detail{grid-column:1/-1;grid-row:2}
+ .todo-sub-edit-row{grid-template-columns:1fr 90px 34px}.todo-sub-edit-row .todo-sub-detail{grid-column:1/-1;grid-row:2}
+}
 /* modal */
 .ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:400;align-items:flex-end;justify-content:center}
 .ov.open{display:flex}
@@ -1510,6 +1526,11 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   <h3 id="tm-title">เพิ่มรายการ</h3>
   <div class="f"><label>ชื่อรายการ</label><input type="text" id="tm-name" placeholder="เช่น ต่อประกันรถยนต์"></div>
   <div class="f"><label>ผู้ใช้งาน</label><input type="text" id="tm-user" placeholder="เช่น อภิรักษ์"></div>
+  <div class="todo-sub-editor">
+    <div class="todo-sub-editor-head"><span>รายการรอง</span><button type="button" class="btn btn-ghost btn-sm" onclick="addTodoSubRow()">+ เพิ่มรายการรอง</button></div>
+    <div id="tm-subitems"></div>
+    <div class="todo-sub-total" id="tm-subtotal">รวมรายการรอง ฿0</div>
+  </div>
   <div class="f-row">
     <div class="f"><label>วันครบกำหนด</label><input type="date" id="tm-due"></div>
     <div class="f"><label>เวลานัดหมาย</label><input type="time" id="tm-time"></div>
@@ -3228,9 +3249,31 @@ function reorderTodo(id,direction){
   renderTodo();
 }
 let tEId=null;
+let todoSubDraft=[];
+function todoEsc(v){return String(v??'').replace(/[&<>\"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[c]))}
+function todoEscAttr(v){return todoEsc(v)}
+function normalizeTodoSubs(item){
+  return Array.isArray(item?.subItems)?item.subItems.map(x=>({name:String(x?.name||''),detail:String(x?.detail||''),price:Math.max(0,parseFloat(x?.price)||0)})):[];
+}
+function renderTodoSubEditor(){
+  const box=document.getElementById('tm-subitems');if(!box)return;
+  box.innerHTML=todoSubDraft.length?todoSubDraft.map((x,i)=>`<div class="todo-sub-edit-row">
+    <input type="text" value="${todoEscAttr(x.name)}" placeholder="ชื่อรายการรอง" oninput="setTodoSub(${i},'name',this.value)">
+    <input class="todo-sub-detail" type="text" value="${todoEscAttr(x.detail)}" placeholder="รายละเอียด เช่น รุ่น / สี / ร้าน" oninput="setTodoSub(${i},'detail',this.value)">
+    <input type="number" min="0" step="1" value="${x.price||''}" placeholder="ราคา" oninput="setTodoSub(${i},'price',this.value)">
+    <button type="button" class="icon-btn" onclick="removeTodoSubRow(${i})" title="ลบ">×</button>
+  </div>`).join(''):'<div class="sub" style="padding:4px 0">ยังไม่มีรายการรอง</div>';
+  const total=todoSubDraft.reduce((a,x)=>a+(parseFloat(x.price)||0),0);
+  const el=document.getElementById('tm-subtotal');if(el)el.textContent=`รวมรายการรอง ${fmt(total)}`;
+}
+function addTodoSubRow(){todoSubDraft.push({name:'',detail:'',price:0});renderTodoSubEditor()}
+function removeTodoSubRow(i){todoSubDraft.splice(i,1);renderTodoSubEditor()}
+function setTodoSub(i,field,value){if(!todoSubDraft[i])return;todoSubDraft[i][field]=field==='price'?(parseFloat(value)||0):value;const el=document.getElementById('tm-subtotal');if(el)el.textContent=`รวมรายการรอง ${fmt(todoSubDraft.reduce((a,x)=>a+(parseFloat(x.price)||0),0))}`}
 function openTM(id){
   tEId=id||null;
   const item=id?getTodos().find(t=>t.id===id):null;
+  todoSubDraft=normalizeTodoSubs(item);
+  renderTodoSubEditor();
   document.getElementById('tm-title').textContent=id?'แก้ไขรายการ':'เพิ่มรายการ';
   document.getElementById('tm-name').value=item?.name||'';
   document.getElementById('tm-user').value=item?.user||'';
@@ -3247,7 +3290,8 @@ function openTM(id){
 async function saveTodoItem(){
   const name=(document.getElementById('tm-name').value||'').trim();if(!name)return;
   const saveId=tEId||(getTodos().length?Math.max(...getTodos().map(i=>i.id))+1:1);
-  const obj={name,user:(document.getElementById('tm-user').value||'').trim(),due:document.getElementById('tm-due').value,time:document.getElementById('tm-time').value,
+  const subItems=todoSubDraft.map(x=>({name:String(x.name||'').trim(),detail:String(x.detail||'').trim(),price:Math.max(0,parseFloat(x.price)||0)})).filter(x=>x.name||x.detail||x.price);
+  const obj={name,user:(document.getElementById('tm-user').value||'').trim(),subItems,due:document.getElementById('tm-due').value,time:document.getElementById('tm-time').value,
     price:parseFloat(document.getElementById('tm-price').value)||0,
     createdDate:document.getElementById('tm-created').value||new Date().toISOString().slice(0,10),
     priority:document.getElementById('tm-pri').value,location:(document.getElementById('tm-loc').value||'').trim(),mapLink:(document.getElementById('tm-maplink').value||'').trim()};
@@ -3297,11 +3341,15 @@ function renderTodoRow(t,i,groupLen,today){
   const timeLabel=t.time?`${t.time} น.`:'—';
   const locHtml=t.location?`<span style="font-size:13px">${t.location}</span>`:'<span class="pill">—</span>';
   const mapHtml=t.mapLink?`<a href="${t.mapLink}" target="_blank" rel="noopener" class="loc-link" title="เปิดใน Google Maps">📍 แผนที่</a>`:'<span class="pill">—</span>';
-  const priceLabel=t.price?fmt(t.price):'—';
+  const subs=normalizeTodoSubs(t);
+  const subTotal=subs.reduce((a,x)=>a+(parseFloat(x.price)||0),0);
+  const totalPrice=(parseFloat(t.price)||0)+subTotal;
+  const priceLabel=totalPrice?fmt(totalPrice):'—';
+  const subHtml=subs.length?`<div class="todo-sub-list">${subs.map(x=>`<div class="todo-sub-item"><span class="sub-name">↳ ${todoEsc(x.name||'รายการรอง')}</span><span class="sub-detail">${todoEsc(x.detail||'—')}</span><span class="sub-price">${x.price?fmt(x.price):'—'}</span></div>`).join('')}</div>`:'';
   const createdLabel=t.createdDate?new Date(t.createdDate+'T00:00:00').toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric'}):'—';
   return{isOverdue,isSoon,html:`<tr class="${t.done?'dim':''}">
     <td class="tc"><div class="chk"><input type="checkbox" ${t.done?'checked':''} onchange="toggleTodoDone(${t.id})"></div></td>
-    <td><div class="iname" style="font-weight:600">${t.name}</div></td>
+    <td><div class="todo-main-name">${todoEsc(t.name)}</div>${subHtml}</td>
     <td>${t.user?`<span style="font-size:13px;font-weight:700">${t.user}</span>`:`<span class="pill">—</span>`}</td>
     <td>${dueLabel}</td>
     <td class="tc">${timeLabel}</td>
