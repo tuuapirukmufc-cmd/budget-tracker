@@ -227,14 +227,25 @@ table.tbl tr.dim .iname{text-decoration:line-through}
 .todo-sub-item .sub-name{font-weight:750;color:var(--g800)}
 .todo-sub-item .sub-detail{color:var(--g500);white-space:normal;overflow-wrap:anywhere}
 .todo-sub-item .sub-price{font-weight:800;color:var(--green);white-space:nowrap}
-.todo-sub-editor{margin-top:10px;padding:10px;border:1px solid var(--g200);border-radius:10px;background:var(--surface2)}
-.todo-sub-editor-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;font-weight:800;font-size:12px}
-.todo-sub-edit-row{display:grid;grid-template-columns:1fr 1.4fr 100px 34px;gap:6px;margin-bottom:6px;align-items:center}
-.todo-sub-edit-row input{width:100%;min-width:0}
-.todo-sub-total{text-align:right;font-size:11px;font-weight:800;color:var(--g600);margin-top:5px}
+.todo-sub-editor{margin-top:12px;padding:12px;border:1px solid var(--g200);border-radius:14px;background:var(--surface2)}
+.todo-sub-editor-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;font-weight:850;font-size:12px}
+.todo-sub-edit-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.45fr) minmax(95px,.55fr) 36px;gap:8px;margin-bottom:9px;align-items:end;padding:10px;border:1px solid var(--g100);border-radius:11px;background:var(--surface)}
+.todo-sub-field{display:flex;flex-direction:column;gap:5px;min-width:0}
+.todo-sub-field label{font-size:10px;font-weight:800;color:var(--g500);line-height:1}
+.todo-sub-field input{width:100%;min-width:0;height:36px;border:1px solid var(--g200);border-radius:8px;background:var(--input-bg);color:var(--g900);padding:7px 9px;font:600 12px var(--font)}
+.todo-sub-field input:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 2px color-mix(in srgb,var(--green) 12%,transparent)}
+.todo-sub-remove{width:36px;height:36px;align-self:end}
+.todo-sub-total{display:flex;justify-content:flex-end;align-items:center;min-height:28px;padding:5px 8px;border-radius:8px;background:var(--g100);font-size:11px;font-weight:850;color:var(--g700);margin-top:4px}
 @media(max-width:640px){
+ .todo-sub-editor{padding:10px;border-radius:12px}
+ .todo-sub-editor-head{align-items:center;margin-bottom:9px}
+ .todo-sub-editor-head .btn{padding:6px 9px;font-size:11px;white-space:nowrap}
  .todo-sub-item{grid-template-columns:1fr auto}.todo-sub-item .sub-detail{grid-column:1/-1;grid-row:2}
- .todo-sub-edit-row{grid-template-columns:1fr 90px 34px}.todo-sub-edit-row .todo-sub-detail{grid-column:1/-1;grid-row:2}
+ .todo-sub-edit-row{grid-template-columns:minmax(0,1fr) minmax(88px,.45fr) 34px;gap:7px;padding:9px}
+ .todo-sub-edit-row .todo-sub-detail-field{grid-column:1/-1;grid-row:2}
+ .todo-sub-field input{height:35px;font-size:12px}
+ .todo-sub-remove{width:34px;height:35px}
+ .todo-sub-total{justify-content:center;font-size:11px}
 }
 /* modal */
 .ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:400;align-items:flex-end;justify-content:center}
@@ -3258,10 +3269,10 @@ function normalizeTodoSubs(item){
 function renderTodoSubEditor(){
   const box=document.getElementById('tm-subitems');if(!box)return;
   box.innerHTML=todoSubDraft.length?todoSubDraft.map((x,i)=>`<div class="todo-sub-edit-row">
-    <input type="text" value="${todoEscAttr(x.name)}" placeholder="ชื่อรายการรอง" oninput="setTodoSub(${i},'name',this.value)">
-    <input class="todo-sub-detail" type="text" value="${todoEscAttr(x.detail)}" placeholder="รายละเอียด เช่น รุ่น / สี / ร้าน" oninput="setTodoSub(${i},'detail',this.value)">
-    <input type="number" min="0" step="1" value="${x.price||''}" placeholder="ราคา" oninput="setTodoSub(${i},'price',this.value)">
-    <button type="button" class="icon-btn" onclick="removeTodoSubRow(${i})" title="ลบ">×</button>
+    <div class="todo-sub-field"><label>ชื่อรายการรอง</label><input type="text" value="${todoEscAttr(x.name)}" placeholder="เช่น เคสมือถือ" oninput="setTodoSub(${i},'name',this.value)"></div>
+    <div class="todo-sub-field todo-sub-detail-field"><label>รายละเอียด</label><input type="text" value="${todoEscAttr(x.detail)}" placeholder="เช่น รุ่น / สี / ร้าน" oninput="setTodoSub(${i},'detail',this.value)"></div>
+    <div class="todo-sub-field"><label>ราคา</label><input type="number" min="0" step="1" value="${x.price||''}" placeholder="0" oninput="setTodoSub(${i},'price',this.value)"></div>
+    <button type="button" class="icon-btn todo-sub-remove" onclick="removeTodoSubRow(${i})" title="ลบ">×</button>
   </div>`).join(''):'<div class="sub" style="padding:4px 0">ยังไม่มีรายการรอง</div>';
   const total=todoSubDraft.reduce((a,x)=>a+(parseFloat(x.price)||0),0);
   const el=document.getElementById('tm-subtotal');if(el)el.textContent=`รวมรายการรอง ${fmt(total)}`;
