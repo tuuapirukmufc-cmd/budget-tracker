@@ -235,7 +235,6 @@ table.tbl tr.dim .iname{text-decoration:line-through}
 .todo-sub-field input{width:100%;min-width:0;height:36px;border:1px solid var(--g200);border-radius:8px;background:var(--input-bg);color:var(--g900);padding:7px 9px;font:600 12px var(--font)}
 .todo-sub-field input:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 2px color-mix(in srgb,var(--green) 12%,transparent)}
 .todo-sub-remove{width:36px;height:36px;align-self:end}
-.todo-sub-total{display:flex;justify-content:flex-end;align-items:center;min-height:28px;padding:5px 8px;border-radius:8px;background:var(--g100);font-size:11px;font-weight:850;color:var(--g700);margin-top:4px}
 @media(max-width:640px){
  .todo-sub-editor{padding:10px;border-radius:12px}
  .todo-sub-editor-head{align-items:center;margin-bottom:9px}
@@ -245,8 +244,7 @@ table.tbl tr.dim .iname{text-decoration:line-through}
  .todo-sub-edit-row .todo-sub-detail-field{grid-column:1/-1;grid-row:2}
  .todo-sub-field input{height:35px;font-size:12px}
  .todo-sub-remove{width:34px;height:35px}
- .todo-sub-total{justify-content:center;font-size:11px}
-}
+ }
 /* modal */
 .ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:400;align-items:flex-end;justify-content:center}
 .ov.open{display:flex}
@@ -1540,7 +1538,6 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   <div class="todo-sub-editor">
     <div class="todo-sub-editor-head"><span>รายการรอง</span><button type="button" class="btn btn-ghost btn-sm" onclick="addTodoSubRow()">+ เพิ่มรายการรอง</button></div>
     <div id="tm-subitems"></div>
-    <div class="todo-sub-total" id="tm-subtotal">รวมรายการรอง ฿0</div>
   </div>
   <div class="f-row">
     <div class="f"><label>วันครบกำหนด</label><input type="date" id="tm-due"></div>
@@ -3274,23 +3271,40 @@ function renderTodoSubEditor(){
     <div class="todo-sub-field"><label>ราคา</label><input type="number" min="0" step="1" value="${x.price||''}" placeholder="0" oninput="setTodoSub(${i},'price',this.value)"></div>
     <button type="button" class="icon-btn todo-sub-remove" onclick="removeTodoSubRow(${i})" title="ลบ">×</button>
   </div>`).join(''):'<div class="sub" style="padding:4px 0">ยังไม่มีรายการรอง</div>';
-  const total=todoSubDraft.reduce((a,x)=>a+(parseFloat(x.price)||0),0);
-  const el=document.getElementById('tm-subtotal');if(el)el.textContent=`รวมรายการรอง ${fmt(total)}`;
+  syncTodoMainPrice();
+}
+function todoSubTotal(){return todoSubDraft.reduce((a,x)=>a+(parseFloat(x.price)||0),0)}
+function syncTodoMainPrice(){
+  const el=document.getElementById('tm-price');if(!el)return;
+  if(todoSubDraft.length){
+    el.value=todoSubTotal()||0;
+    el.readOnly=true;
+    el.title='ราคารวมจากรายการรอง';
+  }else{
+    el.readOnly=false;
+    el.title='';
+  }
 }
 function addTodoSubRow(){todoSubDraft.push({name:'',detail:'',price:0});renderTodoSubEditor()}
 function removeTodoSubRow(i){todoSubDraft.splice(i,1);renderTodoSubEditor()}
-function setTodoSub(i,field,value){if(!todoSubDraft[i])return;todoSubDraft[i][field]=field==='price'?(parseFloat(value)||0):value;const el=document.getElementById('tm-subtotal');if(el)el.textContent=`รวมรายการรอง ${fmt(todoSubDraft.reduce((a,x)=>a+(parseFloat(x.price)||0),0))}`}
+function setTodoSub(i,field,value){
+  if(!todoSubDraft[i])return;
+  todoSubDraft[i][field]=field==='price'?(parseFloat(value)||0):value;
+  if(field==='price')syncTodoMainPrice();
+}
 function openTM(id){
   tEId=id||null;
   const item=id?getTodos().find(t=>t.id===id):null;
   todoSubDraft=normalizeTodoSubs(item);
-  renderTodoSubEditor();
   document.getElementById('tm-title').textContent=id?'แก้ไขรายการ':'เพิ่มรายการ';
   document.getElementById('tm-name').value=item?.name||'';
   document.getElementById('tm-user').value=item?.user||'';
   document.getElementById('tm-due').value=item?.due||'';
   document.getElementById('tm-time').value=item?.time||'';
-  document.getElementById('tm-price').value=item?.price||'';
+  const legacySubTotal=todoSubDraft.reduce((a,x)=>a+(parseFloat(x.price)||0),0);
+  const shownPrice=item?(item.priceIncludesSubs?(parseFloat(item.price)||0):((parseFloat(item.price)||0)+legacySubTotal)):0;
+  document.getElementById('tm-price').value=shownPrice||'';
+  renderTodoSubEditor();
   document.getElementById('tm-created').value=item?.createdDate||new Date().toISOString().slice(0,10);
   document.getElementById('tm-pri').value=item?.priority||'medium';
   document.getElementById('tm-loc').value=item?.location||'';
@@ -3303,7 +3317,7 @@ async function saveTodoItem(){
   const saveId=tEId||(getTodos().length?Math.max(...getTodos().map(i=>i.id))+1:1);
   const subItems=todoSubDraft.map(x=>({name:String(x.name||'').trim(),detail:String(x.detail||'').trim(),price:Math.max(0,parseFloat(x.price)||0)})).filter(x=>x.name||x.detail||x.price);
   const obj={name,user:(document.getElementById('tm-user').value||'').trim(),subItems,due:document.getElementById('tm-due').value,time:document.getElementById('tm-time').value,
-    price:parseFloat(document.getElementById('tm-price').value)||0,
+    price:parseFloat(document.getElementById('tm-price').value)||0,priceIncludesSubs:true,
     createdDate:document.getElementById('tm-created').value||new Date().toISOString().slice(0,10),
     priority:document.getElementById('tm-pri').value,location:(document.getElementById('tm-loc').value||'').trim(),mapLink:(document.getElementById('tm-maplink').value||'').trim()};
   let t=getTodos();
@@ -3354,7 +3368,7 @@ function renderTodoRow(t,i,groupLen,today){
   const mapHtml=t.mapLink?`<a href="${t.mapLink}" target="_blank" rel="noopener" class="loc-link" title="เปิดใน Google Maps">📍 แผนที่</a>`:'<span class="pill">—</span>';
   const subs=normalizeTodoSubs(t);
   const subTotal=subs.reduce((a,x)=>a+(parseFloat(x.price)||0),0);
-  const totalPrice=(parseFloat(t.price)||0)+subTotal;
+  const totalPrice=t.priceIncludesSubs?(parseFloat(t.price)||0):((parseFloat(t.price)||0)+subTotal);
   const priceLabel=totalPrice?fmt(totalPrice):'—';
   const subHtml=subs.length?`<div class="todo-sub-list">${subs.map(x=>`<div class="todo-sub-item"><span class="sub-name">↳ ${todoEsc(x.name||'รายการรอง')}</span><span class="sub-detail">${todoEsc(x.detail||'—')}</span><span class="sub-price">${x.price?fmt(x.price):'—'}</span></div>`).join('')}</div>`:'';
   const createdLabel=t.createdDate?new Date(t.createdDate+'T00:00:00').toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric'}):'—';
