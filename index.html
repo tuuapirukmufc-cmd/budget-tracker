@@ -3848,6 +3848,32 @@ function bumpRiderResetEdit(key){
   if(!info?.active)return 0;
   info.edits=info.edits||{};info.edits[key]=(parseInt(info.edits[key])||0)+1;meta[mk]=info;saveRiderResetMeta(meta);return info.edits[key];
 }
+function riderHistorySnapshot(it){
+  it=it||{};
+  return {status:it.status||'',income:parseFloat(it.income)||0,expenses:riderExpenseItems(it).map(e=>({name:String(e.name||''),amount:parseFloat(e.amount)||0})),note:String(it.note||''),offReason:String(it.offReason||'')};
+}
+function riderHistoryText(s){
+  if(!s||!s.status)return 'ยังไม่มีข้อมูล';
+  if(s.status==='off')return `หยุดงาน${s.offReason?' — '+s.offReason:''}`;
+  const ex=(s.expenses||[]).reduce((a,e)=>a+(parseFloat(e.amount)||0),0);
+  const parts=[`รายรับ ${fmt(s.income)}`,`รายจ่าย ${fmt(ex)}`,`สุทธิ ${fmt((parseFloat(s.income)||0)-ex)}`];
+  if(s.note)parts.push(`หมายเหตุ: ${s.note}`);
+  return parts.join(' · ');
+}
+function recordRiderResetHistory(key,before,after){
+  if(!riderResetActive(key)||!riderIsPastKey(key))return;
+  const meta=getRiderResetMeta(),mk=riderMonthKeyFromDateKey(key),info=meta[mk];if(!info?.active)return;
+  info.history=info.history||{};info.history[key]=info.history[key]||[];
+  info.history[key].push({at:Date.now(),before:riderHistorySnapshot(before),after:riderHistorySnapshot(after)});
+  if(info.history[key].length>2)info.history[key]=info.history[key].slice(-2);
+  meta[mk]=info;saveRiderResetMeta(meta);
+}
+function riderHistoryItems(key){const info=riderResetInfo(key);return info?.active&&Array.isArray(info.history?.[key])?info.history[key]:[]}
+function riderHistoryHtml(key){
+  const hs=riderHistoryItems(key);if(!hs.length)return '';
+  const items=hs.map((h,i)=>{const dt=new Date(h.at),tm=dt.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});return `<div class="hi"><b>ครั้งที่ ${i+1}</b> · ${tm}<br><span>ก่อน: ${riderEsc(riderHistoryText(h.before))}</span><br><span>หลัง: ${riderEsc(riderHistoryText(h.after))}</span></div>`}).join('');
+  return `<span class="rider-history-wrap" onclick="event.stopPropagation();this.classList.toggle('open')"><button type="button" class="rider-history-dot" title="ดูประวัติการแก้ไข">i</button><span class="rider-history-tip"><div class="hh">ประวัติแก้ไขย้อนหลัง</div>${items}</span></span>`;
+}
 function clearRiderBoard(){
   const mk=riderCurrentMonthKey();
   if(!confirm(`เคลียร์กระดาน ${MN[riderM]} ${riderY+543} ?\n\nรายรับ รายจ่าย สถานะ และหมายเหตุของเดือนนี้จะถูกล้างเป็น 0/ว่างทั้งหมด\nหลังเคลียร์ วันย้อนหลังจะบันทึก/แก้ไขได้สูงสุด 2 ครั้ง แล้ววันนั้นจะล็อก\nส่วนวันนี้และวันอนาคตยังแก้ไขได้ตามปกติ`))return;
@@ -3855,7 +3881,7 @@ function clearRiderBoard(){
   Object.keys(all).forEach(k=>{if(k.startsWith(mk+'-'))delete all[k]});
   saveRiderDays(all);
   const meta=getRiderResetMeta(),prev=meta[mk]||{};
-  meta[mk]={active:true,clears:(parseInt(prev.clears)||0)+1,edits:{},clearedAt:Date.now()};
+  meta[mk]={active:true,clears:(parseInt(prev.clears)||0)+1,edits:{},history:{},clearedAt:Date.now()};
   saveRiderResetMeta(meta);
   renderRider();
 }
@@ -3918,10 +3944,10 @@ function saveRiderOffReason(){
   if(!riderOffKey||riderIsLockedKey(riderOffKey))return;
   const reason=String(document.getElementById('rider-off-reason')?.value||'').trim();
   if(!reason){alert('กรุณากรอกเหตุผลหยุดงาน');return}
-  const all=getRiderDays(),cur=all[riderOffKey]||{};
+  const all=getRiderDays(),cur=all[riderOffKey]||{},before=riderHistorySnapshot(cur);
   cur.status='off';cur.income=0;cur.expense=0;cur.expenses=[];cur.offReason=reason;
   all[riderOffKey]=cur;saveRiderDays(all);
-  if(riderResetActive(riderOffKey)&&riderIsPastKey(riderOffKey))bumpRiderResetEdit(riderOffKey);
+  if(riderResetActive(riderOffKey)&&riderIsPastKey(riderOffKey)){recordRiderResetHistory(riderOffKey,before,cur);bumpRiderResetEdit(riderOffKey);}
   closeOv('rider-off-ov');riderOffKey=null;renderRider();
 }
 function setRiderStatus(key,status){
@@ -4003,11 +4029,11 @@ function calcRiderEntryTotals(){
 }
 function saveRiderEntry(){
   if(!riderEntryKey||riderIsLockedKey(riderEntryKey))return;
-  const all=getRiderDays(),cur=all[riderEntryKey]||{};
+  const all=getRiderDays(),cur=all[riderEntryKey]||{},before=riderHistorySnapshot(cur);
   cur.status='work';cur.income=Math.max(0,parseFloat(document.getElementById('rider-entry-income').value)||0);
   cur.note=String(document.getElementById('rider-entry-note')?.value||'').trim();
   cur.expenses=riderEntryDraft.map(e=>({name:String(e.name||'').trim(),amount:Math.max(0,parseFloat(e.amount)||0)})).filter(e=>e.name||e.amount>0);delete cur.expense;
-  all[riderEntryKey]=cur;saveRiderDays(all);if(riderResetActive(riderEntryKey)&&riderIsPastKey(riderEntryKey))bumpRiderResetEdit(riderEntryKey);closeOv('rider-entry-ov');riderEntryKey=null;renderRider();
+  all[riderEntryKey]=cur;saveRiderDays(all);if(riderResetActive(riderEntryKey)&&riderIsPastKey(riderEntryKey)){recordRiderResetHistory(riderEntryKey,before,cur);bumpRiderResetEdit(riderEntryKey);}closeOv('rider-entry-ov');riderEntryKey=null;renderRider();
 }
 document.addEventListener('input',e=>{if(e.target&&e.target.id==='rider-entry-income')calcRiderEntryTotals()});
 function getRiderMonthRows(){
@@ -4078,7 +4104,7 @@ function renderRider(){
     const work=it.status==='work',off=it.status==='off';
     const income=parseFloat(it.income)||0,expense=riderExpenseTotal(it),net=income-expense,note=String(it.note||'').trim();
     html+=`<div class="rider-day${isToday?' today':''}${isPast&&!resetActive?' past':''}${isLocked&&resetActive?' reset-locked':''}">
-      <div class="rider-day-num"><span>${d}</span>${isToday?'<span class="rider-today-badge">วันนี้</span>':isLocked?'<span class="rider-locked-badge">ล็อกแล้ว</span>':''}${resetActive&&isPast&&!isLocked?`<span class="rider-reset-badge">แก้ย้อนหลัง ${resetEdits}/2</span>`:''}</div>
+      <div class="rider-day-num"><span>${d}</span>${isToday?'<span class="rider-today-badge">วันนี้</span>':isLocked?'<span class="rider-locked-badge">ล็อกแล้ว</span>':''}${resetActive&&isPast&&!isLocked?`<span class="rider-reset-badge">แก้ย้อนหลัง ${resetEdits}/2</span>`:''}${resetActive&&isPast?riderHistoryHtml(key):''}</div>
       <div class="rider-status-btns">
         <button class="rider-status-btn work${work?' active':''}" onclick="${isLocked?'':'setRiderStatus(\''+key+'\',\'work\');openRiderEntry(\''+key+'\')'}"${lockAttr}>✓ ทำงาน</button>
         <button class="rider-status-btn off${off?' active':''}" onclick="setRiderStatus('${key}','off')"${lockAttr}>หยุดงาน</button>
@@ -4560,6 +4586,14 @@ function dlCSV(rows,fn){
 </body>
 </html>
 <style>
+
+/* Rider edit history */
+.rider-history-wrap{position:relative;display:inline-flex;align-items:center;margin-left:3px}
+.rider-history-dot{width:17px;height:17px;border:0;border-radius:50%;background:var(--blue);color:#fff;font:900 10px var(--font);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 2px 7px rgba(37,99,235,.25)}
+.rider-history-tip{display:none;position:absolute;z-index:80;left:50%;top:23px;transform:translateX(-50%);width:270px;max-width:min(78vw,300px);padding:10px;border-radius:10px;background:var(--g900);color:#fff;box-shadow:0 10px 28px rgba(0,0,0,.25);font:600 11px/1.55 var(--font);text-align:left;white-space:normal}
+.rider-history-wrap:hover .rider-history-tip,.rider-history-wrap.open .rider-history-tip{display:block}
+.rider-history-tip b{color:#fff}.rider-history-tip .hh{font-weight:900;margin-bottom:5px}.rider-history-tip .hi{padding:5px 0;border-top:1px solid rgba(255,255,255,.14)}
+@media(max-width:640px){.rider-history-tip{position:fixed;left:12px;right:12px;top:auto;bottom:18px;transform:none;width:auto;max-width:none;font-size:12px}.rider-history-dot{width:19px;height:19px}}
 /* Rider mobile readability refresh */
 @media(max-width:640px){
   #page-sideincome .rider-wrap{padding:.45rem;border-radius:12px}
