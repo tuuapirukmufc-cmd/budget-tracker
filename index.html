@@ -1159,6 +1159,39 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
       <div class="card"><div class="lbl">ตั๋วที่บันทึก</div><div class="val" id="pawn-sum-count">0 ใบ</div></div>
       <div class="card"><div class="lbl">ใกล้ครบกำหนด ≤ 30 วัน</div><div class="val vc" id="pawn-sum-due">0 ใบ</div></div>
     </div>
+
+    <section id="pawn-editor" class="pawn-editor" style="display:none">
+
+  <div class="pawn-editor-inner">
+    <div class="pawn-dialog-head"><h3 id="pawn-dialog-title">เพิ่มตั๋วจำนำ</h3><button type="button" class="pawn-x" data-pawn-action="close">×</button></div>
+    <div class="f-row">
+      <div class="f"><label>เลขตั๋ว / เลขอ้างอิง</label><input id="pawn-no" type="text" placeholder="เช่น 12345"></div>
+      <div class="f"><label>วันที่จำนำ</label><input id="pawn-date" type="date"></div>
+    </div>
+    <div class="f"><label>วันที่ครบกำหนดชำระครั้งต่อไป</label><input id="pawn-due" type="date"></div>
+    <div class="divider-label">💍 รายละเอียดของที่จำนำ</div>
+    <div id="pawn-form-items" class="pawn-form-items"></div>
+    <button type="button" class="btn btn-ghost btn-sm" style="margin-top:8px" data-pawn-action="add-item">+ เพิ่มรายการในตั๋ว</button>
+    <div class="pawn-form-hint">แต่ละรายการไม่ต้องใส่ราคา เพราะเงินต้นเป็นยอดรวมของทั้งตั๋ว</div>
+    <div class="f-row" style="margin-top:12px">
+      <div class="f"><label>น้ำหนักรวมทั้งหมด (กรัม) ถ้ามี</label><input id="pawn-weight" type="number" min="0" step="0.01" placeholder="0"></div>
+      <div class="f"><label>ยอดเงินต้นรวมทั้งตั๋ว (฿)</label><input id="pawn-principal" type="number" min="0" step="0.01" placeholder="0"></div>
+    </div>
+    <div class="f-row">
+      <div class="f"><label>ราคาทรัพย์ที่ตีประเมิน (฿) ถ้ามี</label><input id="pawn-appraisal" type="number" min="0" step="0.01" placeholder="0"></div>
+      <div class="f"><label>ดอกเบี้ยต่อเดือน (฿)</label><input id="pawn-interest" type="number" min="0" step="0.01" placeholder="0" oninput="updatePawnFiveMonthPreview()"></div>
+    </div>
+    <div id="pawn-five-preview" style="background:#fff8e6;border:1px solid #f2d58a;border-radius:10px;padding:9px 11px;font-size:12px;color:#805d08;margin-bottom:10px">ดอกสำหรับ 5 เดือน: <strong>฿0</strong></div>
+    <div class="f"><label>หมายเหตุ</label><textarea id="pawn-note" rows="2" placeholder="บันทึกเพิ่มเติม..."></textarea></div>
+    <div class="mbtns">
+      <button type="button" class="btn btn-danger" id="pawn-delete" data-pawn-action="delete" style="display:none">ลบตั๋ว</button>
+      <button type="button" class="btn btn-ghost" data-pawn-action="close">ยกเลิก</button>
+      <button type="button" class="btn btn-pri" data-pawn-action="save">บันทึก</button>
+    </div>
+  </div>
+
+    </section>
+
     <div id="pawn-list" class="pawn-grid"></div>
   </div>
 </div>
@@ -1509,37 +1542,6 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   </div>
 </div></div>
 
-
-<!-- Gold Pawn v3 dialog — isolated from .ov modal system -->
-<dialog id="pawn-dialog">
-  <div class="pawn-dialog-inner">
-    <div class="pawn-dialog-head"><h3 id="pawn-dialog-title">เพิ่มตั๋วจำนำ</h3><button type="button" class="pawn-x" data-pawn-action="close">×</button></div>
-    <div class="f-row">
-      <div class="f"><label>เลขตั๋ว / เลขอ้างอิง</label><input id="pawn-no" type="text" placeholder="เช่น 12345"></div>
-      <div class="f"><label>วันที่จำนำ</label><input id="pawn-date" type="date"></div>
-    </div>
-    <div class="f"><label>วันที่ครบกำหนดชำระครั้งต่อไป</label><input id="pawn-due" type="date"></div>
-    <div class="divider-label">💍 รายละเอียดของที่จำนำ</div>
-    <div id="pawn-form-items" class="pawn-form-items"></div>
-    <button type="button" class="btn btn-ghost btn-sm" style="margin-top:8px" data-pawn-action="add-item">+ เพิ่มรายการในตั๋ว</button>
-    <div class="pawn-form-hint">แต่ละรายการไม่ต้องใส่ราคา เพราะเงินต้นเป็นยอดรวมของทั้งตั๋ว</div>
-    <div class="f-row" style="margin-top:12px">
-      <div class="f"><label>น้ำหนักรวมทั้งหมด (กรัม) ถ้ามี</label><input id="pawn-weight" type="number" min="0" step="0.01" placeholder="0"></div>
-      <div class="f"><label>ยอดเงินต้นรวมทั้งตั๋ว (฿)</label><input id="pawn-principal" type="number" min="0" step="0.01" placeholder="0"></div>
-    </div>
-    <div class="f-row">
-      <div class="f"><label>ราคาทรัพย์ที่ตีประเมิน (฿) ถ้ามี</label><input id="pawn-appraisal" type="number" min="0" step="0.01" placeholder="0"></div>
-      <div class="f"><label>ดอกเบี้ยต่อเดือน (฿)</label><input id="pawn-interest" type="number" min="0" step="0.01" placeholder="0" oninput="updatePawnFiveMonthPreview()"></div>
-    </div>
-    <div id="pawn-five-preview" style="background:#fff8e6;border:1px solid #f2d58a;border-radius:10px;padding:9px 11px;font-size:12px;color:#805d08;margin-bottom:10px">ดอกสำหรับ 5 เดือน: <strong>฿0</strong></div>
-    <div class="f"><label>หมายเหตุ</label><textarea id="pawn-note" rows="2" placeholder="บันทึกเพิ่มเติม..."></textarea></div>
-    <div class="mbtns">
-      <button type="button" class="btn btn-danger" id="pawn-delete" data-pawn-action="delete" style="display:none">ลบตั๋ว</button>
-      <button type="button" class="btn btn-ghost" data-pawn-action="close">ยกเลิก</button>
-      <button type="button" class="btn btn-pri" data-pawn-action="save">บันทึก</button>
-    </div>
-  </div>
-</dialog>
 
 <!-- Debt Category Manager -->
 <div class="ov" id="catmgr-ov"><div class="modal">
@@ -3844,7 +3846,7 @@ function pawnFormItemRow(item={}){
 function resetPawnItems(items){const box=document.getElementById('pawn-form-items');if(!box)return;box.innerHTML='';(items?.length?items:[{}]).forEach(i=>box.appendChild(pawnFormItemRow(i)))}
 function updatePawnFiveMonthPreview(){const m=parseFloat(document.getElementById('pawn-interest')?.value)||0;const el=document.getElementById('pawn-five-preview');if(el)el.innerHTML=`ดอกสำหรับ 5 เดือน: <strong>${fmt(m*5)}</strong> <span style="color:var(--g400)">(${fmt(m)} × 5)</span>`}
 function openPawnDialog(id=null){
-  const dlg=document.getElementById('pawn-dialog');if(!dlg)return;
+  const dlg=document.getElementById('pawn-editor');if(!dlg)return;
   pawnEditId=id===null?null:String(id);
   const item=id===null?null:getPawnTickets().find(x=>pawnIdEq(x.id,id));
   document.getElementById('pawn-dialog-title').textContent=item?'แก้ไขตั๋วจำนำ':'เพิ่มตั๋วจำนำ';
@@ -3859,9 +3861,10 @@ function openPawnDialog(id=null){
   resetPawnItems(item?.items||[]);
   document.getElementById('pawn-delete').style.display=item?'inline-flex':'none';
   updatePawnFiveMonthPreview();
-  if(!dlg.open)dlg.showModal();
+  dlg.style.display='block';
+  requestAnimationFrame(()=>dlg.scrollIntoView({behavior:'smooth',block:'start'}));
 }
-function closePawnDialog(){const dlg=document.getElementById('pawn-dialog');if(dlg?.open)dlg.close()}
+function closePawnDialog(){const dlg=document.getElementById('pawn-editor');if(dlg)dlg.style.display='none';pawnEditId=null}
 function collectPawnItems(){return [...document.querySelectorAll('#pawn-form-items .pawn-form-item')].map(r=>({name:r.querySelector('.pawn-fi-name').value.trim(),qty:parseFloat(r.querySelector('.pawn-fi-qty').value)||1,unit:r.querySelector('.pawn-fi-unit').value.trim()||'ชิ้น'})).filter(i=>i.name)}
 function savePawnTicket(){
   const date=document.getElementById('pawn-date').value,items=collectPawnItems(),principal=parseFloat(document.getElementById('pawn-principal').value)||0;
@@ -3894,7 +3897,6 @@ document.addEventListener('click',function(e){
   else if(a==='add-item'){e.preventDefault();document.getElementById('pawn-form-items')?.appendChild(pawnFormItemRow({}))}
   else if(a==='remove-item'){e.preventDefault();const row=b.closest('.pawn-form-item'),box=document.getElementById('pawn-form-items');if(box&&box.children.length>1)row.remove();else{row.querySelector('.pawn-fi-name').value='';row.querySelector('.pawn-fi-qty').value=1;}}
 });
-document.getElementById('pawn-dialog')?.addEventListener('click',function(e){if(e.target===this)closePawnDialog()});
 
 // ══ PERSONAL ASSETS ══
 function getAssets(){return ls(uKey('assets_v1'),[])}
@@ -4797,7 +4799,7 @@ function dlCSV(rows,fn){
 .pawn-money{margin:0 14px 12px;padding:10px 12px;border-radius:11px;background:linear-gradient(135deg,#fff9e8,#fff4cf);border:1px solid #f1d98f;display:flex;justify-content:space-between;align-items:end;gap:10px}.pawn-money-label{font-size:10px;color:#8a6a19;font-weight:700}.pawn-money-val{font-size:22px;color:#8a6200;font-weight:800;line-height:1.05}.pawn-money-note{font-size:9px;color:#a08132;text-align:right}
 .pawn-info{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;padding:0 14px 12px}.pawn-info-box{background:var(--g50);border-radius:9px;padding:8px 9px;min-width:0}.pawn-info-label{font-size:9px;color:var(--g400);font-weight:600}.pawn-info-val{font-size:12px;color:var(--g800);font-weight:700;margin-top:2px;overflow-wrap:anywhere}.pawn-info-val.warn{color:#b45309}.pawn-info-val.late{color:#b91c1c}
 .pawn-card-foot{display:flex;justify-content:flex-end;gap:7px;padding:9px 14px;background:var(--g50);border-top:1px solid var(--g100)}
-#pawn-dialog{border:0;border-radius:16px;padding:0;width:min(680px,calc(100vw - 28px));max-height:88vh;box-shadow:0 24px 70px rgba(15,23,42,.28);background:#fff;color:var(--g900)}#pawn-dialog::backdrop{background:rgba(15,23,42,.48)}.pawn-dialog-inner{padding:18px;overflow:auto;max-height:88vh}.pawn-dialog-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.pawn-dialog-head h3{margin:0}.pawn-x{border:0;background:var(--g100);width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:16px}.pawn-form-items{display:grid;gap:7px}.pawn-form-item{display:grid;grid-template-columns:minmax(0,1fr) 82px 88px 34px;gap:6px;align-items:end}.pawn-form-item .f{margin:0}.pawn-form-item button{height:38px}.pawn-form-hint{font-size:10px;color:var(--g400);margin-top:4px}
-@media(max-width:760px){.invest-tabs{width:100%;display:grid;grid-template-columns:1fr 1fr}.invest-tab{width:100%}.pawn-head{align-items:flex-start}.pawn-summary{grid-template-columns:1fr 1fr}.pawn-summary .card:last-child{grid-column:span 2}.pawn-grid{grid-template-columns:1fr}.pawn-card-top{padding:12px}.pawn-items{padding:11px 12px}.pawn-money{margin:0 12px 10px}.pawn-info{padding:0 12px 11px}.pawn-form-item{grid-template-columns:minmax(0,1fr) 70px 80px 34px}.pawn-dialog-inner{padding:14px}.pawn-money-val{font-size:20px}}
+.pawn-editor{margin:14px 0 18px;border:1px solid #ead9a8;border-radius:16px;background:#fffdf7;box-shadow:0 8px 24px rgba(15,23,42,.08);scroll-margin-top:14px}.pawn-editor-inner{padding:18px}.pawn-dialog-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.pawn-dialog-head h3{margin:0}.pawn-x{border:0;background:var(--g100);width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:16px}.pawn-form-items{display:grid;gap:7px}.pawn-form-item{display:grid;grid-template-columns:minmax(0,1fr) 82px 88px 34px;gap:6px;align-items:end}.pawn-form-item .f{margin:0}.pawn-form-item button{height:38px}.pawn-form-hint{font-size:10px;color:var(--g400);margin-top:4px}
+@media(max-width:760px){.invest-tabs{width:100%;display:grid;grid-template-columns:1fr 1fr}.invest-tab{width:100%}.pawn-head{align-items:flex-start}.pawn-summary{grid-template-columns:1fr 1fr}.pawn-summary .card:last-child{grid-column:span 2}.pawn-grid{grid-template-columns:1fr}.pawn-card-top{padding:12px}.pawn-items{padding:11px 12px}.pawn-money{margin:0 12px 10px}.pawn-info{padding:0 12px 11px}.pawn-form-item{grid-template-columns:minmax(0,1fr) 70px 80px 34px}.pawn-editor-inner{padding:14px}.pawn-money-val{font-size:20px}}
 @media(max-width:420px){.pawn-info{grid-template-columns:1fr 1fr}.pawn-form-item{grid-template-columns:1fr 64px 74px 32px}.pawn-form-item input,.pawn-form-item select{font-size:12px;padding-left:7px;padding-right:5px}.pawn-summary .val{font-size:16px}}
 </style>
