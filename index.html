@@ -2321,7 +2321,8 @@ function swMob(id,el,title){
   sw(id,null);
 }
 function closeOv(id){const el=document.getElementById(id);if(el)el.classList.remove('open');}
-document.querySelectorAll('.ov').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open')}));
+// Modal stability: do not auto-close overlays from backdrop clicks. Close only via explicit buttons.
+document.querySelectorAll('.ov').forEach(o=>o.addEventListener('click',e=>{ if(e.target!==o) e.stopPropagation(); }));
 
 // ══ PAGE VISIBILITY (ซ่อน/เปิดใช้งานหน้า) ══
 const ALL_PAGES=[
@@ -3819,6 +3820,7 @@ function exportInvest(){
 const PAWN_KEY='gold_pawns_v3';
 let investSection='main';
 let pawnEditId=null;
+let pawnEditIndex=-1;
 function getPawnTickets(){return ls(uKey(PAWN_KEY),[])}
 function savePawnTickets(v){lss(uKey(PAWN_KEY),v)}
 function pawnIdEq(a,b){return String(a)===String(b)}
@@ -3845,10 +3847,14 @@ function pawnFormItemRow(item={}){
 }
 function resetPawnItems(items){const box=document.getElementById('pawn-form-items');if(!box)return;box.innerHTML='';(items?.length?items:[{}]).forEach(i=>box.appendChild(pawnFormItemRow(i)))}
 function updatePawnFiveMonthPreview(){const m=parseFloat(document.getElementById('pawn-interest')?.value)||0;const el=document.getElementById('pawn-five-preview');if(el)el.innerHTML=`ดอกสำหรับ 5 เดือน: <strong>${fmt(m*5)}</strong> <span style="color:var(--g400)">(${fmt(m)} × 5)</span>`}
-function openPawnDialog(id=null){
+function openPawnDialog(id=null,index=null){
   const dlg=document.getElementById('pawn-editor');if(!dlg)return;
-  pawnEditId=id===null?null:String(id);
-  const item=id===null?null:getPawnTickets().find(x=>pawnIdEq(x.id,id));
+  const arr=getPawnTickets();
+  let idx=index===null||index===undefined?-1:Number(index);
+  if(!Number.isInteger(idx)||idx<0||idx>=arr.length) idx=id===null?-1:arr.findIndex(x=>pawnIdEq(x.id,id));
+  pawnEditIndex=idx;
+  const item=idx>=0?arr[idx]:null;
+  pawnEditId=item?.id!=null?String(item.id):null;
   document.getElementById('pawn-dialog-title').textContent=item?'แก้ไขตั๋วจำนำ':'เพิ่มตั๋วจำนำ';
   document.getElementById('pawn-no').value=item?.no||'';
   document.getElementById('pawn-date').value=item?.date||'';
@@ -3863,38 +3869,38 @@ function openPawnDialog(id=null){
   updatePawnFiveMonthPreview();
   dlg.style.display='flex';
 }
-function closePawnDialog(){const dlg=document.getElementById('pawn-editor');if(dlg)dlg.style.display='none';pawnEditId=null}
+function closePawnDialog(){const dlg=document.getElementById('pawn-editor');if(dlg)dlg.style.display='none';pawnEditId=null;pawnEditIndex=-1}
 function collectPawnItems(){return [...document.querySelectorAll('#pawn-form-items .pawn-form-item')].map(r=>({name:r.querySelector('.pawn-fi-name').value.trim(),qty:parseFloat(r.querySelector('.pawn-fi-qty').value)||1,unit:r.querySelector('.pawn-fi-unit').value.trim()||'ชิ้น'})).filter(i=>i.name)}
 function savePawnTicket(){
   const date=document.getElementById('pawn-date').value,items=collectPawnItems(),principal=parseFloat(document.getElementById('pawn-principal').value)||0;
   if(!date){alert('กรุณาเลือกวันที่จำนำ');return} if(!items.length){alert('กรุณาเพิ่มรายละเอียดของที่จำนำอย่างน้อย 1 รายการ');return} if(principal<=0){alert('กรุณากรอกยอดเงินต้นรวมทั้งตั๋ว');return}
   const obj={no:document.getElementById('pawn-no').value.trim(),date,dueDate:document.getElementById('pawn-due').value||addMonthsPawn(date,5),items,totalWeight:parseFloat(document.getElementById('pawn-weight').value)||0,principal,appraisal:parseFloat(document.getElementById('pawn-appraisal').value)||0,monthlyInterest:parseFloat(document.getElementById('pawn-interest').value)||0,note:document.getElementById('pawn-note').value.trim()};
   let arr=getPawnTickets();
-  if(pawnEditId!==null){arr=arr.map(x=>pawnIdEq(x.id,pawnEditId)?{...x,...obj}:x);addHist('invest','แก้ไขตั๋วจำนำ',obj.no||'ตั๋วจำนำ');}
+  if(pawnEditIndex>=0&&pawnEditIndex<arr.length){arr[pawnEditIndex]={...arr[pawnEditIndex],...obj,id:arr[pawnEditIndex].id||`pawn_${Date.now()}_${Math.random().toString(36).slice(2,7)}`};addHist('invest','แก้ไขตั๋วจำนำ',obj.no||'ตั๋วจำนำ');}
   else{arr.unshift({id:`pawn_${Date.now()}_${Math.random().toString(36).slice(2,7)}`,...obj});addHist('invest','เพิ่มตั๋วจำนำ',obj.no||'ตั๋วจำนำ');}
   savePawnTickets(arr);closePawnDialog();renderPawnTickets();
 }
-function deletePawnTicket(){if(pawnEditId===null)return;if(!confirm('ลบตั๋วจำนำนี้ใช่ไหม?'))return;const arr=getPawnTickets(),old=arr.find(x=>pawnIdEq(x.id,pawnEditId));savePawnTickets(arr.filter(x=>!pawnIdEq(x.id,pawnEditId)));addHist('invest','ลบตั๋วจำนำ',old?.no||'ตั๋วจำนำ');closePawnDialog();renderPawnTickets()}
-function deletePawnTicketById(id){if(id==null)return;if(!confirm('ลบตั๋วจำนำนี้ใช่ไหม?'))return;const arr=getPawnTickets(),old=arr.find(x=>pawnIdEq(x.id,id));savePawnTickets(arr.filter(x=>!pawnIdEq(x.id,id)));addHist('invest','ลบตั๋วจำนำ',old?.no||'ตั๋วจำนำ');renderPawnTickets()}
+function deletePawnTicket(){if(pawnEditIndex<0)return;if(!confirm('ลบตั๋วจำนำนี้ใช่ไหม?'))return;const arr=getPawnTickets(),old=arr[pawnEditIndex];arr.splice(pawnEditIndex,1);savePawnTickets(arr);addHist('invest','ลบตั๋วจำนำ',old?.no||'ตั๋วจำนำ');closePawnDialog();renderPawnTickets()}
+function deletePawnTicketByIndex(index){const idx=Number(index),arr=getPawnTickets();if(!Number.isInteger(idx)||idx<0||idx>=arr.length)return;if(!confirm('ลบตั๋วจำนำนี้ใช่ไหม?'))return;const old=arr[idx];arr.splice(idx,1);savePawnTickets(arr);addHist('invest','ลบตั๋วจำนำ',old?.no||'ตั๋วจำนำ');renderPawnTickets()}
 function renderPawnTickets(){
   const list=document.getElementById('pawn-list');if(!list)return;const arr=getPawnTickets();
   const principal=arr.reduce((s,x)=>s+(+x.principal||0),0),interest=arr.reduce((s,x)=>s+(+x.monthlyInterest||0)*5,0),due=arr.filter(x=>{const d=pawnDaysLeft(x.dueDate);return d!==null&&d>=0&&d<=30}).length;
   document.getElementById('pawn-sum-principal').textContent=fmt(principal);document.getElementById('pawn-sum-interest').textContent=fmt(interest);document.getElementById('pawn-sum-count').textContent=arr.length+' ใบ';document.getElementById('pawn-sum-due').textContent=due+' ใบ';
   if(!arr.length){list.innerHTML='<div class="sec empty" style="grid-column:1/-1;padding:2rem">ยังไม่มีตั๋วจำนำ · กด “+ เพิ่มตั๋วจำนำ” เพื่อเริ่มบันทึก</div>';return}
-  list.innerHTML=arr.slice().sort((a,b)=>String(b.date).localeCompare(String(a.date))).map(x=>{
+  list.innerHTML=arr.map((x,pawnIndex)=>({x,pawnIndex})).sort((a,b)=>String(b.x.date).localeCompare(String(a.x.date))).map(({x,pawnIndex})=>{
     const d=pawnDaysLeft(x.dueDate),dueText=d===null?'—':d<0?`เกิน ${Math.abs(d)} วัน`:d===0?'ครบกำหนดวันนี้':`เหลือ ${d} วัน`,dueCls=d!==null&&d<0?'late':d!==null&&d<=30?'warn':'';
     const items=(x.items||[]).map((i,n)=>`<div class="pawn-item"><span class="pawn-item-num">${n+1}</span><span class="pawn-item-name">${escPawn(i.name)}</span><span class="pawn-item-qty">${Number(i.qty)||1} ${escPawn(i.unit||'ชิ้น')}</span></div>`).join('');
-    return `<article class="pawn-card"><div class="pawn-card-top"><div><div class="pawn-ticket-no">ตั๋ว ${escPawn(x.no||'ไม่ระบุเลข')}</div><div class="pawn-ticket-meta">วันที่จำนำ ${fmtDate(x.date)}${x.totalWeight?` · น้ำหนักรวม ${fmtN(+x.totalWeight,2)} กรัม`:''}</div></div><span class="tag">${(x.items||[]).length} รายการ</span></div><div class="pawn-items"><div class="pawn-items-title"><span>รายละเอียดของที่จำนำ</span><span>${(x.items||[]).length} รายการ</span></div><div class="pawn-item-list">${items||'<div class="empty">ไม่มีรายละเอียด</div>'}</div></div><div class="pawn-money"><div><div class="pawn-money-label">ยอดเงินต้นรวมทั้งตั๋ว</div><div class="pawn-money-val">${fmt(x.principal)}</div></div><div class="pawn-money-note">ยอดเดียวรวมของทุกชิ้น<br>${x.appraisal?`ราคาประเมิน ${fmt(x.appraisal)}`:''}</div></div><div class="pawn-info"><div class="pawn-info-box"><div class="pawn-info-label">ดอกเบี้ย / เดือน</div><div class="pawn-info-val">${fmt(x.monthlyInterest)}</div></div><div class="pawn-info-box"><div class="pawn-info-label">ยอดต่อดอก 5 เดือน</div><div class="pawn-info-val">${fmt((+x.monthlyInterest||0)*5)}</div></div><div class="pawn-info-box"><div class="pawn-info-label">ครบกำหนดครั้งต่อไป</div><div class="pawn-info-val">${fmtDate(x.dueDate)}</div></div><div class="pawn-info-box"><div class="pawn-info-label">สถานะกำหนด</div><div class="pawn-info-val ${dueCls}">${dueText}</div></div></div>${x.note?`<div style="padding:0 14px 10px;font-size:11px;color:var(--g500)">📝 ${escPawn(x.note)}</div>`:''}<div class="pawn-card-foot"><button type="button" class="btn btn-danger btn-sm" data-pawn-action="delete-card" data-pawn-id="${escPawn(x.id)}">🗑 ลบตั๋ว</button><button type="button" class="btn btn-ghost btn-sm" data-pawn-action="edit" data-pawn-id="${escPawn(x.id)}">✏ แก้ไขตั๋ว</button></div></article>`;
+    return `<article class="pawn-card"><div class="pawn-card-top"><div><div class="pawn-ticket-no">ตั๋ว ${escPawn(x.no||'ไม่ระบุเลข')}</div><div class="pawn-ticket-meta">วันที่จำนำ ${fmtDate(x.date)}${x.totalWeight?` · น้ำหนักรวม ${fmtN(+x.totalWeight,2)} กรัม`:''}</div></div><span class="tag">${(x.items||[]).length} รายการ</span></div><div class="pawn-items"><div class="pawn-items-title"><span>รายละเอียดของที่จำนำ</span><span>${(x.items||[]).length} รายการ</span></div><div class="pawn-item-list">${items||'<div class="empty">ไม่มีรายละเอียด</div>'}</div></div><div class="pawn-money"><div><div class="pawn-money-label">ยอดเงินต้นรวมทั้งตั๋ว</div><div class="pawn-money-val">${fmt(x.principal)}</div></div><div class="pawn-money-note">ยอดเดียวรวมของทุกชิ้น<br>${x.appraisal?`ราคาประเมิน ${fmt(x.appraisal)}`:''}</div></div><div class="pawn-info"><div class="pawn-info-box"><div class="pawn-info-label">ดอกเบี้ย / เดือน</div><div class="pawn-info-val">${fmt(x.monthlyInterest)}</div></div><div class="pawn-info-box"><div class="pawn-info-label">ยอดต่อดอก 5 เดือน</div><div class="pawn-info-val">${fmt((+x.monthlyInterest||0)*5)}</div></div><div class="pawn-info-box"><div class="pawn-info-label">ครบกำหนดครั้งต่อไป</div><div class="pawn-info-val">${fmtDate(x.dueDate)}</div></div><div class="pawn-info-box"><div class="pawn-info-label">สถานะกำหนด</div><div class="pawn-info-val ${dueCls}">${dueText}</div></div></div>${x.note?`<div style="padding:0 14px 10px;font-size:11px;color:var(--g500)">📝 ${escPawn(x.note)}</div>`:''}<div class="pawn-card-foot"><button type="button" class="btn btn-danger btn-sm" data-pawn-action="delete-card" data-pawn-index="${pawnIndex}">🗑 ลบตั๋ว</button><button type="button" class="btn btn-ghost btn-sm" data-pawn-action="edit" data-pawn-index="${pawnIndex}">✏ แก้ไขตั๋ว</button></div></article>`;
   }).join('');
 }
 document.addEventListener('click',function(e){
   const b=e.target.closest('[data-pawn-action]');if(!b)return;const a=b.dataset.pawnAction;
   if(a==='add'){e.preventDefault();openPawnDialog(null)}
-  else if(a==='edit'){e.preventDefault();openPawnDialog(b.dataset.pawnId)}
+  else if(a==='edit'){e.preventDefault();e.stopPropagation();openPawnDialog(null,b.dataset.pawnIndex)}
   else if(a==='close'){e.preventDefault();closePawnDialog()}
   else if(a==='save'){e.preventDefault();savePawnTicket()}
   else if(a==='delete'){e.preventDefault();deletePawnTicket()}
-  else if(a==='delete-card'){e.preventDefault();deletePawnTicketById(b.dataset.pawnId)}
+  else if(a==='delete-card'){e.preventDefault();e.stopPropagation();deletePawnTicketByIndex(b.dataset.pawnIndex)}
   else if(a==='add-item'){e.preventDefault();document.getElementById('pawn-form-items')?.appendChild(pawnFormItemRow({}))}
   else if(a==='remove-item'){e.preventDefault();const row=b.closest('.pawn-form-item'),box=document.getElementById('pawn-form-items');if(box&&box.children.length>1)row.remove();else{row.querySelector('.pawn-fi-name').value='';row.querySelector('.pawn-fi-qty').value=1;}}
 });
