@@ -2329,8 +2329,18 @@ function swMob(id,el,title){
   document.getElementById('mob-title').textContent=label;
   sw(id,null);
 }
-function closeOv(id){document.getElementById(id).classList.remove('open')}
-document.querySelectorAll('.ov').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open')}));
+let pawnModalOpenedAt=0;
+function closeOv(id){
+  // กัน modal จำนำทองถูก event click เดิมปิดทันทีหลังเปิดบน GitHub Pages
+  if(id==='pawn-ov' && Date.now()-pawnModalOpenedAt<350)return;
+  const el=document.getElementById(id);if(el)el.classList.remove('open');
+}
+document.querySelectorAll('.ov').forEach(o=>o.addEventListener('click',e=>{
+  if(e.target!==o)return;
+  if(o.id==='pawn-ov' && Date.now()-pawnModalOpenedAt<500)return;
+  o.classList.remove('open');
+}));
+const pawnModalEl=document.querySelector('#pawn-ov .pawn-modal');if(pawnModalEl){pawnModalEl.addEventListener('click',e=>e.stopPropagation());}
 
 // ══ PAGE VISIBILITY (ซ่อน/เปิดใช้งานหน้า) ══
 const ALL_PAGES=[
@@ -3615,7 +3625,7 @@ function openPawnM(id,ev){
   document.getElementById('pawn-monthly-interest').value=item?.monthlyInterest||'';
   document.getElementById('pawn-note').value=item?.note||'';document.getElementById('pawn-del').style.display=pawnEId!==null?'inline-flex':'none';
   ['pawn-date','pawn-due-date','pawn-monthly-interest'].forEach(x=>{const e=document.getElementById(x);if(e)e.oninput=updatePawnPreview});const pd=document.getElementById('pawn-date');if(pd)pd.onchange=()=>{const due=document.getElementById('pawn-due-date');if(due)due.value=addMonthsISO(pd.value,5);updatePawnPreview()};
-  updatePawnPreview();const ov=document.getElementById('pawn-ov');if(ov){ov.classList.add('open');requestAnimationFrame(()=>ov.classList.add('open'));}
+  updatePawnPreview();const ov=document.getElementById('pawn-ov');if(ov){pawnModalOpenedAt=Date.now();ov.classList.add('open');}
 }
 function savePawn(){
   const obj={no:document.getElementById('pawn-no').value.trim(),ref:document.getElementById('pawn-ref').value.trim(),date:document.getElementById('pawn-date').value,dueDate:document.getElementById('pawn-due-date').value||addMonthsISO(document.getElementById('pawn-date').value,5),items:collectPawnItemRows(),totalWeight:parseFloat(document.getElementById('pawn-total-weight').value)||0,principal:parseFloat(document.getElementById('pawn-principal').value)||0,appraisal:parseFloat(document.getElementById('pawn-appraisal').value)||0,monthlyInterest:parseFloat(document.getElementById('pawn-monthly-interest').value)||0,note:document.getElementById('pawn-note').value.trim()};
@@ -3654,8 +3664,8 @@ if(!window.__pawnEditDelegated){
     if(e.stopImmediatePropagation)e.stopImmediatePropagation();
     let id=btn.getAttribute('data-pawn-id')||'';
     try{id=decodeURIComponent(id)}catch(_e){}
-    // เปิดหลัง click cycle จบ ป้องกัน overlay/global click handler ปิด modal ทันที
-    setTimeout(()=>openPawnM(id),0);
+    // เปิดทันที; overlay มี guard แยก ป้องกัน click เดิมปิด modal บน GitHub Pages
+    openPawnM(id,e);
   },true);
 }
 
