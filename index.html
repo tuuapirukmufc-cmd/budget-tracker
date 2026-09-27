@@ -3689,8 +3689,9 @@ function autoFetchGoldIfStale(){
     const saved=ls(uKey('goldPrice'),0);
     const savedSrc=ls(uKey('goldPriceSrc'),'');
     if(saved>0){
+      // แค่อัปเดตช่องราคาทอง ห้าม renderInvest() ซ้ำตรงนี้
+      // เพราะ renderInvest() จะเรียก autoFetchGoldIfStale() อีกครั้งและเกิด render loop ทุก ~50ms
       setGoldDisplay(saved,savedSrc,lastTime);
-      renderInvest();
       const remaining=5*60*1000-(Date.now()-lastTime);
       setTimeout(()=>{
         fetchGoldPrice();
