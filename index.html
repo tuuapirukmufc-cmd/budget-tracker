@@ -3632,11 +3632,33 @@ function parsePawnOCR(raw){
     if(q){out.items.push({name:q[1].trim(),qty:parseFloat(q[2])||1,unit:q[3]||'ชิ้น'});continue}
     if(!/^(?:เลข|วันที่|ชื่อ|บ้าน|อำเภอ|จังหวัด|บัตร|อายุ|เวลา)/i.test(detail))out.items.push({name:detail,qty:1,unit:'ชิ้น'});
   }
-  m=t.match(/น้ำหนักรวม(?:คร่าว|ทั้งหมด)?\s*([0-9]+(?:[\.,][0-9]+)?)\s*กรัม/i);if(m)out.totalWeight=parseFloat(m[1].replace(',','.'));
-  const money=[];for(const x of t.matchAll(/([0-9]{1,3}(?:,[0-9]{3})+(?:\.\d{1,2})?|[0-9]{3,6}(?:\.\d{1,2})?)\s*บาท/g))money.push(parseFloat(x[1].replace(/,/g,'')));
-  m=t.match(/มาจำนำเป็นเงิน[\s\S]{0,80}?([0-9]{1,3}(?:,[0-9]{3})+(?:\.\d{1,2})?|[0-9]{4,6})\s*บาท/i);if(m)out.principal=parseFloat(m[1].replace(/,/g,''));
-  m=t.match(/ราคาทรัพย์ที่ตีตกลงประเมิน[\s\S]{0,60}?([0-9]{1,3}(?:,[0-9]{3})+(?:\.\d{1,2})?|[0-9]{4,6})\s*บาท/i);if(m)out.appraisal=parseFloat(m[1].replace(/,/g,''));
-  m=t.match(/เสียดอกเบี้ยเดือนละ[\s\S]{0,50}?([0-9]{1,4})(?:\s*บาท)?\s*([0-9]{1,2})?\s*(?:สตางค์)?/i);if(m)out.monthlyInterest=parseFloat(m[1])+((parseInt(m[2]||'0',10))/100);
+  // Extract the four key numeric fields from common Thai pawn-ticket layouts.
+  // OCR often breaks labels and amounts onto separate lines, so search a short window after each label.
+  const compact=t.replace(/\s+/g,' ');
+  const amountPattern='([0-9]{1,3}(?:,[0-9]{3})+(?:\\.[0-9]{1,2})?|[0-9]{3,7}(?:\\.[0-9]{1,2})?)';
+  m=compact.match(/น้ำหนักรวม(?:คราบ|ครบ|ทั้งหมด|สุทธิ)?\s*[:：]?\s*([0-9]+(?:[\.,][0-9]+)?)\s*กรัม/i);
+  if(!m)m=compact.match(/น้ำหนัก[^0-9]{0,25}([0-9]+(?:[\.,][0-9]+)?)\s*กรัม/i);
+  if(m)out.totalWeight=parseFloat(m[1].replace(',','.'));
+
+  const findAmountAfter=(labels,max=100)=>{
+    for(const label of labels){
+      const idx=compact.search(label);if(idx<0)continue;
+      const part=compact.slice(idx,idx+max), mm=part.match(new RegExp(amountPattern));
+      if(mm)return parseFloat(mm[1].replace(/,/g,''));
+    }return 0;
+  };
+  out.principal=findAmountAfter([/มาจำนำเป็นเงิน/i,/เงินต้นรวม(?:ทั้งตั๋ว)?/i,/จำนวนเงิน(?:ต้น)?/i],120)||out.principal;
+  out.appraisal=findAmountAfter([/ราคาทรัพย์ที่(?:ตีตกลง)?ประเมิน/i,/ราคาประเมิน/i,/ตีราคาทรัพย์/i],100)||out.appraisal;
+
+  // Interest can be printed as 458 บาท 75 สตางค์, 458.75 บาท, or OCR may omit the words between them.
+  let interestPart='';
+  for(const label of [/เสียดอกเบี้ยเดือนละ/i,/ดอกเบี้ยต่อเดือน/i,/ดอกเบี้ยเดือนละ/i]){const idx=compact.search(label);if(idx>=0){interestPart=compact.slice(idx,idx+100);break}}
+  if(interestPart){
+    m=interestPart.match(/([0-9]{1,4})(?:[\.,]([0-9]{1,2}))?\s*บาท(?:\s*([0-9]{1,2})\s*สตางค์)?/i);
+    if(m)out.monthlyInterest=parseFloat(m[1])+parseInt(m[2]||m[3]||'0',10)/100;
+    else {m=interestPart.match(/([0-9]{1,4})\s+([0-9]{1,2})(?![0-9])/);if(m)out.monthlyInterest=parseFloat(m[1])+parseInt(m[2],10)/100;}
+  }
+  const money=[];for(const x of compact.matchAll(/([0-9]{1,3}(?:,[0-9]{3})+(?:\.[0-9]{1,2})?|[0-9]{3,7}(?:\.[0-9]{1,2})?)\s*บาท/g))money.push(parseFloat(x[1].replace(/,/g,'')));
   if(!out.principal&&money.length)out.principal=money.find(v=>v>=1000)||0;
   return out;
 }
