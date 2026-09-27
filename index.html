@@ -3639,8 +3639,24 @@ function renderPawns(){
         <div class="pawn-finance-card"><span>💰 เงินต้นรวมทั้งตั๋ว</span><strong>${fmt(x.principal)}</strong><small>ยอดเดียวรวมของที่จำนำทั้งหมด ${shown.length} รายการ</small>${x.appraisal?`<div class="pawn-appraisal">ราคาประเมิน ${fmt(x.appraisal)}</div>`:""}</div>
       </div>
       <div class="pawn-ticket-body"><div class="pawn-kpi"><span>ดอกเบี้ย / เดือน</span><strong>${fmt(x.monthlyInterest)}</strong></div><div class="pawn-kpi next"><span>ต่อดอกครั้งถัดไป</span><strong>${c.nextDate?fmtDate(c.nextDate):'—'}</strong></div><div class="pawn-kpi next"><span>ยอดดอก 5 เดือน</span><strong>${fmt(c.interest5)}</strong></div></div>
-      <div class="pawn-ticket-foot"><div class="pawn-due ${soon?'soon':''}">${soon?'⚠️':'🗓️'} ${dueTxt}${x.note?`<div class="pawn-note-view">หมายเหตุ: ${escHtml(x.note)}</div>`:''}</div><button type="button" class="btn btn-ghost btn-sm" data-pawn-id="${encodeURIComponent(String(x.id))}" onclick="event.preventDefault();event.stopPropagation();openPawnM(decodeURIComponent(this.dataset.pawnId),event);return false;">✏ แก้ไขตั๋ว</button></div>
+      <div class="pawn-ticket-foot"><div class="pawn-due ${soon?'soon':''}">${soon?'⚠️':'🗓️'} ${dueTxt}${x.note?`<div class="pawn-note-view">หมายเหตุ: ${escHtml(x.note)}</div>`:''}</div><button type="button" class="btn btn-ghost btn-sm pawn-edit-btn" data-pawn-id="${encodeURIComponent(String(x.id))}">✏ แก้ไขตั๋ว</button></div>
     </div>`}).join('');
+}
+
+// ปุ่มแก้ไขตั๋วจำนำ: ใช้ delegated event แทน inline onclick เพื่อให้ทำงานเหมือนกันบน GitHub Pages/Firebase
+if(!window.__pawnEditDelegated){
+  window.__pawnEditDelegated=true;
+  document.addEventListener('click',function(e){
+    const btn=e.target.closest&&e.target.closest('.pawn-edit-btn');
+    if(!btn)return;
+    e.preventDefault();
+    e.stopPropagation();
+    if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+    let id=btn.getAttribute('data-pawn-id')||'';
+    try{id=decodeURIComponent(id)}catch(_e){}
+    // เปิดหลัง click cycle จบ ป้องกัน overlay/global click handler ปิด modal ทันที
+    setTimeout(()=>openPawnM(id),0);
+  },true);
 }
 
 // ══ INVEST — GOLD ══
