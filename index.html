@@ -3607,7 +3607,7 @@ function collectPawnItemRows(){
 function addPawnItemRow(){const a=collectPawnItemRows();a.push({name:'',qty:1,unit:'ชิ้น'});renderPawnItemEditor(a);const ins=document.querySelectorAll('#pawn-items-editor .pawn-item-input');ins[ins.length-1]?.focus()}
 function removePawnItemRow(i){let a=collectPawnItemRows();a.splice(i,1);renderPawnItemEditor(a.length?a:[{name:'',qty:1,unit:'ชิ้น'}])}
 function openPawnM(id){
-  pawnEId=id||null;const item=id?getPawns().find(x=>x.id===id):null,today=new Date().toISOString().slice(0,10);
+  pawnEId=id||null;const item=id?getPawns().find(x=>String(x.id)===String(id)):null,today=new Date().toISOString().slice(0,10);
   document.getElementById('pawn-title').textContent=id?'แก้ไขตั๋วจำนำทอง':'เพิ่มตั๋วจำนำทอง';
   document.getElementById('pawn-no').value=item?.no||'';document.getElementById('pawn-ref').value=item?.ref||'';document.getElementById('pawn-date').value=item?.date||today;document.getElementById('pawn-due-date').value=item?.dueDate||addMonthsISO(item?.date||today,5);
   renderPawnItemEditor(item?normalizePawnItems(item):[{name:'',qty:1,unit:'ชิ้น'}]);document.getElementById('pawn-total-weight').value=item?.totalWeight||'';document.getElementById('pawn-principal').value=item?.principal||'';document.getElementById('pawn-appraisal').value=item?.appraisal||'';
@@ -3620,10 +3620,10 @@ function savePawn(){
   const obj={no:document.getElementById('pawn-no').value.trim(),ref:document.getElementById('pawn-ref').value.trim(),date:document.getElementById('pawn-date').value,dueDate:document.getElementById('pawn-due-date').value||addMonthsISO(document.getElementById('pawn-date').value,5),items:collectPawnItemRows(),totalWeight:parseFloat(document.getElementById('pawn-total-weight').value)||0,principal:parseFloat(document.getElementById('pawn-principal').value)||0,appraisal:parseFloat(document.getElementById('pawn-appraisal').value)||0,monthlyInterest:parseFloat(document.getElementById('pawn-monthly-interest').value)||0,note:document.getElementById('pawn-note').value.trim()};
   if(!obj.principal||!obj.date)return alert('กรุณากรอกวันที่จำนำและเงินต้น');
   if(!obj.items.length)return alert('กรุณาเพิ่มรายละเอียดของที่จำนำอย่างน้อย 1 รายการ');
-  let arr=getPawns();if(pawnEId){arr=arr.map(x=>x.id===pawnEId?{...x,...obj}:x);addHist('invest','แก้ไข',`ตั๋วจำนำ ${obj.no||''} เงินต้น ${fmt(obj.principal)}`)}else{arr.push({id:Date.now(),...obj});addHist('invest','เพิ่ม',`ตั๋วจำนำ ${obj.no||''} เงินต้น ${fmt(obj.principal)}`)}
+  let arr=getPawns();if(pawnEId){arr=arr.map(x=>String(x.id)===String(pawnEId)?{...x,...obj}:x);addHist('invest','แก้ไข',`ตั๋วจำนำ ${obj.no||''} เงินต้น ${fmt(obj.principal)}`)}else{arr.push({id:Date.now(),...obj});addHist('invest','เพิ่ม',`ตั๋วจำนำ ${obj.no||''} เงินต้น ${fmt(obj.principal)}`)}
   savePawns(arr);closeOv('pawn-ov');renderPawns();
 }
-function delPawn(){if(!pawnEId)return;if(!confirm('ลบตั๋วจำนำรายการนี้?'))return;savePawns(getPawns().filter(x=>x.id!==pawnEId));closeOv('pawn-ov');renderPawns()}
+function delPawn(){if(!pawnEId)return;if(!confirm('ลบตั๋วจำนำรายการนี้?'))return;savePawns(getPawns().filter(x=>String(x.id)!==String(pawnEId)));closeOv('pawn-ov');renderPawns()}
 function renderPawns(){
   const arr=getPawns().slice().sort((a,b)=>(pawnCalc(a).nextDate||'').localeCompare(pawnCalc(b).nextDate||''));
   const totalP=arr.reduce((s,x)=>s+(parseFloat(x.principal)||0),0),totalI=arr.reduce((s,x)=>s+pawnCalc(x).interest5,0),due=arr.filter(x=>{const d=daysUntilISO(pawnCalc(x).nextDate);return d!==null&&d>=0&&d<=30}).length;
@@ -3638,7 +3638,7 @@ function renderPawns(){
         <div class="pawn-finance-card"><span>💰 เงินต้นรวมทั้งตั๋ว</span><strong>${fmt(x.principal)}</strong><small>ยอดเดียวรวมของที่จำนำทั้งหมด ${shown.length} รายการ</small>${x.appraisal?`<div class="pawn-appraisal">ราคาประเมิน ${fmt(x.appraisal)}</div>`:""}</div>
       </div>
       <div class="pawn-ticket-body"><div class="pawn-kpi"><span>ดอกเบี้ย / เดือน</span><strong>${fmt(x.monthlyInterest)}</strong></div><div class="pawn-kpi next"><span>ต่อดอกครั้งถัดไป</span><strong>${c.nextDate?fmtDate(c.nextDate):'—'}</strong></div><div class="pawn-kpi next"><span>ยอดดอก 5 เดือน</span><strong>${fmt(c.interest5)}</strong></div></div>
-      <div class="pawn-ticket-foot"><div class="pawn-due ${soon?'soon':''}">${soon?'⚠️':'🗓️'} ${dueTxt}${x.note?`<div class="pawn-note-view">หมายเหตุ: ${escHtml(x.note)}</div>`:''}</div><button class="btn btn-ghost btn-sm" onclick="openPawnM(${x.id})">✏ แก้ไขตั๋ว</button></div>
+      <div class="pawn-ticket-foot"><div class="pawn-due ${soon?'soon':''}">${soon?'⚠️':'🗓️'} ${dueTxt}${x.note?`<div class="pawn-note-view">หมายเหตุ: ${escHtml(x.note)}</div>`:''}</div><button class="btn btn-ghost btn-sm" onclick='openPawnM(${JSON.stringify(String(x.id))})'>✏ แก้ไขตั๋ว</button></div>
     </div>`}).join('');
 }
 
