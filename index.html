@@ -1113,8 +1113,22 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
     </div>
   </div>
   <div class="cards c4">
-    <div class="card"><div class="lbl">รวมค่าใช้จ่าย/เดือน</div><div class="val vb" id="sub-mo">฿0</div><div class="sub" id="sub-mo-note">เฉพาะรายการที่เปิดใช้งาน</div></div>
-    <div class="card"><div class="lbl">รวมค่าใช้จ่าย/ปี</div><div class="val vb" id="sub-yr">฿0</div><div class="sub" id="sub-yr-note">เฉพาะรายการที่เปิดใช้งาน</div></div>
+    <div class="card sub-summary-card">
+      <div class="sub-summary-top"><div class="lbl">รวมค่าใช้จ่าย/เดือน</div><span class="sub-summary-badge">ACTIVE</span></div>
+      <div class="val vb" id="sub-mo">฿0</div>
+      <div class="sub-breakdown" id="sub-mo-note">
+        <div class="sub-break-row"><span>แพ็กเกจรายปี <small>เฉลี่ย/เดือน</small></span><strong id="sub-mo-annual">฿0</strong></div>
+        <div class="sub-break-row"><span>แพ็กเกจรายเดือน</span><strong id="sub-mo-monthly">฿0</strong></div>
+      </div>
+    </div>
+    <div class="card sub-summary-card">
+      <div class="sub-summary-top"><div class="lbl">รวมค่าใช้จ่าย/ปี</div><span class="sub-summary-badge">ACTIVE</span></div>
+      <div class="val vb" id="sub-yr">฿0</div>
+      <div class="sub-breakdown" id="sub-yr-note">
+        <div class="sub-break-row"><span>แพ็กเกจรายปี</span><strong id="sub-yr-annual">฿0</strong></div>
+        <div class="sub-break-row"><span>รายเดือน <small>× 12 เดือน</small></span><strong id="sub-yr-monthly">฿0</strong></div>
+      </div>
+    </div>
     <div class="card"><div class="lbl">กำลังใช้งาน</div><div class="val vg" id="sub-act">0</div></div>
     <div class="card"><div class="lbl">ใกล้หมดอายุ (15 วัน)</div><div class="val vc" id="sub-exp">0</div></div>
   </div>
@@ -4315,10 +4329,14 @@ function renderSub(){
   const exp=active.filter(s=>{if(!s.end)return false;const d=new Date(s.end);return(d-today)/86400000<=15&&d>=today}).length;
   document.getElementById('sub-mo').textContent=fmt(tMo);
   document.getElementById('sub-yr').textContent=fmt(tYr);
-  const moNote=document.getElementById('sub-mo-note');
-  if(moNote)moNote.textContent=`รายปีเฉลี่ย/เดือน ${fmt(annualPlans/12)} + รายเดือน ${fmt(monthlyPlans)}`;
-  const yrNote=document.getElementById('sub-yr-note');
-  if(yrNote)yrNote.textContent=`รายปี ${fmt(annualPlans)} + รายเดือน × 12 ${fmt(monthlyPlans*12)}`;
+  const subMoAnnual=document.getElementById('sub-mo-annual');
+  const subMoMonthly=document.getElementById('sub-mo-monthly');
+  const subYrAnnual=document.getElementById('sub-yr-annual');
+  const subYrMonthly=document.getElementById('sub-yr-monthly');
+  if(subMoAnnual)subMoAnnual.textContent=fmt(annualPlans/12);
+  if(subMoMonthly)subMoMonthly.textContent=fmt(monthlyPlans);
+  if(subYrAnnual)subYrAnnual.textContent=fmt(annualPlans);
+  if(subYrMonthly)subYrMonthly.textContent=fmt(monthlyPlans*12);
   document.getElementById('sub-act').textContent=active.length+' รายการ';
   document.getElementById('sub-exp').textContent=exp+' รายการ';
   document.getElementById('sub-tot').textContent=fmt(tYr);
@@ -4740,4 +4758,26 @@ function dlCSV(rows,fn){
 .pawn-editor{position:fixed;inset:0;z-index:10050;background:rgba(15,23,42,.46);padding:24px;align-items:center;justify-content:center;overflow:auto}.pawn-editor-inner{width:min(760px,100%);max-height:calc(100vh - 48px);overflow:auto;padding:18px;background:#fffdf7;border:1px solid #ead9a8;border-radius:16px;box-shadow:0 24px 70px rgba(15,23,42,.28)}.pawn-dialog-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.pawn-dialog-head h3{margin:0}.pawn-x{border:0;background:var(--g100);width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:16px}.pawn-form-items{display:grid;gap:7px}.pawn-form-item{display:grid;grid-template-columns:minmax(0,1fr) 82px 88px 34px;gap:6px;align-items:end}.pawn-form-item .f{margin:0}.pawn-form-item button{height:38px}.pawn-form-hint{font-size:10px;color:var(--g400);margin-top:4px}
 @media(max-width:760px){.invest-tabs{width:100%;display:grid;grid-template-columns:1fr 1fr}.invest-tab{width:100%}.pawn-head{align-items:flex-start}.pawn-summary{grid-template-columns:1fr 1fr}.pawn-summary .card:last-child{grid-column:span 2}.pawn-grid{grid-template-columns:1fr}.pawn-card-top{padding:12px}.pawn-items{padding:11px 12px}.pawn-money{margin:0 12px 10px}.pawn-info{padding:0 12px 11px}.pawn-form-item{grid-template-columns:minmax(0,1fr) 70px 80px 34px}.pawn-editor{padding:10px;align-items:flex-start}.pawn-editor-inner{padding:14px;max-height:calc(100vh - 20px)}.pawn-money-val{font-size:20px}}
 @media(max-width:420px){.pawn-info{grid-template-columns:1fr 1fr}.pawn-form-item{grid-template-columns:1fr 64px 74px 32px}.pawn-form-item input,.pawn-form-item select{font-size:12px;padding-left:7px;padding-right:5px}.pawn-summary .val{font-size:16px}}
+
+/* Subscription summary — cleaner breakdown layout */
+#page-subscription .sub-summary-card{padding:16px 17px 14px;overflow:hidden}
+#page-subscription .sub-summary-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:2px}
+#page-subscription .sub-summary-badge{font-size:9px;font-weight:800;letter-spacing:.55px;color:#16784a;background:#eaf8f1;border:1px solid #cdebdc;border-radius:999px;padding:3px 7px;line-height:1}
+#page-subscription .sub-summary-card>.val{margin:5px 0 11px;font-size:25px;line-height:1.05}
+#page-subscription .sub-breakdown{display:grid;gap:6px;padding-top:9px;border-top:1px solid #edf0f4}
+#page-subscription .sub-break-row{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:11px;color:#667085;line-height:1.25}
+#page-subscription .sub-break-row span{min-width:0}
+#page-subscription .sub-break-row small{font-size:9px;color:#98a2b3;white-space:nowrap}
+#page-subscription .sub-break-row strong{font-size:11px;color:#344054;white-space:nowrap;font-variant-numeric:tabular-nums}
+@media(max-width:760px){
+  #page-subscription .cards.c4{grid-template-columns:repeat(2,minmax(0,1fr))}
+  #page-subscription .sub-summary-card{padding:14px}
+  #page-subscription .sub-summary-card>.val{font-size:22px}
+  #page-subscription .sub-break-row{align-items:flex-start;flex-direction:column;gap:2px}
+  #page-subscription .sub-break-row strong{font-size:12px}
+}
+@media(max-width:430px){
+  #page-subscription .cards.c4{grid-template-columns:1fr 1fr;gap:8px}
+  #page-subscription .sub-summary-card{grid-column:1/-1}
+}
 </style>
