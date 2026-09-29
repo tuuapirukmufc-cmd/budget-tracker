@@ -770,7 +770,6 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   <div class="page-head">
     <div><h2 class="desk-only">📝 สิ่งที่ต้องทำ</h2><div class="sub">วางแผนชีวิตและติดตามงานสำคัญ</div></div>
     <div class="page-head-actions">
-      <button class="btn btn-ghost btn-sm" onclick="sw('dashboard',null)">⌂ ภาพรวม</button>
       <button class="btn btn-pri btn-sm" onclick="openTM()">+ เพิ่มรายการ</button>
     </div>
   </div>
@@ -814,114 +813,10 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
     </tr></thead><tbody id="todo-done-body"></tbody></table>
   </div>
 </div>
-<div id="page-dashboard" class="page active">
-  <div class="dash-new-head">
-    <div>
-      <div class="dash-eyebrow">HAPPY MONEY · OVERVIEW</div>
-      <h2>ภาพรวมการเงิน</h2>
-      <div class="dash-date" id="dash-sub">ภาพรวมสถานะการเงินของคุณ</div>
-    </div>
-    <div class="dash-period">
-      <select class="styled" id="dash-yr-sel" onchange="onDashPeriodChange()"></select>
-      <select class="styled" id="dash-mo-sel" onchange="onDashPeriodChange()"></select>
-    </div>
-  </div>
-
-  <div class="dash-hero">
-    <div class="dash-hero-main">
-      <div class="dash-hero-label">เงินคงเหลือเดือนนี้</div>
-      <div class="dash-hero-value" id="dash-net-main">฿0</div>
-      <div class="dash-hero-foot">
-        <span id="dash-net-status">กำลังคำนวณ...</span>
-        <span class="dash-hero-dot">•</span>
-        <span>อัตราเหลือ <b id="dash-save-rate">0%</b></span>
-      </div>
-    </div>
-    <div class="dash-hero-side">
-      <div class="dash-mini"><span>รายรับ</span><strong id="kpi-inc">฿0</strong></div>
-      <div class="dash-mini"><span>รายจ่าย</span><strong id="kpi-exp">฿0</strong></div>
-      <div class="dash-mini"><span>จ่ายแล้ว</span><strong id="dash-paid">฿0</strong></div>
-      <div class="dash-mini"><span>ยังไม่จ่าย</span><strong id="dash-unpaid">฿0</strong></div>
-    </div>
-  </div>
-
-  <div class="dash-kpi-grid">
-    <div class="dash-kpi-card green"><div class="dash-kpi-icon">↗</div><div><span>รายรับเดือนนี้</span><strong id="dash-kpi-income">฿0</strong><small id="dash-kpi-income-sub">—</small></div></div>
-    <div class="dash-kpi-card orange"><div class="dash-kpi-icon">↘</div><div><span>รายจ่ายเดือนนี้</span><strong id="dash-kpi-expense">฿0</strong><small id="dash-kpi-expense-sub">—</small></div></div>
-    <div class="dash-kpi-card blue"><div class="dash-kpi-icon">🛵</div><div><span>Rider สุทธิ</span><strong id="dash-kpi-rider">฿0</strong><small id="dash-kpi-rider-sub">ยังไม่มีข้อมูล</small></div></div>
-    <div class="dash-kpi-card purple"><div class="dash-kpi-icon">🎫</div><div><span>ค่าสมาชิกรายเดือน</span><strong id="dash-kpi-sub">฿0</strong><small id="dash-kpi-sub-sub">0 รายการที่ใช้งาน</small></div></div>
-  </div>
-
-  <div class="dash-main-grid">
-    <section class="dash-panel dash-wide">
-      <div class="dash-panel-head">
-        <div><span class="dash-panel-kicker">กระแสเงินสด</span><h3>รายรับ · รายจ่าย 6 เดือนล่าสุด</h3></div>
-        <span class="dash-chip" id="dash-cash-chip">คงเหลือ ฿0</span>
-      </div>
-      <div class="dash-chart-lg"><canvas id="ch-cashflow"></canvas></div>
-    </section>
-    <section class="dash-panel">
-      <div class="dash-panel-head">
-        <div><span class="dash-panel-kicker">โครงสร้างรายจ่าย</span><h3>ใช้เงินไปกับอะไร</h3></div>
-      </div>
-      <div class="dash-chart-donut"><canvas id="ch-cat"></canvas></div>
-      <div class="dash-cat-list" id="dash-cat-list"></div>
-    </section>
-  </div>
-
-  <div class="dash-snapshot-grid">
-    <section class="dash-panel dash-snapshot">
-      <div class="dash-panel-head"><div><span class="dash-panel-kicker">หนี้สิน</span><h3>สถานะวงเงิน</h3></div><button class="dash-link" onclick="sw('debt',null)">ดูทั้งหมด →</button></div>
-      <div class="dash-snapshot-value" id="dash-debt-used">฿0</div>
-      <div class="dash-snapshot-label">ยอดเบิกใช้จากหนี้ที่เปิดใช้งาน</div>
-      <div class="dash-progress"><span id="dash-debt-bar"></span></div>
-      <div class="dash-snapshot-row"><span>วงเงินรวม <b id="dash-debt-limit">฿0</b></span><span>เหลือ <b id="dash-debt-left">฿0</b></span></div>
-    </section>
-    <section class="dash-panel dash-snapshot">
-      <div class="dash-panel-head"><div><span class="dash-panel-kicker">รายได้เสริม</span><h3>Rider App</h3></div><button class="dash-link" onclick="sw('sideincome',null)">เปิด Rider →</button></div>
-      <div class="dash-snapshot-value" id="dash-rider-net">฿0</div>
-      <div class="dash-snapshot-label">คงเหลือสุทธิเดือนที่เลือก</div>
-      <div class="dash-progress rider"><span id="dash-rider-bar"></span></div>
-      <div class="dash-snapshot-row"><span>รายรับ <b id="dash-rider-inc">฿0</b></span><span>ทำงาน <b id="dash-rider-days">0 วัน</b></span></div>
-    </section>
-    <section class="dash-panel dash-snapshot">
-      <div class="dash-panel-head"><div><span class="dash-panel-kicker">ภาระประจำ</span><h3>สมาชิกแอพ</h3></div><button class="dash-link" onclick="sw('subscription',null)">ดูรายการ →</button></div>
-      <div class="dash-snapshot-value" id="dash-sub-monthly">฿0</div>
-      <div class="dash-snapshot-label">ค่าใช้จ่ายเฉลี่ยต่อเดือน</div>
-      <div class="dash-snapshot-row two"><span>ต่อปี <b id="dash-sub-yearly">฿0</b></span><span>ใช้งาน <b id="dash-sub-active">0 รายการ</b></span></div>
-    </section>
-  </div>
-
-  <section class="dash-panel dash-year-panel">
-    <div class="dash-panel-head dash-year-head">
-      <div><span class="dash-panel-kicker">ภาพรวมทั้งปี</span><h3>สรุป 12 เดือน</h3></div>
-      <select class="styled" id="yr-sel" onchange="dashY=parseInt(this.value);selMonth=null;renderYearSummary()"></select>
-    </div>
-    <div class="dash-year-totals">
-      <div><span>รายรับทั้งปี</span><strong id="yr-inc">฿0</strong></div>
-      <div><span>รายจ่ายทั้งปี</span><strong id="yr-exp">฿0</strong></div>
-      <div><span>คงเหลือสะสม</span><strong id="yr-bal">฿0</strong></div>
-      <div><span>เดือนที่มีข้อมูล</span><strong id="yr-mo">0 เดือน</strong></div>
-    </div>
-    <div class="year-grid dash-year-grid" id="year-grid"></div>
-    <div id="month-detail-panel"></div>
-  </section>
-
-  <section class="dash-panel dash-alert-panel">
-    <div class="dash-panel-head">
-      <div><span class="dash-panel-kicker">สิ่งที่ควรรู้</span><h3>การแจ้งเตือนล่าสุด</h3></div>
-      <button class="dash-link" onclick="renderAlerts()">รีเฟรช ↻</button>
-    </div>
-    <div id="dash-alerts"></div>
-  </section>
-</div>
-
-<!-- PAGE: BUDGET -->
-<div id="page-budget" class="page">
+<div id="page-budget" class="page active">
   <div class="page-head">
     <div><h2 class="desk-only">🧾 รายรับ - รายจ่าย</h2><div class="sub">รายการประจำ — เพิ่มครั้งเดียว ใช้ทุกเดือน</div></div>
     <div class="page-head-actions">
-      <button class="btn btn-ghost btn-sm" onclick="sw('dashboard',null)">⌂ ภาพรวม</button>
       <div class="mnav">
         <select class="styled" id="budget-yr-sel" onchange="onBudgetPeriodChange()"></select>
         <select class="styled" id="budget-mo-sel" onchange="onBudgetPeriodChange()"></select>
@@ -977,7 +872,6 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
       <button class="btn btn-export btn-sm" onclick="exportDebt()">↓ Export</button>
       <button class="btn btn-ghost btn-sm" onclick="openCatMgr()">⚙ ประเภท</button>
       <button class="btn btn-pri btn-sm" onclick="openDM()">+ เพิ่มบัตร/สินเชื่อ</button>
-      <button class="db-bell" title="ไปหน้าภาพรวม" onclick="sw('dashboard',null)">⌂ ภาพรวม</button>
       <div class="db-avatar" title="ผู้ใช้งาน">👤</div>
     </div>
   </div>
@@ -1015,7 +909,6 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   <div class="page-head">
     <div><h2 class="desk-only">💹 ภาพรวมการลงทุน</h2><div class="sub">หุ้นปันผล · ออมทอง · ทรัพย์สิน</div></div>
     <div class="page-head-actions">
-      <button class="btn btn-ghost btn-sm" onclick="sw('dashboard',null)">⌂ ภาพรวม</button>
       <span style="font-size:12px;color:var(--g400)">ปีปันผล:</span>
       <select class="styled" id="stk-yr-sel" onchange="renderInvest()"></select>
       <button class="btn btn-export btn-sm" onclick="exportInvest()">↓ Export</button>
@@ -1201,7 +1094,6 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   <div class="page-head">
     <div><h2 class="desk-only">🎫 สมัครสมาชิกแอพ</h2><div class="sub">ติดตามวันต่ออายุ</div></div>
     <div class="page-head-actions">
-      <button class="btn btn-ghost btn-sm" onclick="sw('dashboard',null)">⌂ ภาพรวม</button>
       <button class="btn btn-pri btn-sm" onclick="openSubM()">+ เพิ่ม</button>
     </div>
   </div>
@@ -1228,7 +1120,6 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   <div class="page-head">
     <div><h2 class="desk-only">💼 รายได้เสริม</h2><div class="sub">บันทึกรายได้จากงานเสริมแยกตามแอพ</div></div>
     <div class="page-head-actions">
-      <button class="btn btn-ghost btn-sm" onclick="sw('dashboard',null)">⌂ ภาพรวม</button>
     </div>
   </div>
 
@@ -1322,7 +1213,6 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   <div class="page-head">
     <div><h2 class="desk-only">🔐 User-Login</h2><div class="sub">บัญชี / รหัสผ่าน / บริการต่างๆ</div></div>
     <div class="page-head-actions">
-      <button class="btn btn-ghost btn-sm" onclick="sw('dashboard',null)">⌂ ภาพรวม</button>
       <input type="text" id="login-search" placeholder="🔍 ค้นหาหัวข้อ, user, ประเภท..." oninput="renderLogins()"
         style="border:1px solid var(--g200);border-radius:8px;padding:5px 10px;font-size:12px;font-family:var(--font);width:200px">
       <button class="btn btn-ghost btn-sm" id="login-pw-toggle" onclick="togAllPw()">👁 แสดงรหัสผ่าน</button>
@@ -1345,8 +1235,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 <nav class="mob-nav">
   <div class="mob-nav-inner">
     <div class="mob-tab" data-page="todo" onclick="swMob('todo',this,'สิ่งที่ต้องทำ')"><div class="micon">📝</div><div class="mlbl">ต้องทำ</div></div>
-    <div class="mob-tab active" data-page="dashboard" onclick="swMob('dashboard',this,'ภาพรวม')"><div class="micon">★</div><div class="mlbl">ภาพรวม</div></div>
-    <div class="mob-tab" data-page="budget" onclick="swMob('budget',this,'รายรับ-รายจ่าย')"><div class="micon">🧾</div><div class="mlbl">รายรับ-จ่าย</div></div>
+    <div class="mob-tab active" data-page="budget" onclick="swMob('budget',this,'รายรับ-รายจ่าย')"><div class="micon">🧾</div><div class="mlbl">รายรับ-จ่าย</div></div>
     <div class="mob-tab" data-page="debt" onclick="swMob('debt',this,'หนี้สิน')"><div class="micon">📉</div><div class="mlbl">หนี้สิน</div></div>
     <div class="mob-tab" data-page="invest" onclick="swMob('invest',this,'การลงทุน')"><div class="micon">💹</div><div class="mlbl">ลงทุน</div></div>
     <div class="mob-tab" data-page="subscription" onclick="swMob('subscription',this,'สมัครสมาชิกแอพ')"><div class="micon">🎫</div><div class="mlbl">สมาชิก</div></div>
@@ -2270,7 +2159,7 @@ function initializeAppAfterCloud(){
   appInitialized=true;
   initYearSelectors();
   applyPageVisibility();
-  renderDashboard();
+  renderBudget();
   startFirestoreRealtime();
 }
 
@@ -2296,7 +2185,7 @@ document.addEventListener('DOMContentLoaded',async function(){
 });
 
 // ══ PAGE SWITCH ══
-let curPage='dashboard';
+let curPage='budget';
 function sw(id,el){
   curPage=id;
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
@@ -2326,7 +2215,6 @@ document.querySelectorAll('.ov').forEach(o=>o.addEventListener('click',e=>{ if(e
 
 // ══ PAGE VISIBILITY (ซ่อน/เปิดใช้งานหน้า) ══
 const ALL_PAGES=[
-  {id:'dashboard',label:'★ ภาพรวม',locked:true},
   {id:'todo',label:'📝 สิ่งที่ต้องทำ'},
   {id:'budget',label:'🧾 รายรับ-รายจ่าย'},
   {id:'debt',label:'📉 หนี้สิน'},
@@ -2410,7 +2298,7 @@ function applyPageVisibility(){
   });
   syncCurrentPageTitle();
   if(hidden.includes(curPage)){
-    sw('dashboard',document.querySelector('.nav-tab[data-page="dashboard"]'));
+    sw('budget',document.querySelector('.nav-tab[data-page="budget"]'));
   }
 }
 function openPageMgr(){
