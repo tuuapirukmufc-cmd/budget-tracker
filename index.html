@@ -535,12 +535,25 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 /* gold live pulse */
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
 
+/* ── Mobile side drawer navigation ── */
+.mobile-menu-btn{display:none;width:38px;height:38px;border:1px solid var(--g200);background:#fff;border-radius:10px;align-items:center;justify-content:center;font-size:21px;cursor:pointer;color:#172033;font-family:var(--font);-webkit-tap-highlight-color:transparent}
+.mobile-menu-backdrop{display:none;position:fixed;inset:0;background:rgba(15,23,42,.48);z-index:299;opacity:0;transition:opacity .2s ease}
+@media(max-width:768px){
+  .mobile-menu-btn{display:inline-flex}
+  .sidebar{display:flex!important;transform:translateX(-105%);transition:transform .22s ease;z-index:300;width:min(82vw,290px);box-shadow:14px 0 35px rgba(15,23,42,.22);padding-top:1rem}
+  .sidebar.mobile-open{transform:translateX(0)}
+  .mobile-menu-backdrop{display:block;pointer-events:none}
+  .mobile-menu-backdrop.open{opacity:1;pointer-events:auto}
+  .mob-nav{display:none!important}
+  .page{padding-bottom:calc(.75rem + env(safe-area-inset-bottom))!important}
+  .mob-header{display:flex}
+  body.mobile-menu-lock{overflow:hidden}
+}
+
 /* ── Dark background (mobile) ── */
 @media(max-width:768px){
   body{background:var(--g50)}
-  .sidebar{display:none}
   .main-content{margin-left:0}
-  .mob-nav{display:flex}
   .mob-header{display:flex}
   #cloud-bar{flex-wrap:wrap;gap:6px;padding:5px 10px}
   #realtime-clock{font-size:10.5px}
@@ -736,14 +749,16 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 </div>
 <div id="app-screen" style="display:none">
 <!-- Sidebar (desktop) -->
-<nav class="sidebar">
+<nav class="sidebar" id="main-sidebar">
   <div class="brand"><span class="app-icon"></span>Happy <span class="brand-accent">Money</span></div>
   <div id="sidebar-nav-list"></div>
   <div class="sidebar-foot"><button class="btn btn-ghost btn-sm" onclick="openPageMgr()">⚙ จัดการเมนู</button></div>
 </nav>
+<div class="mobile-menu-backdrop" id="mobile-menu-backdrop" onclick="closeMobileMenu()"></div>
 <!-- Mobile header -->
 <div class="mob-header" id="mob-header">
-  <div style="display:flex;align-items:center">
+  <div style="display:flex;align-items:center;gap:8px">
+    <button type="button" class="mobile-menu-btn" aria-label="เปิดเมนู" aria-controls="main-sidebar" aria-expanded="false" onclick="toggleMobileMenu()">☰</button>
     <span class="app-icon"></span>
     <h2 id="mob-title">★ ภาพรวม</h2>
   </div>
@@ -2184,9 +2199,36 @@ document.addEventListener('DOMContentLoaded',async function(){
   if(ok)initializeAppAfterCloud();
 });
 
+// ══ MOBILE SIDE MENU ══
+function openMobileMenu(){
+  if(window.innerWidth>768)return;
+  const sb=document.getElementById('main-sidebar');
+  const bd=document.getElementById('mobile-menu-backdrop');
+  if(sb)sb.classList.add('mobile-open');
+  if(bd)bd.classList.add('open');
+  document.body.classList.add('mobile-menu-lock');
+  const btn=document.querySelector('.mobile-menu-btn');
+  if(btn)btn.setAttribute('aria-expanded','true');
+}
+function closeMobileMenu(){
+  const sb=document.getElementById('main-sidebar');
+  const bd=document.getElementById('mobile-menu-backdrop');
+  if(sb)sb.classList.remove('mobile-open');
+  if(bd)bd.classList.remove('open');
+  document.body.classList.remove('mobile-menu-lock');
+  const btn=document.querySelector('.mobile-menu-btn');
+  if(btn)btn.setAttribute('aria-expanded','false');
+}
+function toggleMobileMenu(){
+  const sb=document.getElementById('main-sidebar');
+  if(sb&&sb.classList.contains('mobile-open'))closeMobileMenu();else openMobileMenu();
+}
+window.addEventListener('resize',()=>{if(window.innerWidth>768)closeMobileMenu()});
+
 // ══ PAGE SWITCH ══
 let curPage='budget';
 function sw(id,el){
+  closeMobileMenu();
   curPage=id;
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
