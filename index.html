@@ -178,6 +178,35 @@ table.tbl tr.dim .iname{text-decoration:line-through}
 .pill{display:inline-block;font-size:11px;padding:2px 8px;border-radius:999px;background:var(--g100);color:var(--g600);font-weight:500}
 .badge{display:inline-block;font-size:11px;padding:2px 8px;border-radius:var(--rsm);font-weight:500;white-space:nowrap}
 .b-ok{background:var(--gl);color:var(--gd)}.b-soon{background:var(--al);color:var(--amber)}.b-over{background:var(--rl);color:var(--red)}.b-gray{background:var(--g100);color:var(--g400)}.b-blue{background:var(--bl);color:var(--bd)}
+
+/* polished necessity manager */
+.necessity-manager-modal{width:min(680px,calc(100vw - 28px))!important;max-height:min(86vh,760px);overflow:hidden}
+.necessity-manager-head{display:flex;align-items:flex-start;gap:12px;margin-bottom:18px}
+.necessity-manager-icon{width:44px;height:44px;flex:0 0 44px;display:grid;place-items:center;border-radius:14px;background:linear-gradient(135deg,#EEF5FF,#E0ECFF);border:1px solid #D5E3FF;font-size:21px}
+.necessity-manager-head h3{margin:1px 0 3px!important;font-size:18px}
+.necessity-manager-head p{margin:0;color:#64748B;font-size:11px;line-height:1.5}
+.necessity-manager-list{display:grid;gap:10px;margin-bottom:16px;max-height:330px;overflow:auto;padding-right:2px}
+.necessity-manager-row{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:10px;padding:10px 12px;border:1px solid #E2E8F0;border-radius:14px;background:#fff;transition:.15s}
+.necessity-manager-row:hover{border-color:#CBD5E1;box-shadow:0 3px 12px rgba(15,23,42,.05)}
+.necessity-manager-row.needed{background:linear-gradient(90deg,#F0FDF4,#fff)}
+.necessity-manager-row.unneeded{background:linear-gradient(90deg,#FFF7ED,#fff)}
+.necessity-manager-row.custom{background:linear-gradient(90deg,#EFF6FF,#fff)}
+.necessity-manager-row .nm-main{min-width:0}
+.necessity-manager-row .nm-label{font-size:10px;font-weight:800;color:#64748B;margin-bottom:4px}
+.necessity-manager-row input{width:100%;box-sizing:border-box;height:38px;border:1px solid #D7DEE8;border-radius:10px;background:#fff;padding:0 11px;font-family:inherit;font-size:13px;font-weight:700;color:#1E293B;outline:none;transition:.15s}
+.necessity-manager-row input:focus{border-color:#60A5FA;box-shadow:0 0 0 3px rgba(59,130,246,.10)}
+.necessity-manager-row .nm-icon{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;font-size:16px}
+.necessity-manager-row.needed .nm-icon{background:#DCFCE7;color:#16A34A}.necessity-manager-row.unneeded .nm-icon{background:#FFEDD5;color:#EA580C}.necessity-manager-row.custom .nm-icon{background:#DBEAFE;color:#2563EB}
+.necessity-manager-row .nm-delete{height:34px!important;min-width:48px;padding:0 10px!important;border-radius:9px!important}
+.necessity-manager-add{padding:13px;border:1px dashed #93C5FD;border-radius:14px;background:#F8FBFF;margin-bottom:16px}
+.necessity-manager-add-head{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:12px;font-weight:800;color:#2563EB}
+.necessity-manager-add-icon{width:28px;height:28px;border-radius:9px;background:#DBEAFE;display:grid;place-items:center;font-size:16px}
+.necessity-manager-add-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px}
+.necessity-manager-add-row input{height:40px;border:1px solid #BFDBFE;border-radius:10px;background:#fff;padding:0 12px;font-family:inherit;font-size:13px;outline:none}
+.necessity-manager-add-row input:focus{border-color:#3B82F6;box-shadow:0 0 0 3px rgba(59,130,246,.10)}
+.necessity-manager-footer{display:flex;justify-content:flex-end;gap:8px;padding-top:14px;border-top:1px solid #EEF2F7}
+@media(max-width:600px){.necessity-manager-modal{width:calc(100vw - 18px)!important;border-radius:18px!important}.necessity-manager-row{grid-template-columns:auto minmax(0,1fr) auto;padding:9px}.necessity-manager-row .nm-icon{width:32px;height:32px}.necessity-manager-add-row{grid-template-columns:1fr}.necessity-manager-list{max-height:42vh}.necessity-manager-footer .btn{flex:1}}
+
 /* Necessity selector */
 .necessity-select{font-weight:700;border-radius:9px!important;min-width:118px!important;transition:.12s;border:1px solid transparent!important}
 .necessity-select.needed{background:#ECFDF3!important;color:#15803D!important;border-color:#BBF7D0!important}
@@ -1637,16 +1666,22 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 </div></div>
 
 <!-- Necessity Manager -->
-<div class="ov" id="necessitymgr-ov"><div class="modal">
+<div class="ov" id="necessitymgr-ov"><div class="modal necessity-manager-modal">
   <span class="modal-drag"></span>
-  <h3>จัดการตัวเลือกความจำเป็น</h3>
-  <div id="necessitymgr-list" style="margin-bottom:.75rem"></div>
-  <div class="f-row">
-    <div class="f" style="flex:1"><label>เพิ่มตัวเลือกใหม่</label><input type="text" id="necessitymgr-new" placeholder="เช่น ควรมี"></div>
+  <div class="necessity-manager-head">
+    <div class="necessity-manager-icon">✏️</div>
+    <div><h3>จัดการตัวเลือกความจำเป็น</h3><p>เพิ่ม แก้ไข หรือลบตัวเลือกที่ใช้ในรายการรายรับ–รายจ่าย</p></div>
   </div>
-  <div class="mbtns">
+  <div id="necessitymgr-list" class="necessity-manager-list"></div>
+  <div class="necessity-manager-add">
+    <div class="necessity-manager-add-head"><span class="necessity-manager-add-icon">＋</span><span>เพิ่มตัวเลือกใหม่</span></div>
+    <div class="necessity-manager-add-row">
+      <input type="text" id="necessitymgr-new" placeholder="เช่น ควรมี, อื่นๆ, ฉุกเฉิน">
+      <button type="button" class="btn btn-pri" onclick="addNecessity()">+ เพิ่มตัวเลือก</button>
+    </div>
+  </div>
+  <div class="necessity-manager-footer">
     <button class="btn btn-ghost" onclick="closeOv('necessitymgr-ov')">ปิด</button>
-    <button class="btn btn-pri" onclick="addNecessity()">+ เพิ่มตัวเลือก</button>
   </div>
 </div></div>
 
@@ -3101,7 +3136,14 @@ function necessityClass(n){return n==='จำเป็น'?'needed':n==='ไม�
 function necessityLabel(n){return n==='จำเป็น'?'🟢  จำเป็น':n==='ไม่จำเป็น'?'🟠  ไม่จำเป็น':'🔵  '+n}
 function refreshNecessityOptions(keepValue){const sel=document.getElementById('bm-necessity');if(!sel)return;let opts=getNecessities().slice();if(keepValue&&!opts.includes(keepValue))opts.push(keepValue);sel.innerHTML=opts.map(n=>`<option value="${n.replace(/"/g,'&quot;')}">${necessityLabel(n)}</option>`).join('');if(keepValue)sel.value=keepValue;sel.className='necessity-select '+necessityClass(sel.value||opts[0]||'')}
 function openNecessityMgr(){renderNecessityMgrList();document.getElementById('necessitymgr-new').value='';document.getElementById('necessitymgr-ov').classList.add('open');}
-function renderNecessityMgrList(){const a=getNecessities();document.getElementById('necessitymgr-list').innerHTML=a.length?a.map((n,i)=>`<div class="f-row" style="align-items:center;margin-bottom:.4rem;gap:6px"><span class="necessity-badge ${necessityClass(n)}">${necessityLabel(n)}</span><input type="text" value="${n.replace(/"/g,'&quot;')}" onchange="renameNecessity(${i},this.value)" style="flex:1"><button class="btn btn-danger btn-sm" onclick="deleteNecessity(${i})">ลบ</button></div>`).join(''):'<div class="empty">ยังไม่มีตัวเลือก</div>';}
+function renderNecessityMgrList(){
+  const a=getNecessities();
+  const icons={needed:'✓',unneeded:'−',custom:'◆'};
+  document.getElementById('necessitymgr-list').innerHTML=a.length?a.map((n,i)=>{
+    const cls=necessityClass(n);
+    return `<div class="necessity-manager-row ${cls}"><span class="nm-icon">${icons[cls]||'◆'}</span><div class="nm-main"><div class="nm-label">ตัวเลือกที่ ${i+1}</div><input type="text" value="${n.replace(/"/g,'&quot;')}" onchange="renameNecessity(${i},this.value)" aria-label="ชื่อตัวเลือก ${i+1}"></div><button type="button" class="btn btn-danger btn-sm nm-delete" onclick="deleteNecessity(${i})">ลบ</button></div>`;
+  }).join(''):'<div class="empty">ยังไม่มีตัวเลือก</div>';
+}
 function addNecessity(){const n=(document.getElementById('necessitymgr-new').value||'').trim();if(!n)return;const a=getNecessities();if(a.includes(n)){alert('มีตัวเลือกนี้อยู่แล้ว');return;}a.push(n);saveNecessities(a);document.getElementById('necessitymgr-new').value='';renderNecessityMgrList();refreshNecessityOptions(n);}
 function renameNecessity(idx,n){n=(n||'').trim();const a=getNecessities(),old=a[idx];if(!n||!old||old===n)return;if(a.includes(n)){alert('มีตัวเลือกนี้อยู่แล้ว');return;}a[idx]=n;saveNecessities(a);for(let i=0;i<localStorage.length;i++){const key=localStorage.key(i);if(!key||!key.startsWith('ov_'))continue;const o=ls(key,null);if(!o)continue;let ch=false;for(const type of ['income','expense']){const ak=type+'_add',ek=type+'_edit';if(Array.isArray(o[ak]))o[ak]=o[ak].map(x=>x.necessity===old?(ch=true,{...x,necessity:n}):x);if(o[ek]&&typeof o[ek]==='object')Object.keys(o[ek]).forEach(id=>{if(o[ek][id]?.necessity===old){o[ek][id]={...o[ek][id],necessity:n};ch=true;}});}if(ch)lss(key,o);}const t=getTmpls();saveTmpls({...t,income:(t.income||[]).map(x=>x.necessity===old?{...x,necessity:n}:x),expense:(t.expense||[]).map(x=>x.necessity===old?{...x,necessity:n}:x)});renderNecessityMgrList();refreshNecessityOptions(n);renderBudget();}
 function deleteNecessity(idx){const a=getNecessities(),n=a[idx];if(!n)return;if(!confirm(`ลบตัวเลือก "${n}" ออกจากตัวเลือก?\nรายการเดิมจะยังแสดงค่าที่เคยบันทึกไว้`))return;a.splice(idx,1);saveNecessities(a);renderNecessityMgrList();refreshNecessityOptions(getNecessities()[0]);}
