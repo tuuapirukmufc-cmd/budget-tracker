@@ -178,6 +178,16 @@ table.tbl tr.dim .iname{text-decoration:line-through}
 .pill{display:inline-block;font-size:11px;padding:2px 8px;border-radius:999px;background:var(--g100);color:var(--g600);font-weight:500}
 .badge{display:inline-block;font-size:11px;padding:2px 8px;border-radius:var(--rsm);font-weight:500;white-space:nowrap}
 .b-ok{background:var(--gl);color:var(--gd)}.b-soon{background:var(--al);color:var(--amber)}.b-over{background:var(--rl);color:var(--red)}.b-gray{background:var(--g100);color:var(--g400)}.b-blue{background:var(--bl);color:var(--bd)}
+/* Necessity selector */
+.necessity-select{font-weight:700;border-radius:9px!important;min-width:118px!important;transition:.12s;border:1px solid transparent!important}
+.necessity-select.needed{background:#ECFDF3!important;color:#15803D!important;border-color:#BBF7D0!important}
+.necessity-select.unneeded{background:#FFF7ED!important;color:#C2410C!important;border-color:#FED7AA!important}
+.necessity-select.custom{background:#EFF6FF!important;color:#1D4ED8!important;border-color:#BFDBFE!important}
+.necessity-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 9px;border-radius:999px;font-size:11px;font-weight:700;white-space:nowrap}
+.necessity-badge.needed{background:#ECFDF3;color:#15803D;border:1px solid #BBF7D0}
+.necessity-badge.unneeded{background:#FFF7ED;color:#C2410C;border:1px solid #FED7AA}
+.necessity-badge.custom{background:#EFF6FF;color:#1D4ED8;border:1px solid #BFDBFE}
+
 .sab{display:inline-block;font-size:11px;padding:2px 9px;border-radius:999px;font-weight:600;white-space:nowrap}
 .sab-on{background:var(--gl);color:var(--gd)}.sab-off{background:var(--g100);color:var(--g400)}
 
@@ -2895,7 +2905,7 @@ function renderBBody(id,headId,items,type){
       <td class="tc">${paidCell}</td>
       <td class="tc">${pmBadge}</td>
       <td style="font-size:12px;color:var(--g400)">${item.note||'—'}</td>
-      ${type==='expense'?`<td class="tc"><select class="styled" style="min-width:92px;font-size:11px;padding:5px 7px" onchange="setBudgetNecessity(${item.id},this.value)">${getNecessities().map(n=>`<option value="${n.replace(/"/g,'&quot;')}" ${(item.necessity||'จำเป็น')===n?'selected':''}>${n}</option>`).join('')}</select></td>`:''}
+      ${type==='expense'?`<td class="tc"><select class="styled necessity-select ${necessityClass(item.necessity||'จำเป็น')}" onchange="setBudgetNecessity(${item.id},this.value);this.className='styled necessity-select '+necessityClass(this.value)">${getNecessities().map(n=>`<option value="${n.replace(/"/g,'&quot;')}" ${(item.necessity||'จำเป็น')===n?'selected':''}>${necessityLabel(n)}</option>`).join('')}</select></td>`:''}
       <td class="tc">${noSort?reorderBtns(`reorderBudgetItem('${type}',${item.id},-1)`,`reorderBudgetItem('${type}',${item.id},1)`,i>0,i<sorted.length-1):''}<button class="icon-btn" onclick="openBM('${type}',${item.id})">✏</button></td>
     </tr>`;
   }).join('');
@@ -3029,9 +3039,11 @@ function deleteBudgetCat(idx){const cats=getBudgetCats(),label=cats[idx];if(!lab
 function defNecessities(){return['จำเป็น','ไม่จำเป็น']}
 function getNecessities(){return ls(uKey('budget_necessities_v1'),defNecessities())}
 function saveNecessities(a){lss(uKey('budget_necessities_v1'),a)}
-function refreshNecessityOptions(keepValue){const sel=document.getElementById('bm-necessity');if(!sel)return;let opts=getNecessities().slice();if(keepValue&&!opts.includes(keepValue))opts.push(keepValue);sel.innerHTML=opts.map(n=>`<option value="${n.replace(/"/g,'&quot;')}">${n}</option>`).join('');if(keepValue)sel.value=keepValue;}
+function necessityClass(n){return n==='จำเป็น'?'needed':n==='ไม่จำเป็น'?'unneeded':'custom'}
+function necessityLabel(n){return n==='จำเป็น'?'🟢  จำเป็น':n==='ไม่จำเป็น'?'🟠  ไม่จำเป็น':'🔵  '+n}
+function refreshNecessityOptions(keepValue){const sel=document.getElementById('bm-necessity');if(!sel)return;let opts=getNecessities().slice();if(keepValue&&!opts.includes(keepValue))opts.push(keepValue);sel.innerHTML=opts.map(n=>`<option value="${n.replace(/"/g,'&quot;')}">${necessityLabel(n)}</option>`).join('');if(keepValue)sel.value=keepValue;sel.className='necessity-select '+necessityClass(sel.value||opts[0]||'')}
 function openNecessityMgr(){renderNecessityMgrList();document.getElementById('necessitymgr-new').value='';document.getElementById('necessitymgr-ov').classList.add('open');}
-function renderNecessityMgrList(){const a=getNecessities();document.getElementById('necessitymgr-list').innerHTML=a.length?a.map((n,i)=>`<div class="f-row" style="align-items:center;margin-bottom:.4rem;gap:6px"><input type="text" value="${n.replace(/"/g,'&quot;')}" onchange="renameNecessity(${i},this.value)" style="flex:1"><button class="btn btn-danger btn-sm" onclick="deleteNecessity(${i})">ลบ</button></div>`).join(''):'<div class="empty">ยังไม่มีตัวเลือก</div>';}
+function renderNecessityMgrList(){const a=getNecessities();document.getElementById('necessitymgr-list').innerHTML=a.length?a.map((n,i)=>`<div class="f-row" style="align-items:center;margin-bottom:.4rem;gap:6px"><span class="necessity-badge ${necessityClass(n)}">${necessityLabel(n)}</span><input type="text" value="${n.replace(/"/g,'&quot;')}" onchange="renameNecessity(${i},this.value)" style="flex:1"><button class="btn btn-danger btn-sm" onclick="deleteNecessity(${i})">ลบ</button></div>`).join(''):'<div class="empty">ยังไม่มีตัวเลือก</div>';}
 function addNecessity(){const n=(document.getElementById('necessitymgr-new').value||'').trim();if(!n)return;const a=getNecessities();if(a.includes(n)){alert('มีตัวเลือกนี้อยู่แล้ว');return;}a.push(n);saveNecessities(a);document.getElementById('necessitymgr-new').value='';renderNecessityMgrList();refreshNecessityOptions(n);}
 function renameNecessity(idx,n){n=(n||'').trim();const a=getNecessities(),old=a[idx];if(!n||!old||old===n)return;if(a.includes(n)){alert('มีตัวเลือกนี้อยู่แล้ว');return;}a[idx]=n;saveNecessities(a);for(let i=0;i<localStorage.length;i++){const key=localStorage.key(i);if(!key||!key.startsWith('ov_'))continue;const o=ls(key,null);if(!o)continue;let ch=false;for(const type of ['income','expense']){const ak=type+'_add',ek=type+'_edit';if(Array.isArray(o[ak]))o[ak]=o[ak].map(x=>x.necessity===old?(ch=true,{...x,necessity:n}):x);if(o[ek]&&typeof o[ek]==='object')Object.keys(o[ek]).forEach(id=>{if(o[ek][id]?.necessity===old){o[ek][id]={...o[ek][id],necessity:n};ch=true;}});}if(ch)lss(key,o);}const t=getTmpls();saveTmpls({...t,income:(t.income||[]).map(x=>x.necessity===old?{...x,necessity:n}:x),expense:(t.expense||[]).map(x=>x.necessity===old?{...x,necessity:n}:x)});renderNecessityMgrList();refreshNecessityOptions(n);renderBudget();}
 function deleteNecessity(idx){const a=getNecessities(),n=a[idx];if(!n)return;if(!confirm(`ลบตัวเลือก "${n}" ออกจากตัวเลือก?\nรายการเดิมจะยังแสดงค่าที่เคยบันทึกไว้`))return;a.splice(idx,1);saveNecessities(a);renderNecessityMgrList();refreshNecessityOptions(getNecessities()[0]);}
