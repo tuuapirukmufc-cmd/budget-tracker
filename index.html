@@ -178,35 +178,6 @@ table.tbl tr.dim .iname{text-decoration:line-through}
 .pill{display:inline-block;font-size:11px;padding:2px 8px;border-radius:999px;background:var(--g100);color:var(--g600);font-weight:500}
 .badge{display:inline-block;font-size:11px;padding:2px 8px;border-radius:var(--rsm);font-weight:500;white-space:nowrap}
 .b-ok{background:var(--gl);color:var(--gd)}.b-soon{background:var(--al);color:var(--amber)}.b-over{background:var(--rl);color:var(--red)}.b-gray{background:var(--g100);color:var(--g400)}.b-blue{background:var(--bl);color:var(--bd)}
-
-/* polished necessity manager */
-.necessity-manager-modal{width:min(680px,calc(100vw - 28px))!important;max-height:min(86vh,760px);overflow:hidden}
-.necessity-manager-head{display:flex;align-items:flex-start;gap:12px;margin-bottom:18px}
-.necessity-manager-icon{width:44px;height:44px;flex:0 0 44px;display:grid;place-items:center;border-radius:14px;background:linear-gradient(135deg,#EEF5FF,#E0ECFF);border:1px solid #D5E3FF;font-size:21px}
-.necessity-manager-head h3{margin:1px 0 3px!important;font-size:18px}
-.necessity-manager-head p{margin:0;color:#64748B;font-size:11px;line-height:1.5}
-.necessity-manager-list{display:grid;gap:10px;margin-bottom:16px;max-height:330px;overflow:auto;padding-right:2px}
-.necessity-manager-row{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:10px;padding:10px 12px;border:1px solid #E2E8F0;border-radius:14px;background:#fff;transition:.15s}
-.necessity-manager-row:hover{border-color:#CBD5E1;box-shadow:0 3px 12px rgba(15,23,42,.05)}
-.necessity-manager-row.needed{background:linear-gradient(90deg,#F0FDF4,#fff)}
-.necessity-manager-row.unneeded{background:linear-gradient(90deg,#FFF7ED,#fff)}
-.necessity-manager-row.custom{background:linear-gradient(90deg,#EFF6FF,#fff)}
-.necessity-manager-row .nm-main{min-width:0}
-.necessity-manager-row .nm-label{font-size:10px;font-weight:800;color:#64748B;margin-bottom:4px}
-.necessity-manager-row input{width:100%;box-sizing:border-box;height:38px;border:1px solid #D7DEE8;border-radius:10px;background:#fff;padding:0 11px;font-family:inherit;font-size:13px;font-weight:700;color:#1E293B;outline:none;transition:.15s}
-.necessity-manager-row input:focus{border-color:#60A5FA;box-shadow:0 0 0 3px rgba(59,130,246,.10)}
-.necessity-manager-row .nm-icon{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;font-size:16px}
-.necessity-manager-row.needed .nm-icon{background:#DCFCE7;color:#16A34A}.necessity-manager-row.unneeded .nm-icon{background:#FFEDD5;color:#EA580C}.necessity-manager-row.custom .nm-icon{background:#DBEAFE;color:#2563EB}
-.necessity-manager-row .nm-delete{height:34px!important;min-width:48px;padding:0 10px!important;border-radius:9px!important}
-.necessity-manager-add{padding:13px;border:1px dashed #93C5FD;border-radius:14px;background:#F8FBFF;margin-bottom:16px}
-.necessity-manager-add-head{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:12px;font-weight:800;color:#2563EB}
-.necessity-manager-add-icon{width:28px;height:28px;border-radius:9px;background:#DBEAFE;display:grid;place-items:center;font-size:16px}
-.necessity-manager-add-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px}
-.necessity-manager-add-row input{height:40px;border:1px solid #BFDBFE;border-radius:10px;background:#fff;padding:0 12px;font-family:inherit;font-size:13px;outline:none}
-.necessity-manager-add-row input:focus{border-color:#3B82F6;box-shadow:0 0 0 3px rgba(59,130,246,.10)}
-.necessity-manager-footer{display:flex;justify-content:flex-end;gap:8px;padding-top:14px;border-top:1px solid #EEF2F7}
-@media(max-width:600px){.necessity-manager-modal{width:calc(100vw - 18px)!important;border-radius:18px!important}.necessity-manager-row{grid-template-columns:auto minmax(0,1fr) auto;padding:9px}.necessity-manager-row .nm-icon{width:32px;height:32px}.necessity-manager-add-row{grid-template-columns:1fr}.necessity-manager-list{max-height:42vh}.necessity-manager-footer .btn{flex:1}}
-
 /* Necessity selector */
 .necessity-select{font-weight:700;border-radius:9px!important;min-width:118px!important;transition:.12s;border:1px solid transparent!important}
 .necessity-select.needed{background:#ECFDF3!important;color:#15803D!important;border-color:#BBF7D0!important}
@@ -216,6 +187,16 @@ table.tbl tr.dim .iname{text-decoration:line-through}
 .necessity-badge.needed{background:#ECFDF3;color:#15803D;border:1px solid #BBF7D0}
 .necessity-badge.unneeded{background:#FFF7ED;color:#C2410C;border:1px solid #FED7AA}
 .necessity-badge.custom{background:#EFF6FF;color:#1D4ED8;border:1px solid #BFDBFE}
+.necessity-manager-row{display:grid;grid-template-columns:minmax(130px,.8fr) minmax(150px,1fr) 46px 54px;align-items:center;gap:8px;padding:9px 10px;margin-bottom:8px;border:1px solid var(--g200);border-radius:12px;background:var(--surface2)}
+.necessity-manager-row:hover{background:var(--surface);box-shadow:0 2px 8px rgba(15,23,42,.05)}
+.necessity-manager-row input[type=text]{min-width:0!important;width:100%!important}
+.necessity-color-wrap{display:flex;align-items:center;gap:7px;justify-content:center}
+.necessity-color{width:34px!important;height:34px!important;padding:2px!important;border:1px solid var(--g200)!important;border-radius:9px!important;background:#fff!important;cursor:pointer}
+.necessity-color-label{font-size:9px;color:var(--g400);text-align:center;line-height:1.1}
+.necessity-add-box{padding:12px;border:1px dashed #93C5FD;border-radius:13px;background:#F8FBFF}
+.necessity-add-grid{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end}
+.necessity-preview{display:inline-flex;align-items:center;justify-content:center;gap:5px;min-width:92px;padding:7px 10px;border-radius:999px;font-size:11px;font-weight:800;white-space:nowrap}
+@media(max-width:600px){.necessity-manager-row{grid-template-columns:1fr auto;gap:7px}.necessity-manager-row .necessity-color-wrap{grid-column:2;grid-row:1 / span 2}.necessity-manager-row input[type=text]{grid-column:1;grid-row:2}.necessity-manager-row .necessity-badge{grid-column:1;grid-row:1;justify-self:start}.necessity-manager-row .btn-danger{grid-column:2;grid-row:3}.necessity-add-grid{grid-template-columns:1fr}.necessity-add-grid .necessity-color-wrap{justify-content:flex-start}}
 
 /* current-month necessity summary */
 .necessity-current{margin-top:1rem;background:var(--surface);border:1px solid var(--g200);border-radius:var(--r);padding:1rem 1.05rem;box-shadow:0 2px 10px rgba(15,23,42,.04)}
@@ -1666,22 +1647,23 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 </div></div>
 
 <!-- Necessity Manager -->
-<div class="ov" id="necessitymgr-ov"><div class="modal necessity-manager-modal">
+<div class="ov" id="necessitymgr-ov"><div class="modal">
   <span class="modal-drag"></span>
-  <div class="necessity-manager-head">
-    <div class="necessity-manager-icon">✏️</div>
-    <div><h3>จัดการตัวเลือกความจำเป็น</h3><p>เพิ่ม แก้ไข หรือลบตัวเลือกที่ใช้ในรายการรายรับ–รายจ่าย</p></div>
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px">
+    <div><h3 style="margin:0">🎨 จัดการตัวเลือกความจำเป็น</h3><div style="font-size:10px;color:var(--g400);margin-top:3px">ตั้งชื่อและเลือกสีของแต่ละตัวเลือกได้เอง</div></div>
+    <button type="button" class="btn btn-ghost btn-sm" onclick="closeOv('necessitymgr-ov')">✕</button>
   </div>
-  <div id="necessitymgr-list" class="necessity-manager-list"></div>
-  <div class="necessity-manager-add">
-    <div class="necessity-manager-add-head"><span class="necessity-manager-add-icon">＋</span><span>เพิ่มตัวเลือกใหม่</span></div>
-    <div class="necessity-manager-add-row">
-      <input type="text" id="necessitymgr-new" placeholder="เช่น ควรมี, อื่นๆ, ฉุกเฉิน">
-      <button type="button" class="btn btn-pri" onclick="addNecessity()">+ เพิ่มตัวเลือก</button>
+  <div id="necessitymgr-list" style="margin-bottom:12px"></div>
+  <div class="necessity-add-box">
+    <div style="font-weight:800;color:#1D4ED8;font-size:12px;margin-bottom:8px">＋ เพิ่มตัวเลือกใหม่</div>
+    <div class="necessity-add-grid">
+      <div class="f"><label>ชื่อ</label><input type="text" id="necessitymgr-new" placeholder="เช่น ควรมี"></div>
+      <div class="necessity-color-wrap"><div><input type="color" id="necessitymgr-new-color" class="necessity-color" value="#3B82F6" title="เลือกสี"><div class="necessity-color-label">เลือกสี</div></div></div>
     </div>
   </div>
-  <div class="necessity-manager-footer">
-    <button class="btn btn-ghost" onclick="closeOv('necessitymgr-ov')">ปิด</button>
+  <div class="mbtns">
+    <button class="btn btn-ghost" onclick="closeOv('necessitymgr-ov')">ยกเลิก</button>
+    <button class="btn btn-pri" onclick="addNecessity()">💾 เพิ่มตัวเลือก</button>
   </div>
 </div></div>
 
@@ -2927,6 +2909,7 @@ function renderNecessityMonthlySummary(year,month){
   const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=fmt(v)};
   const setPct=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=pct(v)+'%'};
   const setW=(id,v)=>{const el=document.getElementById(id);if(el)el.style.width=pct(v)+'%'};
+  const ns=document.getElementById('nc-needed'),us=document.getElementById('nc-unneeded');if(ns)ns.style.background=necessityColor('จำเป็น');if(us)us.style.background=necessityColor('ไม่จำเป็น');
   set('nc-needed-val',need); set('nc-unneeded-val',un); set('nc-other-val',other);
   setPct('nc-needed-pct',need); setPct('nc-unneeded-pct',un); setPct('nc-other-pct',other);
   setW('nc-needed',need); setW('nc-unneeded',un); setW('nc-other',other);
@@ -2998,7 +2981,7 @@ function renderBBody(id,headId,items,type){
       <td class="tc">${paidCell}</td>
       <td class="tc">${pmBadge}</td>
       <td style="font-size:12px;color:var(--g400)">${item.note||'—'}</td>
-      ${type==='expense'?`<td class="tc"><select class="styled necessity-select ${necessityClass(item.necessity||'จำเป็น')}" onchange="setBudgetNecessity(${item.id},this.value);this.className='styled necessity-select '+necessityClass(this.value)">${getNecessities().map(n=>`<option value="${n.replace(/"/g,'&quot;')}" ${(item.necessity||'จำเป็น')===n?'selected':''}>${necessityLabel(n)}</option>`).join('')}</select></td>`:''}
+      ${type==='expense'?`<td class="tc"><select class="styled necessity-select ${necessityClass(item.necessity||'จำเป็น')}" style="${necessityStyle(item.necessity||'จำเป็น')}" onchange="setBudgetNecessity(${item.id},this.value);this.className='styled necessity-select '+necessityClass(this.value);this.style.cssText=necessityStyle(this.value)">${getNecessities().map(n=>`<option value="${n.replace(/"/g,'&quot;')}" ${(item.necessity||'จำเป็น')===n?'selected':''}>${necessityLabel(n)}</option>`).join('')}</select></td>`:''}
       <td class="tc">${noSort?reorderBtns(`reorderBudgetItem('${type}',${item.id},-1)`,`reorderBudgetItem('${type}',${item.id},1)`,i>0,i<sorted.length-1):''}<button class="icon-btn" onclick="openBM('${type}',${item.id})">✏</button></td>
     </tr>`;
   }).join('');
@@ -3128,25 +3111,31 @@ function replaceBudgetTagEverywhere(oldLabel,newLabel){
 function renameBudgetCat(idx,newLabel){newLabel=(newLabel||'').trim();const cats=getBudgetCats(),oldLabel=cats[idx];if(!newLabel||!oldLabel||oldLabel===newLabel)return;if(cats.includes(newLabel)){alert('มีหมวดหมู่นี้อยู่แล้ว');return;}cats[idx]=newLabel;saveBudgetCats(cats);replaceBudgetTagEverywhere(oldLabel,newLabel);addHist('budget','แก้ไข',`เปลี่ยนหมวดหมู่จาก "${oldLabel}" เป็น "${newLabel}"`);renderBudgetCatMgrList();refreshBudgetCatOptions(document.getElementById('bm-tag')?.value);renderBudgetCatMgrList();renderBudget();}
 function deleteBudgetCat(idx){const cats=getBudgetCats(),label=cats[idx];if(!label)return;if(!confirm(`ลบหมวดหมู่ "${label}" ออกจากตัวเลือก?\nรายการเดิมจะยังคงใช้ชื่อเดิมได้`))return;cats.splice(idx,1);saveBudgetCats(cats);addHist('budget','ลบ',`ลบหมวดหมู่: ${label}`);renderBudgetCatMgrList();refreshBudgetCatOptions(document.getElementById('bm-tag')?.value);}
 
-// ── ความจำเป็น — เพิ่ม/แก้ไข/ลบเองได้ ──
+// ── ความจำเป็น — เพิ่ม/แก้ไข/ลบเองได้ + เลือกสีเอง ──
 function defNecessities(){return['จำเป็น','ไม่จำเป็น']}
 function getNecessities(){return ls(uKey('budget_necessities_v1'),defNecessities())}
 function saveNecessities(a){lss(uKey('budget_necessities_v1'),a)}
+function defNecessityColors(){return{'จำเป็น':'#16A34A','ไม่จำเป็น':'#F97316'}}
+function getNecessityColors(){return ls(uKey('budget_necessity_colors_v1'),defNecessityColors())}
+function saveNecessityColors(a){lss(uKey('budget_necessity_colors_v1'),a)}
+function cleanNecessityColor(c){return/^#[0-9A-Fa-f]{6}$/.test(c||'')?c:'#3B82F6'}
+function necessityColor(n){return cleanNecessityColor(getNecessityColors()[n]|| (n==='จำเป็น'?'#16A34A':n==='ไม่จำเป็น'?'#F97316':'#3B82F6'))}
+function hexRgba(hex,a){const h=cleanNecessityColor(hex).slice(1);const r=parseInt(h.slice(0,2),16),g=parseInt(h.slice(2,4),16),b=parseInt(h.slice(4,6),16);return`rgba(${r},${g},${b},${a})`}
 function necessityClass(n){return n==='จำเป็น'?'needed':n==='ไม่จำเป็น'?'unneeded':'custom'}
 function necessityLabel(n){return n==='จำเป็น'?'🟢  จำเป็น':n==='ไม่จำเป็น'?'🟠  ไม่จำเป็น':'🔵  '+n}
-function refreshNecessityOptions(keepValue){const sel=document.getElementById('bm-necessity');if(!sel)return;let opts=getNecessities().slice();if(keepValue&&!opts.includes(keepValue))opts.push(keepValue);sel.innerHTML=opts.map(n=>`<option value="${n.replace(/"/g,'&quot;')}">${necessityLabel(n)}</option>`).join('');if(keepValue)sel.value=keepValue;sel.className='necessity-select '+necessityClass(sel.value||opts[0]||'')}
-function openNecessityMgr(){renderNecessityMgrList();document.getElementById('necessitymgr-new').value='';document.getElementById('necessitymgr-ov').classList.add('open');}
-function renderNecessityMgrList(){
-  const a=getNecessities();
-  const icons={needed:'✓',unneeded:'−',custom:'◆'};
-  document.getElementById('necessitymgr-list').innerHTML=a.length?a.map((n,i)=>{
-    const cls=necessityClass(n);
-    return `<div class="necessity-manager-row ${cls}"><span class="nm-icon">${icons[cls]||'◆'}</span><div class="nm-main"><div class="nm-label">ตัวเลือกที่ ${i+1}</div><input type="text" value="${n.replace(/"/g,'&quot;')}" onchange="renameNecessity(${i},this.value)" aria-label="ชื่อตัวเลือก ${i+1}"></div><button type="button" class="btn btn-danger btn-sm nm-delete" onclick="deleteNecessity(${i})">ลบ</button></div>`;
-  }).join(''):'<div class="empty">ยังไม่มีตัวเลือก</div>';
-}
-function addNecessity(){const n=(document.getElementById('necessitymgr-new').value||'').trim();if(!n)return;const a=getNecessities();if(a.includes(n)){alert('มีตัวเลือกนี้อยู่แล้ว');return;}a.push(n);saveNecessities(a);document.getElementById('necessitymgr-new').value='';renderNecessityMgrList();refreshNecessityOptions(n);}
-function renameNecessity(idx,n){n=(n||'').trim();const a=getNecessities(),old=a[idx];if(!n||!old||old===n)return;if(a.includes(n)){alert('มีตัวเลือกนี้อยู่แล้ว');return;}a[idx]=n;saveNecessities(a);for(let i=0;i<localStorage.length;i++){const key=localStorage.key(i);if(!key||!key.startsWith('ov_'))continue;const o=ls(key,null);if(!o)continue;let ch=false;for(const type of ['income','expense']){const ak=type+'_add',ek=type+'_edit';if(Array.isArray(o[ak]))o[ak]=o[ak].map(x=>x.necessity===old?(ch=true,{...x,necessity:n}):x);if(o[ek]&&typeof o[ek]==='object')Object.keys(o[ek]).forEach(id=>{if(o[ek][id]?.necessity===old){o[ek][id]={...o[ek][id],necessity:n};ch=true;}});}if(ch)lss(key,o);}const t=getTmpls();saveTmpls({...t,income:(t.income||[]).map(x=>x.necessity===old?{...x,necessity:n}:x),expense:(t.expense||[]).map(x=>x.necessity===old?{...x,necessity:n}:x)});renderNecessityMgrList();refreshNecessityOptions(n);renderBudget();}
-function deleteNecessity(idx){const a=getNecessities(),n=a[idx];if(!n)return;if(!confirm(`ลบตัวเลือก "${n}" ออกจากตัวเลือก?\nรายการเดิมจะยังแสดงค่าที่เคยบันทึกไว้`))return;a.splice(idx,1);saveNecessities(a);renderNecessityMgrList();refreshNecessityOptions(getNecessities()[0]);}
+function necessityStyle(n){const c=necessityColor(n);return`background:${hexRgba(c,.10)};color:${c};border-color:${hexRgba(c,.28)}`}
+function refreshNecessityOptions(keepValue){const sel=document.getElementById('bm-necessity');if(!sel)return;let opts=getNecessities().slice();if(keepValue&&!opts.includes(keepValue))opts.push(keepValue);sel.innerHTML=opts.map(n=>`<option value="${n.replace(/"/g,'&quot;')}">${necessityLabel(n)}</option>`).join('');if(keepValue)sel.value=keepValue;const c=necessityColor(sel.value||opts[0]||'');sel.className='necessity-select '+necessityClass(sel.value||opts[0]||'');sel.style.cssText=necessityStyle(sel.value||opts[0]||'')}
+function openNecessityMgr(){renderNecessityMgrList();document.getElementById('necessitymgr-new').value='';document.getElementById('necessitymgr-new-color').value='#3B82F6';document.getElementById('necessitymgr-ov').classList.add('open')}
+function renderNecessityMgrList(){const a=getNecessities(),colors=getNecessityColors();document.getElementById('necessitymgr-list').innerHTML=a.length?a.map((n,i)=>{const c=necessityColor(n);return`<div class="necessity-manager-row">
+  <span class="necessity-preview" style="${necessityStyle(n)}">${necessityLabel(n)}</span>
+  <input type="text" value="${n.replace(/"/g,'&quot;')}" onchange="renameNecessity(${i},this.value)" aria-label="ชื่อตัวเลือก">
+  <div class="necessity-color-wrap"><input type="color" class="necessity-color" value="${c}" onchange="setNecessityColor(${i},this.value)" title="เลือกสี"><div class="necessity-color-label">${c}</div></div>
+  <button class="btn btn-danger btn-sm" onclick="deleteNecessity(${i})">🗑 ลบ</button>
+</div>`}).join(''):'<div class="empty">ยังไม่มีตัวเลือก</div>'}
+function addNecessity(){const n=(document.getElementById('necessitymgr-new').value||'').trim(),color=cleanNecessityColor(document.getElementById('necessitymgr-new-color')?.value);if(!n)return;if(getNecessities().includes(n)){alert('มีตัวเลือกนี้อยู่แล้ว');return;}const a=getNecessities();a.push(n);saveNecessities(a);const colors=getNecessityColors();colors[n]=color;saveNecessityColors(colors);document.getElementById('necessitymgr-new').value='';document.getElementById('necessitymgr-new-color').value='#3B82F6';renderNecessityMgrList();refreshNecessityOptions(n);renderBudget()}
+function setNecessityColor(idx,color){const a=getNecessities(),n=a[idx];if(!n)return;const colors=getNecessityColors();colors[n]=cleanNecessityColor(color);saveNecessityColors(colors);renderNecessityMgrList();refreshNecessityOptions(document.getElementById('bm-necessity')?.value);renderBudget()}
+function renameNecessity(idx,n){n=(n||'').trim();const a=getNecessities(),old=a[idx];if(!n||!old||old===n)return;if(a.includes(n)){alert('มีตัวเลือกนี้อยู่แล้ว');renderNecessityMgrList();return;}a[idx]=n;saveNecessities(a);const colors=getNecessityColors();if(colors[old]){colors[n]=colors[old];delete colors[old];saveNecessityColors(colors)}for(let i=0;i<localStorage.length;i++){const key=localStorage.key(i);if(!key||!key.startsWith('ov_'))continue;const o=ls(key,null);if(!o)continue;let ch=false;for(const type of ['income','expense']){const ak=type+'_add',ek=type+'_edit';if(Array.isArray(o[ak]))o[ak]=o[ak].map(x=>x.necessity===old?(ch=true,{...x,necessity:n}):x);if(o[ek]&&typeof o[ek]==='object')Object.keys(o[ek]).forEach(id=>{if(o[ek][id]?.necessity===old){o[ek][id]={...o[ek][id],necessity:n};ch=true}})}if(ch)lss(key,o)}const t=getTmpls();saveTmpls({...t,income:(t.income||[]).map(x=>x.necessity===old?{...x,necessity:n}:x),expense:(t.expense||[]).map(x=>x.necessity===old?{...x,necessity:n}:x)});renderNecessityMgrList();refreshNecessityOptions(n);renderBudget()}
+function deleteNecessity(idx){const a=getNecessities(),n=a[idx];if(!n)return;if(!confirm(`ลบตัวเลือก "${n}" ออกจากตัวเลือก?\nรายการเดิมจะยังแสดงค่าที่เคยบันทึกไว้`))return;a.splice(idx,1);saveNecessities(a);const colors=getNecessityColors();delete colors[n];saveNecessityColors(colors);renderNecessityMgrList();refreshNecessityOptions(getNecessities()[0]||'');renderBudget()}
 function setBudgetNecessity(id,value){
   const t=getTmpls();if((t.expense||[]).some(i=>i.id===id)){saveTmpls({...t,expense:t.expense.map(i=>i.id===id?{...i,necessity:value}:i)});renderBudget();return;}
   const o=getOv(cy,cm);if((o.expense_add||[]).some(i=>i.id===id)){o.expense_add=o.expense_add.map(i=>i.id===id?{...i,necessity:value}:i);saveOv(cy,cm,o);renderBudget();return;}
