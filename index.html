@@ -968,6 +968,21 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
       <span><i class="dot-used"></i>รายจ่ายทั้งหมด <strong id="bg-combo-used-pct">0%</strong></span>
       <span><i class="dot-rem"></i>คงเหลือ <strong id="bg-combo-rem-pct">0%</strong></span>
     </div>
+  <section class="necessity-current" id="necessity-current-summary">
+    <div class="necessity-current-head">
+      <div>
+        <div class="necessity-current-title"><span class="nc-icon">📊</span><span>สรุปความจำเป็นของรายจ่ายเดือนนี้</span></div>
+        <div class="necessity-current-sub" id="necessity-current-period">เดือนที่เลือก</div>
+      </div>
+      <span class="badge b-gray" id="necessity-current-total">รวม ฿0</span>
+    </div>
+    <div class="necessity-current-bar"><span class="nc-seg nc-needed" id="nc-needed" style="width:0%"></span><span class="nc-seg nc-unneeded" id="nc-unneeded" style="width:0%"></span><span class="nc-seg nc-other" id="nc-other" style="width:0%"></span></div>
+    <div class="necessity-current-legend">
+      <div class="nc-legend-item needed"><span class="nc-dot">🟢</span><span>จำเป็น</span><strong id="nc-needed-val">฿0</strong><em id="nc-needed-pct">0%</em></div>
+      <div class="nc-legend-item unneeded"><span class="nc-dot">🟠</span><span>ไม่จำเป็น</span><strong id="nc-unneeded-val">฿0</strong><em id="nc-unneeded-pct">0%</em></div>
+      <div class="nc-legend-item other"><span class="nc-dot">🔵</span><span>อื่นๆ</span><strong id="nc-other-val">฿0</strong><em id="nc-other-pct">0%</em></div>
+    </div>
+  </section>
   </div>
   <div class="sec">
     <div class="sec-head"><span class="sec-title"><span class="dot dg"></span>รายรับ</span>
@@ -990,21 +1005,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
     <div class="tfoot"><span>รวมรายจ่าย</span><strong id="exp-tot">฿0</strong></div>
   </div>
 
-  <section class="necessity-current" id="necessity-current-summary">
-    <div class="necessity-current-head">
-      <div>
-        <div class="necessity-current-title"><span class="nc-icon">📊</span><span>สรุปความจำเป็นของรายจ่ายเดือนนี้</span></div>
-        <div class="necessity-current-sub" id="necessity-current-period">เดือนที่เลือก</div>
-      </div>
-      <span class="badge b-gray" id="necessity-current-total">รวม ฿0</span>
-    </div>
-    <div class="necessity-current-bar"><span class="nc-seg nc-needed" id="nc-needed" style="width:0%"></span><span class="nc-seg nc-unneeded" id="nc-unneeded" style="width:0%"></span><span class="nc-seg nc-other" id="nc-other" style="width:0%"></span></div>
-    <div class="necessity-current-legend">
-      <div class="nc-legend-item needed"><span class="nc-dot">🟢</span><span>จำเป็น</span><strong id="nc-needed-val">฿0</strong><em id="nc-needed-pct">0%</em></div>
-      <div class="nc-legend-item unneeded"><span class="nc-dot">🟠</span><span>ไม่จำเป็น</span><strong id="nc-unneeded-val">฿0</strong><em id="nc-unneeded-pct">0%</em></div>
-      <div class="nc-legend-item other"><span class="nc-dot">🔵</span><span>อื่นๆ</span><strong id="nc-other-val">฿0</strong><em id="nc-other-pct">0%</em></div>
-    </div>
-  </section>
+  
 </div>
 
 <!-- PAGE: DEBT -->
