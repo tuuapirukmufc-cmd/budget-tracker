@@ -188,6 +188,21 @@ table.tbl tr.dim .iname{text-decoration:line-through}
 .necessity-badge.unneeded{background:#FFF7ED;color:#C2410C;border:1px solid #FED7AA}
 .necessity-badge.custom{background:#EFF6FF;color:#1D4ED8;border:1px solid #BFDBFE}
 
+/* current-month necessity summary */
+.necessity-current{margin-top:1rem;background:var(--surface);border:1px solid var(--g200);border-radius:var(--r);padding:1rem 1.05rem;box-shadow:0 2px 10px rgba(15,23,42,.04)}
+.necessity-current-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:.8rem}
+.necessity-current-title{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:800;color:var(--g900)}
+.nc-icon{width:30px;height:30px;display:grid;place-items:center;border-radius:9px;background:#ECFDF3;border:1px solid #BBF7D0;font-size:16px}
+.necessity-current-sub{font-size:10px;color:var(--g400);margin-top:2px}
+.necessity-current-bar{height:13px;display:flex;overflow:hidden;border-radius:999px;background:var(--g100);box-shadow:inset 0 0 0 1px rgba(15,23,42,.04)}
+.nc-seg{height:100%;display:block;transition:width .2s ease}.nc-needed{background:#22C55E}.nc-unneeded{background:#F59E0B}.nc-other{background:#3B82F6}
+.necessity-current-legend{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:.75rem}
+.nc-legend-item{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:5px;padding:.55rem .65rem;border-radius:9px;font-size:10px;font-weight:700}
+.nc-legend-item.needed{background:#F0FDF4;color:#15803D}.nc-legend-item.unneeded{background:#FFF7ED;color:#C2410C}.nc-legend-item.other{background:#EFF6FF;color:#1D4ED8}
+.nc-dot{font-size:11px}.nc-legend-item strong{font-size:11px}.nc-legend-item em{font-style:normal;font-size:9px;opacity:.8;justify-self:end}
+@media(max-width:600px){.necessity-current{padding:.8rem}.necessity-current-legend{grid-template-columns:1fr}.nc-legend-item{grid-template-columns:auto 1fr auto}.necessity-current-head{align-items:flex-start}}
+
+
 .sab{display:inline-block;font-size:11px;padding:2px 9px;border-radius:999px;font-weight:600;white-space:nowrap}
 .sab-on{background:var(--gl);color:var(--gd)}.sab-off{background:var(--g100);color:var(--g400)}
 
@@ -974,6 +989,22 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
     </tr></thead><tbody id="exp-body"></tbody></table>
     <div class="tfoot"><span>รวมรายจ่าย</span><strong id="exp-tot">฿0</strong></div>
   </div>
+
+  <section class="necessity-current" id="necessity-current-summary">
+    <div class="necessity-current-head">
+      <div>
+        <div class="necessity-current-title"><span class="nc-icon">📊</span><span>สรุปความจำเป็นของรายจ่ายเดือนนี้</span></div>
+        <div class="necessity-current-sub" id="necessity-current-period">เดือนที่เลือก</div>
+      </div>
+      <span class="badge b-gray" id="necessity-current-total">รวม ฿0</span>
+    </div>
+    <div class="necessity-current-bar"><span class="nc-seg nc-needed" id="nc-needed" style="width:0%"></span><span class="nc-seg nc-unneeded" id="nc-unneeded" style="width:0%"></span><span class="nc-seg nc-other" id="nc-other" style="width:0%"></span></div>
+    <div class="necessity-current-legend">
+      <div class="nc-legend-item needed"><span class="nc-dot">🟢</span><span>จำเป็น</span><strong id="nc-needed-val">฿0</strong><em id="nc-needed-pct">0%</em></div>
+      <div class="nc-legend-item unneeded"><span class="nc-dot">🟠</span><span>ไม่จำเป็น</span><strong id="nc-unneeded-val">฿0</strong><em id="nc-unneeded-pct">0%</em></div>
+      <div class="nc-legend-item other"><span class="nc-dot">🔵</span><span>อื่นๆ</span><strong id="nc-other-val">฿0</strong><em id="nc-other-pct">0%</em></div>
+    </div>
+  </section>
 </div>
 
 <!-- PAGE: DEBT -->
@@ -2840,6 +2871,32 @@ function renderBudget(){
   document.getElementById('exp-tot').textContent=fmt(eT);
   renderBBody('inc-body','inc-head',d.income,'income');
   renderBBody('exp-body','exp-head',d.expense,'expense');
+  renderNecessityMonthlySummary(cy,cm);
+}
+
+function renderNecessityMonthlySummary(year,month){
+  const y=Number(year)||cy;
+  const m=Number(month)||cm;
+  const d=getMI(y,m)||{expense:[]};
+  let need=0,un=0,other=0;
+  (d.expense||[]).forEach(item=>{
+    const amt=Number(item.amount)||0;
+    const n=item.necessity||'จำเป็น';
+    if(n==='จำเป็น')need+=amt;
+    else if(n==='ไม่จำเป็น')un+=amt;
+    else other+=amt;
+  });
+  const total=need+un+other;
+  const pct=v=>total?Math.round(v/total*100):0;
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=fmt(v)};
+  const setPct=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=pct(v)+'%'};
+  const setW=(id,v)=>{const el=document.getElementById(id);if(el)el.style.width=pct(v)+'%'};
+  set('nc-needed-val',need); set('nc-unneeded-val',un); set('nc-other-val',other);
+  setPct('nc-needed-pct',need); setPct('nc-unneeded-pct',un); setPct('nc-other-pct',other);
+  setW('nc-needed',need); setW('nc-unneeded',un); setW('nc-other',other);
+  set('necessity-current-total',total);
+  const period=document.getElementById('necessity-current-period');
+  if(period)period.textContent=`${MN[m-1]} ${y+543} • รายจ่ายรวม ${fmt(total)}`;
 }
 function getBudgetOrder(y,m,type,items){
   const o=getOv(y,m);
