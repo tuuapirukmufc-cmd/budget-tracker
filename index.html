@@ -1226,6 +1226,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
       <div id="pawn-interest-check-body"></div>
     </section>
 
+
     <section id="pawn-editor" class="pawn-editor" style="display:none">
 
   <div class="pawn-editor-inner">
@@ -4047,10 +4048,18 @@ function addMonthsPawn(iso,n){
   return `${first.getFullYear()}-${String(first.getMonth()+1).padStart(2,'0')}-${String(Math.min(d,last)).padStart(2,'0')}`;
 }
 function pawnDaysLeft(iso){if(!iso)return null;const a=new Date();a.setHours(0,0,0,0);const b=new Date(iso+'T00:00:00');return Math.ceil((b-a)/86400000)}
+function pawnParseDate(iso){
+  if(!iso)return null;
+  const s=String(iso).trim();
+  let m=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+  if(m){let y=+m[1],mo=+m[2],d=+m[3];if(y>2400)y-=543;const dt=new Date(y,mo-1,d);return dt.getFullYear()===y&&dt.getMonth()===mo-1&&dt.getDate()===d?dt:null}
+  m=s.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{2,4})$/);
+  if(m){let d=+m[1],mo=+m[2],y=+m[3];if(y<100)y+=2000;if(y>2400)y-=543;const dt=new Date(y,mo-1,d);return dt.getFullYear()===y&&dt.getMonth()===mo-1&&dt.getDate()===d?dt:null}
+  const dt=new Date(s);return Number.isNaN(dt.getTime())?null:dt;
+}
 function pawnFullMonthsBetween(startIso,endIso){
-  if(!startIso||!endIso)return 0;
-  const a=new Date(startIso+'T00:00:00'),b=new Date(endIso+'T00:00:00');
-  if(b<=a)return 0;
+  const a=pawnParseDate(startIso),b=pawnParseDate(endIso);
+  if(!a||!b||b<=a)return 0;
   let months=(b.getFullYear()-a.getFullYear())*12+(b.getMonth()-a.getMonth());
   if(b.getDate()<a.getDate())months--;
   return Math.max(0,Math.min(5,months));
@@ -4109,7 +4118,7 @@ function renderPawnInterestCheck(){
     const months=pawnFullMonthsBetween(x.date,target);
     const monthly=+x.monthlyInterest||0;
     const total=monthly*months;
-    const beforePawn=x.date&&target<x.date;
+    const startDate=pawnParseDate(x.date), targetDate=pawnParseDate(target); const beforePawn=startDate&&targetDate&&targetDate<startDate;
     const dueLeft=pawnDaysLeft(x.dueDate);
     return {x,months,monthly,total,beforePawn,dueLeft};
   });
@@ -4120,7 +4129,7 @@ function renderPawnInterestCheck(){
     <td>${fmtDate(r.x.date)||'—'}</td>
     <td>${fmtDate(r.x.dueDate)||'—'}</td>
     <td class="tr">${fmt(r.monthly)}</td>
-    <td class="tc">${r.beforePawn?'<span class="pawn-interest-pill muted">ยังไม่เริ่ม</span>':`<span class="pawn-interest-pill">${r.months} / 5 เดือน</span>`}</td>
+    <td class="tc">${r.beforePawn?'<span class="pawn-interest-pill muted">ยังไม่ถึงวันจำนำ</span>':`<span class="pawn-interest-pill">${r.months} / 5 เดือน</span>`}</td>
     <td class="tr"><strong class="pawn-interest-total">${fmt(r.total)}</strong></td>
   </tr>`).join('')}</tbody></table></div>`;
 }
@@ -4129,6 +4138,17 @@ function renderPawnTickets(){
   const principal=arr.reduce((s,x)=>s+(+x.principal||0),0),interest=arr.reduce((s,x)=>s+(+x.monthlyInterest||0)*5,0),due=arr.filter(x=>{const d=pawnDaysLeft(x.dueDate);return d!==null&&d>=0&&d<=30}).length;
   document.getElementById('pawn-sum-principal').textContent=fmt(principal);document.getElementById('pawn-sum-interest').textContent=fmt(interest);document.getElementById('pawn-sum-count').textContent=arr.length+' ใบ';document.getElementById('pawn-sum-due').textContent=due+' ใบ';
   renderPawnInterestCheck();
+  if(!arr.length){list.innerHTML='<div class="sec empty" style="grid-column:1/-1;padding:2rem">ยังไม่มีตั๋วจำนำ · กด “+ เพิ่มตั๋วจำนำ” เพื่อเริ่มบันทึก</div>';return}
+  list.innerHTML=arr.map((x,pawnIndex)=>({x,pawnIndex})).sort((a,b)=>String(b.x.date).localeCompare(String(a.x.date))).map(({x,pawnIndex})=>{
+    const d=pawnDaysLeft(x.dueDate),dueText=d===null?'—':d<0?`เกิน ${Math.abs(d)} วัน`:d===0?'ครบกำหนดวันนี้':`เหลือ ${d} วัน`,dueCls=d!==null&&d<0?'late':d!==null&&d<=30?'warn':'';
+    const items=(x.items||[]).map((i,n)=>`<div class="pawn-item"><span class="pawn-item-num">${n+1}</span><span class="pawn-item-name">${escPawn(i.name)}</span><span class="pawn-item-qty">${Number(i.qty)||1} ${escPawn(i.unit||'ชิ้น')}</span></div>`).join('');
+    return `<article class="pawn-card"><div class="pawn-card-top"><div><div class="pawn-ticket-no">ตั๋ว ${escPawn(x.no||'ไม่ระบุเลข')}</div><div class="pawn-ticket-meta">วันที่จำนำ ${fmtDate(x.date)}${x.totalWeight?` · น้ำหนักรวม ${fmtN(+x.totalWeight,2)} กรัม`:''}</div></div><span class="tag">${(x.items||[]).length} รายการ</span></div><div class="pawn-items"><div class="pawn-items-title"><span>รายละเอียดของที่จำนำ</span><span>${(x.items||[]).length} รายการ</span></div><div class="pawn-item-list">${items||'<div class="empty">ไม่มีรายละเอียด</div>'}</div></div><div class="pawn-money"><div><div class="pawn-money-label">ยอดเงินต้นรวมทั้งตั๋ว</div><div class="pawn-money-val">${fmt(x.principal)}</div></div><div class="pawn-money-note">ยอดเดียวรวมของทุกชิ้น<br>${x.appraisal?`ราคาประเมิน ${fmt(x.appraisal)}`:''}</div></div><div class="pawn-info"><div class="pawn-info-box"><div class="pawn-info-label">ดอกเบี้ย / เดือน</div><div class="pawn-info-val">${fmt(x.monthlyInterest)}</div></div><div class="pawn-info-box"><div class="pawn-info-label">ยอดต่อดอก 5 เดือน</div><div class="pawn-info-val">${fmt((+x.monthlyInterest||0)*5)}</div></div><div class="pawn-info-box"><div class="pawn-info-label">ครบกำหนดครั้งต่อไป</div><div class="pawn-info-val">${fmtDate(x.dueDate)}</div></div><div class="pawn-info-box"><div class="pawn-info-label">สถานะกำหนด</div><div class="pawn-info-val ${dueCls}">${dueText}</div></div></div>${x.note?`<div style="padding:0 14px 10px;font-size:11px;color:var(--g500)">📝 ${escPawn(x.note)}</div>`:''}<div class="pawn-card-foot"><button type="button" class="btn btn-danger btn-sm" data-pawn-action="delete-card" data-pawn-index="${pawnIndex}">🗑 ลบตั๋ว</button><button type="button" class="btn btn-ghost btn-sm" data-pawn-action="edit" data-pawn-index="${pawnIndex}">✏ แก้ไขตั๋ว</button></div></article>`;
+  }).join('');
+}
+function renderPawnTickets(){
+  const list=document.getElementById('pawn-list');if(!list)return;const arr=getPawnTickets();
+  const principal=arr.reduce((s,x)=>s+(+x.principal||0),0),interest=arr.reduce((s,x)=>s+(+x.monthlyInterest||0)*5,0),due=arr.filter(x=>{const d=pawnDaysLeft(x.dueDate);return d!==null&&d>=0&&d<=30}).length;
+  document.getElementById('pawn-sum-principal').textContent=fmt(principal);document.getElementById('pawn-sum-interest').textContent=fmt(interest);document.getElementById('pawn-sum-count').textContent=arr.length+' ใบ';document.getElementById('pawn-sum-due').textContent=due+' ใบ';
   if(!arr.length){list.innerHTML='<div class="sec empty" style="grid-column:1/-1;padding:2rem">ยังไม่มีตั๋วจำนำ · กด “+ เพิ่มตั๋วจำนำ” เพื่อเริ่มบันทึก</div>';return}
   list.innerHTML=arr.map((x,pawnIndex)=>({x,pawnIndex})).sort((a,b)=>String(b.x.date).localeCompare(String(a.x.date))).map(({x,pawnIndex})=>{
     const d=pawnDaysLeft(x.dueDate),dueText=d===null?'—':d<0?`เกิน ${Math.abs(d)} วัน`:d===0?'ครบกำหนดวันนี้':`เหลือ ${d} วัน`,dueCls=d!==null&&d<0?'late':d!==null&&d<=30?'warn':'';
@@ -5040,6 +5060,16 @@ function dlCSV(rows,fn){
 .invest-tab.active{background:#fff;color:var(--g900);box-shadow:0 2px 8px rgba(15,23,42,.08)}
 .pawn-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}.pawn-head h3{margin:0;font-size:18px}.pawn-head .sub{margin-top:3px}
 .pawn-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}.pawn-summary .card{min-width:0}.pawn-summary .val{font-size:18px}
+.pawn-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.pawn-card{background:#fff;border:1px solid var(--g100);border-radius:14px;overflow:hidden;box-shadow:0 2px 10px rgba(15,23,42,.04)}
+.pawn-card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding:13px 14px 10px;border-bottom:1px solid var(--g100)}
+.pawn-ticket-no{font-size:14px;font-weight:800;color:var(--g900)}.pawn-ticket-meta{font-size:11px;color:var(--g400);margin-top:3px}
+.pawn-items{padding:12px 14px}.pawn-items-title{font-size:11px;font-weight:700;color:var(--g500);margin-bottom:7px;display:flex;justify-content:space-between}
+.pawn-item-list{display:grid;gap:6px}.pawn-item{display:grid;grid-template-columns:24px 1fr auto;align-items:center;gap:7px;background:#fffaf0;border:1px solid #f4e2b6;border-radius:9px;padding:7px 9px}.pawn-item-num{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:#f6e7bc;color:#8b6508;font-size:10px;font-weight:800}.pawn-item-name{font-size:13px;font-weight:700;color:var(--g800);min-width:0}.pawn-item-qty{font-size:11px;color:var(--g500);white-space:nowrap}
+.pawn-money{margin:0 14px 12px;padding:10px 12px;border-radius:11px;background:linear-gradient(135deg,#fff9e8,#fff4cf);border:1px solid #f1d98f;display:flex;justify-content:space-between;align-items:end;gap:10px}.pawn-money-label{font-size:10px;color:#8a6a19;font-weight:700}.pawn-money-val{font-size:22px;color:#8a6200;font-weight:800;line-height:1.05}.pawn-money-note{font-size:9px;color:#a08132;text-align:right}
+.pawn-info{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;padding:0 14px 12px}.pawn-info-box{background:var(--g50);border-radius:9px;padding:8px 9px;min-width:0}.pawn-info-label{font-size:9px;color:var(--g400);font-weight:600}.pawn-info-val{font-size:12px;color:var(--g800);font-weight:700;margin-top:2px;overflow-wrap:anywhere}.pawn-info-val.warn{color:#b45309}.pawn-info-val.late{color:#b91c1c}
+.pawn-card-foot{display:flex;justify-content:flex-end;gap:7px;padding:9px 14px;background:var(--g50);border-top:1px solid var(--g100)}
+.pawn-editor{position:fixed;inset:0;z-index:10050;background:rgba(15,23,42,.46);padding:24px;align-items:center;justify-content:center;overflow:auto}.pawn-editor-inner{width:min(760px,100%);max-height:calc(100vh - 48px);overflow:auto;padding:18px;background:#fffdf7;border:1px solid #ead9a8;border-radius:16px;box-shadow:0 24px 70px rgba(15,23,42,.28)}.pawn-dialog-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.pawn-dialog-head h3{margin:0}.pawn-x{border:0;background:var(--g100);width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:16px}.pawn-form-items{display:grid;gap:7px}.pawn-form-item{display:grid;grid-template-columns:minmax(0,1fr) 82px 88px 34px;gap:6px;align-items:end}.pawn-form-item .f{margin:0}.pawn-form-item button{height:38px}.pawn-form-hint{font-size:10px;color:var(--g400);margin-top:4px}
 .pawn-interest-check{background:#fff;border:1px solid var(--g100);border-radius:14px;padding:14px;margin:0 0 14px;box-shadow:0 2px 10px rgba(15,23,42,.04)}
 .pawn-interest-check-head{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;margin-bottom:12px}.pawn-interest-check-title{font-weight:800;font-size:15px;color:var(--g800)}.pawn-interest-check-sub{font-size:11px;color:var(--g400);margin-top:3px}.pawn-interest-date-wrap{min-width:185px}.pawn-interest-date-wrap label{display:block;font-size:10px;color:var(--g500);margin-bottom:4px}.pawn-interest-date-wrap input{width:100%;height:36px;border:1px solid var(--g200);border-radius:9px;padding:0 10px;background:#fff;font:inherit}.pawn-interest-summary{display:flex;justify-content:space-between;gap:10px;align-items:center;background:#f8fafc;border:1px solid var(--g100);border-radius:10px;padding:9px 11px;font-size:11px;color:var(--g500);margin-bottom:8px}.pawn-interest-summary strong{font-size:15px;color:#b7791f}.pawn-interest-table-wrap{overflow:auto}.pawn-interest-table{width:100%;border-collapse:separate;border-spacing:0;font-size:11px;min-width:620px}.pawn-interest-table th{background:#f8fafc;color:var(--g500);font-weight:700;text-align:left;padding:8px;border-bottom:1px solid var(--g100);white-space:nowrap}.pawn-interest-table td{padding:8px;border-bottom:1px solid #f1f5f9;white-space:nowrap}.pawn-interest-table tr:last-child td{border-bottom:0}.pawn-interest-pill{display:inline-flex;padding:3px 8px;border-radius:999px;background:#fff5d6;color:#9a6700;font-weight:700}.pawn-interest-pill.muted{background:#f1f5f9;color:var(--g400)}.pawn-interest-total{color:#b7791f}.pawn-interest-empty{padding:15px;text-align:center;color:var(--g400);font-size:11px;background:#f8fafc;border-radius:10px}
 .pawn-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
@@ -5052,6 +5082,6 @@ function dlCSV(rows,fn){
 .pawn-info{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;padding:0 14px 12px}.pawn-info-box{background:var(--g50);border-radius:9px;padding:8px 9px;min-width:0}.pawn-info-label{font-size:9px;color:var(--g400);font-weight:600}.pawn-info-val{font-size:12px;color:var(--g800);font-weight:700;margin-top:2px;overflow-wrap:anywhere}.pawn-info-val.warn{color:#b45309}.pawn-info-val.late{color:#b91c1c}
 .pawn-card-foot{display:flex;justify-content:flex-end;gap:7px;padding:9px 14px;background:var(--g50);border-top:1px solid var(--g100)}
 .pawn-editor{position:fixed;inset:0;z-index:10050;background:rgba(15,23,42,.46);padding:24px;align-items:center;justify-content:center;overflow:auto}.pawn-editor-inner{width:min(760px,100%);max-height:calc(100vh - 48px);overflow:auto;padding:18px;background:#fffdf7;border:1px solid #ead9a8;border-radius:16px;box-shadow:0 24px 70px rgba(15,23,42,.28)}.pawn-dialog-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.pawn-dialog-head h3{margin:0}.pawn-x{border:0;background:var(--g100);width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:16px}.pawn-form-items{display:grid;gap:7px}.pawn-form-item{display:grid;grid-template-columns:minmax(0,1fr) 82px 88px 34px;gap:6px;align-items:end}.pawn-form-item .f{margin:0}.pawn-form-item button{height:38px}.pawn-form-hint{font-size:10px;color:var(--g400);margin-top:4px}
-@media(max-width:760px){.invest-tabs{width:100%;display:grid;grid-template-columns:1fr 1fr}.invest-tab{width:100%}.pawn-head{align-items:flex-start}.pawn-summary{grid-template-columns:1fr 1fr}.pawn-summary .card:last-child{grid-column:span 2}.pawn-grid{grid-template-columns:1fr}.pawn-card-top{padding:12px}.pawn-items{padding:11px 12px}.pawn-money{margin:0 12px 10px}.pawn-info{padding:0 12px 11px}.pawn-form-item{grid-template-columns:minmax(0,1fr) 70px 80px 34px}.pawn-editor{padding:10px;align-items:flex-start}.pawn-editor-inner{padding:14px;max-height:calc(100vh - 20px)}.pawn-money-val{font-size:20px}.pawn-interest-check-head{display:block}.pawn-interest-date-wrap{max-width:none;margin-top:10px}.pawn-interest-summary{display:block}.pawn-interest-summary span{display:block}.pawn-interest-summary span+span{margin-top:5px}}
+@media(max-width:760px){.invest-tabs{width:100%;display:grid;grid-template-columns:1fr 1fr}.invest-tab{width:100%}.pawn-head{align-items:flex-start}.pawn-summary{grid-template-columns:1fr 1fr}.pawn-summary .card:last-child{grid-column:span 2}.pawn-grid{grid-template-columns:1fr}.pawn-card-top{padding:12px}.pawn-items{padding:11px 12px}.pawn-money{margin:0 12px 10px}.pawn-info{padding:0 12px 11px}.pawn-form-item{grid-template-columns:minmax(0,1fr) 70px 80px 34px}.pawn-editor{padding:10px;align-items:flex-start}.pawn-editor-inner{padding:14px;max-height:calc(100vh - 20px)}.pawn-money-val{font-size:20px}}
 @media(max-width:420px){.pawn-info{grid-template-columns:1fr 1fr}.pawn-form-item{grid-template-columns:1fr 64px 74px 32px}.pawn-form-item input,.pawn-form-item select{font-size:12px;padding-left:7px;padding-right:5px}.pawn-summary .val{font-size:16px}}
 </style>
