@@ -2953,6 +2953,7 @@ function renderBudget(){
   renderBBody('inc-body','inc-head',d.income,'income');
   renderBBody('exp-body','exp-head',d.expense,'expense');
   renderNecessityMonthlySummary(cy,cm);
+  renderOwnerMonthlySummary(cy,cm);
 }
 
 function renderNecessityMonthlySummary(year,month){
@@ -2979,6 +2980,37 @@ function renderNecessityMonthlySummary(year,month){
   set('necessity-current-total',total);
   const period=document.getElementById('necessity-current-period');
   if(period)period.textContent=`${MN[m-1]} ${y+543} • รายจ่ายรวม ${fmt(total)}`;
+}
+function renderOwnerMonthlySummary(year,month){
+  const y=Number(year)||cy;
+  const m=Number(month)||cm;
+  const d=getMI(y,m)||{expense:[]};
+  const totals={};
+  (d.expense||[]).forEach(item=>{
+    const owner=(item.owner||'ไม่ระบุ').trim()||'ไม่ระบุ';
+    const amt=Number(item.amount)||0;
+    totals[owner]=(totals[owner]||0)+amt;
+  });
+  const rows=Object.entries(totals).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]);
+  const total=rows.reduce((sum,[,v])=>sum+v,0);
+  const totalEl=document.getElementById('owner-current-total');
+  if(totalEl)totalEl.textContent=`รวม ${fmt(total)}`;
+  const period=document.getElementById('owner-current-period');
+  if(period)period.textContent=`${MN[m-1]} ${y+543} • รายจ่ายรวม ${fmt(total)}`;
+  const list=document.getElementById('owner-current-list');
+  if(!list)return;
+  if(!rows.length){
+    list.innerHTML='<div class="empty">เดือนนี้ยังไม่มีรายจ่ายที่ระบุผู้รับผิดชอบ</div>';
+    return;
+  }
+  list.innerHTML=rows.map(([owner,amt])=>{
+    const pct=total?Math.round(amt/total*100):0;
+    const safe=String(owner).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+    return `<div class="owner-summary-row">
+      <div class="owner-summary-label"><span>👤</span><strong title="${safe}">${safe}</strong><span class="owner-summary-pct">${pct}%</span><b>${fmt(amt)}</b></div>
+      <div class="owner-summary-bar"><span style="width:${pct}%"></span></div>
+    </div>`;
+  }).join('');
 }
 function getBudgetOrder(y,m,type,items){
   const o=getOv(y,m);
