@@ -179,7 +179,7 @@ table.tbl tr.dim .iname{text-decoration:line-through}
 .badge{display:inline-block;font-size:11px;padding:2px 8px;border-radius:var(--rsm);font-weight:500;white-space:nowrap}
 .b-ok{background:var(--gl);color:var(--gd)}.b-soon{background:var(--al);color:var(--amber)}.b-over{background:var(--rl);color:var(--red)}.b-gray{background:var(--g100);color:var(--g400)}.b-blue{background:var(--bl);color:var(--bd)}
 /* Necessity selector */
-.necessity-select{font-weight:700;border-radius:9px!important;min-width:118px!important;transition:.12s;border:1px solid transparent!important}
+.necessity-select{font-weight:700;border-radius:9px!important;width:100%!important;min-width:0!important;max-width:100%!important;box-sizing:border-box!important;transition:.12s;border:1px solid transparent!important;font-size:11px!important;padding-left:8px!important;padding-right:4px!important}
 .necessity-select.needed{background:#ECFDF3!important;color:#15803D!important;border-color:#BBF7D0!important}
 .necessity-select.unneeded{background:#FFF7ED!important;color:#C2410C!important;border-color:#FED7AA!important}
 .necessity-select.custom{background:#EFF6FF!important;color:#1D4ED8!important;border-color:#BFDBFE!important}
@@ -197,10 +197,6 @@ table.tbl tr.dim .iname{text-decoration:line-through}
 .necessity-add-grid{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end}
 .necessity-preview{display:inline-flex;align-items:center;justify-content:center;gap:5px;min-width:92px;padding:7px 10px;border-radius:999px;font-size:11px;font-weight:800;white-space:nowrap}
 @media(max-width:600px){.necessity-manager-row{grid-template-columns:1fr auto;gap:7px}.necessity-manager-row .necessity-color-wrap{grid-column:2;grid-row:1 / span 2}.necessity-manager-row input[type=text]{grid-column:1;grid-row:2}.necessity-manager-row .necessity-badge{grid-column:1;grid-row:1;justify-self:start}.necessity-manager-row .btn-danger{grid-column:2;grid-row:3}.necessity-add-grid{grid-template-columns:1fr}.necessity-add-grid .necessity-color-wrap{justify-content:flex-start}}
-
-.responsible-current{margin-top:.8rem;background:var(--surface);border:1px solid var(--g200);border-radius:var(--r);padding:1rem 1.05rem;box-shadow:0 2px 10px rgba(15,23,42,.04)}
-.responsible-current-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:.75rem}.responsible-current-title{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:800;color:var(--g900)}.responsible-current-sub{font-size:10px;color:var(--g400);margin-top:2px}.rc-icon{width:30px;height:30px;display:grid;place-items:center;border-radius:9px;background:#EFF6FF;border:1px solid #BFDBFE;font-size:16px}.responsible-current-list{display:grid;gap:7px}.responsible-summary-row{display:grid;grid-template-columns:minmax(120px,180px) 1fr auto;align-items:center;gap:10px;padding:7px 8px;border-radius:9px;background:#F8FAFC}.responsible-summary-name{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:750;color:var(--g700);min-width:0}.responsible-summary-name>span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.responsible-rank{width:22px;height:22px;border-radius:7px;background:#E0ECFF;color:#2563EB;display:grid;place-items:center;font-size:10px;font-weight:800;flex-shrink:0}.responsible-summary-bar{height:8px;border-radius:999px;background:#E8EEF5;overflow:hidden}.responsible-summary-bar span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#3B82F6,#60A5FA);transition:width .2s ease}.responsible-summary-val{display:flex;align-items:baseline;gap:6px;min-width:92px;justify-content:flex-end}.responsible-summary-val strong{font-size:12px;color:var(--g800)}.responsible-summary-val em{font-size:9px;color:var(--g400);font-style:normal}.responsible-empty{padding:12px;text-align:center;color:var(--g400);font-size:11px;background:#F8FAFC;border-radius:9px}.responsible-manager-row{display:grid;grid-template-columns:34px 1fr auto;gap:8px;align-items:center;padding:8px 9px;margin-bottom:7px;border:1px solid var(--g200);border-radius:11px;background:var(--surface2)}.responsible-avatar{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:#EFF6FF;border:1px solid #BFDBFE;font-size:15px}.responsible-select{min-width:105px;max-width:145px;font-size:10px;padding:4px 24px 4px 7px;border-radius:8px;background:var(--surface)}
-@media(max-width:700px){.responsible-summary-row{grid-template-columns:1fr auto}.responsible-summary-bar{grid-column:1/-1;grid-row:2}.responsible-summary-val{grid-column:2;grid-row:1}.responsible-current{padding:.8rem}.responsible-manager-row{grid-template-columns:30px 1fr auto}}
 
 /* current-month necessity summary */
 .necessity-current{margin-top:1rem;background:var(--surface);border:1px solid var(--g200);border-radius:var(--r);padding:1rem 1.05rem;box-shadow:0 2px 10px rgba(15,23,42,.04)}
@@ -997,16 +993,6 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
       <div class="nc-legend-item other"><span class="nc-dot">🔵</span><span>อื่นๆ</span><strong id="nc-other-val">฿0</strong><em id="nc-other-pct">0%</em></div>
     </div>
   </section>
-  <section class="responsible-current" id="responsible-current-summary">
-    <div class="responsible-current-head">
-      <div>
-        <div class="responsible-current-title"><span class="rc-icon">👤</span><span>สรุปรายจ่ายตามผู้รับผิดชอบเดือนนี้</span></div>
-        <div class="responsible-current-sub" id="responsible-current-period">เดือนที่เลือก</div>
-      </div>
-      <span class="badge b-gray" id="responsible-current-total">รวม ฿0</span>
-    </div>
-    <div id="responsible-current-list" class="responsible-current-list"></div>
-  </section>
   </div>
   <div class="sec">
     <div class="sec-head"><span class="sec-title"><span class="dot dg"></span>รายรับ</span>
@@ -1491,12 +1477,6 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
       <button type="button" class="pay-toggle-btn" data-val="transfer" onclick="selectPayMethod('transfer')">🏦 โอนเงิน</button>
     </div>
   </div>
-  <div class="f" id="bm-responsible-wrap" style="display:none"><label>ผู้รับผิดชอบ</label>
-    <div style="display:flex;gap:5px">
-      <select id="bm-responsible" style="flex:1"></select>
-      <button type="button" class="btn btn-ghost btn-sm" style="padding:0 9px" title="จัดการผู้รับผิดชอบ" onclick="openResponsibleMgr()">⚙</button>
-    </div>
-  </div>
   <div class="mbtns">
     <button class="btn btn-danger" id="bm-del" onclick="delBudget()" style="display:none">ลบ</button>
     <button class="btn btn-ghost" onclick="closeOv('bm-ov')">ยกเลิก</button>
@@ -1664,21 +1644,6 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   <div class="mbtns">
     <button class="btn btn-ghost" onclick="closeOv('expcatmgr-ov')">ปิด</button>
     <button class="btn btn-pri" onclick="addExpenseCat()">+ เพิ่มหมวดหมู่</button>
-  </div>
-</div></div>
-
-<!-- Responsible Manager -->
-<div class="ov" id="responsiblemgr-ov"><div class="modal">
-  <span class="modal-drag"></span>
-  <h3>👤 จัดการผู้รับผิดชอบ</h3>
-  <div style="font-size:10px;color:var(--g400);margin:-4px 0 10px">เพิ่มชื่อ แก้ไข หรือลบตัวเลือกที่ใช้ในรายจ่าย</div>
-  <div id="responsiblemgr-list" style="margin-bottom:.75rem"></div>
-  <div class="f-row">
-    <div class="f" style="flex:1"><label>เพิ่มผู้รับผิดชอบใหม่</label><input type="text" id="responsiblemgr-new" placeholder="เช่น อภิรักษ์, พลอย"></div>
-  </div>
-  <div class="mbtns">
-    <button class="btn btn-ghost" onclick="closeOv('responsiblemgr-ov')">ปิด</button>
-    <button class="btn btn-pri" onclick="addResponsible()">+ เพิ่มผู้รับผิดชอบ</button>
   </div>
 </div></div>
 
@@ -2768,8 +2733,6 @@ function openBM(type,id){
   document.getElementById('bm-note').value=item?.note||'';
   document.getElementById('bm-necessity-wrap').style.display=type==='expense'?'block':'none';
   if(type==='expense')refreshNecessityOptions(item?.necessity||getNecessities()[0]);
-  document.getElementById('bm-responsible-wrap').style.display=type==='expense'?'block':'none';
-  if(type==='expense')refreshResponsibleOptions(item?.responsible||getResponsibles()[0]||'ไม่ระบุ');
   const t=getTmpls(),isTmpl=id?t[type].some(i=>i.id===id):false;
   document.getElementById('bm-recurring').checked=id?isTmpl:true;
   document.getElementById('bm-lock-amt').checked=item?.lockAmount||false;
@@ -2799,7 +2762,6 @@ async function saveBudget(){
   const expType=bEType==='expense'?document.getElementById('bm-exptype').value:null;
   const note=document.getElementById('bm-note').value;
   const necessity=bEType==='expense'?document.getElementById('bm-necessity').value:null;
-  const responsible=bEType==='expense'?(document.getElementById('bm-responsible')?.value||'ไม่ระบุ'):null;
   const payMethod=bPayMethod;
   const attachmentId=bEId||Date.now();
   const recurring=document.getElementById('bm-recurring').checked;
@@ -2811,7 +2773,7 @@ async function saveBudget(){
   const structTmpl=(id,oldItem)=>({
     id,name,amount:lockAmount?amount:0,
     subItems:subItems?subItems.map(s=>({name:s.name,amount:lockAmount?s.amount:0})):null,
-    dueDay,tag,expType,note,necessity,responsible,payMethod,lockAmount,
+    dueDay,tag,expType,note,necessity,payMethod,lockAmount,
     startYear:Number.isInteger(oldItem?.startYear)?oldItem.startYear:cy,
     startMonth:Number.isInteger(oldItem?.startMonth)?oldItem.startMonth:cm,
     ...(Number.isInteger(oldItem?.endYear)&&Number.isInteger(oldItem?.endMonth)?{endYear:oldItem.endYear,endMonth:oldItem.endMonth}:{})
@@ -2830,14 +2792,14 @@ async function saveBudget(){
       // เลิกเป็นรายการประจำตั้งแต่เดือนนี้ — ปิดช่วงรายการประจำไว้ที่เดือนก่อนหน้า แต่เก็บประวัติทั้งหมดไว้
       const pp=prevPeriod(cy,cm);
       const nt={...t,[bEType]:t[bEType].map(i=>i.id===bEId?{...i,endYear:pp.y,endMonth:pp.m}:i)};saveTmpls(nt);
-      const o=getOv(cy,cm);const k=bEType+'_add';o[k]=[...(o[k]||[]),{id:attachmentId,name,amount,subItems,dueDay,tag,expType,note,necessity,responsible,payMethod}];saveOv(cy,cm,o);
+      const o=getOv(cy,cm);const k=bEType+'_add';o[k]=[...(o[k]||[]),{id:attachmentId,name,amount,subItems,dueDay,tag,expType,note,necessity,payMethod}];saveOv(cy,cm,o);
     }else if(!isTmpl&&recurring){
       // แปลงรายการเฉพาะเดือนนี้ ให้กลายเป็นรายการประจำทุกเดือน (คงรหัสเดิมไว้)
       const o=getOv(cy,cm);const k=bEType+'_add';o[k]=(o[k]||[]).filter(i=>i.id!==bEId);saveOv(cy,cm,o);
       const nt={...t,[bEType]:[...t[bEType],structTmpl(bEId,null)]};saveTmpls(nt);
       if(!lockAmount)saveMonthlyAmt(bEId);
     }else{
-      const o=getOv(cy,cm);const k=bEType+'_add';o[k]=(o[k]||[]).map(i=>i.id===bEId?{...i,name,amount,subItems,dueDay,tag,expType,note,necessity,responsible,payMethod}:i);saveOv(cy,cm,o);
+      const o=getOv(cy,cm);const k=bEType+'_add';o[k]=(o[k]||[]).map(i=>i.id===bEId?{...i,name,amount,subItems,dueDay,tag,expType,note,necessity,payMethod}:i);saveOv(cy,cm,o);
     }
     addHist('budget','แก้ไข',`${bEType==='income'?'รายรับ':'รายจ่าย'}: ${name} = ${fmt(amount)}`);
   }else if(recurring){
@@ -2846,7 +2808,7 @@ async function saveBudget(){
     if(!lockAmount)saveMonthlyAmt(newId);
     addHist('budget','เพิ่ม',`${bEType==='income'?'รายรับ':'รายจ่าย'} (ประจำทุกเดือน${lockAmount?' — ล็อคยอด':' — ยอดกรอกทีละเดือน'}): ${name} = ${fmt(amount)}`);
   }else{
-    const o=getOv(cy,cm);const k=bEType+'_add';o[k]=[...(o[k]||[]),{id:attachmentId,name,amount,subItems,dueDay,tag,expType,note,necessity,responsible,payMethod}];saveOv(cy,cm,o);
+    const o=getOv(cy,cm);const k=bEType+'_add';o[k]=[...(o[k]||[]),{id:attachmentId,name,amount,subItems,dueDay,tag,expType,note,necessity,payMethod}];saveOv(cy,cm,o);
     addHist('budget','เพิ่ม',`${bEType==='income'?'รายรับ':'รายจ่าย'}: ${name} = ${fmt(amount)}`);
   }
   closeOv('bm-ov');renderBudget();
@@ -2904,7 +2866,7 @@ function preserveHistoricalMonths(type,id,tmplItem,skipKey){
     const a=o[k]&&o[k][id];
     if(!a)continue;
     const addK=type+'_add';
-    o[addK]=[...(o[addK]||[]),{id:Date.now()+Math.floor(Math.random()*1000),name:tmplItem.name,amount:a.amount,subItems:a.subItems||null,dueDay:tmplItem.dueDay,tag:tmplItem.tag,expType:tmplItem.expType,note:tmplItem.note,necessity:tmplItem.necessity,responsible:tmplItem.responsible||'ไม่ระบุ',payMethod:tmplItem.payMethod}];
+    o[addK]=[...(o[addK]||[]),{id:Date.now()+Math.floor(Math.random()*1000),name:tmplItem.name,amount:a.amount,subItems:a.subItems||null,dueDay:tmplItem.dueDay,tag:tmplItem.tag,expType:tmplItem.expType,note:tmplItem.note,necessity:tmplItem.necessity,payMethod:tmplItem.payMethod}];
     delete o[k][id];
     lss(key,o);
   }
@@ -2943,7 +2905,6 @@ function renderBudget(){
   renderBBody('inc-body','inc-head',d.income,'income');
   renderBBody('exp-body','exp-head',d.expense,'expense');
   renderNecessityMonthlySummary(cy,cm);
-  renderResponsibleMonthlySummary(cy,cm);
 }
 
 function renderNecessityMonthlySummary(year,month){
@@ -2971,109 +2932,6 @@ function renderNecessityMonthlySummary(year,month){
   const period=document.getElementById('necessity-current-period');
   if(period)period.textContent=`${MN[m-1]} ${y+543} • รายจ่ายรวม ${fmt(total)}`;
 }
-function defResponsibles(){return ['ไม่ระบุ']}
-function getResponsibles(){return ls(uKey('budget_responsibles_v1'),defResponsibles())}
-function saveResponsibles(a){lss(uKey('budget_responsibles_v1'),a)}
-function refreshResponsibleOptions(keepValue){
-  const sel=document.getElementById('bm-responsible');if(!sel)return;
-  let opts=getResponsibles().slice();
-  if(keepValue&&!opts.includes(keepValue))opts.push(keepValue);
-  if(!opts.length)opts=['ไม่ระบุ'];
-  sel.innerHTML=opts.map(n=>`<option value="${String(n).replace(/"/g,'&quot;')}">👤 ${String(n).replace(/</g,'&lt;')}</option>`).join('');
-  sel.value=keepValue&&opts.includes(keepValue)?keepValue:opts[0];
-}
-function responsibleUsageCount_(label){
-  let count=0;
-  const t=getTmpls();
-  count+=(t.expense||[]).filter(i=>(i.responsible||'ไม่ระบุ')===label).length;
-  count+=(getMI(cy,cm).expense||[]).filter(i=>(i.responsible||'ไม่ระบุ')===label).length;
-  for(let i=0;i<localStorage.length;i++){
-    const key=localStorage.key(i);if(!key||!key.startsWith('ov_'))continue;
-    const o=ls(key,null);if(!o)continue;
-    for(const item of (o.expense_add||[]))if((item.responsible||'ไม่ระบุ')===label)count++;
-    if(o.expense_edit&&typeof o.expense_edit==='object')Object.values(o.expense_edit).forEach(item=>{if((item?.responsible||'')===label)count++});
-  }
-  return count;
-}
-function openResponsibleMgr(){
-  renderResponsibleMgrList();
-  document.getElementById('responsiblemgr-new').value='';
-  document.getElementById('responsiblemgr-ov').classList.add('open');
-}
-function renderResponsibleMgrList(){
-  const a=getResponsibles();
-  document.getElementById('responsiblemgr-list').innerHTML=a.length?a.map((n,i)=>`<div class="responsible-manager-row">
-    <span class="responsible-avatar">👤</span>
-    <input type="text" value="${String(n).replace(/"/g,'&quot;')}" onchange="renameResponsible(${i},this.value)">
-    <button class="btn btn-danger btn-sm" ${n==='ไม่ระบุ'?'disabled title="ตัวเลือกเริ่มต้น ห้ามลบ"':(responsibleUsageCount_(n)>0?'disabled title="ยังมีรายการใช้ชื่อนี้อยู่"':'')} onclick="deleteResponsible(${i})">🗑 ลบ</button>
-  </div>`).join(''):'<div class="empty">ยังไม่มีผู้รับผิดชอบ</div>';
-}
-function addResponsible(){
-  const n=(document.getElementById('responsiblemgr-new').value||'').trim();
-  if(!n)return;
-  const a=getResponsibles();
-  if(a.includes(n)){alert('มีชื่อนี้อยู่แล้ว');return;}
-  a.push(n);saveResponsibles(a);
-  document.getElementById('responsiblemgr-new').value='';
-  renderResponsibleMgrList();refreshResponsibleOptions(n);renderBudget();
-}
-function renameResponsible(idx,n){
-  n=(n||'').trim();const a=getResponsibles(),old=a[idx];
-  if(!n||!old||old===n)return;
-  if(a.includes(n)){alert('มีชื่อนี้อยู่แล้ว');renderResponsibleMgrList();return;}
-  a[idx]=n;saveResponsibles(a);
-  for(let i=0;i<localStorage.length;i++){
-    const key=localStorage.key(i);if(!key||!key.startsWith('ov_'))continue;
-    const o=ls(key,null);if(!o)continue;let ch=false;
-    if(Array.isArray(o.expense_add))o.expense_add=o.expense_add.map(x=>x.responsible===old?(ch=true,{...x,responsible:n}):x);
-    if(o.expense_edit&&typeof o.expense_edit==='object')Object.keys(o.expense_edit).forEach(id=>{if(o.expense_edit[id]?.responsible===old){o.expense_edit[id]={...o.expense_edit[id],responsible:n};ch=true}});
-    if(ch)lss(key,o);
-  }
-  const t=getTmpls();
-  saveTmpls({...t,expense:(t.expense||[]).map(x=>(x.responsible||'ไม่ระบุ')===old?{...x,responsible:n}:x)});
-  renderResponsibleMgrList();refreshResponsibleOptions(n);renderBudget();
-}
-function deleteResponsible(idx){
-  const a=getResponsibles(),n=a[idx];
-  if(!n||n==='ไม่ระบุ')return;
-  if(responsibleUsageCount_(n)>0){alert('ยังมีรายการใช้ผู้รับผิดชอบนี้อยู่\n\nกรุณาเปลี่ยนผู้รับผิดชอบของรายการก่อน แล้วจึงลบชื่อนี้ได้');return;}
-  if(!confirm(`ลบผู้รับผิดชอบ "${n}" ?`))return;
-  a.splice(idx,1);saveResponsibles(a);
-  renderResponsibleMgrList();refreshResponsibleOptions(getResponsibles()[0]||'ไม่ระบุ');renderBudget();
-}
-function setBudgetResponsible(id,value){
-  const t=getTmpls();
-  if((t.expense||[]).some(i=>i.id===id)){
-    saveTmpls({...t,expense:t.expense.map(i=>i.id===id?{...i,responsible:value}:i)});renderBudget();return;
-  }
-  const o=getOv(cy,cm);
-  if((o.expense_add||[]).some(i=>i.id===id)){
-    o.expense_add=o.expense_add.map(i=>i.id===id?{...i,responsible:value}:i);saveOv(cy,cm,o);renderBudget();return;
-  }
-  o.expense_edit=o.expense_edit||{};o.expense_edit[id]={...(o.expense_edit[id]||{}),responsible:value};saveOv(cy,cm,o);renderBudget();
-}
-function renderResponsibleMonthlySummary(year,month){
-  const y=Number(year)||cy,m=Number(month)||cm,d=getMI(y,m)||{expense:[]};
-  const map={};
-  (d.expense||[]).forEach(item=>{const n=item.responsible||'ไม่ระบุ';map[n]=(map[n]||0)+(Number(item.amount)||0)});
-  const entries=Object.entries(map).sort((a,b)=>b[1]-a[1]);
-  const total=entries.reduce((s,x)=>s+x[1],0);
-  const period=document.getElementById('responsible-current-period');
-  if(period)period.textContent=`${MN[m-1]} ${y+543} • รายจ่ายรวม ${fmt(total)}`;
-  const totalEl=document.getElementById('responsible-current-total');
-  if(totalEl)totalEl.textContent=`รวม ${fmt(total)}`;
-  const box=document.getElementById('responsible-current-list');if(!box)return;
-  if(!entries.length){box.innerHTML='<div class="responsible-empty">ยังไม่มีรายจ่ายในเดือนนี้</div>';return;}
-  box.innerHTML=entries.map(([name,val],idx)=>{
-    const pct=total?Math.round(val/total*100):0;
-    return `<div class="responsible-summary-row">
-      <div class="responsible-summary-name"><span class="responsible-rank">${idx+1}</span><span>👤 ${name}</span></div>
-      <div class="responsible-summary-bar"><span style="width:${pct}%"></span></div>
-      <div class="responsible-summary-val"><strong>${fmt(val)}</strong><em>${pct}%</em></div>
-    </div>`;
-  }).join('');
-}
-
 function getBudgetOrder(y,m,type,items){
   const o=getOv(y,m);
   const savedOrder=o[type+'_order'];
@@ -3100,18 +2958,17 @@ function renderBBody(id,headId,items,type){
   const si=sortIcon.bind(null,'budget',type);
   const headEl=document.getElementById(headId);
   if(headEl)headEl.innerHTML=`
-    <th style="width:22%;cursor:pointer" onclick="sortBy('budget','${type}','name')">รายการ ${si('name')}</th>
-    <th style="width:9%;cursor:pointer" onclick="sortBy('budget','${type}','tag')">หมวดหมู่ ${si('tag')}</th>
+    <th style="width:${type==='expense'?'20':'30'}%;cursor:pointer" onclick="sortBy('budget','${type}','name')">รายการ ${si('name')}</th>
+    <th style="width:${type==='expense'?'8':'12'}%;cursor:pointer" onclick="sortBy('budget','${type}','tag')">หมวดหมู่ ${si('tag')}</th>
     ${type==='expense'?`<th style="width:9%;cursor:pointer" onclick="sortBy('budget','${type}','expType')">ประเภทรายจ่าย ${si('expType')}</th>`:''}
-    <th style="width:9%">วันที่</th>
-    <th style="width:11%;cursor:pointer;text-align:right">จำนวน ${si('amount')}</th>
-    <th style="width:8%;text-align:center">${type==='income'?'รับแล้ว':'จ่ายแล้ว'}</th>
-    <th style="width:9%;text-align:center">จ่ายผ่าน</th>
-    ${type==='expense'?'<th style="width:11%;text-align:center">ผู้รับผิดชอบ</th>':''}
-    <th style="width:${type==='expense'?'11':'18'}%">หมายเหตุ</th>
-    ${type==='expense'?'<th style="width:9%;text-align:center">ความจำเป็น</th>':''}
-    <th style="width:5%;text-align:center">✏</th>`;
-  if(!sorted.length){tb.innerHTML=`<tr><td colspan="${type==='expense'?11:8}" class="empty">ยังไม่มีรายการ</td></tr>`;return}
+    <th style="width:${type==='expense'?'8':'11'}%">วันที่</th>
+    <th style="width:${type==='expense'?'10':'13'}%;cursor:pointer;text-align:right">จำนวน ${si('amount')}</th>
+    <th style="width:${type==='expense'?'7':'9'}%;text-align:center">${type==='income'?'รับแล้ว':'จ่ายแล้ว'}</th>
+    <th style="width:${type==='expense'?'8':'0'}%;text-align:center;${type==='income'?'display:none':''}">จ่ายผ่าน</th>
+    <th style="width:${type==='expense'?'12':'25'}%">หมายเหตุ</th>
+    ${type==='expense'?'<th style="width:10%;text-align:center">ความจำเป็น</th>':''}
+    <th style="width:${type==='expense'?'8':'5'}%;text-align:center">✏</th>`;
+  if(!sorted.length){tb.innerHTML=`<tr><td colspan="${type==='expense'?10:8}" class="empty">ยังไม่มีรายการ</td></tr>`;return}
   tb.innerHTML=sorted.map((item,i)=>{
     const hasSubs=item.subItems?.length>0;
     const subPaidStates=hasSubs?item.subItems.map((s,idx)=>getSubPaid(cy,cm,type,item.id,idx)):[];
@@ -3138,7 +2995,6 @@ function renderBBody(id,headId,items,type){
       <td class="tr ${type==='income'?'ag':'ac'}">${fmt(item.amount)}</td>
       <td class="tc">${paidCell}</td>
       <td class="tc">${pmBadge}</td>
-      ${type==='expense'?`<td class="tc"><select class="styled responsible-select" onchange="setBudgetResponsible(${item.id},this.value)">${getResponsibles().map(n=>`<option value="${String(n).replace(/"/g,'&quot;')}" ${(item.responsible||'ไม่ระบุ')===n?'selected':''}>👤 ${String(n).replace(/</g,'&lt;')}</option>`).join('')}</select></td>`:''}
       <td style="font-size:12px;color:var(--g400)">${item.note||'—'}</td>
       ${type==='expense'?`<td class="tc"><select class="styled necessity-select ${necessityClass(item.necessity||'จำเป็น')}" style="${necessityStyle(item.necessity||'จำเป็น')}" onchange="setBudgetNecessity(${item.id},this.value);this.className='styled necessity-select '+necessityClass(this.value);this.style.cssText=necessityStyle(this.value)">${getNecessities().map(n=>`<option value="${n.replace(/"/g,'&quot;')}" ${(item.necessity||'จำเป็น')===n?'selected':''}>${necessityLabel(n)}</option>`).join('')}</select></td>`:''}
       <td class="tc">${noSort?reorderBtns(`reorderBudgetItem('${type}',${item.id},-1)`,`reorderBudgetItem('${type}',${item.id},1)`,i>0,i<sorted.length-1):''}<button class="icon-btn" onclick="openBM('${type}',${item.id})">✏</button></td>
