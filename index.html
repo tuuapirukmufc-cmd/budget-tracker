@@ -757,6 +757,16 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 @media(max-width:700px){
   .owner-select{max-width:94px;font-size:10px;padding-left:5px;padding-right:16px}
 }
+
+/* ── Budget sub-pages / home shopping checklist ── */
+.budget-tabs{display:flex;gap:6px;background:var(--g50);border:1px solid var(--g100);padding:4px;border-radius:11px;width:max-content;margin:0 0 12px}
+.budget-tab{border:0;background:transparent;color:var(--g500);font:700 13px var(--font);padding:8px 14px;border-radius:8px;cursor:pointer;transition:.15s}
+.budget-tab.active{background:#fff;color:var(--g900);box-shadow:0 2px 8px rgba(15,23,42,.08)}
+.shopping-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}.shopping-head h3{margin:0;font-size:18px}.shopping-head .sub{margin-top:3px}
+.shopping-summary{margin-bottom:12px}.shopping-table-card{margin-top:0}.shopping-month-total{font-size:13px;color:var(--g700)}
+.shopping-table th,.shopping-table td{vertical-align:middle}.shopping-table .shop-item-name{font-weight:700;color:var(--g800)}
+.shop-check{width:18px;height:18px;accent-color:#16a34a;cursor:pointer}.shop-link{display:inline-flex;align-items:center;gap:4px;padding:5px 8px;border-radius:8px;background:#eff6ff;color:#2563eb;text-decoration:none;font-size:11px;font-weight:700}.shop-link:hover{background:#dbeafe}.shop-done{text-decoration:line-through;color:var(--g400)!important}.shop-total-cell{font-weight:800;color:var(--g800)}.shop-empty{padding:28px 12px;text-align:center;color:var(--g400);font-size:12px}.shopping-table-card .table-scroll{overflow:auto}
+@media(max-width:760px){.budget-tabs{width:100%;display:grid;grid-template-columns:1fr 1fr}.budget-tab{width:100%}.shopping-head{align-items:flex-start}.shopping-summary{grid-template-columns:1fr 1fr}.shopping-table{min-width:760px}}
 </style>
 
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -976,6 +986,11 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
       </div>
     </div>
   </div>
+  <div class="budget-tabs">
+    <button type="button" class="budget-tab active" id="budget-tab-main" onclick="showBudgetSection('main')">🧾 รายรับ - รายจ่าย</button>
+    <button type="button" class="budget-tab" id="budget-tab-shopping" onclick="showBudgetSection('shopping')">🛒 ซื้อของเข้าบ้าน</button>
+  </div>
+  <div id="budget-main-panel">
   <div class="cards c4">
     <div class="card"><div class="lbl">รายรับ</div><div class="val vg" id="s-inc">฿0</div></div>
     <div class="card"><div class="lbl">รายจ่ายทั้งหมด</div><div class="val vc" id="s-exp">฿0</div></div>
@@ -1035,8 +1050,26 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
     </tr></thead><tbody id="exp-body"></tbody></table>
     <div class="tfoot"><span>รวมรายจ่าย</span><strong id="exp-tot">฿0</strong></div>
   </div>
-
-  
+  </div>
+  <div id="budget-shopping-panel" style="display:none">
+    <div class="shopping-head">
+      <div><h3>🛒 เช็กลิสต์ซื้อของเข้าบ้าน</h3><div class="sub">รายการซื้อของแยกตามปี / เดือนเดียวกับหน้ารายรับ - รายจ่าย</div></div>
+      <button class="btn btn-pri btn-sm" onclick="openShoppingItem()">+ เพิ่มรายการ</button>
+    </div>
+    <div class="shopping-summary cards c4">
+      <div class="card"><div class="lbl">รายการทั้งหมด</div><div class="val vb" id="shop-count">0</div></div>
+      <div class="card"><div class="lbl">รวมทั้งหมด</div><div class="val vc" id="shop-total">฿0</div></div>
+      <div class="card"><div class="lbl">ซื้อแล้ว</div><div class="val vg" id="shop-bought">0</div></div>
+      <div class="card"><div class="lbl">ยังเหลือ</div><div class="val vo" id="shop-left">0</div></div>
+    </div>
+    <div class="sec shopping-table-card">
+      <div class="sec-head"><span class="sec-title"><span class="dot dg"></span>รายการซื้อของเดือนนี้</span><strong id="shop-month-total" class="shopping-month-total">รวม ฿0</strong></div>
+      <div class="table-scroll">
+      <table class="tbl shopping-table"><thead><tr><th style="width:5%;text-align:center">ซื้อ</th><th style="width:28%">รายการ</th><th style="width:12%">วันที่ซื้อ</th><th style="width:13%;text-align:right">ราคา</th><th style="width:9%;text-align:center">จำนวน</th><th style="width:14%;text-align:right">รวม</th><th style="width:13%">ลิงก์ซื้อ</th><th style="width:6%;text-align:center">✏</th></tr></thead><tbody id="shopping-body"></tbody></table>
+      </div>
+      <div class="tfoot"><span>รวมราคาซื้อของเดือนนี้</span><strong id="shopping-grand-total">฿0</strong></div>
+    </div>
+  </div>
 </div>
 
 <!-- PAGE: DEBT -->
@@ -1514,6 +1547,21 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 
 
 <!-- Responsible person manager -->
+<div class="ov" id="shopping-item-ov"><div class="modal" style="max-width:560px">
+  <div class="mh"><div><h3 id="shopping-item-title">🛒 เพิ่มรายการซื้อของ</h3><div class="sub">บันทึกรายการสำหรับเดือนที่เลือกอยู่</div></div><button class="x" onclick="closeOv('shopping-item-ov')">×</button></div>
+  <input type="hidden" id="shopping-item-id">
+  <div class="f-row">
+    <div class="f" style="flex:2"><label>รายการ</label><input id="shopping-name" placeholder="เช่น น้ำยาซักผ้า"></div>
+    <div class="f" style="flex:1"><label>ราคา/ชิ้น</label><input id="shopping-price" type="number" min="0" step="0.01" placeholder="0"></div>
+  </div>
+  <div class="f-row">
+    <div class="f"><label>จำนวน</label><input id="shopping-qty" type="number" min="1" step="1" value="1"></div>
+    <div class="f"><label>วันที่ซื้อ</label><input id="shopping-date" type="date"></div>
+    <div class="f" style="flex:2"><label>ลิงก์ซื้อ</label><input id="shopping-link" type="url" placeholder="https://..."></div>
+  </div>
+  <div class="f-row" style="justify-content:flex-end;margin-top:10px"><button class="btn btn-ghost" onclick="closeOv('shopping-item-ov')">ยกเลิก</button><button class="btn btn-pri" onclick="saveShoppingItem()">บันทึก</button></div>
+</div></div>
+
 <div class="ov" id="owner-mgr-ov"><div class="modal" style="max-width:560px">
   <span class="modal-drag"></span>
   <div class="mh"><div><h3>👤 จัดการผู้รับผิดชอบ</h3><div class="sub">เพิ่ม แก้ไข หรือลบชื่อผู้รับผิดชอบสำหรับรายจ่าย</div></div><button class="x" onclick="closeOv('owner-mgr-ov')">×</button></div>
@@ -2670,6 +2718,7 @@ function onBudgetPeriodChange(){
   cy=parseInt(document.getElementById('budget-yr-sel').value);
   cm=parseInt(document.getElementById('budget-mo-sel').value);
   renderBudget();
+  renderShoppingList();
 }
 function getTmpls(){return ls(uKey('tmpl_v2'),defTmpls())}
 function saveTmpls(t){lss(uKey('tmpl_v2'),t)}
@@ -2954,6 +3003,7 @@ function renderBudget(){
   renderBBody('exp-body','exp-head',d.expense,'expense');
   renderNecessityMonthlySummary(cy,cm);
   renderOwnerMonthlySummary(cy,cm);
+  renderShoppingList();
 }
 
 function renderNecessityMonthlySummary(year,month){
@@ -3012,6 +3062,64 @@ function renderOwnerMonthlySummary(year,month){
     </div>`;
   }).join('');
 }
+function showBudgetSection(section){
+  const main=document.getElementById('budget-main-panel'),shop=document.getElementById('budget-shopping-panel');
+  const a=document.getElementById('budget-tab-main'),b=document.getElementById('budget-tab-shopping');
+  const isShop=section==='shopping';
+  if(main)main.style.display=isShop?'none':'';
+  if(shop)shop.style.display=isShop?'':'none';
+  if(a)a.classList.toggle('active',!isShop); if(b)b.classList.toggle('active',isShop);
+  if(isShop)renderShoppingList();
+}
+function shoppingKey(y,m){return uKey(`home_shopping_${y}_${m}`)}
+function getShoppingItems(y,m){return ls(shoppingKey(y,m),[])}
+function saveShoppingItems(y,m,items){lss(shoppingKey(y,m),items)}
+function openShoppingItem(id){
+  const ov=document.getElementById('shopping-item-ov'); if(!ov)return;
+  const item=id?getShoppingItems(cy,cm).find(x=>String(x.id)===String(id)):null;
+  document.getElementById('shopping-item-id').value=item?.id||'';
+  document.getElementById('shopping-name').value=item?.name||'';
+  document.getElementById('shopping-price').value=item?.price??'';
+  document.getElementById('shopping-qty').value=item?.qty??1;
+  const defaultDate=item?.purchaseDate||`${cy}-${String(cm).padStart(2,'0')}-${String(new Date().getDate()).padStart(2,'0')}`;
+  document.getElementById('shopping-date').value=defaultDate;
+  document.getElementById('shopping-link').value=item?.link||'';
+  document.getElementById('shopping-item-title').textContent=item?'✏️ แก้ไขรายการซื้อของ':'🛒 เพิ่มรายการซื้อของ';
+  ov.classList.add('open');
+  setTimeout(()=>document.getElementById('shopping-name')?.focus(),40);
+}
+function saveShoppingItem(){
+  const name=(document.getElementById('shopping-name').value||'').trim();
+  if(!name){alert('กรุณาใส่รายการ');return}
+  const price=Math.max(0,Number(document.getElementById('shopping-price').value)||0);
+  const qty=Math.max(1,Number(document.getElementById('shopping-qty').value)||1);
+  const purchaseDate=(document.getElementById('shopping-date').value||'').trim();
+  const link=(document.getElementById('shopping-link').value||'').trim();
+  const id=document.getElementById('shopping-item-id').value;
+  const items=getShoppingItems(cy,cm); const now=Date.now();
+  if(id){const i=items.findIndex(x=>String(x.id)===String(id));if(i>=0)items[i]={...items[i],name,price,qty,purchaseDate,link,updatedAt:now}}
+  else items.push({id:`shop_${now}_${Math.random().toString(36).slice(2,7)}`,name,price,qty,purchaseDate,link,bought:false,createdAt:now});
+  saveShoppingItems(cy,cm,items); closeOv('shopping-item-ov'); renderShoppingList(); addHist('budget',id?'แก้ไข':'เพิ่ม',`ซื้อของเข้าบ้าน: ${name} = ${fmt(price*qty)}`);
+}
+function toggleShoppingBought(id,v){const items=getShoppingItems(cy,cm);const i=items.findIndex(x=>String(x.id)===String(id));if(i<0)return;items[i].bought=!!v;saveShoppingItems(cy,cm,items);renderShoppingList()}
+function deleteShoppingItem(id){const items=getShoppingItems(cy,cm),item=items.find(x=>String(x.id)===String(id));if(!item)return;if(!confirm(`ลบรายการ "${item.name}" ใช่หรือไม่?`))return;saveShoppingItems(cy,cm,items.filter(x=>String(x.id)!==String(id)));renderShoppingList();addHist('budget','ลบ',`ซื้อของเข้าบ้าน: ${item.name}`)}
+function renderShoppingList(){
+  const body=document.getElementById('shopping-body'); if(!body)return;
+  const items=getShoppingItems(cy,cm); let total=0,bought=0;
+  items.forEach(x=>{total+=(Number(x.price)||0)*(Number(x.qty)||0);if(x.bought)bought++});
+  const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};
+  set('shop-count',items.length);set('shop-total',fmt(total));set('shop-bought',bought);set('shop-left',Math.max(0,items.length-bought));set('shop-month-total',`รวม ${fmt(total)}`);set('shopping-grand-total',fmt(total));
+  if(!items.length){body.innerHTML='<tr><td colspan="8" class="shop-empty">เดือนนี้ยังไม่มีรายการซื้อของ 🛒<br>กด “+ เพิ่มรายการ” เพื่อเริ่มทำเช็กลิสต์</td></tr>';return}
+  body.innerHTML=items.map(item=>{
+    const line=(Number(item.price)||0)*(Number(item.qty)||0), done=!!item.bought, safe=String(item.name||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const href=String(item.link||'').trim();
+    const purchaseDate=String(item.purchaseDate||'').trim();
+    const dateText=purchaseDate?new Date(`${purchaseDate}T00:00:00`).toLocaleDateString('th-TH',{day:'2-digit',month:'2-digit',year:'numeric'}):'-';
+    return `<tr><td class="tc"><input class="shop-check" type="checkbox" ${done?'checked':''} onchange="toggleShoppingBought('${item.id}',this.checked)"></td><td><span class="shop-item-name ${done?'shop-done':''}">${safe}</span></td><td>${dateText}</td><td class="tr">${fmt(Number(item.price)||0)}</td><td class="tc">${Number(item.qty)||0}</td><td class="tr shop-total-cell">${fmt(line)}</td><td>${href?`<a class="shop-link" href="${safeUrl(href)}" target="_blank" rel="noopener">🔗 ซื้อ</a>`:'<span class="badge b-gray">ไม่มีลิงก์</span>'}</td><td class="tc"><button class="icon-btn" title="แก้ไข" onclick="openShoppingItem('${item.id}')">✏</button> <button class="icon-btn danger" title="ลบ" onclick="deleteShoppingItem('${item.id}')">🗑</button></td></tr>`;
+  }).join('');
+}
+function safeUrl(v){try{const u=new URL(v,location.href);return /^https?:$/.test(u.protocol)?u.href:'#'}catch(e){return'#'}}
+
 function getBudgetOrder(y,m,type,items){
   const o=getOv(y,m);
   const savedOrder=o[type+'_order'];
