@@ -255,21 +255,8 @@ table.tbl tr.dim .iname{text-decoration:line-through}
 .mnav button:hover{background:var(--g100)}
 .mnav-label{font-size:13px;font-weight:600;min-width:125px;text-align:center}
 
-
-/* Better todo sub-item presentation: show details in a full-width row below the main task */
-.todo-sub-detail-row>td{padding:0!important;border-top:0!important;background:transparent!important}
-.todo-sub-panel{margin:0 8px 10px 8px;padding:10px 12px;border:1px solid var(--g100);border-radius:10px;background:var(--surface2);box-shadow:inset 3px 0 0 var(--g200)}
-.todo-sub-panel-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px;font-size:10px;font-weight:800;color:var(--g500)}
-.todo-sub-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
-.todo-sub-card{display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:8px;align-items:center;padding:8px 10px;border:1px solid var(--g100);border-radius:9px;background:var(--surface)}
-.todo-sub-card-no{width:22px;height:22px;display:flex;align-items:center;justify-content:center;border-radius:7px;background:var(--g50);color:var(--g500);font-size:10px;font-weight:800}
-.todo-sub-card-main{min-width:0}
-.todo-sub-card-name{font-size:11px;font-weight:800;color:var(--g800);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.todo-sub-card-detail{margin-top:2px;font-size:10px;color:var(--g500);white-space:normal;overflow-wrap:anywhere}
-.todo-sub-card-price{font-size:11px;font-weight:850;color:var(--green);white-space:nowrap}
-@media(max-width:900px){.todo-sub-grid{grid-template-columns:1fr}}
 /* Todo sub-items */
-.todo-main-name{font-weight:800;color:var(--g900)}
+.todo-main-name{font-weight:800;color:var(--g900)}.todo-user-group td{padding:7px 10px!important;background:var(--g50);border-top:1px solid var(--g100);border-bottom:1px solid var(--g100);font-size:11px;font-weight:800;color:var(--g700)}.todo-user-group .user-count{float:right;color:var(--g500);font-weight:700}.todo-user-avatar{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;margin-right:6px;border-radius:50%;background:#e2e8f0;font-size:11px;vertical-align:middle}
 .todo-sub-list{margin-top:7px;display:flex;flex-direction:column;gap:5px}
 .todo-sub-item{display:grid;grid-template-columns:minmax(110px,1fr) minmax(120px,1.4fr) auto;gap:7px;align-items:center;padding:6px 8px;border:1px solid var(--g100);border-radius:8px;background:var(--surface2);font-size:11px}
 .todo-sub-item .sub-name{font-weight:750;color:var(--g800)}
@@ -784,6 +771,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 .shopping-table th,.shopping-table td{vertical-align:middle}.shopping-table .shop-item-name{font-weight:700;color:var(--g800)}
 .shop-check{width:18px;height:18px;accent-color:#16a34a;cursor:pointer}.shop-link{display:inline-flex;align-items:center;gap:4px;padding:5px 8px;border-radius:8px;background:#eff6ff;color:#2563eb;text-decoration:none;font-size:11px;font-weight:700}.shop-link:hover{background:#dbeafe}.shop-done{text-decoration:line-through;color:var(--g400)!important}.shop-total-cell{font-weight:800;color:var(--g800)}.shop-empty{padding:28px 12px;text-align:center;color:var(--g400);font-size:12px}.shopping-table-card .table-scroll{overflow:auto}
 @media(max-width:760px){.budget-tabs{width:100%;display:grid;grid-template-columns:1fr 1fr}.budget-tab{width:100%}.shopping-head{align-items:flex-start}.shopping-summary{grid-template-columns:1fr 1fr}.shopping-table{min-width:760px}}
+.todo-page-compact .tbl{font-size:11px}.todo-page-compact .tbl th{padding:7px 6px;font-size:10px}.todo-page-compact .tbl td{padding:7px 6px}.todo-page-compact .todo-main-name{font-size:11.5px}.todo-page-compact .badge,.todo-page-compact .pill{font-size:10px;padding:3px 6px}.todo-page-compact .icon-btn{width:24px;height:24px}.todo-page-compact .todo-sub-list{grid-template-columns:repeat(2,minmax(0,1fr))}@media(max-width:900px){.todo-page-compact .todo-sub-list{grid-template-columns:1fr}}
 </style>
 
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -841,7 +829,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 
 <div class="page-wrap">
 <!-- PAGE: DASHBOARD -->
-<div id="page-todo" class="page">
+<div id="page-todo" class="page todo-page-compact">
   <div class="page-head">
     <div><h2 class="desk-only">📝 สิ่งที่ต้องทำ</h2><div class="sub">วางแผนชีวิตและติดตามงานสำคัญ</div></div>
     <div class="page-head-actions">
@@ -4030,7 +4018,7 @@ function renderTodoRow(t,i,groupLen,today){
   const subTotal=subs.reduce((a,x)=>a+(parseFloat(x.price)||0),0);
   const totalPrice=t.priceIncludesSubs?(parseFloat(t.price)||0):((parseFloat(t.price)||0)+subTotal);
   const priceLabel=totalPrice?fmt(totalPrice):'—';
-  const subHtml=subs.length?`<tr class="todo-sub-detail-row ${t.done?'dim':''}"><td></td><td colspan="11"><div class="todo-sub-panel"><div class="todo-sub-panel-head"><span>📦 รายละเอียดย่อย</span><span>${subs.length} รายการ • รวม ${fmt(subTotal)}</span></div><div class="todo-sub-grid">${subs.map((x,si)=>`<div class="todo-sub-card"><div class="todo-sub-card-no">${si+1}</div><div class="todo-sub-card-main"><div class="todo-sub-card-name">${todoEsc(x.name||'รายการรอง')}</div><div class="todo-sub-card-detail">${todoEsc(x.detail||'ไม่มีรายละเอียด')}</div></div><div class="todo-sub-card-price">${x.price?fmt(x.price):'—'}</div></div>`).join('')}</div></div></td><td></td></tr>`:'';
+  const subHtml=subs.length?`<div class="todo-sub-list">${subs.map(x=>`<div class="todo-sub-item"><span class="sub-name">↳ ${todoEsc(x.name||'รายการรอง')}</span><span class="sub-detail">${todoEsc(x.detail||'—')}</span><span class="sub-price">${x.price?fmt(x.price):'—'}</span></div>`).join('')}</div>`:'';
   const createdLabel=t.createdDate?new Date(t.createdDate+'T00:00:00').toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric'}):'—';
   return{isOverdue,isSoon,html:`<tr class="${t.done?'dim':''}">
     <td class="tc"><div class="chk"><input type="checkbox" ${t.done?'checked':''} onchange="toggleTodoDone(${t.id})"></div></td>
@@ -4045,7 +4033,7 @@ function renderTodoRow(t,i,groupLen,today){
     <td>${createdLabel}</td>
     <td>${alertHtml}</td>
     <td class="tc">${reorderBtns(`reorderTodo(${t.id},-1)`,`reorderTodo(${t.id},1)`,i>0,i<groupLen-1)}<button class="icon-btn" onclick="openTM(${t.id})">✏</button></td>
-  </tr>${subHtml}`};
+  </tr>`};
 }
 function renderTodo(){
   const items=getTodos();
@@ -4056,21 +4044,24 @@ function renderTodo(){
   if(!body||!doneBody)return;
   const pending=items.filter(t=>!t.done);
   const done=items.filter(t=>t.done);
-  if(!pending.length){
-    body.innerHTML='<tr><td colspan="13" class="empty">ยังไม่มีรายการ</td></tr>';
-  }else{
-    body.innerHTML=pending.map((t,i)=>{
-      const r=renderTodoRow(t,i,pending.length,today);
-      if(r.isOverdue)overCount++;
-      if(r.isSoon)soonCount++;
-      return r.html;
+  const groupRows=(list)=>{
+    if(!list.length)return '<tr><td colspan="13" class="empty">ยังไม่มีรายการ</td></tr>';
+    const groups={};
+    list.forEach(t=>{const key=String(t.user||'ไม่ระบุผู้ใช้งาน').trim()||'ไม่ระบุผู้ใช้งาน';(groups[key]||(groups[key]=[])).push(t)});
+    return Object.entries(groups).map(([user,arr])=>{
+      const safeUser=todoEsc(user);
+      const icon=user==='ไม่ระบุผู้ใช้งาน'?'👤':'👤';
+      const rows=arr.map((t,i)=>{
+        const r=renderTodoRow(t,i,arr.length,today);
+        if(!t.done&&r.isOverdue)overCount++;
+        if(!t.done&&r.isSoon)soonCount++;
+        return r.html;
+      }).join('');
+      return `<tr class="todo-user-group"><td colspan="13"><span class="todo-user-avatar">${icon}</span>ผู้ใช้งาน: ${safeUser}<span class="user-count">${arr.length} รายการ</span></td></tr>${rows}`;
     }).join('');
-  }
-  if(!done.length){
-    doneBody.innerHTML='<tr><td colspan="13" class="empty">ยังไม่มีรายการที่ทำเสร็จแล้ว</td></tr>';
-  }else{
-    doneBody.innerHTML=done.map((t,i)=>renderTodoRow(t,i,done.length,today).html).join('');
-  }
+  };
+  body.innerHTML=groupRows(pending);
+  doneBody.innerHTML=groupRows(done);
   document.getElementById('td-total').textContent=items.length;
   document.getElementById('td-soon').textContent=soonCount;
   document.getElementById('td-over').textContent=overCount;
