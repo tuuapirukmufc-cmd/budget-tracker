@@ -783,6 +783,12 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+
+<style id="vehicle-multi-maint-style">
+#vehicle-maint-items-f .vehicle-maint-edit-row input{min-width:0;font-size:12px;padding:7px 8px}
+#vehicle-maint-items-f .vehicle-maint-edit-row .vm-remove{padding:5px 7px}
+@media(max-width:700px){#vehicle-maint-items-f .vehicle-maint-edit-row{grid-template-columns:1fr 100px!important}.vehicle-maint-edit-row .vm-link{grid-column:1/-1}.vehicle-maint-edit-row .vm-remove{grid-column:2;justify-self:end;margin-top:-4px}}
+</style>
 </head>
 <body>
 <div id="startup-gate" class="sync-loading">
@@ -839,7 +845,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   <div class="page-head">
     <div><h2 class="desk-only">📝 สิ่งที่ต้องทำ</h2><div class="sub">วางแผนชีวิตและติดตามงานสำคัญ</div></div>
     <div class="page-head-actions">
-      <button class="btn btn-ghost btn-sm" onclick="sw('dashboard',null)">⌂ ภาพรวม</button>
+      <button class="btn btn-ghost btn-sm" onclick="sw('todo',null)">⌂ ภาพรวม</button>
       <button class="btn btn-pri btn-sm" onclick="openTM()">+ เพิ่มรายการ</button>
     </div>
   </div>
@@ -883,7 +889,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
     </tr></thead><tbody id="todo-done-body"></tbody></table>
   </div>
 </div>
-<div id="page-dashboard" class="page active">
+<div id="page-dashboard" class="page">
   <div class="dash-new-head">
     <div>
       <div class="dash-eyebrow">HAPPY MONEY · OVERVIEW</div>
@@ -990,7 +996,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   <div class="page-head">
     <div><h2 class="desk-only">🧾 รายรับ - รายจ่าย</h2><div class="sub">รายการประจำ — เพิ่มครั้งเดียว ใช้ทุกเดือน</div></div>
     <div class="page-head-actions">
-      <button class="btn btn-ghost btn-sm" onclick="sw('dashboard',null)">⌂ ภาพรวม</button>
+      <button class="btn btn-ghost btn-sm" onclick="sw('todo',null)">⌂ ภาพรวม</button>
       <div class="mnav">
         <select class="styled" id="budget-yr-sel" onchange="onBudgetPeriodChange()"></select>
         <select class="styled" id="budget-mo-sel" onchange="onBudgetPeriodChange()"></select>
@@ -1126,7 +1132,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
       <button class="btn btn-export btn-sm" onclick="exportDebt()">↓ Export</button>
       <button class="btn btn-ghost btn-sm" onclick="openCatMgr()">⚙ ประเภท</button>
       <button class="btn btn-pri btn-sm" onclick="openDM()">+ เพิ่มบัตร/สินเชื่อ</button>
-      <button class="db-bell" title="ไปหน้าภาพรวม" onclick="sw('dashboard',null)">⌂ ภาพรวม</button>
+      <button class="db-bell" title="ไปหน้าภาพรวม" onclick="sw('todo',null)">⌂ ภาพรวม</button>
       <div class="db-avatar" title="ผู้ใช้งาน">👤</div>
     </div>
   </div>
@@ -1164,7 +1170,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   <div class="page-head">
     <div><h2 class="desk-only">💹 ภาพรวมการลงทุน</h2><div class="sub">หุ้นปันผล · ออมทอง · ทรัพย์สิน</div></div>
     <div class="page-head-actions">
-      <button class="btn btn-ghost btn-sm" onclick="sw('dashboard',null)">⌂ ภาพรวม</button>
+      <button class="btn btn-ghost btn-sm" onclick="sw('todo',null)">⌂ ภาพรวม</button>
       <span style="font-size:12px;color:var(--g400)">ปีปันผล:</span>
       <select class="styled" id="stk-yr-sel" onchange="renderInvest()"></select>
       <button class="btn btn-export btn-sm" onclick="exportInvest()">↓ Export</button>
@@ -1365,7 +1371,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   <div class="page-head">
     <div><h2 class="desk-only">🎫 สมัครสมาชิกแอพ</h2><div class="sub">ติดตามวันต่ออายุ</div></div>
     <div class="page-head-actions">
-      <button class="btn btn-ghost btn-sm" onclick="sw('dashboard',null)">⌂ ภาพรวม</button>
+      <button class="btn btn-ghost btn-sm" onclick="sw('todo',null)">⌂ ภาพรวม</button>
       <button class="btn btn-pri btn-sm" onclick="openSubM()">+ เพิ่ม</button>
     </div>
   </div>
@@ -1392,7 +1398,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   <div class="page-head">
     <div><h2 class="desk-only">💼 รายได้เสริม</h2><div class="sub">บันทึกรายได้จากงานเสริมแยกตามแอพ</div></div>
     <div class="page-head-actions">
-      <button class="btn btn-ghost btn-sm" onclick="sw('dashboard',null)">⌂ ภาพรวม</button>
+      <button class="btn btn-ghost btn-sm" onclick="sw('todo',null)">⌂ ภาพรวม</button>
     </div>
   </div>
 
@@ -1486,7 +1492,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   <div class="page-head">
     <div><h2 class="desk-only">🔐 User-Login</h2><div class="sub">บัญชี / รหัสผ่าน / บริการต่างๆ</div></div>
     <div class="page-head-actions">
-      <button class="btn btn-ghost btn-sm" onclick="sw('dashboard',null)">⌂ ภาพรวม</button>
+      <button class="btn btn-ghost btn-sm" onclick="sw('todo',null)">⌂ ภาพรวม</button>
       <input type="text" id="login-search" placeholder="🔍 ค้นหาหัวข้อ, user, ประเภท..." oninput="renderLogins()"
         style="border:1px solid var(--g200);border-radius:8px;padding:5px 10px;font-size:12px;font-family:var(--font);width:200px">
       <button class="btn btn-ghost btn-sm" id="login-pw-toggle" onclick="togAllPw()">👁 แสดงรหัสผ่าน</button>
@@ -1509,7 +1515,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 <nav class="mob-nav">
   <div class="mob-nav-inner">
     <div class="mob-tab" data-page="todo" onclick="swMob('todo',this,'สิ่งที่ต้องทำ')"><div class="micon">📝</div><div class="mlbl">ต้องทำ</div></div>
-    <div class="mob-tab active" data-page="dashboard" onclick="swMob('dashboard',this,'ภาพรวม')"><div class="micon">★</div><div class="mlbl">ภาพรวม</div></div>
+<div class="mlbl">ภาพรวม</div></div>
     <div class="mob-tab" data-page="budget" onclick="swMob('budget',this,'รายรับ-รายจ่าย')"><div class="micon">🧾</div><div class="mlbl">รายรับ-จ่าย</div></div>
     <div class="mob-tab" data-page="debt" onclick="swMob('debt',this,'หนี้สิน')"><div class="micon">📉</div><div class="mlbl">หนี้สิน</div></div>
     <div class="mob-tab" data-page="invest" onclick="swMob('invest',this,'การลงทุน')"><div class="micon">💹</div><div class="mlbl">ลงทุน</div></div>
@@ -1929,15 +1935,11 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   <h3 id="vehicle-maint-title">🔧 เพิ่มรายการบำรุงรักษา</h3>
   <input type="hidden" id="vehicle-maint-id-f">
   <div class="f"><label>รถ *</label><select id="vehicle-maint-vehicle-f"></select></div>
-  <div class="f-row">
-    <div class="f"><label>วันที่ทำ *</label><input id="vehicle-maint-date-f" type="date"></div>
-    <div class="f"><label>อะไหล่ / รายการที่ทำ *</label><input id="vehicle-maint-item-f" type="text" placeholder="เช่น เปลี่ยนน้ำมันเครื่อง"></div>
-  </div>
-  <div class="f-row">
-    <div class="f"><label>ราคา (บาท)</label><input id="vehicle-maint-price-f" type="number" min="0" step="0.01" placeholder="0"></div>
-    <div class="f"><label>ลิงก์ซื้ออะไหล่</label><input id="vehicle-maint-link-f" type="url" placeholder="https://..."></div>
-  </div>
-  <div class="f"><label>หมายเหตุ</label><input id="vehicle-maint-note-f" type="text" placeholder="เช่น ทำที่ศูนย์ / ร้าน / เปลี่ยนพร้อมกัน 2 รายการ"></div>
+  <div class="f"><label>วันที่ทำ *</label><input id="vehicle-maint-date-f" type="date"></div>
+  <div class="f"><label>อะไหล่ / รายการที่เปลี่ยน</label></div>
+  <div id="vehicle-maint-items-f" style="display:grid;gap:8px"></div>
+  <button type="button" class="btn btn-ghost btn-sm" onclick="addVehicleMaintenanceRow()" style="margin-top:8px">＋ เพิ่มอะไหล่อีกรายการ</button>
+  <div class="f"><label>หมายเหตุรวม</label><input id="vehicle-maint-note-f" type="text" placeholder="เช่น ทำที่ศูนย์ / ร้าน / เปลี่ยนพร้อมกันหลายรายการ"></div>
   <div class="modal-actions"><button class="btn btn-ghost" onclick="closeOv('vehicle-maint-ov')">ยกเลิก</button><button class="btn btn-pri" onclick="saveVehicleMaintenance()">บันทึก</button></div>
 </div></di
 <!-- Login -->
@@ -2530,7 +2532,7 @@ async function retryStartupSync(){
 }
 function renderAllCurrentData(){
   applyPageVisibility();
-  if(curPage==='dashboard')renderDashboard();
+  if(curPage==='dashboard'){curPage='todo';renderTodo();}
   else if(curPage==='budget')renderBudget();
   else if(curPage==='debt')renderDebt();
   else if(curPage==='invest')renderInvest();
@@ -2545,7 +2547,7 @@ function initializeAppAfterCloud(){
   appInitialized=true;
   initYearSelectors();
   applyPageVisibility();
-  renderDashboard();
+  renderTodo();
   startFirestoreRealtime();
 }
 
@@ -2571,15 +2573,15 @@ document.addEventListener('DOMContentLoaded',async function(){
 });
 
 // ══ PAGE SWITCH ══
-let curPage='dashboard';
+let curPage='todo';
 function sw(id,el){
+  if(id==='dashboard')id='todo';
   curPage=id;
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
-  document.getElementById('page-'+id).classList.add('active');
+  const pageEl=document.getElementById('page-'+id);if(pageEl)pageEl.classList.add('active');
   if(el)el.classList.add('active');
-  if(id==='dashboard')renderDashboard();
-  else if(id==='budget')renderBudget();
+  if(id==='budget')renderBudget();
   else if(id==='debt')renderDebt();
   else if(id==='invest')renderInvest();
   else if(id==='subscription')renderSub();
@@ -2601,7 +2603,6 @@ document.querySelectorAll('.ov').forEach(o=>o.addEventListener('click',e=>{ if(e
 
 // ══ PAGE VISIBILITY (ซ่อน/เปิดใช้งานหน้า) ══
 const ALL_PAGES=[
-  {id:'dashboard',label:'★ ภาพรวม',locked:true},
   {id:'todo',label:'📝 สิ่งที่ต้องทำ'},
   {id:'budget',label:'🧾 รายรับ-รายจ่าย'},
   {id:'debt',label:'📉 หนี้สิน'},
@@ -2685,7 +2686,8 @@ function applyPageVisibility(){
   });
   syncCurrentPageTitle();
   if(hidden.includes(curPage)){
-    sw('dashboard',document.querySelector('.nav-tab[data-page="dashboard"]'));
+    const fallback=getPageOrder().find(id=>!hidden.includes(id))||'todo';
+    sw(fallback,document.querySelector(`.nav-tab[data-page="${fallback}"]`));
   }
 }
 function openPageMgr(){
@@ -2706,7 +2708,7 @@ function renderPageMgrList(){
       </span>
       <div style="flex:1;min-width:0">
         <div style="font-size:11px;color:var(--g400);margin-bottom:4px">ชื่อเมนู</div>
-        <input type="text" value="${escHtml(getPageLabel(p))}" onkeydown="if(event.key==='Enter'){this.blur()}" onchange="savePageName('${p.id}',this.value)" style="width:100%;box-sizing:border-box;border:1px solid var(--g200);border-radius:8px;background:var(--input-bg);color:var(--g900);padding:8px 9px;font:700 13px var(--font)" maxlength="40">
+        <div style="display:flex;gap:6px"><input type="text" id="pname-${p.id}" value="${escHtml(getPageLabel(p))}" onkeydown="if(event.key==='Enter'){savePageName('${p.id}',this.value)}" style="flex:1;min-width:0;box-sizing:border-box;border:1px solid var(--g200);border-radius:8px;background:var(--input-bg);color:var(--g900);padding:8px 9px;font:700 13px var(--font)" maxlength="40"><button type="button" class="btn btn-sm btn-pri" onclick="savePageName('${p.id}',document.getElementById('pname-${p.id}').value)">บันทึก</button></div>
       </div>
       ${custom?`<button class="btn btn-sm btn-ghost" onclick="resetPageName('${p.id}')" title="คืนชื่อเดิม">↺</button>`:''}
       ${p.locked?'<span style="font-size:11px;color:var(--g400);white-space:nowrap">แสดงเสมอ</span>':`<button class="btn btn-sm ${isHidden?'btn-pri':'btn-ghost'}" onclick="togglePageVisibility('${p.id}')">${isHidden?'เปิดแสดง':'ซ่อน'}</button>`}
@@ -3175,36 +3177,54 @@ function renderVehicleRegistry(){
   box.innerHTML=arr.map(v=>`<div class="vehicle-reg-card"><div class="vehicle-reg-top"><div><div class="vehicle-reg-model">${escHtml(v.model)}</div><span class="vehicle-reg-plate">${escHtml(v.plate)}</span><div class="vehicle-reg-meta">${v.year?`ปีรถ ${escHtml(v.year)} • `:''}${escHtml(v.note||'ไม่มีหมายเหตุ')}</div></div><div class="vehicle-actions"><button class="icon-btn" title="แก้ไข" onclick="openVehicle('${v.id}')">✏</button><button class="icon-btn danger" title="ลบ" onclick="deleteVehicle('${v.id}')">🗑</button></div></div></div>`).join('');
 }
 let vehicleEditingPeriod={y:null,m:null};
+function vehicleMaintenanceItems(item){
+  if(Array.isArray(item?.items)&&item.items.length)return item.items.map(x=>({item:String(x.item||'').trim(),price:Number(x.price)||0,link:String(x.link||'').trim()})).filter(x=>x.item);
+  if(item?.item)return [{item:String(item.item),price:Number(item.price)||0,link:String(item.link||'').trim()}];
+  return [];
+}
+function addVehicleMaintenanceRow(data={}){
+  const box=document.getElementById('vehicle-maint-items-f');if(!box)return;
+  const row=document.createElement('div');row.className='vehicle-maint-edit-row';
+  row.style.cssText='display:grid;grid-template-columns:minmax(0,1.25fr) 120px minmax(0,1fr) auto;gap:7px;align-items:center;padding:8px;background:var(--g50);border:1px solid var(--g100);border-radius:10px';
+  row.innerHTML=`<input class="vm-item" type="text" placeholder="เช่น เปลี่ยนน้ำมันเครื่อง" value="${escHtml(data.item||'')}"><input class="vm-price" type="number" min="0" step="0.01" placeholder="ราคา" value="${data.price??''}"><input class="vm-link" type="url" placeholder="ลิงก์ซื้ออะไหล่" value="${escHtml(data.link||'')}"><button type="button" class="icon-btn danger vm-remove" title="ลบรายการ">🗑</button>`;
+  row.querySelector('.vm-remove').onclick=()=>{if(box.children.length>1)row.remove();else row.querySelector('.vm-item').value=''};
+  box.appendChild(row);
+}
 function openVehicleMaintenance(id){
   const item=id?getVehicleMaintenance(cy,cm).find(x=>String(x.id)===String(id)):null,arr=getVehicles();
   if(!arr.length){alert('กรุณาลงทะเบียนรถก่อน');showBudgetSection('vehicle');openVehicle();return}
   const sel=document.getElementById('vehicle-maint-vehicle-f');sel.innerHTML=arr.map(v=>`<option value="${v.id}">${escHtml(v.model)} • ${escHtml(v.plate)}</option>`).join('');
   vehicleEditingPeriod={y:cy,m:cm};
   document.getElementById('vehicle-maint-id-f').value=item?.id||'';document.getElementById('vehicle-maint-vehicle-f').value=item?.vehicleId||arr[0].id;
-  document.getElementById('vehicle-maint-date-f').value=item?.date||`${cy}-${String(cm).padStart(2,'0')}-01`;document.getElementById('vehicle-maint-item-f').value=item?.item||'';
-  document.getElementById('vehicle-maint-price-f').value=item?.price??'';document.getElementById('vehicle-maint-link-f').value=item?.link||'';document.getElementById('vehicle-maint-note-f').value=item?.note||'';
-  document.getElementById('vehicle-maint-title').textContent=item?'✏️ แก้ไขรายการบำรุงรักษา':'🔧 เพิ่มรายการบำรุงรักษา';document.getElementById('vehicle-maint-ov').classList.add('open');setTimeout(()=>document.getElementById('vehicle-maint-item-f')?.focus(),40);
+  document.getElementById('vehicle-maint-date-f').value=item?.date||`${cy}-${String(cm+1).padStart(2,'0')}-01`;
+  document.getElementById('vehicle-maint-note-f').value=item?.note||'';
+  const box=document.getElementById('vehicle-maint-items-f');if(box)box.innerHTML='';
+  const rows=vehicleMaintenanceItems(item);(rows.length?rows:[{}]).forEach(x=>addVehicleMaintenanceRow(x));
+  document.getElementById('vehicle-maint-title').textContent=item?'✏️ แก้ไขรายการบำรุงรักษา':'🔧 เพิ่มรายการบำรุงรักษา';document.getElementById('vehicle-maint-ov').classList.add('open');setTimeout(()=>document.querySelector('#vehicle-maint-items-f .vm-item')?.focus(),40);
+}
+function collectVehicleMaintenanceItems(){
+  return [...document.querySelectorAll('#vehicle-maint-items-f .vehicle-maint-edit-row')].map(row=>({item:(row.querySelector('.vm-item')?.value||'').trim(),price:Math.max(0,Number(row.querySelector('.vm-price')?.value)||0),link:(row.querySelector('.vm-link')?.value||'').trim()})).filter(x=>x.item);
 }
 function saveVehicleMaintenance(){
-  const vehicleId=document.getElementById('vehicle-maint-vehicle-f').value,date=document.getElementById('vehicle-maint-date-f').value,item=(document.getElementById('vehicle-maint-item-f').value||'').trim();
-  if(!vehicleId||!date||!item){alert('กรุณาเลือกรถ วันที่ และรายการที่ทำ');return}
-  const v=vehicleById(vehicleId);if(!v)return;const price=Math.max(0,Number(document.getElementById('vehicle-maint-price-f').value)||0),link=(document.getElementById('vehicle-maint-link-f').value||'').trim(),note=(document.getElementById('vehicle-maint-note-f').value||'').trim(),id=document.getElementById('vehicle-maint-id-f').value,now=Date.now();
-  const data={vehicleId,model:v.model,plate:v.plate,date,item,price,link,note};
-  const targetY=parseInt(date.slice(0,4)),targetM=parseInt(date.slice(5,7)); if(!targetY||!targetM){alert('วันที่ไม่ถูกต้อง');return}
+  const vehicleId=document.getElementById('vehicle-maint-vehicle-f').value,date=document.getElementById('vehicle-maint-date-f').value,items=collectVehicleMaintenanceItems();
+  if(!vehicleId||!date||!items.length){alert('กรุณาเลือกรถ วันที่ และกรอกอะไหล่อย่างน้อย 1 รายการ');return}
+  const v=vehicleById(vehicleId);if(!v)return;const note=(document.getElementById('vehicle-maint-note-f').value||'').trim(),id=document.getElementById('vehicle-maint-id-f').value,now=Date.now();
+  const total=items.reduce((s,x)=>s+x.price,0),data={vehicleId,model:v.model,plate:v.plate,date,items,item:items[0].item,price:total,link:items[0].link,note};
+  const targetY=parseInt(date.slice(0,4)),targetM=parseInt(date.slice(5,7))-1;if(!targetY||targetM<0||targetM>11){alert('วันที่ไม่ถูกต้อง');return}
   if(id){
     const oldY=vehicleEditingPeriod.y??cy,oldM=vehicleEditingPeriod.m??cm,oldArr=getVehicleMaintenance(oldY,oldM),i=oldArr.findIndex(x=>String(x.id)===String(id));
     if(i>=0){const oldItem=oldArr[i];oldArr.splice(i,1);saveVehicleMaintenanceItems(oldY,oldM,oldArr);data.id=oldItem.id;data.createdAt=oldItem.createdAt||now;data.updatedAt=now;const target=getVehicleMaintenance(targetY,targetM);target.push(data);saveVehicleMaintenanceItems(targetY,targetM,target)}
   }else{const target=getVehicleMaintenance(targetY,targetM);target.push({id:`vmaint_${now}_${Math.random().toString(36).slice(2,7)}`,...data,createdAt:now});saveVehicleMaintenanceItems(targetY,targetM,target)}
-  closeOv('vehicle-maint-ov');renderVehicleMaintenance();addHist('vehicle',id?'แก้ไขบำรุงรักษา':'เพิ่มบำรุงรักษา',`${v.model} • ${v.plate} • ${item} = ${fmt(price)}`);
+  closeOv('vehicle-maint-ov');renderVehicleMaintenance();addHist('vehicle',id?'แก้ไขบำรุงรักษา':'เพิ่มบำรุงรักษา',`${v.model} • ${v.plate} • ${items.length} รายการ = ${fmt(total)}`);
 }
-function deleteVehicleMaintenance(id){const arr=getVehicleMaintenance(cy,cm),item=arr.find(x=>String(x.id)===String(id));if(!item)return;if(!confirm(`ลบรายการ “${item.item}” ใช่หรือไม่?`))return;saveVehicleMaintenanceItems(cy,cm,arr.filter(x=>String(x.id)!==String(id)));renderVehicleMaintenance();addHist('vehicle','ลบบำรุงรักษา',`${item.model} • ${item.item}`)}
+function deleteVehicleMaintenance(id){const arr=getVehicleMaintenance(cy,cm),item=arr.find(x=>String(x.id)===String(id));if(!item)return;if(!confirm(`ลบรายการบำรุงรักษา ${item.model} วันที่ ${item.date} ใช่หรือไม่?`))return;saveVehicleMaintenanceItems(cy,cm,arr.filter(x=>String(x.id)!==String(id)));renderVehicleMaintenance();addHist('vehicle','ลบบำรุงรักษา',`${item.model} • ${item.date}`)}
 function renderVehicleMaintenance(){
   const box=document.getElementById('vehicle-maint-groups');if(!box)return;const vehicles=getVehicles(),arr=getVehicleMaintenance(cy,cm),filter=document.getElementById('vehicle-model-filter')?.value||'';
-  document.getElementById('vehicle-count').textContent=vehicles.length+' คัน';document.getElementById('vehicle-maint-count').textContent=arr.length+' รายการ';const total=arr.reduce((a,x)=>a+(Number(x.price)||0),0);document.getElementById('vehicle-maint-total').textContent=fmt(total);document.getElementById('vehicle-maint-foot').textContent=fmt(total);
+  document.getElementById('vehicle-count').textContent=vehicles.length+' คัน';document.getElementById('vehicle-maint-count').textContent=arr.length+' ครั้ง';const total=arr.reduce((a,x)=>a+(Number(x.price)||vehicleMaintenanceItems(x).reduce((s,i)=>s+i.price,0)),0);document.getElementById('vehicle-maint-total').textContent=fmt(total);document.getElementById('vehicle-maint-foot').textContent=fmt(total);
   const models=[...new Set(vehicles.map(v=>v.model).filter(Boolean))].sort();const fs=document.getElementById('vehicle-model-filter');if(fs){const old=fs.value;fs.innerHTML='<option value="">ทุกรุ่น</option>'+models.map(m=>`<option value="${escHtml(m)}">${escHtml(m)}</option>`).join('');fs.value=models.includes(old)?old:''}
   const filtered=filter?arr.filter(x=>x.model===filter):arr;const groups={};filtered.forEach(x=>(groups[x.model]??=[]).push(x));document.getElementById('vehicle-model-count').textContent=Object.keys(groups).length+' รุ่น';
   if(!filtered.length){box.innerHTML='<div class="vehicle-empty">เดือนนี้ยังไม่มีประวัติบำรุงรักษาในรุ่นที่เลือก 🔧</div>';return}
-  box.innerHTML=Object.keys(groups).sort().map(model=>{const rows=groups[model],sum=rows.reduce((a,x)=>a+(Number(x.price)||0),0);return `<div class="vehicle-group"><div class="vehicle-group-title"><strong>🚗 ${escHtml(model)}</strong><span>${rows.length} รายการ • รวม ${fmt(sum)}</span></div><div class="table-scroll"><table class="tbl vehicle-maint-table"><thead><tr><th style="width:11%">วันที่</th><th style="width:17%">รุ่นรถ</th><th style="width:15%">ทะเบียน</th><th style="width:25%">อะไหล่ / รายการที่ทำ</th><th style="width:13%;text-align:right">ราคา</th><th style="width:14%">ลิงก์ซื้อ</th><th style="width:15%;text-align:center">จัดการ</th></tr></thead><tbody>${rows.sort((a,b)=>String(a.date).localeCompare(String(b.date))).map(x=>`<tr><td>${escHtml(x.date)}</td><td><strong>${escHtml(x.model)}</strong></td><td><strong>${escHtml(x.plate)}</strong></td><td><strong>${escHtml(x.item)}</strong>${x.note?`<div class="sub">${escHtml(x.note)}</div>`:''}</td><td class="tr"><strong>${fmt(Number(x.price)||0)}</strong></td><td>${x.link?`<a class="vehicle-link" href="${safeUrl(x.link)}" target="_blank" rel="noopener">🔗 ซื้อ</a>`:'<span class="badge b-gray">ไม่มีลิงก์</span>'}</td><td class="tc"><button class="icon-btn" title="แก้ไข" onclick="openVehicleMaintenance('${x.id}')">✏</button> <button class="icon-btn danger" title="ลบ" onclick="deleteVehicleMaintenance('${x.id}')">🗑</button></td></tr>`).join('')}</tbody></table></div></div>`}).join('');
+  box.innerHTML=Object.keys(groups).sort().map(model=>{const rows=groups[model],sum=rows.reduce((a,x)=>a+(Number(x.price)||vehicleMaintenanceItems(x).reduce((s,i)=>s+i.price,0)),0);return `<div class="vehicle-group"><div class="vehicle-group-title"><strong>🚗 ${escHtml(model)}</strong><span>${rows.length} ครั้ง • รวม ${fmt(sum)}</span></div><div class="table-scroll"><table class="tbl vehicle-maint-table"><thead><tr><th style="width:11%">วันที่</th><th style="width:15%">รุ่นรถ</th><th style="width:14%">ทะเบียน</th><th style="width:32%">อะไหล่ / รายการที่ทำ</th><th style="width:12%;text-align:right">รวม</th><th style="width:8%">ลิงก์</th><th style="width:8%;text-align:center">จัดการ</th></tr></thead><tbody>${rows.sort((a,b)=>String(a.date).localeCompare(String(b.date))).map(x=>{const its=vehicleMaintenanceItems(x),sumx=Number(x.price)||its.reduce((s,i)=>s+i.price,0);return `<tr><td>${escHtml(x.date)}</td><td><strong>${escHtml(x.model)}</strong></td><td><strong>${escHtml(x.plate)}</strong></td><td><div style="display:grid;gap:3px">${its.map((it,n)=>`<div style="display:flex;justify-content:space-between;gap:8px;align-items:center"><span><b>${n+1}.</b> ${escHtml(it.item)}</span><span style="white-space:nowrap;font-weight:700">${fmt(it.price)}</span></div>`).join('')}</div>${x.note?`<div class="sub" style="margin-top:4px">${escHtml(x.note)}</div>`:''}</td><td class="tr"><strong>${fmt(sumx)}</strong></td><td>${its.some(i=>i.link)?its.filter(i=>i.link).map((i,n)=>`<a class="vehicle-link" href="${safeUrl(i.link)}" target="_blank" rel="noopener">🔗 ${n+1}</a>`).join(' '):'<span class="badge b-gray">—</span>'}</td><td class="tc"><button class="icon-btn" title="แก้ไข" onclick="openVehicleMaintenance('${x.id}')">✏</button> <button class="icon-btn danger" title="ลบ" onclick="deleteVehicleMaintenance('${x.id}')">🗑</button></td></tr>`}).join('')}</tbody></table></div></div>`}).join('');
 }
 
 function showBudgetSection(section){
