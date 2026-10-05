@@ -761,6 +761,8 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 /* ── Vehicle maintenance ── */
 .vehicle-tabs{display:flex;gap:6px;background:var(--g50);border:1px solid var(--g100);padding:4px;border-radius:11px;width:max-content;margin:0 0 12px}.vehicle-tab{border:0;background:transparent;color:var(--g500);font:700 13px var(--font);padding:8px 14px;border-radius:8px;cursor:pointer}.vehicle-tab.active{background:#fff;color:var(--g900);box-shadow:0 2px 8px rgba(15,23,42,.08)}
 .vehicle-group{margin:0 0 14px}.vehicle-group-title{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;background:var(--g50);border:1px solid var(--g100);border-bottom:0;border-radius:10px 10px 0 0}.vehicle-group-title strong{font-size:14px}.vehicle-group-title span{font-size:11px;color:var(--g500)}.vehicle-maint-table{width:100%}.vehicle-maint-table th,.vehicle-maint-table td{vertical-align:middle}.vehicle-reg-card{padding:14px;border:1px solid var(--g100);border-radius:10px;margin-bottom:10px;background:var(--input-bg)}.vehicle-reg-top{display:flex;align-items:center;justify-content:space-between;gap:10px}.vehicle-reg-model{font-size:16px;font-weight:800;color:var(--g900)}.vehicle-reg-plate{display:inline-block;margin-top:5px;padding:4px 9px;border:1px solid var(--g200);border-radius:7px;background:#fff;font-weight:800;letter-spacing:.5px}.vehicle-reg-meta{font-size:11px;color:var(--g500);margin-top:7px}.vehicle-actions{display:flex;gap:5px}.vehicle-link{display:inline-flex;align-items:center;padding:5px 8px;border-radius:7px;background:#eff6ff;color:#2563eb;text-decoration:none;font-size:11px;font-weight:700}.vehicle-empty{padding:24px;text-align:center;color:var(--g400)}
+.vehicle-part-row .f label{display:block}
+@media(max-width:760px){.vehicle-part-row{grid-template-columns:1fr!important}.vehicle-part-row .icon-btn{justify-self:end}}
 @media(max-width:760px){.vehicle-tabs{width:100%;display:grid;grid-template-columns:1fr 1fr}.vehicle-tab{width:100%}.vehicle-group-title{align-items:flex-start}.vehicle-maint-table{min-width:760px}.vehicle-reg-top{align-items:flex-start}.vehicle-summary{grid-template-columns:1fr 1fr}}
 /* ── Budget sub-pages / home shopping checklist ── */
 .budget-tabs{display:flex;gap:6px;background:var(--g50);border:1px solid var(--g100);padding:4px;border-radius:11px;width:max-content;margin:0 0 12px}
@@ -832,7 +834,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   <div class="page-head">
     <div><h2 class="desk-only">📝 สิ่งที่ต้องทำ</h2><div class="sub">วางแผนชีวิตและติดตามงานสำคัญ</div></div>
     <div class="page-head-actions">
-      <button class="btn btn-ghost btn-sm" onclick="sw('dashboard',null)">⌂ ภาพรวม</button>
+      
       <button class="btn btn-pri btn-sm" onclick="openTM()">+ เพิ่มรายการ</button>
     </div>
   </div>
@@ -876,114 +878,12 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
     </tr></thead><tbody id="todo-done-body"></tbody></table>
   </div>
 </div>
-<div id="page-dashboard" class="page active">
-  <div class="dash-new-head">
-    <div>
-      <div class="dash-eyebrow">HAPPY MONEY · OVERVIEW</div>
-      <h2>ภาพรวมการเงิน</h2>
-      <div class="dash-date" id="dash-sub">ภาพรวมสถานะการเงินของคุณ</div>
-    </div>
-    <div class="dash-period">
-      <select class="styled" id="dash-yr-sel" onchange="onDashPeriodChange()"></select>
-      <select class="styled" id="dash-mo-sel" onchange="onDashPeriodChange()"></select>
-    </div>
-  </div>
-
-  <div class="dash-hero">
-    <div class="dash-hero-main">
-      <div class="dash-hero-label">เงินคงเหลือเดือนนี้</div>
-      <div class="dash-hero-value" id="dash-net-main">฿0</div>
-      <div class="dash-hero-foot">
-        <span id="dash-net-status">กำลังคำนวณ...</span>
-        <span class="dash-hero-dot">•</span>
-        <span>อัตราเหลือ <b id="dash-save-rate">0%</b></span>
-      </div>
-    </div>
-    <div class="dash-hero-side">
-      <div class="dash-mini"><span>รายรับ</span><strong id="kpi-inc">฿0</strong></div>
-      <div class="dash-mini"><span>รายจ่าย</span><strong id="kpi-exp">฿0</strong></div>
-      <div class="dash-mini"><span>จ่ายแล้ว</span><strong id="dash-paid">฿0</strong></div>
-      <div class="dash-mini"><span>ยังไม่จ่าย</span><strong id="dash-unpaid">฿0</strong></div>
-    </div>
-  </div>
-
-  <div class="dash-kpi-grid">
-    <div class="dash-kpi-card green"><div class="dash-kpi-icon">↗</div><div><span>รายรับเดือนนี้</span><strong id="dash-kpi-income">฿0</strong><small id="dash-kpi-income-sub">—</small></div></div>
-    <div class="dash-kpi-card orange"><div class="dash-kpi-icon">↘</div><div><span>รายจ่ายเดือนนี้</span><strong id="dash-kpi-expense">฿0</strong><small id="dash-kpi-expense-sub">—</small></div></div>
-    <div class="dash-kpi-card blue"><div class="dash-kpi-icon">🛵</div><div><span>Rider สุทธิ</span><strong id="dash-kpi-rider">฿0</strong><small id="dash-kpi-rider-sub">ยังไม่มีข้อมูล</small></div></div>
-    <div class="dash-kpi-card purple"><div class="dash-kpi-icon">🎫</div><div><span>ค่าสมาชิกรายเดือน</span><strong id="dash-kpi-sub">฿0</strong><small id="dash-kpi-sub-sub">0 รายการที่ใช้งาน</small></div></div>
-  </div>
-
-  <div class="dash-main-grid">
-    <section class="dash-panel dash-wide">
-      <div class="dash-panel-head">
-        <div><span class="dash-panel-kicker">กระแสเงินสด</span><h3>รายรับ · รายจ่าย 6 เดือนล่าสุด</h3></div>
-        <span class="dash-chip" id="dash-cash-chip">คงเหลือ ฿0</span>
-      </div>
-      <div class="dash-chart-lg"><canvas id="ch-cashflow"></canvas></div>
-    </section>
-    <section class="dash-panel">
-      <div class="dash-panel-head">
-        <div><span class="dash-panel-kicker">โครงสร้างรายจ่าย</span><h3>ใช้เงินไปกับอะไร</h3></div>
-      </div>
-      <div class="dash-chart-donut"><canvas id="ch-cat"></canvas></div>
-      <div class="dash-cat-list" id="dash-cat-list"></div>
-    </section>
-  </div>
-
-  <div class="dash-snapshot-grid">
-    <section class="dash-panel dash-snapshot">
-      <div class="dash-panel-head"><div><span class="dash-panel-kicker">หนี้สิน</span><h3>สถานะวงเงิน</h3></div><button class="dash-link" onclick="sw('debt',null)">ดูทั้งหมด →</button></div>
-      <div class="dash-snapshot-value" id="dash-debt-used">฿0</div>
-      <div class="dash-snapshot-label">ยอดเบิกใช้จากหนี้ที่เปิดใช้งาน</div>
-      <div class="dash-progress"><span id="dash-debt-bar"></span></div>
-      <div class="dash-snapshot-row"><span>วงเงินรวม <b id="dash-debt-limit">฿0</b></span><span>เหลือ <b id="dash-debt-left">฿0</b></span></div>
-    </section>
-    <section class="dash-panel dash-snapshot">
-      <div class="dash-panel-head"><div><span class="dash-panel-kicker">รายได้เสริม</span><h3>Rider App</h3></div><button class="dash-link" onclick="sw('sideincome',null)">เปิด Rider →</button></div>
-      <div class="dash-snapshot-value" id="dash-rider-net">฿0</div>
-      <div class="dash-snapshot-label">คงเหลือสุทธิเดือนที่เลือก</div>
-      <div class="dash-progress rider"><span id="dash-rider-bar"></span></div>
-      <div class="dash-snapshot-row"><span>รายรับ <b id="dash-rider-inc">฿0</b></span><span>ทำงาน <b id="dash-rider-days">0 วัน</b></span></div>
-    </section>
-    <section class="dash-panel dash-snapshot">
-      <div class="dash-panel-head"><div><span class="dash-panel-kicker">ภาระประจำ</span><h3>สมาชิกแอพ</h3></div><button class="dash-link" onclick="sw('subscription',null)">ดูรายการ →</button></div>
-      <div class="dash-snapshot-value" id="dash-sub-monthly">฿0</div>
-      <div class="dash-snapshot-label">ค่าใช้จ่ายเฉลี่ยต่อเดือน</div>
-      <div class="dash-snapshot-row two"><span>ต่อปี <b id="dash-sub-yearly">฿0</b></span><span>ใช้งาน <b id="dash-sub-active">0 รายการ</b></span></div>
-    </section>
-  </div>
-
-  <section class="dash-panel dash-year-panel">
-    <div class="dash-panel-head dash-year-head">
-      <div><span class="dash-panel-kicker">ภาพรวมทั้งปี</span><h3>สรุป 12 เดือน</h3></div>
-      <select class="styled" id="yr-sel" onchange="dashY=parseInt(this.value);selMonth=null;renderYearSummary()"></select>
-    </div>
-    <div class="dash-year-totals">
-      <div><span>รายรับทั้งปี</span><strong id="yr-inc">฿0</strong></div>
-      <div><span>รายจ่ายทั้งปี</span><strong id="yr-exp">฿0</strong></div>
-      <div><span>คงเหลือสะสม</span><strong id="yr-bal">฿0</strong></div>
-      <div><span>เดือนที่มีข้อมูล</span><strong id="yr-mo">0 เดือน</strong></div>
-    </div>
-    <div class="year-grid dash-year-grid" id="year-grid"></div>
-    <div id="month-detail-panel"></div>
-  </section>
-
-  <section class="dash-panel dash-alert-panel">
-    <div class="dash-panel-head">
-      <div><span class="dash-panel-kicker">สิ่งที่ควรรู้</span><h3>การแจ้งเตือนล่าสุด</h3></div>
-      <button class="dash-link" onclick="renderAlerts()">รีเฟรช ↻</button>
-    </div>
-    <div id="dash-alerts"></div>
-  </section>
-</div>
-
 <!-- PAGE: BUDGET -->
 <div id="page-budget" class="page">
   <div class="page-head">
     <div><h2 class="desk-only">🧾 รายรับ - รายจ่าย</h2><div class="sub">รายการประจำ — เพิ่มครั้งเดียว ใช้ทุกเดือน</div></div>
     <div class="page-head-actions">
-      <button class="btn btn-ghost btn-sm" onclick="sw('dashboard',null)">⌂ ภาพรวม</button>
+      
       <div class="mnav">
         <select class="styled" id="budget-yr-sel" onchange="onBudgetPeriodChange()"></select>
         <select class="styled" id="budget-mo-sel" onchange="onBudgetPeriodChange()"></select>
@@ -1157,7 +1057,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   <div class="page-head">
     <div><h2 class="desk-only">💹 ภาพรวมการลงทุน</h2><div class="sub">หุ้นปันผล · ออมทอง · ทรัพย์สิน</div></div>
     <div class="page-head-actions">
-      <button class="btn btn-ghost btn-sm" onclick="sw('dashboard',null)">⌂ ภาพรวม</button>
+      
       <span style="font-size:12px;color:var(--g400)">ปีปันผล:</span>
       <select class="styled" id="stk-yr-sel" onchange="renderInvest()"></select>
       <button class="btn btn-export btn-sm" onclick="exportInvest()">↓ Export</button>
@@ -1358,7 +1258,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   <div class="page-head">
     <div><h2 class="desk-only">🎫 สมัครสมาชิกแอพ</h2><div class="sub">ติดตามวันต่ออายุ</div></div>
     <div class="page-head-actions">
-      <button class="btn btn-ghost btn-sm" onclick="sw('dashboard',null)">⌂ ภาพรวม</button>
+      
       <button class="btn btn-pri btn-sm" onclick="openSubM()">+ เพิ่ม</button>
     </div>
   </div>
@@ -1385,7 +1285,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   <div class="page-head">
     <div><h2 class="desk-only">💼 รายได้เสริม</h2><div class="sub">บันทึกรายได้จากงานเสริมแยกตามแอพ</div></div>
     <div class="page-head-actions">
-      <button class="btn btn-ghost btn-sm" onclick="sw('dashboard',null)">⌂ ภาพรวม</button>
+      
     </div>
   </div>
 
@@ -1479,7 +1379,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   <div class="page-head">
     <div><h2 class="desk-only">🔐 User-Login</h2><div class="sub">บัญชี / รหัสผ่าน / บริการต่างๆ</div></div>
     <div class="page-head-actions">
-      <button class="btn btn-ghost btn-sm" onclick="sw('dashboard',null)">⌂ ภาพรวม</button>
+      
       <input type="text" id="login-search" placeholder="🔍 ค้นหาหัวข้อ, user, ประเภท..." oninput="renderLogins()"
         style="border:1px solid var(--g200);border-radius:8px;padding:5px 10px;font-size:12px;font-family:var(--font);width:200px">
       <button class="btn btn-ghost btn-sm" id="login-pw-toggle" onclick="togAllPw()">👁 แสดงรหัสผ่าน</button>
@@ -1922,17 +1822,12 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   <h3 id="vehicle-maint-title">🔧 เพิ่มรายการบำรุงรักษา</h3>
   <input type="hidden" id="vehicle-maint-id-f">
   <div class="f"><label>รถ *</label><select id="vehicle-maint-vehicle-f"></select></div>
-  <div class="f-row">
-    <div class="f"><label>วันที่ทำ *</label><input id="vehicle-maint-date-f" type="date"></div>
-    <div class="f"><label>อะไหล่ / รายการที่ทำ *</label><input id="vehicle-maint-item-f" type="text" placeholder="เช่น เปลี่ยนน้ำมันเครื่อง"></div>
-  </div>
-  <div class="f-row">
-    <div class="f"><label>ราคา (บาท)</label><input id="vehicle-maint-price-f" type="number" min="0" step="0.01" placeholder="0"></div>
-    <div class="f"><label>ลิงก์ซื้ออะไหล่</label><input id="vehicle-maint-link-f" type="url" placeholder="https://..."></div>
-  </div>
-  <div class="f"><label>หมายเหตุ</label><input id="vehicle-maint-note-f" type="text" placeholder="เช่น ทำที่ศูนย์ / ร้าน / เปลี่ยนพร้อมกัน 2 รายการ"></div>
+  <div class="f"><label>วันที่ทำ *</label><input id="vehicle-maint-date-f" type="date"></div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin:10px 0 6px"><label style="font-size:12px;font-weight:800">อะไหล่ / รายการที่เปลี่ยน</label><button type="button" class="btn btn-ghost btn-sm" onclick="addVehiclePartRow()">+ เพิ่มอะไหล่</button></div>
+  <div id="vehicle-part-rows"></div>
+  <div class="f"><label>หมายเหตุรวม</label><input id="vehicle-maint-note-f" type="text" placeholder="เช่น ทำที่ศูนย์ / ร้าน / เปลี่ยนพร้อมกันหลายรายการ"></div>
   <div class="modal-actions"><button class="btn btn-ghost" onclick="closeOv('vehicle-maint-ov')">ยกเลิก</button><button class="btn btn-pri" onclick="saveVehicleMaintenance()">บันทึก</button></div>
-</div></di
+</div></div>
 <!-- Login -->
 <div class="ov" id="login-ov"><div class="modal">
   <span class="modal-drag"></span>
@@ -2538,7 +2433,7 @@ function initializeAppAfterCloud(){
   appInitialized=true;
   initYearSelectors();
   applyPageVisibility();
-  renderDashboard();
+  renderTodo();
   startFirestoreRealtime();
 }
 
@@ -2564,12 +2459,14 @@ document.addEventListener('DOMContentLoaded',async function(){
 });
 
 // ══ PAGE SWITCH ══
-let curPage='dashboard';
+let curPage='todo';
 function sw(id,el){
   curPage=id;
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
-  document.getElementById('page-'+id).classList.add('active');
+  const target=document.getElementById('page-'+id);
+  if(!target)return;
+  target.classList.add('active');
   if(el)el.classList.add('active');
   if(id==='dashboard')renderDashboard();
   else if(id==='budget')renderBudget();
@@ -2594,7 +2491,6 @@ document.querySelectorAll('.ov').forEach(o=>o.addEventListener('click',e=>{ if(e
 
 // ══ PAGE VISIBILITY (ซ่อน/เปิดใช้งานหน้า) ══
 const ALL_PAGES=[
-  {id:'dashboard',label:'★ ภาพรวม',locked:true},
   {id:'todo',label:'📝 สิ่งที่ต้องทำ'},
   {id:'budget',label:'🧾 รายรับ-รายจ่าย'},
   {id:'debt',label:'📉 หนี้สิน'},
@@ -2624,6 +2520,7 @@ function savePageName(id,value){
   addHist('settings','เปลี่ยนชื่อเมนู',`${page.label} → ${v||page.label}`);
   renderPageMgrList();applyPageVisibility();syncCurrentPageTitle();
 }
+function savePageNameFromMgr(id){const el=document.getElementById('pname-'+id);if(!el)return;savePageName(id,el.value)}
 function resetPageName(id){
   const page=ALL_PAGES.find(p=>p.id===id);if(!page)return;
   const names=getPageNames();delete names[id];lss(uKey('page_names_v1'),names);
@@ -2678,7 +2575,8 @@ function applyPageVisibility(){
   });
   syncCurrentPageTitle();
   if(hidden.includes(curPage)){
-    sw('dashboard',document.querySelector('.nav-tab[data-page="dashboard"]'));
+    const next=getPageOrder().find(id=>!hidden.includes(id));
+    if(next)sw(next,document.querySelector('.nav-tab[data-page="'+next+'"]'));
   }
 }
 function openPageMgr(){
@@ -2690,7 +2588,8 @@ function renderPageMgrList(){
   const order=getPageOrder();
   const names=getPageNames();
   const items=order.map(id=>ALL_PAGES.find(p=>p.id===id)).filter(Boolean);
-  document.getElementById('pagemgr-list').innerHTML=items.map((p,i)=>{
+  const box=document.getElementById('pagemgr-list');if(!box)return;
+  box.innerHTML=items.map((p,i)=>{
     const isHidden=hidden.includes(p.id),custom=!!names[p.id];
     return`<div class="pagemgr-row" style="gap:10px;align-items:center">
       <span class="reorder-btns">
@@ -2699,7 +2598,7 @@ function renderPageMgrList(){
       </span>
       <div style="flex:1;min-width:0">
         <div style="font-size:11px;color:var(--g400);margin-bottom:4px">ชื่อเมนู</div>
-        <input type="text" value="${escHtml(getPageLabel(p))}" onkeydown="if(event.key==='Enter'){this.blur()}" onchange="savePageName('${p.id}',this.value)" style="width:100%;box-sizing:border-box;border:1px solid var(--g200);border-radius:8px;background:var(--input-bg);color:var(--g900);padding:8px 9px;font:700 13px var(--font)" maxlength="40">
+        <div style="display:flex;gap:6px"><input type="text" id="pname-${p.id}" value="${escHtml(getPageLabel(p))}" style="flex:1;min-width:0;box-sizing:border-box;border:1px solid var(--g200);border-radius:8px;background:var(--input-bg);color:var(--g900);padding:8px 9px;font:700 13px var(--font)" maxlength="40"><button type="button" class="btn btn-sm btn-pri" onclick="savePageNameFromMgr('${p.id}')">บันทึก</button></div>
       </div>
       ${custom?`<button class="btn btn-sm btn-ghost" onclick="resetPageName('${p.id}')" title="คืนชื่อเดิม">↺</button>`:''}
       ${p.locked?'<span style="font-size:11px;color:var(--g400);white-space:nowrap">แสดงเสมอ</span>':`<button class="btn btn-sm ${isHidden?'btn-pri':'btn-ghost'}" onclick="togglePageVisibility('${p.id}')">${isHidden?'เปิดแสดง':'ซ่อน'}</button>`}
@@ -3168,36 +3067,43 @@ function renderVehicleRegistry(){
   box.innerHTML=arr.map(v=>`<div class="vehicle-reg-card"><div class="vehicle-reg-top"><div><div class="vehicle-reg-model">${escHtml(v.model)}</div><span class="vehicle-reg-plate">${escHtml(v.plate)}</span><div class="vehicle-reg-meta">${v.year?`ปีรถ ${escHtml(v.year)} • `:''}${escHtml(v.note||'ไม่มีหมายเหตุ')}</div></div><div class="vehicle-actions"><button class="icon-btn" title="แก้ไข" onclick="openVehicle('${v.id}')">✏</button><button class="icon-btn danger" title="ลบ" onclick="deleteVehicle('${v.id}')">🗑</button></div></div></div>`).join('');
 }
 let vehicleEditingPeriod={y:null,m:null};
+function normalizeVehicleParts(x){
+  if(Array.isArray(x?.items)&&x.items.length)return x.items.map(i=>({item:String(i.item||'').trim(),price:Number(i.price)||0,link:String(i.link||'').trim()})).filter(i=>i.item);
+  if(x?.item)return [{item:String(x.item).trim(),price:Number(x.price)||0,link:String(x.link||'').trim()}];
+  return [];
+}
+function addVehiclePartRow(data={}){
+  const box=document.getElementById('vehicle-part-rows');if(!box)return;
+  const row=document.createElement('div');row.className='vehicle-part-row';row.style.cssText='display:grid;grid-template-columns:1.4fr .7fr 1fr auto;gap:7px;align-items:end;margin-bottom:7px';
+  row.innerHTML=`<div class="f" style="margin:0"><label>อะไหล่ / รายการ</label><input class="vehicle-part-item" type="text" value="${escHtml(data.item||'')}" placeholder="เช่น น้ำมันเครื่อง"></div><div class="f" style="margin:0"><label>ราคา</label><input class="vehicle-part-price" type="number" min="0" step="0.01" value="${data.price??''}" placeholder="0"></div><div class="f" style="margin:0"><label>ลิงก์ซื้อ</label><input class="vehicle-part-link" type="url" value="${escHtml(data.link||'')}" placeholder="https://..."></div><button type="button" class="icon-btn danger" title="ลบรายการ" onclick="this.closest('.vehicle-part-row').remove()">🗑</button>`;
+  box.appendChild(row);
+}
+function getVehiclePartRows(){return [...document.querySelectorAll('#vehicle-part-rows .vehicle-part-row')].map(r=>({item:(r.querySelector('.vehicle-part-item')?.value||'').trim(),price:Math.max(0,Number(r.querySelector('.vehicle-part-price')?.value)||0),link:(r.querySelector('.vehicle-part-link')?.value||'').trim()})).filter(x=>x.item)}
 function openVehicleMaintenance(id){
   const item=id?getVehicleMaintenance(cy,cm).find(x=>String(x.id)===String(id)):null,arr=getVehicles();
   if(!arr.length){alert('กรุณาลงทะเบียนรถก่อน');showBudgetSection('vehicle');openVehicle();return}
   const sel=document.getElementById('vehicle-maint-vehicle-f');sel.innerHTML=arr.map(v=>`<option value="${v.id}">${escHtml(v.model)} • ${escHtml(v.plate)}</option>`).join('');
-  vehicleEditingPeriod={y:cy,m:cm};
-  document.getElementById('vehicle-maint-id-f').value=item?.id||'';document.getElementById('vehicle-maint-vehicle-f').value=item?.vehicleId||arr[0].id;
-  document.getElementById('vehicle-maint-date-f').value=item?.date||`${cy}-${String(cm).padStart(2,'0')}-01`;document.getElementById('vehicle-maint-item-f').value=item?.item||'';
-  document.getElementById('vehicle-maint-price-f').value=item?.price??'';document.getElementById('vehicle-maint-link-f').value=item?.link||'';document.getElementById('vehicle-maint-note-f').value=item?.note||'';
-  document.getElementById('vehicle-maint-title').textContent=item?'✏️ แก้ไขรายการบำรุงรักษา':'🔧 เพิ่มรายการบำรุงรักษา';document.getElementById('vehicle-maint-ov').classList.add('open');setTimeout(()=>document.getElementById('vehicle-maint-item-f')?.focus(),40);
+  vehicleEditingPeriod={y:cy,m:cm};document.getElementById('vehicle-maint-id-f').value=item?.id||'';sel.value=item?.vehicleId||arr[0].id;document.getElementById('vehicle-maint-date-f').value=item?.date||`${cy}-${String(cm).padStart(2,'0')}-01`;document.getElementById('vehicle-maint-note-f').value=item?.note||'';
+  const box=document.getElementById('vehicle-part-rows');box.innerHTML='';const parts=normalizeVehicleParts(item);(parts.length?parts:[{}]).forEach(addVehiclePartRow);
+  document.getElementById('vehicle-maint-title').textContent=item?'✏️ แก้ไขรายการบำรุงรักษา':'🔧 เพิ่มรายการบำรุงรักษา';document.getElementById('vehicle-maint-ov').classList.add('open');
 }
 function saveVehicleMaintenance(){
-  const vehicleId=document.getElementById('vehicle-maint-vehicle-f').value,date=document.getElementById('vehicle-maint-date-f').value,item=(document.getElementById('vehicle-maint-item-f').value||'').trim();
-  if(!vehicleId||!date||!item){alert('กรุณาเลือกรถ วันที่ และรายการที่ทำ');return}
-  const v=vehicleById(vehicleId);if(!v)return;const price=Math.max(0,Number(document.getElementById('vehicle-maint-price-f').value)||0),link=(document.getElementById('vehicle-maint-link-f').value||'').trim(),note=(document.getElementById('vehicle-maint-note-f').value||'').trim(),id=document.getElementById('vehicle-maint-id-f').value,now=Date.now();
-  const data={vehicleId,model:v.model,plate:v.plate,date,item,price,link,note};
-  const targetY=parseInt(date.slice(0,4)),targetM=parseInt(date.slice(5,7)); if(!targetY||!targetM){alert('วันที่ไม่ถูกต้อง');return}
-  if(id){
-    const oldY=vehicleEditingPeriod.y??cy,oldM=vehicleEditingPeriod.m??cm,oldArr=getVehicleMaintenance(oldY,oldM),i=oldArr.findIndex(x=>String(x.id)===String(id));
-    if(i>=0){const oldItem=oldArr[i];oldArr.splice(i,1);saveVehicleMaintenanceItems(oldY,oldM,oldArr);data.id=oldItem.id;data.createdAt=oldItem.createdAt||now;data.updatedAt=now;const target=getVehicleMaintenance(targetY,targetM);target.push(data);saveVehicleMaintenanceItems(targetY,targetM,target)}
-  }else{const target=getVehicleMaintenance(targetY,targetM);target.push({id:`vmaint_${now}_${Math.random().toString(36).slice(2,7)}`,...data,createdAt:now});saveVehicleMaintenanceItems(targetY,targetM,target)}
-  closeOv('vehicle-maint-ov');renderVehicleMaintenance();addHist('vehicle',id?'แก้ไขบำรุงรักษา':'เพิ่มบำรุงรักษา',`${v.model} • ${v.plate} • ${item} = ${fmt(price)}`);
+  const vehicleId=document.getElementById('vehicle-maint-vehicle-f').value,date=document.getElementById('vehicle-maint-date-f').value,parts=getVehiclePartRows();
+  if(!vehicleId||!date||!parts.length){alert('กรุณาเลือกรถ วันที่ และใส่อะไหล่อย่างน้อย 1 รายการ');return}
+  const v=vehicleById(vehicleId);if(!v)return;const note=(document.getElementById('vehicle-maint-note-f').value||'').trim(),id=document.getElementById('vehicle-maint-id-f').value,now=Date.now(),data={vehicleId,model:v.model,plate:v.plate,date,items:parts,note};
+  const targetY=parseInt(date.slice(0,4)),targetM=parseInt(date.slice(5,7));if(!targetY||!targetM){alert('วันที่ไม่ถูกต้อง');return}
+  if(id){const oldY=vehicleEditingPeriod.y??cy,oldM=vehicleEditingPeriod.m??cm,oldArr=getVehicleMaintenance(oldY,oldM),i=oldArr.findIndex(x=>String(x.id)===String(id));if(i>=0){const oldItem=oldArr[i];oldArr.splice(i,1);saveVehicleMaintenanceItems(oldY,oldM,oldArr);data.id=oldItem.id;data.createdAt=oldItem.createdAt||now;data.updatedAt=now;const target=getVehicleMaintenance(targetY,targetM);target.push(data);saveVehicleMaintenanceItems(targetY,targetM,target)}}
+  else{const target=getVehicleMaintenance(targetY,targetM);target.push({id:`vmaint_${now}_${Math.random().toString(36).slice(2,7)}`,...data,createdAt:now});saveVehicleMaintenanceItems(targetY,targetM,target)}
+  closeOv('vehicle-maint-ov');renderVehicleMaintenance();addHist('vehicle',id?'แก้ไขบำรุงรักษา':'เพิ่มบำรุงรักษา',`${v.model} • ${v.plate} • ${parts.map(p=>p.item).join(', ')}`);
 }
-function deleteVehicleMaintenance(id){const arr=getVehicleMaintenance(cy,cm),item=arr.find(x=>String(x.id)===String(id));if(!item)return;if(!confirm(`ลบรายการ “${item.item}” ใช่หรือไม่?`))return;saveVehicleMaintenanceItems(cy,cm,arr.filter(x=>String(x.id)!==String(id)));renderVehicleMaintenance();addHist('vehicle','ลบบำรุงรักษา',`${item.model} • ${item.item}`)}
+function deleteVehicleMaintenance(id){const arr=getVehicleMaintenance(cy,cm),entry=arr.find(x=>String(x.id)===String(id));if(!entry)return;if(!confirm('ลบรายการบำรุงรักษาชุดนี้ใช่หรือไม่?'))return;saveVehicleMaintenanceItems(cy,cm,arr.filter(x=>String(x.id)!==String(id)));renderVehicleMaintenance();addHist('vehicle','ลบบำรุงรักษา',`${entry.model} • ${normalizeVehicleParts(entry).map(p=>p.item).join(', ')}`)}
 function renderVehicleMaintenance(){
-  const box=document.getElementById('vehicle-maint-groups');if(!box)return;const vehicles=getVehicles(),arr=getVehicleMaintenance(cy,cm),filter=document.getElementById('vehicle-model-filter')?.value||'';
-  document.getElementById('vehicle-count').textContent=vehicles.length+' คัน';document.getElementById('vehicle-maint-count').textContent=arr.length+' รายการ';const total=arr.reduce((a,x)=>a+(Number(x.price)||0),0);document.getElementById('vehicle-maint-total').textContent=fmt(total);document.getElementById('vehicle-maint-foot').textContent=fmt(total);
-  const models=[...new Set(vehicles.map(v=>v.model).filter(Boolean))].sort();const fs=document.getElementById('vehicle-model-filter');if(fs){const old=fs.value;fs.innerHTML='<option value="">ทุกรุ่น</option>'+models.map(m=>`<option value="${escHtml(m)}">${escHtml(m)}</option>`).join('');fs.value=models.includes(old)?old:''}
-  const filtered=filter?arr.filter(x=>x.model===filter):arr;const groups={};filtered.forEach(x=>(groups[x.model]??=[]).push(x));document.getElementById('vehicle-model-count').textContent=Object.keys(groups).length+' รุ่น';
+  const box=document.getElementById('vehicle-maint-groups');if(!box)return;const vehicles=getVehicles(),arr=getVehicleMaintenance(cy,cm),filter=document.getElementById('vehicle-model-filter')?.value||'';const total=arr.reduce((a,x)=>a+normalizeVehicleParts(x).reduce((b,p)=>b+(Number(p.price)||0),0),0);
+  document.getElementById('vehicle-count').textContent=vehicles.length+' คัน';document.getElementById('vehicle-maint-count').textContent=arr.length+' ครั้ง';document.getElementById('vehicle-maint-total').textContent=fmt(total);document.getElementById('vehicle-maint-foot').textContent=fmt(total);
+  const models=[...new Set(vehicles.map(v=>v.model).filter(Boolean))].sort(),fs=document.getElementById('vehicle-model-filter');if(fs){const old=fs.value;fs.innerHTML='<option value="">ทุกรุ่น</option>'+models.map(m=>`<option value="${escHtml(m)}">${escHtml(m)}</option>`).join('');fs.value=models.includes(old)?old:''}
+  const filtered=filter?arr.filter(x=>x.model===filter):arr,groups={};filtered.forEach(x=>(groups[x.model]??=[]).push(x));document.getElementById('vehicle-model-count').textContent=Object.keys(groups).length+' รุ่น';
   if(!filtered.length){box.innerHTML='<div class="vehicle-empty">เดือนนี้ยังไม่มีประวัติบำรุงรักษาในรุ่นที่เลือก 🔧</div>';return}
-  box.innerHTML=Object.keys(groups).sort().map(model=>{const rows=groups[model],sum=rows.reduce((a,x)=>a+(Number(x.price)||0),0);return `<div class="vehicle-group"><div class="vehicle-group-title"><strong>🚗 ${escHtml(model)}</strong><span>${rows.length} รายการ • รวม ${fmt(sum)}</span></div><div class="table-scroll"><table class="tbl vehicle-maint-table"><thead><tr><th style="width:11%">วันที่</th><th style="width:17%">รุ่นรถ</th><th style="width:15%">ทะเบียน</th><th style="width:25%">อะไหล่ / รายการที่ทำ</th><th style="width:13%;text-align:right">ราคา</th><th style="width:14%">ลิงก์ซื้อ</th><th style="width:15%;text-align:center">จัดการ</th></tr></thead><tbody>${rows.sort((a,b)=>String(a.date).localeCompare(String(b.date))).map(x=>`<tr><td>${escHtml(x.date)}</td><td><strong>${escHtml(x.model)}</strong></td><td><strong>${escHtml(x.plate)}</strong></td><td><strong>${escHtml(x.item)}</strong>${x.note?`<div class="sub">${escHtml(x.note)}</div>`:''}</td><td class="tr"><strong>${fmt(Number(x.price)||0)}</strong></td><td>${x.link?`<a class="vehicle-link" href="${safeUrl(x.link)}" target="_blank" rel="noopener">🔗 ซื้อ</a>`:'<span class="badge b-gray">ไม่มีลิงก์</span>'}</td><td class="tc"><button class="icon-btn" title="แก้ไข" onclick="openVehicleMaintenance('${x.id}')">✏</button> <button class="icon-btn danger" title="ลบ" onclick="deleteVehicleMaintenance('${x.id}')">🗑</button></td></tr>`).join('')}</tbody></table></div></div>`}).join('');
+  box.innerHTML=Object.keys(groups).sort().map(model=>{const rows=groups[model],sum=rows.reduce((a,x)=>a+normalizeVehicleParts(x).reduce((b,p)=>b+(Number(p.price)||0),0),0);return `<div class="vehicle-group"><div class="vehicle-group-title"><strong>🚗 ${escHtml(model)}</strong><span>${rows.length} ครั้ง • รวม ${fmt(sum)}</span></div><div class="table-scroll"><table class="tbl vehicle-maint-table"><thead><tr><th>วันที่</th><th>รุ่นรถ</th><th>ทะเบียน</th><th>อะไหล่ที่เปลี่ยน</th><th style="text-align:right">ราคา</th><th>ลิงก์ซื้อ</th><th class="tc">จัดการ</th></tr></thead><tbody>${rows.sort((a,b)=>String(a.date).localeCompare(String(b.date))).map(x=>{const parts=normalizeVehicleParts(x),phtml=parts.map(p=>`<div style="margin-bottom:3px"><strong>${escHtml(p.item)}</strong></div>`).join(''),links=parts.map(p=>p.link?`<a class="vehicle-link" href="${safeUrl(p.link)}" target="_blank" rel="noopener">🔗 ซื้อ</a>`:'').join(' '),psum=parts.reduce((a,p)=>a+(Number(p.price)||0),0);return `<tr><td>${escHtml(x.date)}</td><td><strong>${escHtml(x.model)}</strong></td><td><strong>${escHtml(x.plate)}</strong></td><td>${phtml}${x.note?`<div class="sub">${escHtml(x.note)}</div>`:''}</td><td class="tr"><strong>${fmt(psum)}</strong></td><td>${links||'<span class="badge b-gray">ไม่มีลิงก์</span>'}</td><td class="tc"><button class="icon-btn" title="แก้ไข" onclick="openVehicleMaintenance('${x.id}')">✏</button> <button class="icon-btn danger" title="ลบ" onclick="deleteVehicleMaintenance('${x.id}')">🗑</button></td></tr>`}).join('')}</tbody></table></div></div>`}).join('');
 }
 
 function showBudgetSection(section){
@@ -4034,33 +3940,12 @@ function renderTodoRow(t,i,groupLen,today){
     <td class="tc">${reorderBtns(`reorderTodo(${t.id},-1)`,`reorderTodo(${t.id},1)`,i>0,i<groupLen-1)}<button class="icon-btn" onclick="openTM(${t.id})">✏</button></td>
   </tr>`};
 }
+function todoUserKey(t){return String(t.user||'ไม่ระบุผู้ใช้งาน').trim()||'ไม่ระบุผู้ใช้งาน'}
 function renderTodo(){
-  const items=getTodos();
-  const today=new Date();today.setHours(0,0,0,0);
-  let soonCount=0,overCount=0;
-  const body=document.getElementById('todo-body');
-  const doneBody=document.getElementById('todo-done-body');
-  if(!body||!doneBody)return;
-  const pending=items.filter(t=>!t.done);
-  const done=items.filter(t=>t.done);
-  if(!pending.length){
-    body.innerHTML='<tr><td colspan="13" class="empty">ยังไม่มีรายการ</td></tr>';
-  }else{
-    body.innerHTML=pending.map((t,i)=>{
-      const r=renderTodoRow(t,i,pending.length,today);
-      if(r.isOverdue)overCount++;
-      if(r.isSoon)soonCount++;
-      return r.html;
-    }).join('');
-  }
-  if(!done.length){
-    doneBody.innerHTML='<tr><td colspan="13" class="empty">ยังไม่มีรายการที่ทำเสร็จแล้ว</td></tr>';
-  }else{
-    doneBody.innerHTML=done.map((t,i)=>renderTodoRow(t,i,done.length,today).html).join('');
-  }
-  document.getElementById('td-total').textContent=items.length;
-  document.getElementById('td-soon').textContent=soonCount;
-  document.getElementById('td-over').textContent=overCount;
+  const items=getTodos(),today=new Date();today.setHours(0,0,0,0);let soonCount=0,overCount=0;const body=document.getElementById('todo-body'),doneBody=document.getElementById('todo-done-body');if(!body||!doneBody)return;
+  const pending=items.filter(t=>!t.done),done=items.filter(t=>t.done);
+  const renderGroups=(list)=>{if(!list.length)return '<tr><td colspan="13" class="empty">ยังไม่มีรายการ</td></tr>';const groups={};list.forEach(t=>(groups[todoUserKey(t)]??=[]).push(t));return Object.keys(groups).sort((a,b)=>a.localeCompare(b,'th')).map(user=>{const arr=groups[user];return `<tr class="todo-user-group"><td colspan="13" style="background:var(--g50);font-weight:800;padding:9px 12px">👤 ผู้ใช้งาน: ${todoEsc(user)} <span style="float:right;color:var(--g500);font-weight:600">${arr.length} รายการ</span></td></tr>`+arr.map((t,i)=>{const r=renderTodoRow(t,i,arr.length,today);if(!t.done){if(r.isOverdue)overCount++;if(r.isSoon)soonCount++;}return r.html}).join('')}).join('')};
+  body.innerHTML=renderGroups(pending);doneBody.innerHTML=renderGroups(done);document.getElementById('td-total').textContent=items.length;document.getElementById('td-soon').textContent=soonCount;document.getElementById('td-over').textContent=overCount;
 }
 
 // ══ INVEST — STOCKS ══
