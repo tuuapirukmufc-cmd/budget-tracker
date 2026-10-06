@@ -1377,19 +1377,19 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   </div>
   <div class="cards c4 sub-summary-grid">
     <div class="card sub-summary-card">
-      <div class="sub-summary-top"><div class="lbl">รวมค่าใช้จ่าย/เดือน</div><span class="sub-summary-badge">ACTIVE</span></div>
+      <div class="sub-summary-top"><div class="lbl">ยอดสมาชิกแบบรายเดือน</div><span class="sub-summary-badge">MONTHLY</span></div>
       <div class="val vb" id="sub-mo">฿0</div>
       <div class="sub-breakdown" id="sub-mo-note">
-        <div class="sub-break-row"><span>แพ็กเกจรายปี <small>เฉลี่ย/เดือน</small></span><strong id="sub-mo-annual">฿0</strong></div>
-        <div class="sub-break-row"><span>แพ็กเกจรายเดือน</span><strong id="sub-mo-monthly">฿0</strong></div>
+        <div class="sub-break-row"><span>ค่าสมาชิกแบบรายเดือน</span><strong id="sub-mo-monthly">฿0</strong></div>
+        <div class="sub-break-row"><span>จำนวนรายการ</span><strong id="sub-mo-count">0 รายการ</strong></div>
       </div>
     </div>
     <div class="card sub-summary-card">
-      <div class="sub-summary-top"><div class="lbl">รวมค่าใช้จ่าย/ปี</div><span class="sub-summary-badge">ACTIVE</span></div>
+      <div class="sub-summary-top"><div class="lbl">ยอดสมาชิกแบบรายปี</div><span class="sub-summary-badge">YEARLY</span></div>
       <div class="val vb" id="sub-yr">฿0</div>
       <div class="sub-breakdown" id="sub-yr-note">
         <div class="sub-break-row"><span>แพ็กเกจรายปี</span><strong id="sub-yr-annual">฿0</strong></div>
-        <div class="sub-break-row"><span>รายเดือน <small>× 12 เดือน</small></span><strong id="sub-yr-monthly">฿0</strong></div>
+        <div class="sub-break-row"><span>แพ็กเกจรายเดือน <small>× 12 เดือน</small></span><strong id="sub-yr-monthly">฿0</strong></div>
       </div>
     </div>
     <div class="card sub-status-card"><div class="sub-status-icon">✓</div><div><div class="lbl">กำลังใช้งาน</div><div class="val vg" id="sub-act">0</div></div><span class="sub-status-line good"></span></div>
@@ -5099,15 +5099,18 @@ function renderSub(){
   // ราคา/ปี นำมาเฉลี่ยเป็นรายเดือน และราคา/เดือนนำไปคูณ 12 สำหรับยอดรายปี
   const annualPlans=active.reduce((sum,i)=>sum+(parseFloat(i.price)||0),0);
   const monthlyPlans=active.reduce((sum,i)=>sum+(parseFloat(i.priceMonthly)||0),0);
-  const tMo=annualPlans/12+monthlyPlans;
+  // แยกยอดตามรอบจ่าย: รายเดือน = เฉพาะแพ็กเกจรายเดือน, รายปี = รายปี + รายเดือน x 12
+  const monthlyCount=active.filter(i=>(parseFloat(i.priceMonthly)||0)>0).length;
+  const annualCount=active.filter(i=>(parseFloat(i.price)||0)>0).length;
+  const tMo=monthlyPlans;
   const tYr=annualPlans+(monthlyPlans*12);
   const exp=active.filter(s=>{if(!s.end)return false;const d=new Date(s.end);return(d-today)/86400000<=15&&d>=today}).length;
   document.getElementById('sub-mo').textContent=fmt(tMo);
   document.getElementById('sub-yr').textContent=fmt(tYr);
   const moNote=document.getElementById('sub-mo-note');
-  if(moNote)moNote.innerHTML=`<div class="sub-break-row"><span>แพ็กเกจรายปี <small>เฉลี่ย/เดือน</small></span><strong id="sub-mo-annual">${fmt(annualPlans/12)}</strong></div><div class="sub-break-row"><span>แพ็กเกจรายเดือน</span><strong id="sub-mo-monthly">${fmt(monthlyPlans)}</strong></div>`;
+  if(moNote)moNote.innerHTML=`<div class="sub-break-row"><span>ค่าสมาชิกแบบรายเดือน</span><strong id="sub-mo-monthly">${fmt(monthlyPlans)}</strong></div><div class="sub-break-row"><span>จำนวนรายการ</span><strong id="sub-mo-count">${monthlyCount} รายการ</strong></div>`;
   const yrNote=document.getElementById('sub-yr-note');
-  if(yrNote)yrNote.innerHTML=`<div class="sub-break-row"><span>แพ็กเกจรายปี</span><strong id="sub-yr-annual">${fmt(annualPlans)}</strong></div><div class="sub-break-row"><span>รายเดือน <small>× 12 เดือน</small></span><strong id="sub-yr-monthly">${fmt(monthlyPlans*12)}</strong></div>`;
+  if(yrNote)yrNote.innerHTML=`<div class="sub-break-row"><span>แพ็กเกจรายปี <small>${annualCount} รายการ</small></span><strong id="sub-yr-annual">${fmt(annualPlans)}</strong></div><div class="sub-break-row"><span>แพ็กเกจรายเดือน <small>× 12 เดือน</small></span><strong id="sub-yr-monthly">${fmt(monthlyPlans*12)}</strong></div>`;
   document.getElementById('sub-act').textContent=active.length+' รายการ';
   document.getElementById('sub-exp').textContent=exp+' รายการ';
   document.getElementById('sub-tot').textContent=fmt(tYr);
