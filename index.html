@@ -1088,7 +1088,6 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
       <div class="tfoot"><span>รวมราคาซื้อของเดือนนี้</span><strong id="shopping-grand-total">฿0</strong></div>
     </div>
   </div>
-</div>
 
 
   <div id="budget-vehicle-panel" style="display:none">
@@ -1120,6 +1119,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
       <div class="tfoot"><span>รวมค่าบำรุงเดือนนี้</span><strong id="vehicle-maint-foot">฿0</strong></div>
     </div>
   </div>
+</div>
 
 <!-- PAGE: DEBT -->
 <div id="page-debt" class="page">
@@ -1941,7 +1941,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   <button type="button" class="btn btn-ghost btn-sm" onclick="addVehicleMaintenanceRow()" style="margin-top:8px">＋ เพิ่มอะไหล่อีกรายการ</button>
   <div class="f"><label>หมายเหตุรวม</label><input id="vehicle-maint-note-f" type="text" placeholder="เช่น ทำที่ศูนย์ / ร้าน / เปลี่ยนพร้อมกันหลายรายการ"></div>
   <div class="modal-actions"><button class="btn btn-ghost" onclick="closeOv('vehicle-maint-ov')">ยกเลิก</button><button class="btn btn-pri" onclick="saveVehicleMaintenance()">บันทึก</button></div>
-</div></di
+</div></div>
 <!-- Login -->
 <div class="ov" id="login-ov"><div class="modal">
   <span class="modal-drag"></span>
@@ -1977,7 +1977,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 </div></div>
 
 <!-- Page Manager (ซ่อน/เปิดใช้งานหน้า) -->
-<div class="ov" id="pagemgr-ov" aria-hidden="true"><div class="modal" onclick="event.stopPropagation()">
+<div class="ov" id="pagemgr-ov" aria-hidden="true" style="z-index:9999;pointer-events:none"><div class="modal" onclick="event.stopPropagation();event.cancelBubble=true" style="pointer-events:auto;max-width:720px;width:min(720px,96vw)">
   <span class="modal-drag"></span>
   <h3>⚙ จัดการเมนู</h3>
   <div style="font-size:12px;color:var(--g400);margin-bottom:.75rem">แก้ชื่อเมนูได้อิสระ จัดลำดับ หรือซ่อนหน้าที่ไม่ได้ใช้ — การเปลี่ยนชื่อไม่กระทบข้อมูลภายใน</div>
@@ -2580,23 +2580,40 @@ function sw(id,el){
   if(id==='dashboard')id='todo';
   const pageExists=document.getElementById('page-'+id);
   if(!pageExists)id='todo';
+
+  // ปิด overlay/modal ทุกตัวก่อนเปลี่ยนหน้า ป้องกัน modal จากหน้าก่อนหน้าค้างทับหน้าใหม่
+  document.querySelectorAll('.ov.open').forEach(o=>{
+    o.classList.remove('open');
+    if(o.id==='pagemgr-ov')o.setAttribute('aria-hidden','true');
+  });
+  // ซ่อน sub-panel ของรายรับ-รายจ่ายทุกครั้งที่ออกจากหน้า budget
+  if(id!=='budget'){
+    ['budget-main-panel','budget-shopping-panel','budget-vehicle-panel'].forEach(pid=>{
+      const p=document.getElementById(pid); if(p)p.style.display='none';
+    });
+  }
+
   curPage=id;
-  // เปลี่ยนหน้าแล้วปิดตัวจัดการเมนูที่อาจค้างอยู่ เพื่อไม่ให้ overlay บังหน้าหลัก
-  const mgr=document.getElementById('pagemgr-ov');
-  if(mgr)mgr.classList.remove('open');
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
-  const pageEl=document.getElementById('page-'+id);if(pageEl)pageEl.classList.add('active');
+  const pageEl=document.getElementById('page-'+id);
+  if(pageEl)pageEl.classList.add('active');
   if(el)el.classList.add('active');
   else {const nav=document.querySelector(`.nav-tab[data-page=\"${id}\"]`);if(nav)nav.classList.add('active');}
-  if(id==='budget')renderBudget();
-  else if(id==='debt')renderDebt();
+
+  if(id==='budget'){
+    // ทุกครั้งที่เข้าหน้ารายรับ-รายจ่าย ให้เริ่มที่แท็บหลัก ไม่ให้แท็บรถจากครั้งก่อนหลุดมาปน
+    showBudgetSection('main');
+    renderBudget();
+  }else if(id==='debt')renderDebt();
   else if(id==='invest')renderInvest();
   else if(id==='subscription')renderSub();
   else if(id==='sideincome')renderRider();
   else if(id==='logins')renderLogins();
   else if(id==='todo')renderTodo();
+  syncCurrentPageTitle();
 }
+
 function swMob(id,el,title){
   document.querySelectorAll('.mob-tab').forEach(t=>t.classList.remove('active'));
   el.classList.add('active');
@@ -2709,12 +2726,14 @@ function openPageMgr(ev){
   if(!ov)return;
   renderPageMgrList();
   ov.classList.add('open');
+  ov.style.pointerEvents='auto';
   ov.setAttribute('aria-hidden','false');
 }
 function closePageMgr(){
   const ov=document.getElementById('pagemgr-ov');
   if(!ov)return;
   ov.classList.remove('open');
+  ov.style.pointerEvents='none';
   ov.setAttribute('aria-hidden','true');
 }
 function renderPageMgrList(){
@@ -4568,18 +4587,6 @@ function renderPawnInterestCheck(){
     <td class="tc">${r.beforePawn?'<span class="pawn-interest-pill muted">ยังไม่ถึงวันจำนำ</span>':`<span class="pawn-interest-pill">${r.months} / 5 เดือน</span>`}</td>
     <td class="tr"><strong class="pawn-interest-total">${fmt(r.total)}</strong></td>
   </tr>`).join('')}</tbody></table></div>`;
-}
-function renderPawnTickets(){
-  const list=document.getElementById('pawn-list');if(!list)return;const arr=getPawnTickets();
-  const principal=arr.reduce((s,x)=>s+(+x.principal||0),0),interest=arr.reduce((s,x)=>s+(+x.monthlyInterest||0)*5,0),due=arr.filter(x=>{const d=pawnDaysLeft(x.dueDate);return d!==null&&d>=0&&d<=30}).length;
-  document.getElementById('pawn-sum-principal').textContent=fmt(principal);document.getElementById('pawn-sum-interest').textContent=fmt(interest);document.getElementById('pawn-sum-count').textContent=arr.length+' ใบ';document.getElementById('pawn-sum-due').textContent=due+' ใบ';
-  renderPawnInterestCheck();
-  if(!arr.length){list.innerHTML='<div class="sec empty" style="grid-column:1/-1;padding:2rem">ยังไม่มีตั๋วจำนำ · กด “+ เพิ่มตั๋วจำนำ” เพื่อเริ่มบันทึก</div>';return}
-  list.innerHTML=arr.map((x,pawnIndex)=>({x,pawnIndex})).sort((a,b)=>String(b.x.date).localeCompare(String(a.x.date))).map(({x,pawnIndex})=>{
-    const d=pawnDaysLeft(x.dueDate),dueText=d===null?'—':d<0?`เกิน ${Math.abs(d)} วัน`:d===0?'ครบกำหนดวันนี้':`เหลือ ${d} วัน`,dueCls=d!==null&&d<0?'late':d!==null&&d<=30?'warn':'';
-    const items=(x.items||[]).map((i,n)=>`<div class="pawn-item"><span class="pawn-item-num">${n+1}</span><span class="pawn-item-name">${escPawn(i.name)}</span><span class="pawn-item-qty">${Number(i.qty)||1} ${escPawn(i.unit||'ชิ้น')}</span></div>`).join('');
-    return `<article class="pawn-card"><div class="pawn-card-top"><div><div class="pawn-ticket-no">ตั๋ว ${escPawn(x.no||'ไม่ระบุเลข')}</div><div class="pawn-ticket-meta">วันที่จำนำ ${fmtDate(x.date)}${x.totalWeight?` · น้ำหนักรวม ${fmtN(+x.totalWeight,2)} กรัม`:''}</div></div><span class="tag">${(x.items||[]).length} รายการ</span></div><div class="pawn-items"><div class="pawn-items-title"><span>รายละเอียดของที่จำนำ</span><span>${(x.items||[]).length} รายการ</span></div><div class="pawn-item-list">${items||'<div class="empty">ไม่มีรายละเอียด</div>'}</div></div><div class="pawn-money"><div><div class="pawn-money-label">ยอดเงินต้นรวมทั้งตั๋ว</div><div class="pawn-money-val">${fmt(x.principal)}</div></div><div class="pawn-money-note">ยอดเดียวรวมของทุกชิ้น<br>${x.appraisal?`ราคาประเมิน ${fmt(x.appraisal)}`:''}</div></div><div class="pawn-info"><div class="pawn-info-box"><div class="pawn-info-label">ดอกเบี้ย / เดือน</div><div class="pawn-info-val">${fmt(x.monthlyInterest)}</div></div><div class="pawn-info-box"><div class="pawn-info-label">ยอดต่อดอก 5 เดือน</div><div class="pawn-info-val">${fmt((+x.monthlyInterest||0)*5)}</div></div><div class="pawn-info-box"><div class="pawn-info-label">ครบกำหนดครั้งต่อไป</div><div class="pawn-info-val">${fmtDate(x.dueDate)}</div></div><div class="pawn-info-box"><div class="pawn-info-label">สถานะกำหนด</div><div class="pawn-info-val ${dueCls}">${dueText}</div></div></div>${x.note?`<div style="padding:0 14px 10px;font-size:11px;color:var(--g500)">📝 ${escPawn(x.note)}</div>`:''}<div class="pawn-card-foot"><button type="button" class="btn btn-danger btn-sm" data-pawn-action="delete-card" data-pawn-index="${pawnIndex}">🗑 ลบตั๋ว</button><button type="button" class="btn btn-ghost btn-sm" data-pawn-action="edit" data-pawn-index="${pawnIndex}">✏ แก้ไขตั๋ว</button></div></article>`;
-  }).join('');
 }
 function renderPawnTickets(){
   const list=document.getElementById('pawn-list');if(!list)return;const arr=getPawnTickets();
