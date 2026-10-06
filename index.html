@@ -5103,14 +5103,14 @@ function renderSub(){
   const monthlyCount=active.filter(i=>(parseFloat(i.priceMonthly)||0)>0).length;
   const annualCount=active.filter(i=>(parseFloat(i.price)||0)>0).length;
   const tMo=monthlyPlans;
-  const tYr=annualPlans+(monthlyPlans*12);
+  const tYr=annualPlans;
   const exp=active.filter(s=>{if(!s.end)return false;const d=new Date(s.end);return(d-today)/86400000<=15&&d>=today}).length;
   document.getElementById('sub-mo').textContent=fmt(tMo);
   document.getElementById('sub-yr').textContent=fmt(tYr);
   const moNote=document.getElementById('sub-mo-note');
   if(moNote)moNote.innerHTML=`<div class="sub-break-row"><span>ค่าสมาชิกแบบรายเดือน</span><strong id="sub-mo-monthly">${fmt(monthlyPlans)}</strong></div><div class="sub-break-row"><span>จำนวนรายการ</span><strong id="sub-mo-count">${monthlyCount} รายการ</strong></div>`;
   const yrNote=document.getElementById('sub-yr-note');
-  if(yrNote)yrNote.innerHTML=`<div class="sub-break-row"><span>แพ็กเกจรายปี <small>${annualCount} รายการ</small></span><strong id="sub-yr-annual">${fmt(annualPlans)}</strong></div><div class="sub-break-row"><span>แพ็กเกจรายเดือน <small>× 12 เดือน</small></span><strong id="sub-yr-monthly">${fmt(monthlyPlans*12)}</strong></div>`;
+  if(yrNote)yrNote.innerHTML=`<div class="sub-break-row"><span>แพ็กเกจรายปี <small>${annualCount} รายการ</small></span><strong id="sub-yr-annual">${fmt(annualPlans)}</strong></div><div class="sub-break-row"><span>หมายเหตุ</span><strong>ไม่รวมรายเดือน</strong></div>`;
   document.getElementById('sub-act').textContent=active.length+' รายการ';
   document.getElementById('sub-exp').textContent=exp+' รายการ';
   document.getElementById('sub-tot').textContent=fmt(tYr);
