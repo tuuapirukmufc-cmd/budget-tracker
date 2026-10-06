@@ -814,7 +814,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 <nav class="sidebar">
   <div class="brand"><span class="app-icon"></span>Happy <span class="brand-accent">Money</span></div>
   <div id="sidebar-nav-list"></div>
-  <div class="sidebar-foot"><button class="btn btn-ghost btn-sm" onclick="openPageMgr()">⚙ จัดการเมนู</button></div>
+  <div class="sidebar-foot"><button type="button" class="btn btn-ghost btn-sm" onclick="openPageMgr(event)">⚙ จัดการเมนู</button></div>
 </nav>
 <!-- Mobile header -->
 <div class="mob-header" id="mob-header">
@@ -823,7 +823,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
     <h2 id="mob-title">★ ภาพรวม</h2>
   </div>
   <div class="mh-right">
-    <button class="btn btn-ghost btn-sm" onclick="openPageMgr()">⚙</button>
+    <button type="button" class="btn btn-ghost btn-sm" onclick="openPageMgr(event)">⚙</button>
   </div>
 </div>
 
@@ -1977,13 +1977,13 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 </div></div>
 
 <!-- Page Manager (ซ่อน/เปิดใช้งานหน้า) -->
-<div class="ov" id="pagemgr-ov"><div class="modal">
+<div class="ov" id="pagemgr-ov" aria-hidden="true"><div class="modal" onclick="event.stopPropagation()">
   <span class="modal-drag"></span>
   <h3>⚙ จัดการเมนู</h3>
   <div style="font-size:12px;color:var(--g400);margin-bottom:.75rem">แก้ชื่อเมนูได้อิสระ จัดลำดับ หรือซ่อนหน้าที่ไม่ได้ใช้ — การเปลี่ยนชื่อไม่กระทบข้อมูลภายใน</div>
   <div id="pagemgr-list"></div>
   <div class="mbtns">
-    <button class="btn btn-ghost" onclick="closeOv('pagemgr-ov')">ปิด</button>
+    <button class="btn btn-ghost" onclick="closePageMgr()">ปิด</button>
   </div>
 </div></div>
 
@@ -2547,7 +2547,9 @@ function initializeAppAfterCloud(){
   appInitialized=true;
   initYearSelectors();
   applyPageVisibility();
-  renderTodo();
+  // ต้องเปิดหน้าแรกให้ active หลังโหลดข้อมูล ไม่เช่นนั้น .page จะยัง display:none และเห็นจอขาว
+  const firstPage=(getPageOrder().find(id=>!getHiddenPages().includes(id))||'todo');
+  sw(firstPage,document.querySelector(`.nav-tab[data-page=\"${firstPage}\"]`));
   startFirestoreRealtime();
 }
 
@@ -2576,11 +2578,17 @@ document.addEventListener('DOMContentLoaded',async function(){
 let curPage='todo';
 function sw(id,el){
   if(id==='dashboard')id='todo';
+  const pageExists=document.getElementById('page-'+id);
+  if(!pageExists)id='todo';
   curPage=id;
+  // เปลี่ยนหน้าแล้วปิดตัวจัดการเมนูที่อาจค้างอยู่ เพื่อไม่ให้ overlay บังหน้าหลัก
+  const mgr=document.getElementById('pagemgr-ov');
+  if(mgr)mgr.classList.remove('open');
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
   const pageEl=document.getElementById('page-'+id);if(pageEl)pageEl.classList.add('active');
   if(el)el.classList.add('active');
+  else {const nav=document.querySelector(`.nav-tab[data-page=\"${id}\"]`);if(nav)nav.classList.add('active');}
   if(id==='budget')renderBudget();
   else if(id==='debt')renderDebt();
   else if(id==='invest')renderInvest();
@@ -2597,7 +2605,12 @@ function swMob(id,el,title){
   document.getElementById('mob-title').textContent=label;
   sw(id,null);
 }
-function closeOv(id){const el=document.getElementById(id);if(el)el.classList.remove('open');}
+function closeOv(id){
+  const el=document.getElementById(id);
+  if(!el)return;
+  el.classList.remove('open');
+  if(id==='pagemgr-ov')el.setAttribute('aria-hidden','true');
+}
 // Modal stability: do not auto-close overlays from backdrop clicks. Close only via explicit buttons.
 document.querySelectorAll('.ov').forEach(o=>o.addEventListener('click',e=>{ if(e.target!==o) e.stopPropagation(); }));
 
@@ -2690,9 +2703,19 @@ function applyPageVisibility(){
     sw(fallback,document.querySelector(`.nav-tab[data-page="${fallback}"]`));
   }
 }
-function openPageMgr(){
+function openPageMgr(ev){
+  if(ev){ev.preventDefault();ev.stopPropagation();}
+  const ov=document.getElementById('pagemgr-ov');
+  if(!ov)return;
   renderPageMgrList();
-  document.getElementById('pagemgr-ov').classList.add('open');
+  ov.classList.add('open');
+  ov.setAttribute('aria-hidden','false');
+}
+function closePageMgr(){
+  const ov=document.getElementById('pagemgr-ov');
+  if(!ov)return;
+  ov.classList.remove('open');
+  ov.setAttribute('aria-hidden','true');
 }
 function renderPageMgrList(){
   const hidden=getHiddenPages();
