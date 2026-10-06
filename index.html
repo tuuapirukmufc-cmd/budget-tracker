@@ -1375,11 +1375,25 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
       <button class="btn btn-pri btn-sm" onclick="openSubM()">+ เพิ่ม</button>
     </div>
   </div>
-  <div class="cards c4">
-    <div class="card"><div class="lbl">รวมค่าใช้จ่าย/เดือน</div><div class="val vb" id="sub-mo">฿0</div><div class="sub" id="sub-mo-note">เฉพาะรายการที่เปิดใช้งาน</div></div>
-    <div class="card"><div class="lbl">รวมค่าใช้จ่าย/ปี</div><div class="val vb" id="sub-yr">฿0</div><div class="sub" id="sub-yr-note">เฉพาะรายการที่เปิดใช้งาน</div></div>
-    <div class="card"><div class="lbl">กำลังใช้งาน</div><div class="val vg" id="sub-act">0</div></div>
-    <div class="card"><div class="lbl">ใกล้หมดอายุ (15 วัน)</div><div class="val vc" id="sub-exp">0</div></div>
+  <div class="cards c4 sub-summary-grid">
+    <div class="card sub-summary-card">
+      <div class="sub-summary-top"><div class="lbl">รวมค่าใช้จ่าย/เดือน</div><span class="sub-summary-badge">ACTIVE</span></div>
+      <div class="val vb" id="sub-mo">฿0</div>
+      <div class="sub-breakdown" id="sub-mo-note">
+        <div class="sub-break-row"><span>แพ็กเกจรายปี <small>เฉลี่ย/เดือน</small></span><strong id="sub-mo-annual">฿0</strong></div>
+        <div class="sub-break-row"><span>แพ็กเกจรายเดือน</span><strong id="sub-mo-monthly">฿0</strong></div>
+      </div>
+    </div>
+    <div class="card sub-summary-card">
+      <div class="sub-summary-top"><div class="lbl">รวมค่าใช้จ่าย/ปี</div><span class="sub-summary-badge">ACTIVE</span></div>
+      <div class="val vb" id="sub-yr">฿0</div>
+      <div class="sub-breakdown" id="sub-yr-note">
+        <div class="sub-break-row"><span>แพ็กเกจรายปี</span><strong id="sub-yr-annual">฿0</strong></div>
+        <div class="sub-break-row"><span>รายเดือน <small>× 12 เดือน</small></span><strong id="sub-yr-monthly">฿0</strong></div>
+      </div>
+    </div>
+    <div class="card sub-status-card"><div class="sub-status-icon">✓</div><div><div class="lbl">กำลังใช้งาน</div><div class="val vg" id="sub-act">0</div></div><span class="sub-status-line good"></span></div>
+    <div class="card sub-status-card"><div class="sub-status-icon warn">!</div><div><div class="lbl">ใกล้หมดอายุ</div><div class="val vc" id="sub-exp">0</div><div class="sub-status-note">ภายใน 15 วัน</div></div><span class="sub-status-line warn"></span></div>
   </div>
   <div class="sec">
     <div class="sec-head"><span class="sec-title"><span class="dot db"></span>รายการสมาชิก</span></div>
@@ -5091,9 +5105,9 @@ function renderSub(){
   document.getElementById('sub-mo').textContent=fmt(tMo);
   document.getElementById('sub-yr').textContent=fmt(tYr);
   const moNote=document.getElementById('sub-mo-note');
-  if(moNote)moNote.textContent=`รายปีเฉลี่ย/เดือน ${fmt(annualPlans/12)} + รายเดือน ${fmt(monthlyPlans)}`;
+  if(moNote)moNote.innerHTML=`<div class="sub-break-row"><span>แพ็กเกจรายปี <small>เฉลี่ย/เดือน</small></span><strong id="sub-mo-annual">${fmt(annualPlans/12)}</strong></div><div class="sub-break-row"><span>แพ็กเกจรายเดือน</span><strong id="sub-mo-monthly">${fmt(monthlyPlans)}</strong></div>`;
   const yrNote=document.getElementById('sub-yr-note');
-  if(yrNote)yrNote.textContent=`รายปี ${fmt(annualPlans)} + รายเดือน × 12 ${fmt(monthlyPlans*12)}`;
+  if(yrNote)yrNote.innerHTML=`<div class="sub-break-row"><span>แพ็กเกจรายปี</span><strong id="sub-yr-annual">${fmt(annualPlans)}</strong></div><div class="sub-break-row"><span>รายเดือน <small>× 12 เดือน</small></span><strong id="sub-yr-monthly">${fmt(monthlyPlans*12)}</strong></div>`;
   document.getElementById('sub-act').textContent=active.length+' รายการ';
   document.getElementById('sub-exp').textContent=exp+' รายการ';
   document.getElementById('sub-tot').textContent=fmt(tYr);
@@ -5439,6 +5453,30 @@ function dlCSV(rows,fn){
 
 </script>
 </body>
+
+<style>
+/* Subscription summary redesign */
+#page-subscription .sub-summary-grid{gap:12px;margin-bottom:14px}
+#page-subscription .sub-summary-card{padding:15px 16px 13px;overflow:hidden;border:1px solid var(--g100);box-shadow:0 2px 8px rgba(15,23,42,.035)}
+#page-subscription .sub-summary-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:2px}
+#page-subscription .sub-summary-badge{font-size:8px;font-weight:800;letter-spacing:.55px;color:#16784a;background:#eaf8f1;border:1px solid #cdebdc;border-radius:999px;padding:3px 7px;line-height:1}
+#page-subscription .sub-summary-card>.val{margin:5px 0 10px;font-size:24px;line-height:1.05}
+#page-subscription .sub-breakdown{display:grid;gap:5px;padding-top:8px;border-top:1px solid #edf0f4}
+#page-subscription .sub-break-row{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:10px;color:#667085;line-height:1.25}
+#page-subscription .sub-break-row span{min-width:0}
+#page-subscription .sub-break-row small{font-size:8px;color:#98a2b3;white-space:nowrap}
+#page-subscription .sub-break-row strong{font-size:10px;color:#344054;white-space:nowrap;font-variant-numeric:tabular-nums}
+#page-subscription .sub-status-card{position:relative;display:flex;align-items:center;gap:11px;padding:15px 16px;min-height:110px;overflow:hidden}
+#page-subscription .sub-status-icon{width:30px;height:30px;flex:0 0 30px;border-radius:9px;display:flex;align-items:center;justify-content:center;background:#eaf8f1;color:#16a34a;font-weight:900;font-size:15px}
+#page-subscription .sub-status-icon.warn{background:#fff4df;color:#d97706}
+#page-subscription .sub-status-card .val{font-size:22px;line-height:1.05;margin-top:4px}
+#page-subscription .sub-status-note{font-size:9px;color:var(--g400);margin-top:3px}
+#page-subscription .sub-status-line{position:absolute;left:0;top:0;bottom:0;width:3px;background:#16a34a}
+#page-subscription .sub-status-line.warn{background:#f59e0b}
+#page-subscription .sec .tfoot{background:#f8fafc;border-top:1px solid var(--g100);padding:10px 12px}
+@media(max-width:760px){#page-subscription .sub-summary-grid{grid-template-columns:1fr 1fr}.sub-summary-card{min-width:0}#page-subscription .sub-summary-card>.val{font-size:21px}#page-subscription .sub-status-card{min-height:96px;padding:12px}.sub-break-row{align-items:flex-start!important;flex-direction:column;gap:2px!important}}
+@media(max-width:430px){#page-subscription .sub-summary-grid{grid-template-columns:1fr 1fr;gap:8px}#page-subscription .sub-summary-card{padding:12px}.sub-status-icon{width:26px!important;height:26px!important;flex-basis:26px!important}}
+</style>
 </html>
 <style>
 
