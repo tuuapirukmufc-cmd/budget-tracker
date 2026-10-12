@@ -778,6 +778,26 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 .shop-check{width:18px;height:18px;accent-color:#16a34a;cursor:pointer}.shop-link{display:inline-flex;align-items:center;gap:4px;padding:5px 8px;border-radius:8px;background:#eff6ff;color:#2563eb;text-decoration:none;font-size:11px;font-weight:700}.shop-link:hover{background:#dbeafe}.shop-done{text-decoration:line-through;color:var(--g400)!important}.shop-total-cell{font-weight:800;color:var(--g800)}.shop-empty{padding:28px 12px;text-align:center;color:var(--g400);font-size:12px}.shopping-table-card .table-scroll{overflow:auto}
 @media(max-width:760px){.budget-tabs{width:100%;display:grid;grid-template-columns:1fr 1fr}.budget-tab{width:100%}.shopping-head{align-items:flex-start}.shopping-summary{grid-template-columns:1fr 1fr}.shopping-table{min-width:760px}}
 .todo-page-compact .tbl{font-size:11px}.todo-page-compact .tbl th{padding:7px 6px;font-size:10px}.todo-page-compact .tbl td{padding:7px 6px}.todo-page-compact .todo-main-name{font-size:11.5px}.todo-page-compact .badge,.todo-page-compact .pill{font-size:10px;padding:3px 6px}.todo-page-compact .icon-btn{width:24px;height:24px}.todo-page-compact .todo-sub-list{grid-template-columns:repeat(2,minmax(0,1fr))}@media(max-width:900px){.todo-page-compact .todo-sub-list{grid-template-columns:1fr}}
+
+/* Subscription summary cards — clear, aligned and easy to scan */
+#page-subscription .sub-summary-grid{align-items:stretch;gap:12px}
+#page-subscription .sub-summary-card{position:relative;min-width:0;min-height:112px;padding:16px 17px 14px;border:1px solid #e3e8f0;border-radius:16px;background:linear-gradient(145deg,#fff 0%,#fbfcff 100%);box-shadow:0 5px 16px rgba(25,45,80,.055);display:flex;flex-direction:column;justify-content:space-between;overflow:hidden}
+#page-subscription .sub-summary-card:before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:#5278ff;border-radius:16px 0 0 16px}
+#page-subscription .sub-summary-card.monthly:before{background:#4778f5}
+#page-subscription .sub-summary-card.yearly:before{background:#8b6ce8}
+#page-subscription .sub-summary-card.active:before{background:#18a765}
+#page-subscription .sub-summary-card.expiring:before{background:#f59e0b}
+#page-subscription .sub-summary-card .lbl{font-size:12px;line-height:1.4;color:#65728a;font-weight:600;white-space:normal;overflow-wrap:anywhere}
+#page-subscription .sub-summary-card .val{font-size:25px;line-height:1.2;font-weight:800;letter-spacing:-.35px;margin:7px 0 4px;font-variant-numeric:tabular-nums}
+#page-subscription .sub-summary-card .sub{font-size:11px;line-height:1.45;color:#718096;white-space:normal;overflow-wrap:anywhere;margin-top:auto}
+#page-subscription .sub-summary-card.monthly .val{color:#245be8}
+#page-subscription .sub-summary-card.yearly .val{color:#7151d5}
+#page-subscription .sub-summary-card.active .val{color:#14965a}
+#page-subscription .sub-summary-card.expiring .val{color:#e87900}
+#page-subscription .sub-summary-card .sub strong{color:#344054;font-weight:700}
+@media(max-width:760px){#page-subscription .sub-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}#page-subscription .sub-summary-card{padding:14px 13px 12px;min-height:108px}#page-subscription .sub-summary-card .val{font-size:22px}}
+@media(max-width:420px){#page-subscription .sub-summary-grid{grid-template-columns:1fr 1fr}#page-subscription .sub-summary-card{min-height:102px;padding:12px 10px 10px}#page-subscription .sub-summary-card .lbl{font-size:11px}#page-subscription .sub-summary-card .val{font-size:20px}#page-subscription .sub-summary-card .sub{font-size:10px}}
+
 </style>
 
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -1375,11 +1395,11 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
       <button class="btn btn-pri btn-sm" onclick="openSubM()">+ เพิ่ม</button>
     </div>
   </div>
-  <div class="cards c4">
-    <div class="card"><div class="lbl">รวมค่าใช้จ่าย/เดือน</div><div class="val vb" id="sub-mo">฿0</div><div class="sub" id="sub-mo-note">เฉพาะรายการที่เปิดใช้งาน</div></div>
-    <div class="card"><div class="lbl">รวมค่าใช้จ่าย/ปี</div><div class="val vb" id="sub-yr">฿0</div><div class="sub" id="sub-yr-note">เฉพาะรายการที่เปิดใช้งาน</div></div>
-    <div class="card"><div class="lbl">กำลังใช้งาน</div><div class="val vg" id="sub-act">0</div></div>
-    <div class="card"><div class="lbl">ใกล้หมดอายุ (15 วัน)</div><div class="val vc" id="sub-exp">0</div></div>
+  <div class="cards c4 sub-summary-grid">
+    <div class="card sub-summary-card monthly"><div class="lbl">ยอดรวมแพ็กเกจรายเดือน</div><div class="val" id="sub-mo">฿0</div><div class="sub" id="sub-mo-note">รวมเฉพาะแพ็กเกจที่คิดค่าบริการรายเดือน</div></div>
+    <div class="card sub-summary-card yearly"><div class="lbl">ยอดรวมแพ็กเกจรายปี</div><div class="val" id="sub-yr">฿0</div><div class="sub" id="sub-yr-note">รวมเฉพาะแพ็กเกจที่คิดค่าบริการรายปี</div></div>
+    <div class="card sub-summary-card active"><div class="lbl">กำลังใช้งาน</div><div class="val" id="sub-act">0 รายการ</div><div class="sub">สถานะเปิดใช้งานในขณะนี้</div></div>
+    <div class="card sub-summary-card expiring"><div class="lbl">ใกล้หมดอายุ <span style="color:#98a2b3;font-weight:500">ภายใน 15 วัน</span></div><div class="val" id="sub-exp">0 รายการ</div><div class="sub">เฉพาะรายการที่ยังเปิดใช้งาน</div></div>
   </div>
   <div class="sec">
     <div class="sec-head"><span class="sec-title"><span class="dot db"></span>รายการสมาชิก</span></div>
@@ -4686,10 +4706,9 @@ function getRiderResetMeta(){return ls(uKey('rider_reset_meta_v1'),{})}
 function saveRiderResetMeta(v){lss(uKey('rider_reset_meta_v1'),v)}
 function riderMonthKeyFromDateKey(key){return String(key||'').slice(0,7)}
 function riderCurrentMonthKey(){return `${riderY}-${String(riderM+1).padStart(2,'0')}`}
-function riderResetInfo(key){const all=getRiderResetMeta();return all[riderMonthKeyFromDateKey(key)]||{active:true,edits:{},history:{}}}
-function riderResetEditCount(key){const info=riderResetInfo(key);return Math.max(0,parseInt(info.edits?.[key])||0)}
-// กติกาแก้ย้อนหลังและประวัติใช้กับทุกเดือน ไม่ขึ้นกับการกดเคลียร์กระดาน
-function riderResetActive(key){return true}
+function riderResetInfo(key){const all=getRiderResetMeta();return all[riderMonthKeyFromDateKey(key)]||null}
+function riderResetEditCount(key){const info=riderResetInfo(key);return info&&info.active?Math.max(0,parseInt(info.edits?.[key])||0):0}
+function riderResetActive(key){return !!riderResetInfo(key)?.active}
 function riderIsLockedKey(key){
   // หลังเคลียร์กระดาน: จำกัด 2 ครั้งเฉพาะวันย้อนหลังเท่านั้น
   // วันนี้และวันอนาคตยังแก้ไขได้ตามปกติ ไม่จำกัดจำนวนครั้ง
@@ -4700,8 +4719,9 @@ function riderIsLockedKey(key){
   return riderIsPastKey(key);
 }
 function bumpRiderResetEdit(key){
-  const meta=getRiderResetMeta(),mk=riderMonthKeyFromDateKey(key),info=meta[mk]||{active:true,edits:{},history:{}};
-  info.active=true;info.edits=info.edits||{};info.edits[key]=(parseInt(info.edits[key])||0)+1;meta[mk]=info;saveRiderResetMeta(meta);return info.edits[key];
+  const meta=getRiderResetMeta(),mk=riderMonthKeyFromDateKey(key),info=meta[mk];
+  if(!info?.active)return 0;
+  info.edits=info.edits||{};info.edits[key]=(parseInt(info.edits[key])||0)+1;meta[mk]=info;saveRiderResetMeta(meta);return info.edits[key];
 }
 function riderHistorySnapshot(it){
   it=it||{};
@@ -4716,17 +4736,17 @@ function riderHistoryText(s){
   return parts.join(' · ');
 }
 function recordRiderResetHistory(key,before,after){
-  if(!riderIsPastKey(key))return;
-  const meta=getRiderResetMeta(),mk=riderMonthKeyFromDateKey(key),info=meta[mk]||{active:true,edits:{},history:{}};
-  info.active=true;info.history=info.history||{};info.history[key]=info.history[key]||[];
+  if(!riderResetActive(key)||!riderIsPastKey(key))return;
+  const meta=getRiderResetMeta(),mk=riderMonthKeyFromDateKey(key),info=meta[mk];if(!info?.active)return;
+  info.history=info.history||{};info.history[key]=info.history[key]||[];
   info.history[key].push({at:Date.now(),before:riderHistorySnapshot(before),after:riderHistorySnapshot(after)});
   if(info.history[key].length>2)info.history[key]=info.history[key].slice(-2);
   meta[mk]=info;saveRiderResetMeta(meta);
 }
-function riderHistoryItems(key){const info=riderResetInfo(key);return Array.isArray(info.history?.[key])?info.history[key]:[]}
+function riderHistoryItems(key){const info=riderResetInfo(key);return info?.active&&Array.isArray(info.history?.[key])?info.history[key]:[]}
 function riderHistoryHtml(key){
   const hs=riderHistoryItems(key);if(!hs.length)return '';
-  const items=hs.map((h,i)=>{const dt=new Date(h.at),tm=dt.toLocaleString('th-TH',{day:'2-digit',month:'short',year:'2-digit',hour:'2-digit',minute:'2-digit'});return `<div class="hi"><b>ครั้งที่ ${i+1}</b> · ${tm}<br><span>ก่อน: ${riderEsc(riderHistoryText(h.before))}</span><br><span>หลัง: ${riderEsc(riderHistoryText(h.after))}</span></div>`}).join('');
+  const items=hs.map((h,i)=>{const dt=new Date(h.at),tm=dt.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});return `<div class="hi"><b>ครั้งที่ ${i+1}</b> · ${tm}<br><span>ก่อน: ${riderEsc(riderHistoryText(h.before))}</span><br><span>หลัง: ${riderEsc(riderHistoryText(h.after))}</span></div>`}).join('');
   return `<span class="rider-history-wrap" onclick="event.stopPropagation();this.classList.toggle('open')"><button type="button" class="rider-history-dot" title="ดูประวัติการแก้ไข">i</button><span class="rider-history-tip"><div class="hh">ประวัติแก้ไขย้อนหลัง</div>${items}</span></span>`;
 }
 function clearRiderBoard(){
@@ -4808,12 +4828,15 @@ function saveRiderOffReason(){
 function setRiderStatus(key,status){
   if(riderIsLockedKey(key))return;
   if(status==='off'){openRiderOffReason(key);return}
-  const all=getRiderDays(),cur=all[key]||{},before=riderHistorySnapshot(cur);
-  if(cur.status===status){delete all[key];}
-  else{all[key]={...cur,status};if(status==='work')delete all[key].offReason;}
-  const after=all[key]||{};saveRiderDays(all);
-  if(riderIsPastKey(key)){recordRiderResetHistory(key,before,after);bumpRiderResetEdit(key);}
-  renderRider();
+  const all=getRiderDays();
+  const cur=all[key]||{};
+  if(cur.status===status){
+    delete all[key];
+  }else{
+    all[key]={...cur,status};
+    if(status==='work')delete all[key].offReason;
+  }
+  saveRiderDays(all);renderRider();
 }
 function setRiderMoney(key,field,value){
   if(riderIsLockedKey(key))return;
@@ -5078,22 +5101,22 @@ function delSub(){
 function renderSub(){
   const subs=getSubs(),today=new Date();
   const active=subs.filter(s=>s.status==='active');
-  // สรุปสมาชิก: นับเฉพาะรายการที่กำลังใช้งาน
-  // ราคา/ปี นำมาเฉลี่ยเป็นรายเดือน และราคา/เดือนนำไปคูณ 12 สำหรับยอดรายปี
+  // แยกยอดตามรอบเรียกเก็บเงินจริง: รายเดือนอยู่เฉพาะยอดรายเดือน และรายปีอยู่เฉพาะยอดรายปี
   const annualPlans=active.reduce((sum,i)=>sum+(parseFloat(i.price)||0),0);
   const monthlyPlans=active.reduce((sum,i)=>sum+(parseFloat(i.priceMonthly)||0),0);
-  const tMo=annualPlans/12+monthlyPlans;
-  const tYr=annualPlans+(monthlyPlans*12);
+  const tMo=monthlyPlans;
+  const tYr=annualPlans;
   const exp=active.filter(s=>{if(!s.end)return false;const d=new Date(s.end);return(d-today)/86400000<=15&&d>=today}).length;
   document.getElementById('sub-mo').textContent=fmt(tMo);
   document.getElementById('sub-yr').textContent=fmt(tYr);
   const moNote=document.getElementById('sub-mo-note');
-  if(moNote)moNote.textContent=`รายปีเฉลี่ย/เดือน ${fmt(annualPlans/12)} + รายเดือน ${fmt(monthlyPlans)}`;
+  if(moNote)moNote.innerHTML=`<strong>${fmt(monthlyPlans)}</strong> จากแพ็กเกจรายเดือนเท่านั้น`;
   const yrNote=document.getElementById('sub-yr-note');
-  if(yrNote)yrNote.textContent=`รายปี ${fmt(annualPlans)} + รายเดือน × 12 ${fmt(monthlyPlans*12)}`;
+  if(yrNote)yrNote.innerHTML=`<strong>${fmt(annualPlans)}</strong> จากแพ็กเกจรายปีเท่านั้น`;
   document.getElementById('sub-act').textContent=active.length+' รายการ';
   document.getElementById('sub-exp').textContent=exp+' รายการ';
   document.getElementById('sub-tot').textContent=fmt(tYr);
+  const subFoot=document.querySelector('#page-subscription .tfoot span');if(subFoot)subFoot.textContent='รวมราคาแพ็กเกจรายปี';
   const tb=document.getElementById('sub-body');
   // sort header
   const si=sortIcon.bind(null,'subscription','col');
