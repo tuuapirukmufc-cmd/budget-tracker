@@ -778,26 +778,6 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 .shop-check{width:18px;height:18px;accent-color:#16a34a;cursor:pointer}.shop-link{display:inline-flex;align-items:center;gap:4px;padding:5px 8px;border-radius:8px;background:#eff6ff;color:#2563eb;text-decoration:none;font-size:11px;font-weight:700}.shop-link:hover{background:#dbeafe}.shop-done{text-decoration:line-through;color:var(--g400)!important}.shop-total-cell{font-weight:800;color:var(--g800)}.shop-empty{padding:28px 12px;text-align:center;color:var(--g400);font-size:12px}.shopping-table-card .table-scroll{overflow:auto}
 @media(max-width:760px){.budget-tabs{width:100%;display:grid;grid-template-columns:1fr 1fr}.budget-tab{width:100%}.shopping-head{align-items:flex-start}.shopping-summary{grid-template-columns:1fr 1fr}.shopping-table{min-width:760px}}
 .todo-page-compact .tbl{font-size:11px}.todo-page-compact .tbl th{padding:7px 6px;font-size:10px}.todo-page-compact .tbl td{padding:7px 6px}.todo-page-compact .todo-main-name{font-size:11.5px}.todo-page-compact .badge,.todo-page-compact .pill{font-size:10px;padding:3px 6px}.todo-page-compact .icon-btn{width:24px;height:24px}.todo-page-compact .todo-sub-list{grid-template-columns:repeat(2,minmax(0,1fr))}@media(max-width:900px){.todo-page-compact .todo-sub-list{grid-template-columns:1fr}}
-
-/* Mobile left drawer navigation: isolated to small screens */
-@media(max-width:768px){
-  :root{--mobile-drawer-w:68px}
-  .mob-nav{top:0;bottom:0;left:0;right:auto;width:var(--mobile-drawer-w);height:100dvh;max-height:100vh;padding:58px 5px 8px;background:#111827;border-top:0;border-right:1px solid #263244;display:flex;flex-direction:column;transition:width .2s ease;box-shadow:4px 0 18px rgba(15,23,42,.12);overflow:hidden}
-  .mob-nav.drawer-open{width:218px}
-  .mob-nav-inner{height:auto;min-height:0;flex:1;display:flex;flex-direction:column;align-items:stretch;overflow-y:auto;overflow-x:hidden;gap:4px}
-  .mob-tab{flex:0 0 auto;width:100%;min-width:0;min-height:48px;flex-direction:row;justify-content:flex-start;gap:12px;padding:8px 10px;border-radius:10px;color:#aab4c4}
-  .mob-tab.active{background:#1f2937;color:#4ade80}
-  .mob-tab .micon{width:28px;min-width:28px;font-size:21px;text-align:center}
-  .mob-tab .mlbl{display:none;font-size:13px;text-align:left;white-space:normal;line-height:1.25}
-  .mob-nav.drawer-open .mob-tab .mlbl{display:block}
-  .mobile-nav-toggle{position:fixed;top:9px;left:10px;z-index:230;width:44px;height:40px;border:1px solid #334155;border-radius:11px;background:#1f2937;color:#fff;font-size:21px;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(0,0,0,.18);cursor:pointer}
-  .main-content{margin-left:0;padding-left:var(--mobile-drawer-w)}
-  .mob-header{padding-left:12px}
-  .page{padding-bottom:1rem}
-  body.mobile-drawer-expanded .main-content{padding-left:0}
-  body.mobile-drawer-expanded .mob-header{padding-left:12px}
-}
-@media(min-width:769px){.mobile-nav-toggle{display:none!important}}
 </style>
 
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -809,6 +789,69 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 #vehicle-maint-items-f .vehicle-maint-edit-row .vm-remove{padding:5px 7px}
 @media(max-width:700px){#vehicle-maint-items-f .vehicle-maint-edit-row{grid-template-columns:1fr 100px!important}.vehicle-maint-edit-row .vm-link{grid-column:1/-1}.vehicle-maint-edit-row .vm-remove{grid-column:2;justify-self:end;margin-top:-4px}}
 </style>
+
+<style id="happy-manga-theme">
+/* Happy Money • playful manga scrapbook theme */
+:root{--g50:#fff9ef;--g100:#f9eddd;--g200:#f0dcc4;--g300:#dfc4a8;--g400:#8f796b;--g600:#5f4b40;--g900:#28232b;--surface:#fffdf8;--surface2:#fff4e3;--input-bg:#fffefa;--green:#269b68;--gl:#e4f7e9;--gd:#146843;--blue:#438bd8;--bl:#e7f2ff;--bd:#245ca8;--gold:#e5a12c;--shadow:0 4px 0 rgba(84,57,42,.07),0 8px 22px rgba(95,69,51,.07);--r:18px;--rsm:12px}
+body{background-color:#fff8ed;background-image:radial-gradient(#f1d9c0 0.7px,transparent .7px),linear-gradient(135deg,rgba(255,224,163,.12),rgba(255,202,219,.10));background-size:14px 14px,100% 100%;color:#28232b}
+.card,.page-head-actions .btn,.modal,.ov .modal,.page-head .btn,.auth-box{border-radius:18px;border-color:#ecd9c5;box-shadow:var(--shadow)}
+.card{background:#fffdf8}
+.btn{border-radius:12px;font-weight:750}
+input,select,textarea{border-radius:11px!important}
+.page-head h2,.brand,.hero-sync-title{letter-spacing:-.025em}
+.page-head h2{color:#302632}
+/* Mobile menu: real expandable drawer, using the same live navigation as desktop */
+#mobile-menu-toggle,.mobile-menu-btn{display:none}
+#mobile-menu-backdrop{display:none}
+@media(max-width:768px){
+  :root{--bottom-h:0px}
+  .mob-nav{display:none!important}
+  .sidebar{display:flex!important;position:fixed;top:0;left:0;bottom:0;width:min(292px,86vw);padding:18px 14px calc(18px + env(safe-area-inset-bottom));background:#fffaf1;border-right:3px solid #ead3b8;box-shadow:8px 0 28px rgba(68,43,28,.15);z-index:1002;overflow-y:auto;transform:translateX(-110%);transition:transform .24s cubic-bezier(.2,.8,.2,1);border-radius:0 22px 22px 0}
+  .sidebar.mobile-menu-open,.sidebar.mobile-open{transform:translateX(0)}
+  .sidebar .brand{color:#302632;padding:6px 8px 15px;margin-bottom:10px;border-bottom:2px dashed #efd6bb;font-size:18px}
+  .sidebar .brand .brand-accent{color:#e36f88}
+  .sidebar .nav-tab{display:flex;white-space:normal;min-height:48px;padding:10px 12px;margin:4px 0;border:1.5px solid transparent;border-radius:14px;color:#6c5b53;font-size:14px;font-weight:750;gap:12px}
+  .sidebar .nav-tab .nt-icon{font-size:22px;width:28px}
+  .sidebar .nav-tab:hover{background:#fff0d9;color:#44312a;border-color:#f0d5b0}
+  .sidebar .nav-tab.active{background:#e6f6e8;color:#176a46;border:1.5px solid #b9e3c2;box-shadow:0 3px 0 rgba(38,155,104,.09)}
+  .sidebar-foot{border-top:2px dashed #efd6bb;padding-top:12px}
+  .sidebar-foot .btn{background:#fff0d9!important;color:#6c4935!important;border:1px solid #efd0a7!important}
+  .main-content{margin-left:0;min-width:0}
+  .mob-header{display:flex;position:sticky;top:0;z-index:90;background:rgba(255,250,241,.96);backdrop-filter:blur(12px);border-bottom:2px solid #efd9c1;padding:10px 12px;gap:10px}
+  .mob-header>div:first-child{min-width:0;gap:9px}
+  .mob-header h2{font-size:16px;line-height:1.25;white-space:normal}
+  #mobile-menu-toggle,.mobile-menu-btn{display:inline-flex;align-items:center;justify-content:center;flex:0 0 42px;width:42px;height:42px;border:2px solid #e6c8a7;border-radius:14px;background:#fff0d9;color:#43312b;font-size:22px;box-shadow:0 3px 0 rgba(93,61,39,.08);cursor:pointer}
+  #mobile-menu-toggle:active,.mobile-menu-btn:active{transform:translateY(1px)}
+  #mobile-menu-backdrop{display:block;position:fixed;inset:0;background:rgba(46,32,27,.38);backdrop-filter:blur(2px);z-index:1001;opacity:0;pointer-events:none;transition:opacity .2s}
+  #mobile-menu-backdrop.open{opacity:1;pointer-events:auto}
+  .page{padding:.8rem;padding-bottom:calc(1rem + env(safe-area-inset-bottom));background:transparent}
+  .page-wrap{background:transparent}
+  #cloud-bar{background:#fffdf7!important;border-bottom:2px dashed #efd9c1!important}
+  .cloud-status{overflow-wrap:anywhere}
+}
+/* Loading / Firestore screen: warm paper and playful comic panel */
+#startup-gate{--hero-red:#e86d82;--hero-red-deep:#a9455b;--hero-blue:#5ba6d8;--hero-cyan:#8bd9c7;--hero-gold:#f4c85f;--hero-ink:#382b2d;--hero-panel:#fffdf8;color:#382b2d;background-color:#fff5e8;background-image:radial-gradient(#e8cdb3 .8px,transparent .8px),linear-gradient(145deg,#fff7e9,#ffeef0 52%,#edf8f1);background-size:15px 15px,100% 100%}
+#startup-gate::before{opacity:.25;background-image:linear-gradient(rgba(120,76,54,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(120,76,54,.08) 1px,transparent 1px);background-size:24px 24px;transform:none;animation:none}
+#startup-gate::after{background:radial-gradient(circle at 12% 18%,rgba(244,200,95,.24) 0 4px,transparent 5px),radial-gradient(circle at 88% 78%,rgba(232,109,130,.18) 0 5px,transparent 6px);mix-blend-mode:normal}
+.hero-sync-shell{border-radius:28px;padding:3px;background:repeating-linear-gradient(135deg,#f0b7a4 0 9px,#fff0d8 9px 18px,#a9d8c0 18px 27px);box-shadow:0 8px 0 rgba(114,73,51,.08),0 18px 45px rgba(114,73,51,.12)}
+.hero-sync-card{border-radius:25px;background:rgba(255,253,248,.97);border:2px solid #e9d1b8;padding:30px 26px 25px;box-shadow:inset 0 0 0 5px rgba(255,240,218,.65)}
+.hero-sync-card::before{background:radial-gradient(circle,rgba(244,200,95,.23),transparent 70%);opacity:1}
+.hero-sync-title{color:#382b2d;text-shadow:none;font-size:clamp(23px,5vw,29px)}
+.hero-sync-sub{color:#997a68;letter-spacing:.08em}
+#startup-gate-text{color:#6f5a50}
+.hero-sync-meta{color:#9c8475}
+.hero-sync-meta .secure{color:#21885c}
+.hero-ring,.hero-ring2{border-color:rgba(232,109,130,.32)!important}
+.hero-core{filter:drop-shadow(0 5px 0 rgba(115,77,51,.1))}
+.hero-bolt{filter:none;color:#fff}
+.hero-progress{background:#f3e6d6;box-shadow:inset 0 0 0 1px #ead6c2}
+.hero-progress>span{background:repeating-linear-gradient(90deg,#e86d82 0 18px,#f4c85f 18px 36px,#74c5a0 36px 54px);box-shadow:none}
+#startup-retry{background:#e86d82!important;color:#fff!important;border:2px solid #d75b73!important;box-shadow:0 4px 0 rgba(168,64,84,.15)!important}
+#firebase-login-btn{background:#fff0d9!important;color:#49342c!important;border:2px solid #efd0a7!important;box-shadow:0 4px 0 rgba(93,61,39,.08)!important}
+#startup-gate.sync-error .hero-sync-shell{background:repeating-linear-gradient(135deg,#e86d82 0 9px,#fff0d8 9px 18px)}
+@media(max-width:520px){#startup-gate{padding:16px}.hero-sync-card{padding:24px 18px 20px}.hero-sync-shell{border-radius:24px}.hero-sync-card{border-radius:21px}}
+</style>
+
 </head>
 <body>
 <div id="startup-gate" class="sync-loading">
@@ -829,6 +872,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
     </div>
   </div>
 </div>
+<div id="mobile-menu-backdrop" onclick="closeMobileMenu()" aria-hidden="true"></div>
 <div id="app-screen" style="display:none">
 <!-- Sidebar (desktop) -->
 <nav class="sidebar">
@@ -839,6 +883,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 <!-- Mobile header -->
 <div class="mob-header" id="mob-header">
   <div style="display:flex;align-items:center">
+    <button type="button" id="mobile-menu-toggle" aria-label="เปิดเมนู" aria-expanded="false" onclick="toggleMobileMenu()">☰</button>
     <span class="app-icon"></span>
     <h2 id="mob-title">★ ภาพรวม</h2>
   </div>
@@ -1532,7 +1577,6 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 </div><!-- /main-content -->
 
 <!-- Mobile bottom nav -->
-<button type="button" class="mobile-nav-toggle" id="mobile-nav-toggle" aria-label="เปิดหรือปิดเมนู" aria-expanded="false" onclick="toggleMobileDrawer()">☰</button>
 <nav class="mob-nav">
   <div class="mob-nav-inner">
     <div class="mob-tab" data-page="todo" onclick="swMob('todo',this,'สิ่งที่ต้องทำ')"><div class="micon">📝</div><div class="mlbl">ต้องทำ</div></div>
@@ -2635,14 +2679,26 @@ function sw(id,el){
   syncCurrentPageTitle();
 }
 
-function toggleMobileDrawer(){
-  const nav=document.querySelector('.mob-nav');
-  const btn=document.getElementById('mobile-nav-toggle');
-  if(!nav||!btn)return;
-  const open=nav.classList.toggle('drawer-open');
-  document.body.classList.toggle('mobile-drawer-expanded',open);
-  btn.setAttribute('aria-expanded',String(open));
-  btn.textContent=open?'×':'☰';
+function toggleMobileMenu(){
+  const menu=document.querySelector('.sidebar');
+  const backdrop=document.getElementById('mobile-menu-backdrop');
+  const toggle=document.getElementById('mobile-menu-toggle');
+  if(!menu||!backdrop)return;
+  const open=!menu.classList.contains('mobile-menu-open');
+  menu.classList.toggle('mobile-menu-open',open);
+  backdrop.classList.toggle('open',open);
+  backdrop.setAttribute('aria-hidden',String(!open));
+  if(toggle){toggle.setAttribute('aria-expanded',String(open));toggle.setAttribute('aria-label',open?'ปิดเมนู':'เปิดเมนู');toggle.textContent=open?'✕':'☰';}
+  document.body.classList.toggle('mobile-menu-visible',open);document.body.classList.toggle('mobile-menu-lock',open);
+}
+function closeMobileMenu(){
+  const menu=document.querySelector('.sidebar');
+  const backdrop=document.getElementById('mobile-menu-backdrop');
+  const toggle=document.getElementById('mobile-menu-toggle');
+  if(menu)menu.classList.remove('mobile-menu-open');
+  if(backdrop){backdrop.classList.remove('open');backdrop.setAttribute('aria-hidden','true');}
+  if(toggle){toggle.setAttribute('aria-expanded','false');toggle.setAttribute('aria-label','เปิดเมนู');toggle.textContent='☰';}
+  document.body.classList.remove('mobile-menu-visible','mobile-menu-lock');
 }
 function swMob(id,el,title){
   document.querySelectorAll('.mob-tab').forEach(t=>t.classList.remove('active'));
@@ -2727,7 +2783,7 @@ function renderSidebarNav(){
     const parts=pageLabelParts(p);
     const icon=parts.icon,text=parts.text;
     const isActive=id===curPage;
-    return`<div class="nav-tab${isActive?' active':''}" data-page="${id}" onclick="sw('${id}',this)" style="${hidden.includes(id)?'display:none':''}"><span class="nt-icon">${icon}</span>${text}</div>`;
+    return`<div class="nav-tab${isActive?' active':''}" data-page="${id}" onclick="sw('${id}',this);closeMobileMenu()" style="${hidden.includes(id)?'display:none':''}"><span class="nt-icon">${icon}</span>${text}</div>`;
   }).join('');
   document.getElementById('sidebar-nav-list').innerHTML=html;
 }
