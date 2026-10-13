@@ -789,69 +789,6 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 #vehicle-maint-items-f .vehicle-maint-edit-row .vm-remove{padding:5px 7px}
 @media(max-width:700px){#vehicle-maint-items-f .vehicle-maint-edit-row{grid-template-columns:1fr 100px!important}.vehicle-maint-edit-row .vm-link{grid-column:1/-1}.vehicle-maint-edit-row .vm-remove{grid-column:2;justify-self:end;margin-top:-4px}}
 </style>
-
-<style id="happy-manga-theme">
-/* Happy Money • playful manga scrapbook theme */
-:root{--g50:#fff9ef;--g100:#f9eddd;--g200:#f0dcc4;--g300:#dfc4a8;--g400:#8f796b;--g600:#5f4b40;--g900:#28232b;--surface:#fffdf8;--surface2:#fff4e3;--input-bg:#fffefa;--green:#269b68;--gl:#e4f7e9;--gd:#146843;--blue:#438bd8;--bl:#e7f2ff;--bd:#245ca8;--gold:#e5a12c;--shadow:0 4px 0 rgba(84,57,42,.07),0 8px 22px rgba(95,69,51,.07);--r:18px;--rsm:12px}
-body{background-color:#fff8ed;background-image:radial-gradient(#f1d9c0 0.7px,transparent .7px),linear-gradient(135deg,rgba(255,224,163,.12),rgba(255,202,219,.10));background-size:14px 14px,100% 100%;color:#28232b}
-.card,.page-head-actions .btn,.modal,.ov .modal,.page-head .btn,.auth-box{border-radius:18px;border-color:#ecd9c5;box-shadow:var(--shadow)}
-.card{background:#fffdf8}
-.btn{border-radius:12px;font-weight:750}
-input,select,textarea{border-radius:11px!important}
-.page-head h2,.brand,.hero-sync-title{letter-spacing:-.025em}
-.page-head h2{color:#302632}
-/* Mobile menu: real expandable drawer, using the same live navigation as desktop */
-#mobile-menu-toggle,.mobile-menu-btn{display:none}
-#mobile-menu-backdrop{display:none}
-@media(max-width:768px){
-  :root{--bottom-h:0px}
-  .mob-nav{display:none!important}
-  .sidebar{display:flex!important;position:fixed;top:0;left:0;bottom:0;width:min(292px,86vw);padding:18px 14px calc(18px + env(safe-area-inset-bottom));background:#fffaf1;border-right:3px solid #ead3b8;box-shadow:8px 0 28px rgba(68,43,28,.15);z-index:1002;overflow-y:auto;transform:translateX(-110%);transition:transform .24s cubic-bezier(.2,.8,.2,1);border-radius:0 22px 22px 0}
-  .sidebar.mobile-menu-open,.sidebar.mobile-open{transform:translateX(0)}
-  .sidebar .brand{color:#302632;padding:6px 8px 15px;margin-bottom:10px;border-bottom:2px dashed #efd6bb;font-size:18px}
-  .sidebar .brand .brand-accent{color:#e36f88}
-  .sidebar .nav-tab{display:flex;white-space:normal;min-height:48px;padding:10px 12px;margin:4px 0;border:1.5px solid transparent;border-radius:14px;color:#6c5b53;font-size:14px;font-weight:750;gap:12px}
-  .sidebar .nav-tab .nt-icon{font-size:22px;width:28px}
-  .sidebar .nav-tab:hover{background:#fff0d9;color:#44312a;border-color:#f0d5b0}
-  .sidebar .nav-tab.active{background:#e6f6e8;color:#176a46;border:1.5px solid #b9e3c2;box-shadow:0 3px 0 rgba(38,155,104,.09)}
-  .sidebar-foot{border-top:2px dashed #efd6bb;padding-top:12px}
-  .sidebar-foot .btn{background:#fff0d9!important;color:#6c4935!important;border:1px solid #efd0a7!important}
-  .main-content{margin-left:0;min-width:0}
-  .mob-header{display:flex;position:sticky;top:0;z-index:90;background:rgba(255,250,241,.96);backdrop-filter:blur(12px);border-bottom:2px solid #efd9c1;padding:10px 12px;gap:10px}
-  .mob-header>div:first-child{min-width:0;gap:9px}
-  .mob-header h2{font-size:16px;line-height:1.25;white-space:normal}
-  #mobile-menu-toggle,.mobile-menu-btn{display:inline-flex;align-items:center;justify-content:center;flex:0 0 42px;width:42px;height:42px;border:2px solid #e6c8a7;border-radius:14px;background:#fff0d9;color:#43312b;font-size:22px;box-shadow:0 3px 0 rgba(93,61,39,.08);cursor:pointer}
-  #mobile-menu-toggle:active,.mobile-menu-btn:active{transform:translateY(1px)}
-  #mobile-menu-backdrop{display:block;position:fixed;inset:0;background:rgba(46,32,27,.38);backdrop-filter:blur(2px);z-index:1001;opacity:0;pointer-events:none;transition:opacity .2s}
-  #mobile-menu-backdrop.open{opacity:1;pointer-events:auto}
-  .page{padding:.8rem;padding-bottom:calc(1rem + env(safe-area-inset-bottom));background:transparent}
-  .page-wrap{background:transparent}
-  #cloud-bar{background:#fffdf7!important;border-bottom:2px dashed #efd9c1!important}
-  .cloud-status{overflow-wrap:anywhere}
-}
-/* Loading / Firestore screen: warm paper and playful comic panel */
-#startup-gate{--hero-red:#e86d82;--hero-red-deep:#a9455b;--hero-blue:#5ba6d8;--hero-cyan:#8bd9c7;--hero-gold:#f4c85f;--hero-ink:#382b2d;--hero-panel:#fffdf8;color:#382b2d;background-color:#fff5e8;background-image:radial-gradient(#e8cdb3 .8px,transparent .8px),linear-gradient(145deg,#fff7e9,#ffeef0 52%,#edf8f1);background-size:15px 15px,100% 100%}
-#startup-gate::before{opacity:.25;background-image:linear-gradient(rgba(120,76,54,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(120,76,54,.08) 1px,transparent 1px);background-size:24px 24px;transform:none;animation:none}
-#startup-gate::after{background:radial-gradient(circle at 12% 18%,rgba(244,200,95,.24) 0 4px,transparent 5px),radial-gradient(circle at 88% 78%,rgba(232,109,130,.18) 0 5px,transparent 6px);mix-blend-mode:normal}
-.hero-sync-shell{border-radius:28px;padding:3px;background:repeating-linear-gradient(135deg,#f0b7a4 0 9px,#fff0d8 9px 18px,#a9d8c0 18px 27px);box-shadow:0 8px 0 rgba(114,73,51,.08),0 18px 45px rgba(114,73,51,.12)}
-.hero-sync-card{border-radius:25px;background:rgba(255,253,248,.97);border:2px solid #e9d1b8;padding:30px 26px 25px;box-shadow:inset 0 0 0 5px rgba(255,240,218,.65)}
-.hero-sync-card::before{background:radial-gradient(circle,rgba(244,200,95,.23),transparent 70%);opacity:1}
-.hero-sync-title{color:#382b2d;text-shadow:none;font-size:clamp(23px,5vw,29px)}
-.hero-sync-sub{color:#997a68;letter-spacing:.08em}
-#startup-gate-text{color:#6f5a50}
-.hero-sync-meta{color:#9c8475}
-.hero-sync-meta .secure{color:#21885c}
-.hero-ring,.hero-ring2{border-color:rgba(232,109,130,.32)!important}
-.hero-core{filter:drop-shadow(0 5px 0 rgba(115,77,51,.1))}
-.hero-bolt{filter:none;color:#fff}
-.hero-progress{background:#f3e6d6;box-shadow:inset 0 0 0 1px #ead6c2}
-.hero-progress>span{background:repeating-linear-gradient(90deg,#e86d82 0 18px,#f4c85f 18px 36px,#74c5a0 36px 54px);box-shadow:none}
-#startup-retry{background:#e86d82!important;color:#fff!important;border:2px solid #d75b73!important;box-shadow:0 4px 0 rgba(168,64,84,.15)!important}
-#firebase-login-btn{background:#fff0d9!important;color:#49342c!important;border:2px solid #efd0a7!important;box-shadow:0 4px 0 rgba(93,61,39,.08)!important}
-#startup-gate.sync-error .hero-sync-shell{background:repeating-linear-gradient(135deg,#e86d82 0 9px,#fff0d8 9px 18px)}
-@media(max-width:520px){#startup-gate{padding:16px}.hero-sync-card{padding:24px 18px 20px}.hero-sync-shell{border-radius:24px}.hero-sync-card{border-radius:21px}}
-</style>
-
 </head>
 <body>
 <div id="startup-gate" class="sync-loading">
@@ -872,7 +809,6 @@ input,select,textarea{border-radius:11px!important}
     </div>
   </div>
 </div>
-<div id="mobile-menu-backdrop" onclick="closeMobileMenu()" aria-hidden="true"></div>
 <div id="app-screen" style="display:none">
 <!-- Sidebar (desktop) -->
 <nav class="sidebar">
@@ -883,7 +819,6 @@ input,select,textarea{border-radius:11px!important}
 <!-- Mobile header -->
 <div class="mob-header" id="mob-header">
   <div style="display:flex;align-items:center">
-    <button type="button" id="mobile-menu-toggle" aria-label="เปิดเมนู" aria-expanded="false" onclick="toggleMobileMenu()">☰</button>
     <span class="app-icon"></span>
     <h2 id="mob-title">★ ภาพรวม</h2>
   </div>
@@ -1440,11 +1375,21 @@ input,select,textarea{border-radius:11px!important}
       <button class="btn btn-pri btn-sm" onclick="openSubM()">+ เพิ่ม</button>
     </div>
   </div>
-  <div class="cards c4">
-    <div class="card"><div class="lbl">รวมค่าใช้จ่าย/เดือน</div><div class="val vb" id="sub-mo">฿0</div><div class="sub" id="sub-mo-note">เฉพาะรายการที่เปิดใช้งาน</div></div>
-    <div class="card"><div class="lbl">รวมค่าใช้จ่าย/ปี</div><div class="val vb" id="sub-yr">฿0</div><div class="sub" id="sub-yr-note">เฉพาะรายการที่เปิดใช้งาน</div></div>
-    <div class="card"><div class="lbl">กำลังใช้งาน</div><div class="val vg" id="sub-act">0</div></div>
-    <div class="card"><div class="lbl">ใกล้หมดอายุ (15 วัน)</div><div class="val vc" id="sub-exp">0</div></div>
+  <div class="cards c4 sub-summary-grid">
+    <div class="card sub-summary-card sub-month-card">
+      <div class="sub-summary-top"><span class="lbl">ค่าใช้จ่ายรายเดือน</span><span class="sub-summary-badge">MONTHLY</span></div>
+      <div class="val vb" id="sub-mo">฿0</div>
+      <div class="sub-summary-desc">คิดเฉพาะแพ็กเกจที่เก็บเงินรายเดือน</div>
+      <div class="sub-summary-detail"><span>ยอดแพ็กเกจรายเดือน</span><strong id="sub-mo-note">฿0</strong></div>
+    </div>
+    <div class="card sub-summary-card sub-year-card">
+      <div class="sub-summary-top"><span class="lbl">ค่าใช้จ่ายรายปี</span><span class="sub-summary-badge">YEARLY</span></div>
+      <div class="val vb" id="sub-yr">฿0</div>
+      <div class="sub-summary-desc">คิดเฉพาะแพ็กเกจที่เก็บเงินรายปี</div>
+      <div class="sub-summary-detail"><span>ยอดแพ็กเกจรายปี</span><strong id="sub-yr-note">฿0</strong></div>
+    </div>
+    <div class="card sub-summary-card sub-active-card"><div class="sub-summary-top"><span class="lbl">กำลังใช้งาน</span><span class="sub-summary-badge">ACTIVE</span></div><div class="val vg" id="sub-act">0</div><div class="sub-summary-desc">จำนวนรายการที่เปิดใช้งาน</div></div>
+    <div class="card sub-summary-card sub-exp-card"><div class="sub-summary-top"><span class="lbl">ใกล้หมดอายุ</span><span class="sub-summary-badge">15 DAYS</span></div><div class="val vc" id="sub-exp">0</div><div class="sub-summary-desc">รายการที่หมดอายุภายใน 15 วัน</div></div>
   </div>
   <div class="sec">
     <div class="sec-head"><span class="sec-title"><span class="dot db"></span>รายการสมาชิก</span></div>
@@ -1454,7 +1399,7 @@ input,select,textarea{border-radius:11px!important}
       <th style="width:13%">หมดอายุ</th><th style="width:9%">สถานะ</th>
       <th style="width:13%">หมายเหตุ</th><th style="width:5%" class="tc">✏</th>
     </tr></thead><tbody id="sub-body"></tbody></table>
-    <div class="tfoot"><span>รวม</span><strong id="sub-tot">฿0</strong></div>
+    <div class="sub-total-footer"><div><span>ยอดรวมรายเดือน</span><strong id="sub-tot-month">฿0</strong></div><div><span>ยอดรวมรายปี</span><strong id="sub-tot">฿0</strong></div></div>
   </div>
 </div>
 
@@ -2679,27 +2624,6 @@ function sw(id,el){
   syncCurrentPageTitle();
 }
 
-function toggleMobileMenu(){
-  const menu=document.querySelector('.sidebar');
-  const backdrop=document.getElementById('mobile-menu-backdrop');
-  const toggle=document.getElementById('mobile-menu-toggle');
-  if(!menu||!backdrop)return;
-  const open=!menu.classList.contains('mobile-menu-open');
-  menu.classList.toggle('mobile-menu-open',open);
-  backdrop.classList.toggle('open',open);
-  backdrop.setAttribute('aria-hidden',String(!open));
-  if(toggle){toggle.setAttribute('aria-expanded',String(open));toggle.setAttribute('aria-label',open?'ปิดเมนู':'เปิดเมนู');toggle.textContent=open?'✕':'☰';}
-  document.body.classList.toggle('mobile-menu-visible',open);document.body.classList.toggle('mobile-menu-lock',open);
-}
-function closeMobileMenu(){
-  const menu=document.querySelector('.sidebar');
-  const backdrop=document.getElementById('mobile-menu-backdrop');
-  const toggle=document.getElementById('mobile-menu-toggle');
-  if(menu)menu.classList.remove('mobile-menu-open');
-  if(backdrop){backdrop.classList.remove('open');backdrop.setAttribute('aria-hidden','true');}
-  if(toggle){toggle.setAttribute('aria-expanded','false');toggle.setAttribute('aria-label','เปิดเมนู');toggle.textContent='☰';}
-  document.body.classList.remove('mobile-menu-visible','mobile-menu-lock');
-}
 function swMob(id,el,title){
   document.querySelectorAll('.mob-tab').forEach(t=>t.classList.remove('active'));
   el.classList.add('active');
@@ -2783,7 +2707,7 @@ function renderSidebarNav(){
     const parts=pageLabelParts(p);
     const icon=parts.icon,text=parts.text;
     const isActive=id===curPage;
-    return`<div class="nav-tab${isActive?' active':''}" data-page="${id}" onclick="sw('${id}',this);closeMobileMenu()" style="${hidden.includes(id)?'display:none':''}"><span class="nt-icon">${icon}</span>${text}</div>`;
+    return`<div class="nav-tab${isActive?' active':''}" data-page="${id}" onclick="sw('${id}',this)" style="${hidden.includes(id)?'display:none':''}"><span class="nt-icon">${icon}</span>${text}</div>`;
   }).join('');
   document.getElementById('sidebar-nav-list').innerHTML=html;
 }
@@ -5167,22 +5091,22 @@ function delSub(){
 function renderSub(){
   const subs=getSubs(),today=new Date();
   const active=subs.filter(s=>s.status==='active');
-  // สรุปสมาชิก: นับเฉพาะรายการที่กำลังใช้งาน
-  // ราคา/ปี นำมาเฉลี่ยเป็นรายเดือน และราคา/เดือนนำไปคูณ 12 สำหรับยอดรายปี
+  // แยกยอดตามรอบเรียกเก็บเงินจริง: รายเดือนไม่นำไปรวมรายปี และรายปีไม่นำมาเฉลี่ยเป็นรายเดือน
   const annualPlans=active.reduce((sum,i)=>sum+(parseFloat(i.price)||0),0);
   const monthlyPlans=active.reduce((sum,i)=>sum+(parseFloat(i.priceMonthly)||0),0);
-  const tMo=annualPlans/12+monthlyPlans;
-  const tYr=annualPlans+(monthlyPlans*12);
+  const tMo=monthlyPlans;
+  const tYr=annualPlans;
   const exp=active.filter(s=>{if(!s.end)return false;const d=new Date(s.end);return(d-today)/86400000<=15&&d>=today}).length;
   document.getElementById('sub-mo').textContent=fmt(tMo);
   document.getElementById('sub-yr').textContent=fmt(tYr);
   const moNote=document.getElementById('sub-mo-note');
-  if(moNote)moNote.textContent=`รายปีเฉลี่ย/เดือน ${fmt(annualPlans/12)} + รายเดือน ${fmt(monthlyPlans)}`;
+  if(moNote)moNote.textContent=fmt(monthlyPlans);
   const yrNote=document.getElementById('sub-yr-note');
-  if(yrNote)yrNote.textContent=`รายปี ${fmt(annualPlans)} + รายเดือน × 12 ${fmt(monthlyPlans*12)}`;
+  if(yrNote)yrNote.textContent=fmt(annualPlans);
   document.getElementById('sub-act').textContent=active.length+' รายการ';
   document.getElementById('sub-exp').textContent=exp+' รายการ';
   document.getElementById('sub-tot').textContent=fmt(tYr);
+  const subTotMonth=document.getElementById('sub-tot-month');if(subTotMonth)subTotMonth.textContent=fmt(tMo);
   const tb=document.getElementById('sub-body');
   // sort header
   const si=sortIcon.bind(null,'subscription','col');
@@ -5613,4 +5537,29 @@ function dlCSV(rows,fn){
 .pawn-editor{position:fixed;inset:0;z-index:10050;background:rgba(15,23,42,.46);padding:24px;align-items:center;justify-content:center;overflow:auto}.pawn-editor-inner{width:min(760px,100%);max-height:calc(100vh - 48px);overflow:auto;padding:18px;background:#fffdf7;border:1px solid #ead9a8;border-radius:16px;box-shadow:0 24px 70px rgba(15,23,42,.28)}.pawn-dialog-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.pawn-dialog-head h3{margin:0}.pawn-x{border:0;background:var(--g100);width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:16px}.pawn-form-items{display:grid;gap:7px}.pawn-form-item{display:grid;grid-template-columns:minmax(0,1fr) 82px 88px 34px;gap:6px;align-items:end}.pawn-form-item .f{margin:0}.pawn-form-item button{height:38px}.pawn-form-hint{font-size:10px;color:var(--g400);margin-top:4px}
 @media(max-width:760px){.invest-tabs{width:100%;display:grid;grid-template-columns:1fr 1fr}.invest-tab{width:100%}.pawn-head{align-items:flex-start}.pawn-summary{grid-template-columns:1fr 1fr}.pawn-summary .card:last-child{grid-column:span 2}.pawn-grid{grid-template-columns:1fr}.pawn-card-top{padding:12px}.pawn-items{padding:11px 12px}.pawn-money{margin:0 12px 10px}.pawn-info{padding:0 12px 11px}.pawn-form-item{grid-template-columns:minmax(0,1fr) 70px 80px 34px}.pawn-editor{padding:10px;align-items:flex-start}.pawn-editor-inner{padding:14px;max-height:calc(100vh - 20px)}.pawn-money-val{font-size:20px}}
 @media(max-width:420px){.pawn-info{grid-template-columns:1fr 1fr}.pawn-form-item{grid-template-columns:1fr 64px 74px 32px}.pawn-form-item input,.pawn-form-item select{font-size:12px;padding-left:7px;padding-right:5px}.pawn-summary .val{font-size:16px}}
+
+/* Subscription page redesign: clear monthly vs annual separation */
+#page-subscription .sub-summary-grid{align-items:stretch;gap:14px}
+#page-subscription .sub-summary-card{position:relative;min-width:0;padding:17px 18px 15px;border:1px solid #e6e9f0;border-radius:18px;box-shadow:0 5px 16px rgba(30,45,75,.055);overflow:hidden;background:linear-gradient(145deg,#fff 0%,#fbfcff 100%)}
+#page-subscription .sub-summary-card:before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:#4779e6}
+#page-subscription .sub-month-card:before{background:#3478f6}
+#page-subscription .sub-year-card:before{background:#8b67d5}
+#page-subscription .sub-active-card:before{background:#16a765}
+#page-subscription .sub-exp-card:before{background:#f08a24}
+#page-subscription .sub-summary-top{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:22px}
+#page-subscription .sub-summary-top .lbl{font-size:12px;color:#68758b;line-height:1.35}
+#page-subscription .sub-summary-badge{font-size:9px;font-weight:800;letter-spacing:.45px;color:#4269b2;background:#edf3ff;border:1px solid #dce7ff;border-radius:999px;padding:4px 7px;white-space:nowrap}
+#page-subscription .sub-year-card .sub-summary-badge{color:#7650b6;background:#f3edff;border-color:#e7dcff}
+#page-subscription .sub-active-card .sub-summary-badge{color:#17804e;background:#e9f8ef;border-color:#d2f0df}
+#page-subscription .sub-exp-card .sub-summary-badge{color:#b96a0b;background:#fff3e4;border-color:#ffe4c3}
+#page-subscription .sub-summary-card>.val{font-size:27px;line-height:1.15;font-weight:800;margin:10px 0 5px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+#page-subscription .sub-summary-desc{font-size:11px;color:#8a94a6;line-height:1.4;min-height:16px}
+#page-subscription .sub-summary-detail{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:13px;padding-top:10px;border-top:1px solid #edf0f5;font-size:11px;color:#778196}
+#page-subscription .sub-summary-detail strong{font-size:12px;color:#29364d;font-variant-numeric:tabular-nums;white-space:nowrap}
+#page-subscription .sub-total-footer{display:flex;justify-content:flex-end;gap:12px;flex-wrap:wrap;padding:12px 16px;border:1px solid #e6e9f0;border-top:0;border-radius:0 0 14px 14px;background:#fafbfe}
+#page-subscription .sub-total-footer>div{display:flex;align-items:center;gap:12px;padding:7px 11px;border-radius:10px;background:#fff;border:1px solid #e9edf5;min-width:170px;justify-content:space-between}
+#page-subscription .sub-total-footer span{font-size:11px;color:#748096}
+#page-subscription .sub-total-footer strong{font-size:14px;color:#263b63;font-variant-numeric:tabular-nums}
+@media(max-width:760px){#page-subscription .sub-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}#page-subscription .sub-summary-card{padding:13px 12px 12px;border-radius:15px}#page-subscription .sub-summary-card>.val{font-size:22px;margin-top:9px}#page-subscription .sub-summary-badge{font-size:8px;padding:3px 5px}#page-subscription .sub-summary-desc{font-size:10px;min-height:28px}#page-subscription .sub-summary-detail{align-items:flex-start;flex-direction:column;gap:4px;margin-top:10px;padding-top:8px}#page-subscription .sub-total-footer{justify-content:stretch;gap:7px;padding:9px}#page-subscription .sub-total-footer>div{flex:1;min-width:0;gap:5px;padding:8px}#page-subscription .sub-total-footer span{font-size:10px}#page-subscription .sub-total-footer strong{font-size:12px}}
+@media(max-width:390px){#page-subscription .sub-summary-top{align-items:flex-start;flex-direction:column;gap:5px}#page-subscription .sub-summary-desc{min-height:40px}}
 </style>
