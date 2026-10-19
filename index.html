@@ -848,7 +848,12 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 <!-- Sidebar (desktop) -->
 <nav class="sidebar">
   <div class="brand"><span class="app-icon"></span>Happy <span class="brand-accent">Money</span></div>
+  <div class="grp-switch"><button type="button" data-grp="main" class="on" onclick="switchGroup('main')">📋 T2U</button><button type="button" data-grp="work" onclick="switchGroup('work')">💼 Work</button></div>
   <div id="sidebar-nav-list"></div>
+  <div id="sidebar-work-list">
+    <div class="nav-tab" data-work="holiday" onclick="swWork('holiday')"><span class="nt-icon">🎌</span>วันหยุดประจำปี</div>
+    <div class="nav-tab" data-work="shift" onclick="swWork('shift')"><span class="nt-icon">🗓</span>วันเข้าเวร</div>
+  </div>
   <div class="sidebar-foot"><button type="button" class="btn btn-ghost btn-sm" onclick="openPageMgr(event)">⚙ จัดการเมนู</button></div>
 </nav>
 <!-- Mobile header -->
@@ -1590,12 +1595,47 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   <div class="tfoot" id="login-foot"></div>
 </div>
 
+<!-- PAGE: WORK — วันหยุดประจำปี -->
+<div id="page-work-holiday" class="page">
+  <div class="page-head">
+    <div><h2 class="desk-only">🎌 วันหยุดประจำปี</h2><div class="sub" id="wk-hol-sub"></div></div>
+  </div>
+  <div class="wk-ctl">
+    <select id="wk-hol-year" onchange="wkSetYear(this.value)"></select>
+    <button type="button" class="btn btn-ghost btn-sm" onclick="wkNewYear()">＋ เริ่มปีใหม่</button>
+    <button type="button" class="btn btn-ghost btn-sm" onclick="wkOpenImport('holiday')">📄 นำเข้าจาก PDF</button>
+    <button type="button" class="wk-red" id="wk-hol-clear" onclick="wkClearYear('holiday')">🗑 ล้างข้อมูลปีนี้</button>
+  </div>
+  <div class="wk-card">
+    <div class="wk-head"><div class="wk-title"><span class="wk-dot"></span>Fairtex วันหยุดประจำปี</div><button type="button" class="wk-red" onclick="wkAddHol()">＋ เพิ่มวันหยุด</button></div>
+    <div class="wk-wrap"><table class="wk-tbl"><thead><tr><th>ลำดับ</th><th>วัน</th><th>วันที่</th><th>ชื่อของวันหยุด</th><th>แจ้งเตือน</th><th></th></tr></thead><tbody id="wk-hol-body"></tbody></table></div>
+  </div>
+</div>
+<!-- PAGE: WORK — วันเข้าเวร -->
+<div id="page-work-shift" class="page">
+  <div class="page-head">
+    <div><h2 class="desk-only">🗓 วันเข้าเวร</h2><div class="sub" id="wk-sh-sub"></div></div>
+  </div>
+  <div class="wk-ctl">
+    <select id="wk-sh-month" onchange="wkSetMonth(this.value)"></select>
+    <select id="wk-sh-year" onchange="wkSetYear(this.value)"></select>
+    <button type="button" class="btn btn-ghost btn-sm" onclick="wkNewYear()">＋ เริ่มปีใหม่</button>
+    <button type="button" class="btn btn-ghost btn-sm" onclick="wkOpenImport('shift')">📄 นำเข้าจาก PDF</button>
+    <button type="button" class="wk-red" id="wk-sh-clear" onclick="wkClearYear('shift')">🗑 ล้างข้อมูลปีนี้</button>
+  </div>
+  <div class="wk-card">
+    <div class="wk-head"><div class="wk-title"><span class="wk-dot"></span>Fairtex เข้าเวรวันเสาร์</div><button type="button" class="wk-red" onclick="wkAddSh()">＋ เพิ่มเวร</button></div>
+    <div class="wk-wrap"><table class="wk-tbl"><thead><tr><th>วันที่</th><th>ชื่อผู้เข้าเวร</th><th>สถานะการเข้าเวร</th><th>แจ้งเตือน</th><th></th></tr></thead><tbody id="wk-sh-body"></tbody></table></div>
+  </div>
+</div>
+
 </div><!-- /page-wrap -->
 </div><!-- /main-content -->
 
 <!-- Mobile bottom nav -->
 <nav class="mob-nav" id="mob-nav" aria-label="เมนู">
   <div class="mob-drawer-head"><span>เมนู</span><button type="button" onclick="closeMobDrawer()" aria-label="ปิดเมนู">✕</button></div>
+  <div class="grp-switch"><button type="button" data-grp="main" class="on" onclick="switchGroup('main')">📋 T2U</button><button type="button" data-grp="work" onclick="switchGroup('work')">💼 Work</button></div>
   <div class="mob-nav-inner">
     <div class="mob-tab" data-page="todo" onclick="swMob('todo',this,'สิ่งที่ต้องทำ')"><div class="micon">📝</div><div class="mlbl">ต้องทำ</div></div>
     <div class="mob-tab" data-page="budget" onclick="swMob('budget',this,'รายรับ-รายจ่าย')"><div class="micon">🧾</div><div class="mlbl">รายรับ-จ่าย</div></div>
@@ -1604,6 +1644,10 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
     <div class="mob-tab" data-page="subscription" onclick="swMob('subscription',this,'สมัครสมาชิกแอพ')"><div class="micon">🎫</div><div class="mlbl">สมาชิก</div></div>
     <div class="mob-tab" data-page="sideincome" onclick="swMob('sideincome',this,'รายได้เสริม')"><div class="micon">💼</div><div class="mlbl">เสริม</div></div>
     <div class="mob-tab" data-page="logins" onclick="swMob('logins',this,'User-Login')"><div class="micon">🔐</div><div class="mlbl">Login</div></div>
+    <div id="mob-work-list">
+      <div class="mob-tab" data-work="holiday" onclick="swWork('holiday')"><div class="micon">🎌</div><div class="mlbl">วันหยุดประจำปี</div></div>
+      <div class="mob-tab" data-work="shift" onclick="swWork('shift')"><div class="micon">🗓</div><div class="mlbl">วันเข้าเวร</div></div>
+    </div>
   </div>
 </nav>
 <div id="mob-backdrop" onclick="closeMobDrawer()"></div>
@@ -2058,6 +2102,47 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
     <button class="btn btn-pri" onclick="saveLogin()">บันทึก</button>
   </div>
 </div></div>
+
+<!-- Work: modals -->
+<div class="ov" id="wk-hol-ov"><div class="modal">
+  <span class="modal-drag"></span>
+  <h3 id="wk-hol-title">เพิ่มวันหยุด</h3>
+  <div class="f"><label>วันที่</label><input type="date" id="wk-hol-date"></div>
+  <div class="f"><label>ชื่อของวันหยุด</label><input type="text" id="wk-hol-name" placeholder="เช่น วันสงกรานต์"></div>
+  <div class="mbtns">
+    <button class="btn btn-danger" id="wk-hol-del" onclick="wkDelHolM()" style="display:none">ลบ</button>
+    <button class="btn btn-ghost" onclick="closeOv('wk-hol-ov')">ยกเลิก</button>
+    <button class="btn btn-pri" onclick="wkSaveHol()">บันทึก</button>
+  </div>
+</div></div>
+<div class="ov" id="wk-sh-ov"><div class="modal">
+  <span class="modal-drag"></span>
+  <h3 id="wk-sh-title">เพิ่มเวร</h3>
+  <div class="f"><label>วันที่</label><input type="date" id="wk-sh-date"></div>
+  <div class="f"><label>ชื่อผู้เข้าเวร</label><input type="text" id="wk-sh-who" list="wk-sh-names" placeholder="เช่น TUU"><datalist id="wk-sh-names"></datalist></div>
+  <div class="f"><label class="chk" style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="wk-sh-done"> เข้าเวรแล้ว</label></div>
+  <div class="mbtns">
+    <button class="btn btn-danger" id="wk-sh-del" onclick="wkDelShM()" style="display:none">ลบ</button>
+    <button class="btn btn-ghost" onclick="closeOv('wk-sh-ov')">ยกเลิก</button>
+    <button class="btn btn-pri" onclick="wkSaveSh()">บันทึก</button>
+  </div>
+</div></div>
+<div class="ov" id="wk-imp-ov"><div class="modal" style="max-width:680px">
+  <span class="modal-drag"></span>
+  <h3 id="wk-imp-title">📄 นำเข้าจาก PDF</h3>
+  <div class="f"><label>เลือกไฟล์ PDF (ต้องเป็น PDF ที่เลือกข้อความได้ ไม่ใช่รูปสแกน)</label><input type="file" id="wk-imp-file" accept="application/pdf,.pdf" onchange="wkImpFile(this)"></div>
+  <details style="margin-bottom:.6rem"><summary style="cursor:pointer;font-size:12px;color:var(--g600)">หรือวางข้อความเอง</summary>
+    <textarea id="wk-imp-text" rows="4" style="width:100%;margin-top:6px;padding:8px;font-family:var(--font);font-size:13px" placeholder="วางข้อความที่มีวันที่ เช่น&#10;1 ม.ค. 2569 วันขึ้นปีใหม่"></textarea>
+    <button type="button" class="btn btn-ghost btn-sm" style="margin-top:6px" onclick="wkImpPaste()">อ่านข้อความ</button>
+  </details>
+  <div class="wk-msg" id="wk-imp-msg"></div>
+  <div id="wk-imp-list" style="max-height:38vh;overflow:auto"></div>
+  <div class="mbtns">
+    <button class="btn btn-ghost" onclick="closeOv('wk-imp-ov')">ยกเลิก</button>
+    <button class="btn btn-pri" id="wk-imp-go" onclick="wkImpCommit()" disabled>นำเข้า</button>
+  </div>
+</div></div>
+<div class="wk-toast" id="wk-toast"></div>
 
 <!-- Page Manager (ซ่อน/เปิดใช้งานหน้า) -->
 <div class="ov" id="pagemgr-ov" aria-hidden="true" style="z-index:9999;pointer-events:none"><div class="modal" onclick="event.stopPropagation();event.cancelBubble=true" style="pointer-events:auto;max-width:720px;width:min(720px,96vw)">
@@ -5789,4 +5874,280 @@ document.addEventListener('touchend',function(e){if(!t)return;t=false;var p=e.ch
  var open=document.body.classList.contains('mob-drawer-open');
  if(!open&&sx<22&&dx>70)openMobDrawer();
  else if(open&&dx<-70)closeMobDrawer()},{passive:true});})();
+</script>
+<style id="work-style">
+/* ===== Work menu (menu 2) ===== */
+.grp-switch{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;background:#1f2937;border-radius:12px;margin:0 0 .9rem}
+.grp-switch button{border:0;background:transparent;color:#9CA3AF;font:600 13px var(--font);padding:9px 6px;border-radius:9px;cursor:pointer;white-space:nowrap}
+.grp-switch button.on{background:linear-gradient(100deg,#2563EB,#1E40AF);color:#fff}
+body:not(.grp-work) #sidebar-work-list,body:not(.grp-work) #mob-work-list{display:none}
+body.grp-work #sidebar-nav-list,body.grp-work .sidebar-foot,body.grp-work .mob-tab[data-page]{display:none!important}
+body.grp-work .mob-header .mh-right{visibility:hidden}
+.mob-nav .grp-switch{margin:0 10px .8rem}
+.wk-ctl{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;align-items:center;margin-bottom:.8rem}
+.wk-ctl select{font-size:13px;font-weight:600;padding:6px 10px;border:1.5px solid var(--g200);border-radius:8px;font-family:var(--font);color:var(--g900);cursor:pointer}
+.wk-card{background:var(--surface);border:1px solid var(--g200);border-radius:16px;box-shadow:var(--shadow);overflow:hidden}
+.wk-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px;flex-wrap:wrap}
+.wk-title{display:flex;align-items:center;gap:8px;font-weight:800;font-size:15px;color:var(--g900)}
+.wk-dot{width:12px;height:12px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fca5a5,#dc2626);flex-shrink:0}
+.wk-red{background:#FDE2E2;color:#DC2626;border:0;border-radius:8px;padding:7px 13px;font:700 12px var(--font);cursor:pointer;white-space:nowrap}
+.wk-red:hover{background:#FBCFCF}
+.wk-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.wk-tbl{width:100%;border-collapse:collapse;font-size:13px;min-width:600px}
+.wk-tbl th{text-align:left;font-size:12px;font-weight:600;color:var(--g400);padding:10px 14px;background:var(--surface2);border-top:1px solid var(--g200);border-bottom:1px solid var(--g200);white-space:nowrap}
+.wk-tbl td{padding:12px 14px;border-bottom:1px solid var(--g100);color:var(--g600);vertical-align:middle}
+.wk-tbl tr.wk-up td{background:#F2F6FF;font-weight:600;color:var(--g900)}
+.wk-tbl td.wk-act{white-space:nowrap;text-align:right}
+.wk-empty{text-align:center;padding:28px 12px!important;color:var(--g400)}
+.wk-ib{border:1px solid var(--g200);background:var(--surface);border-radius:8px;padding:5px 9px;font-size:13px;cursor:pointer;margin-left:4px}
+.wk-ib:hover{background:var(--g100)}
+.wk-b{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;white-space:nowrap;border:0;font-family:var(--font)}
+.wk-b.ok{background:#DCFCE7;color:#15803D}.wk-b.no{background:var(--g100);color:var(--g600)}
+.wk-b.soon{background:#DBEAFE;color:#1D4ED8}.wk-b.past{background:var(--g100);color:var(--g600)}.wk-b.late{background:#FEF3C7;color:#B45309}
+button.wk-b{cursor:pointer}
+.wk-msg{font-size:12px;color:var(--g600);margin:.4rem 0 .6rem;min-height:1em}
+.wk-imp-row{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid var(--g100)}
+.wk-imp-row input[type=date]{flex:0 0 150px}.wk-imp-row input[type=text]{flex:1 1 160px;min-width:0}
+.wk-imp-row label{font-size:12px;white-space:nowrap}
+.wk-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#111827;color:#fff;padding:10px 16px;border-radius:12px;font-size:13px;z-index:10050;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90vw;text-align:center}
+.wk-toast.show{opacity:1}
+</style>
+<script id="work-js">
+(function(){
+'use strict';
+var K_HOL='work_holidays_v1',K_SH='work_shifts_v1';
+var WD=['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'];
+var MS=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+var ML=['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+var EN=['Jan(?:uary)?','Feb(?:ruary)?','Mar(?:ch)?','Apr(?:il)?','May','Jun(?:e)?','Jul(?:y)?','Aug(?:ust)?','Sep(?:t(?:ember)?)?','Oct(?:ober)?','Nov(?:ember)?','Dec(?:ember)?'];
+var SEED_HOL=[['2026-01-01','วันขึ้นปีใหม่'],['2026-04-13','วันสงกรานต์'],['2026-04-14','วันสงกรานต์'],['2026-04-15','วันสงกรานต์'],['2026-04-16','ชดเชยวันจักรี (6 เม.ย.)'],['2026-05-01','วันแรงงานแห่งชาติ'],['2026-06-01','ชดเชยวันวิสาขบูชา (31 พ.ค.)'],['2026-07-28','วันเฉลิมพระชนมพรรษาสมเด็จพระเจ้าอยู่หัวรัชกาลที่ 10'],['2026-07-29','วันอาสาฬหบูชา'],['2026-08-12','วันเฉลิมพระชนมพรรษาสมเด็จพระนางเจ้าฯ พระบรมราชินีนาถ'],['2026-10-23','วันปิยมหาราช'],['2026-12-31','วันหยุดสิ้นปี']];
+var SEED_SH=[['2026-03-07','TUU',1],['2026-03-21','P.PAT [ TUU ]',1],['2026-04-18','P.Praew [ TUU ]',1],['2026-05-09','TUU',1],['2026-06-20','P.Praew [ TUU ]',1],['2026-07-11','TUU',1],['2026-08-22','P.Praew [ TUU ]',1],['2026-09-12','TUU',1],['2026-10-24','P.Praew [ TUU ]',0],['2026-11-14','TUU',0]];
+
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function pIso(s){var p=s.split('-').map(Number);return new Date(p[0],p[1]-1,p[2])}
+function mkIso(y,m,d){return y+'-'+('0'+m).slice(-2)+'-'+('0'+d).slice(-2)}
+function today(){var n=new Date();return new Date(n.getFullYear(),n.getMonth(),n.getDate())}
+function diff(iso){return Math.round((pIso(iso)-today())/86400000)}
+function be(iso){return pIso(iso).getFullYear()+543}
+function fmt(iso,wd){var d=pIso(iso);return(wd?WD[d.getDay()]+' ':'')+d.getDate()+' '+MS[d.getMonth()]+' '+(d.getFullYear()+543)}
+function cmp(a,b){return a.date<b.date?-1:a.date>b.date?1:0}
+function $(id){return document.getElementById(id)}
+function toast(m){var t=$('wk-toast');if(!t)return;t.textContent=m;t.classList.add('show');clearTimeout(toast._t);toast._t=setTimeout(function(){t.classList.remove('show')},2600)}
+
+/* ---------- data (เก็บผ่าน lss → sync Firestore อัตโนมัติ) ---------- */
+function load(k){
+  var v=ls(k,null);
+  if(!Array.isArray(v)){
+    v=(k===K_HOL?SEED_HOL.map(function(x){return{id:uid(),date:x[0],name:x[1]}}):SEED_SH.map(function(x){return{id:uid(),date:x[0],who:x[1],done:!!x[2]}}));
+    lss(k,v);
+  }
+  return v;
+}
+function save(k,v){lss(k,v)}
+
+/* ---------- state ---------- */
+var yr=new Date().getFullYear()+543,mon='all',lastMain='todo',lastWork='holiday',editId=null,impKind='holiday',impRows=[];
+function yearOpts(){
+  var s={};s[yr]=1;s[new Date().getFullYear()+543]=1;s[new Date().getFullYear()+544]=1;
+  load(K_HOL).concat(load(K_SH)).forEach(function(x){s[be(x.date)]=1});
+  return Object.keys(s).map(Number).sort(function(a,b){return a-b});
+}
+function fillYear(id){var el=$(id);if(!el)return;el.innerHTML=yearOpts().map(function(y){return'<option value="'+y+'"'+(y===yr?' selected':'')+'>'+y+'</option>'}).join('')}
+function fillMonth(){var el=$('wk-sh-month');if(!el)return;el.innerHTML='<option value="all">ทั้งปี</option>'+ML.map(function(m,i){return'<option value="'+i+'"'+(String(i)===String(mon)?' selected':'')+'>'+m+'</option>'}).join('');el.value=String(mon)}
+
+/* ---------- render ---------- */
+function renderHol(){
+  fillYear('wk-hol-year');
+  var rows=load(K_HOL).filter(function(x){return be(x.date)===yr}).sort(cmp);
+  var past=rows.filter(function(x){return diff(x.date)<0}).length;
+  $('wk-hol-sub').textContent='ปี '+yr+' • '+rows.length+' วัน • ผ่านแล้ว '+past+' • เหลือ '+(rows.length-past);
+  $('wk-hol-clear').textContent='🗑 ล้างข้อมูลปี '+yr;
+  $('wk-hol-body').innerHTML=rows.length?rows.map(function(x,i){
+    var d=diff(x.date),b=d<0?'<span class="wk-b past">✓ ผ่านแล้ว</span>':d===0?'<span class="wk-b soon">🎉 วันนี้</span>':'<span class="wk-b soon">⏳ อีก '+d+' วัน</span>';
+    return'<tr class="'+(d>=0?'wk-up':'')+'"><td>'+(i+1)+'</td><td>'+WD[pIso(x.date).getDay()]+'</td><td>'+fmt(x.date)+'</td><td>'+esc(x.name)+'</td><td>'+b+'</td><td class="wk-act"><button type="button" class="wk-ib" onclick="wkEditHol(\''+x.id+'\')" aria-label="แก้ไข">✏️</button><button type="button" class="wk-ib" onclick="wkDelHol(\''+x.id+'\')" aria-label="ลบ">🗑</button></td></tr>';
+  }).join(''):'<tr><td colspan="6" class="wk-empty">ยังไม่มีข้อมูลปี '+yr+' — กด “เพิ่มวันหยุด” หรือ “นำเข้าจาก PDF”</td></tr>';
+}
+function renderSh(){
+  fillYear('wk-sh-year');fillMonth();
+  var all=load(K_SH).filter(function(x){return be(x.date)===yr});
+  var rows=all.filter(function(x){return mon==='all'||pIso(x.date).getMonth()===Number(mon)}).sort(cmp);
+  var done=all.filter(function(x){return x.done}).length;
+  $('wk-sh-sub').textContent='ปี '+yr+' • ทั้งหมด '+all.length+' เวร • เข้าเวรแล้ว '+done+' • ยังไม่เข้า '+(all.length-done);
+  $('wk-sh-clear').textContent='🗑 ล้างข้อมูลปี '+yr;
+  $('wk-sh-body').innerHTML=rows.length?rows.map(function(x){
+    var d=diff(x.date),st=x.done?'<button type="button" class="wk-b ok" onclick="wkToggleSh(\''+x.id+'\')" title="กดเพื่อเปลี่ยนสถานะ">✓ เข้าเวรแล้ว</button>':'<button type="button" class="wk-b no" onclick="wkToggleSh(\''+x.id+'\')" title="กดเพื่อเปลี่ยนสถานะ">ยังไม่เข้าเวร</button>';
+    var rm=x.done?'—':d>0?'<span class="wk-b soon">🎁 อีก '+d+' วัน</span>':d===0?'<span class="wk-b soon">🔔 วันนี้</span>':'<span class="wk-b late">⚠ เลยมา '+(-d)+' วัน</span>';
+    return'<tr><td>'+fmt(x.date,true)+'</td><td>'+esc(x.who)+'</td><td>'+st+'</td><td>'+rm+'</td><td class="wk-act"><button type="button" class="wk-ib" onclick="wkEditSh(\''+x.id+'\')" aria-label="แก้ไข">✏️</button><button type="button" class="wk-ib" onclick="wkDelSh(\''+x.id+'\')" aria-label="ลบ">🗑</button></td></tr>';
+  }).join(''):'<tr><td colspan="5" class="wk-empty">ยังไม่มีข้อมูลเวรปี '+yr+(mon==='all'?'':' เดือนนี้')+' — กด “เพิ่มเวร” หรือ “นำเข้าจาก PDF”</td></tr>';
+}
+function renderWork(){if(curPage==='work-holiday')renderHol();else if(curPage==='work-shift')renderSh()}
+
+/* ---------- group / navigation ---------- */
+function setGroup(g){
+  document.body.classList.toggle('grp-work',g==='work');
+  document.querySelectorAll('.grp-switch button').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-grp')===g)});
+}
+window.swWork=function(id){
+  if(id!=='holiday'&&id!=='shift')id='holiday';
+  document.querySelectorAll('.ov.open').forEach(function(o){o.classList.remove('open')});
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active')});
+  $('page-work-'+id).classList.add('active');
+  curPage='work-'+id;lastWork=id;setGroup('work');
+  document.querySelectorAll('[data-work]').forEach(function(t){t.classList.toggle('active',t.getAttribute('data-work')===id)});
+  var mt=$('mob-title');if(mt)mt.textContent=id==='holiday'?'🎌 วันหยุดประจำปี':'🗓 วันเข้าเวร';
+  window.scrollTo(0,0);renderWork();
+};
+window.switchGroup=function(g){
+  if(g==='work'){swWork(lastWork);return}
+  var id=lastMain,hid=getHiddenPages();
+  if(hid.indexOf(id)>-1||!$('page-'+id))id=getPageOrder().filter(function(p){return hid.indexOf(p)<0})[0]||'todo';
+  sw(id,document.querySelector('.nav-tab[data-page="'+id+'"]'));
+  document.querySelectorAll('.mob-tab[data-page]').forEach(function(t){t.classList.toggle('active',t.getAttribute('data-page')===id)});
+};
+var _sw=window.sw;
+window.sw=function(id){
+  setGroup('main');
+  document.querySelectorAll('[data-work]').forEach(function(t){t.classList.remove('active')});
+  var r=_sw.apply(this,arguments);
+  if(typeof ALL_PAGES!=='undefined'&&ALL_PAGES.some(function(p){return p.id===curPage}))lastMain=curPage;
+  return r;
+};
+var _rac=window.renderAllCurrentData;
+window.renderAllCurrentData=function(){var r=_rac.apply(this,arguments);renderWork();return r};
+
+/* ---------- controls ---------- */
+window.wkSetYear=function(v){yr=Number(v);renderWork()};
+window.wkSetMonth=function(v){mon=v;renderSh()};
+window.wkNewYear=function(){
+  var v=prompt('เริ่มปีใหม่ — ใส่ปี พ.ศ. (ข้อมูลปีเก่ายังอยู่ครบ)',String(yr+1));if(v===null)return;
+  v=parseInt(v,10);if(!(v>=2500&&v<=2700)){toast('ใส่ปี พ.ศ. 4 หลัก เช่น 2570');return}
+  yr=v;renderWork();toast('เริ่มปี '+v+' แล้ว (ว่าง พร้อมเพิ่มข้อมูล)');
+};
+window.wkClearYear=function(kind){
+  var k=kind==='holiday'?K_HOL:K_SH,name=kind==='holiday'?'วันหยุด':'วันเข้าเวร';
+  var n=load(k).filter(function(x){return be(x.date)===yr}).length;
+  if(!n){toast('ปี '+yr+' ไม่มีข้อมูลให้ล้าง');return}
+  if(!confirm('ล้างข้อมูล'+name+'ปี '+yr+' ทั้งหมด '+n+' รายการ?\n(ข้อมูลปีอื่นไม่หาย)'))return;
+  save(k,load(k).filter(function(x){return be(x.date)!==yr}));renderWork();toast('ล้างข้อมูลปี '+yr+' แล้ว');
+};
+function openOv(id){$(id).classList.add('open')}
+
+/* ---------- holiday CRUD ---------- */
+window.wkAddHol=function(){editId=null;$('wk-hol-title').textContent='เพิ่มวันหยุด';$('wk-hol-date').value=mkIso(yr-543,1,1);$('wk-hol-name').value='';$('wk-hol-del').style.display='none';openOv('wk-hol-ov')};
+window.wkEditHol=function(id){var x=load(K_HOL).filter(function(i){return i.id===id})[0];if(!x)return;editId=id;$('wk-hol-title').textContent='แก้ไขวันหยุด';$('wk-hol-date').value=x.date;$('wk-hol-name').value=x.name;$('wk-hol-del').style.display='';openOv('wk-hol-ov')};
+window.wkSaveHol=function(){
+  var d=$('wk-hol-date').value,n=$('wk-hol-name').value.trim();
+  if(!d||!n){toast('กรอกวันที่และชื่อวันหยุด');return}
+  var l=load(K_HOL);
+  if(editId){l.forEach(function(x){if(x.id===editId){x.date=d;x.name=n}})}else l.push({id:uid(),date:d,name:n});
+  save(K_HOL,l);yr=be(d);closeOv('wk-hol-ov');renderWork();
+};
+window.wkDelHol=function(id){if(!confirm('ลบวันหยุดนี้?'))return;save(K_HOL,load(K_HOL).filter(function(x){return x.id!==id}));renderWork()};
+window.wkDelHolM=function(){if(editId){wkDelHol(editId);closeOv('wk-hol-ov')}};
+
+/* ---------- shift CRUD ---------- */
+function fillNames(){var s={};load(K_SH).forEach(function(x){if(x.who)s[x.who]=1});$('wk-sh-names').innerHTML=Object.keys(s).map(function(n){return'<option value="'+esc(n)+'">'}).join('')}
+window.wkAddSh=function(){editId=null;fillNames();$('wk-sh-title').textContent='เพิ่มเวร';$('wk-sh-date').value='';$('wk-sh-who').value='';$('wk-sh-done').checked=false;$('wk-sh-del').style.display='none';openOv('wk-sh-ov')};
+window.wkEditSh=function(id){var x=load(K_SH).filter(function(i){return i.id===id})[0];if(!x)return;editId=id;fillNames();$('wk-sh-title').textContent='แก้ไขเวร';$('wk-sh-date').value=x.date;$('wk-sh-who').value=x.who;$('wk-sh-done').checked=!!x.done;$('wk-sh-del').style.display='';openOv('wk-sh-ov')};
+window.wkSaveSh=function(){
+  var d=$('wk-sh-date').value,w=$('wk-sh-who').value.trim(),dn=$('wk-sh-done').checked;
+  if(!d||!w){toast('กรอกวันที่และชื่อผู้เข้าเวร');return}
+  var l=load(K_SH);
+  if(editId){l.forEach(function(x){if(x.id===editId){x.date=d;x.who=w;x.done=dn}})}else l.push({id:uid(),date:d,who:w,done:dn});
+  save(K_SH,l);yr=be(d);closeOv('wk-sh-ov');renderWork();
+};
+window.wkDelSh=function(id){if(!confirm('ลบเวรนี้?'))return;save(K_SH,load(K_SH).filter(function(x){return x.id!==id}));renderWork()};
+window.wkDelShM=function(){if(editId){wkDelSh(editId);closeOv('wk-sh-ov')}};
+window.wkToggleSh=function(id){var l=load(K_SH);l.forEach(function(x){if(x.id===id)x.done=!x.done});save(K_SH,l);renderWork()};
+
+/* ---------- PDF import ---------- */
+function monthAlt(i){var sp=MS[i].split('.').filter(Boolean).join('\\.?')+'\\.?';return ML[i]+'|'+sp+'|'+EN[i]+'\\.?'}
+var ALT=(function(){var a=[];for(var i=0;i<12;i++)a.push(ML[i]);for(i=0;i<12;i++)a.push(MS[i].split('.').filter(Boolean).join('\\.?')+'\\.?');for(i=0;i<12;i++)a.push(EN[i]+'\\.?');return a.join('|')})();
+function monthIdx(s){for(var i=0;i<12;i++)if(new RegExp('^(?:'+monthAlt(i)+')$','i').test(s))return i;return -1}
+function fixYear(y){y=Number(y);if(y>2400)return y-543;if(y<100)return y>=50?2500+y-543:2000+y;return y}
+function validIso(y,m,d){var t=new Date(y,m-1,d);return t.getFullYear()===y&&t.getMonth()===m-1&&t.getDate()===d?mkIso(y,m,d):null}
+var RX_ISO=/(\d{4})-(\d{1,2})-(\d{1,2})/,RX_NUM=/(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4}|\d{2})(?!\d)/,
+    RX_TXT=new RegExp('(\\d{1,2})\\s*(?:เดือน\\s*)?('+ALT+')\\s*(?:พ\\.ศ\\.\\s*|ค\\.ศ\\.\\s*)?(\\d{4})?','i');
+var JUNK=/^(ผ่านแล้ว|เข้าเวรแล้ว|ยังไม่เข้าเวร|✓|⏳|🎁|—|-|\||วันนี้)$/;
+function parseText(text,kind,defCE){
+  var out=[],seen={};
+  text.split(/\r?\n/).forEach(function(raw){
+    var line=raw.replace(/\s+/g,' ').trim();if(!line)return;
+    var best=null;
+    var m=RX_ISO.exec(line);if(m){var i1=validIso(+m[1],+m[2],+m[3]);if(i1)best={idx:m.index,len:m[0].length,iso:i1}}
+    m=RX_NUM.exec(line);if(m){var i2=validIso(fixYear(m[3]),+m[2],+m[1]);if(i2&&(!best||m.index<best.idx))best={idx:m.index,len:m[0].length,iso:i2}}
+    m=RX_TXT.exec(line);if(m){var mi=monthIdx(m[2]);var i3=mi<0?null:validIso(m[3]?fixYear(m[3]):defCE,mi+1,+m[1]);if(i3&&(!best||m.index<best.idx))best={idx:m.index,len:m[0].length,iso:i3}}
+    if(!best)return;
+    var rest=(line.slice(0,best.idx)+' '+line.slice(best.idx+best.len));
+    var done=/เข้าเวรแล้ว/.test(rest)&&!/ยังไม่เข้าเวร/.test(rest);
+    rest=rest.replace(/อีก\s*\d+\s*วัน/g,' ').replace(/เลยมา\s*\d+\s*วัน/g,' ');
+    var toks=rest.split(' ').filter(Boolean);
+    if(toks.length&&/^\d+$/.test(toks[0]))toks.shift();
+    toks=toks.filter(function(t){if(JUNK.test(t))return false;var b=t.replace(/^วัน/,'');return WD.indexOf(t)<0&&WD.indexOf(b)<0&&!/^(sun|mon|tue|wed|thu|fri|sat)[a-z]*\.?$/i.test(t)});
+    var name=toks.join(' ').trim();
+    var key=best.iso+'|'+name;if(seen[key])return;seen[key]=1;
+    out.push({ok:true,date:best.iso,name:name,done:done});
+  });
+  return out.sort(function(a,b){return a.date<b.date?-1:a.date>b.date?1:0});
+}
+window.wkParseText=parseText;
+function loadPdfJs(){return new Promise(function(res,rej){
+  if(window.pdfjsLib)return res(window.pdfjsLib);
+  var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+  s.onload=function(){window.pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';res(window.pdfjsLib)};
+  s.onerror=function(){rej(new Error('โหลดตัวอ่าน PDF ไม่สำเร็จ (ต้องต่ออินเทอร์เน็ต)'))};document.head.appendChild(s);
+})}
+async function pdfToText(file){
+  var lib=await loadPdfJs(),pdf=await lib.getDocument({data:await file.arrayBuffer()}).promise,lines=[];
+  for(var p=1;p<=pdf.numPages;p++){
+    var tc=await (await pdf.getPage(p)).getTextContent();
+    var it=tc.items.map(function(i){return{s:i.str,x:i.transform[4],y:i.transform[5],w:i.width||0,h:i.height||10}}).filter(function(i){return i.s!==''});
+    it.sort(function(a,b){return b.y-a.y||a.x-b.x});
+    var cur=[],cy=null;
+    function flush(){if(!cur.length)return;cur.sort(function(a,b){return a.x-b.x});var s='',end=null;cur.forEach(function(i){if(end!==null&&i.x-end>Math.max(1.5,i.h*.15))s+=' ';s+=i.s;end=i.x+i.w});lines.push(s);cur=[]}
+    it.forEach(function(i){if(cy===null||Math.abs(i.y-cy)>3){flush();cy=i.y}cur.push(i)});
+    flush();
+  }
+  return lines.join('\n');
+}
+window.wkOpenImport=function(kind){
+  impKind=kind;impRows=[];$('wk-imp-title').textContent='📄 นำเข้า'+(kind==='holiday'?'วันหยุดประจำปี':'วันเข้าเวร')+'จาก PDF';
+  $('wk-imp-file').value='';$('wk-imp-text').value='';$('wk-imp-msg').textContent='ปีที่ไม่ระบุในไฟล์จะใช้ปี '+yr;$('wk-imp-list').innerHTML='';$('wk-imp-go').disabled=true;$('wk-imp-go').textContent='นำเข้า';openOv('wk-imp-ov');
+};
+function showPreview(rows){
+  impRows=rows;
+  if(!rows.length){$('wk-imp-msg').textContent='ไม่พบวันที่ในไฟล์ — ถ้าเป็นรูปสแกนให้ใช้ “วางข้อความเอง” หรือเพิ่มด้วยมือ';$('wk-imp-list').innerHTML='';$('wk-imp-go').disabled=true;return}
+  $('wk-imp-msg').textContent='พบ '+rows.length+' รายการ — ตรวจ/แก้ไขได้ก่อนนำเข้า (ติ๊กออกถ้าไม่เอา)';
+  $('wk-imp-list').innerHTML=rows.map(function(r,i){
+    return'<div class="wk-imp-row"><input type="checkbox" checked onchange="wkImpSet('+i+',\'ok\',this.checked)"><input type="date" value="'+r.date+'" onchange="wkImpSet('+i+',\'date\',this.value)"><input type="text" value="'+esc(r.name)+'" placeholder="'+(impKind==='holiday'?'ชื่อวันหยุด':'ชื่อผู้เข้าเวร')+'" oninput="wkImpSet('+i+',\'name\',this.value)">'+(impKind==='shift'?'<label><input type="checkbox"'+(r.done?' checked':'')+' onchange="wkImpSet('+i+',\'done\',this.checked)"> เข้าเวรแล้ว</label>':'')+'</div>';
+  }).join('');
+  upd();
+}
+function upd(){var n=impRows.filter(function(r){return r.ok&&r.date&&r.name.trim()}).length;$('wk-imp-go').disabled=!n;$('wk-imp-go').textContent='นำเข้า '+n+' รายการ'}
+window.wkImpSet=function(i,k,v){impRows[i][k]=v;upd()};
+window.wkImpFile=async function(inp){
+  var f=inp.files&&inp.files[0];if(!f)return;
+  $('wk-imp-msg').textContent='กำลังอ่านไฟล์…';$('wk-imp-list').innerHTML='';
+  try{var t=await pdfToText(f);showPreview(parseText(t,impKind,yr-543))}
+  catch(e){$('wk-imp-msg').textContent='อ่าน PDF ไม่สำเร็จ: '+(e&&e.message||e)}
+};
+window.wkImpPaste=function(){showPreview(parseText($('wk-imp-text').value,impKind,yr-543))};
+window.wkImpCommit=function(){
+  var k=impKind==='holiday'?K_HOL:K_SH,l=load(k),add=0,skip=0,years={};
+  impRows.forEach(function(r){
+    if(!r.ok||!r.date||!r.name.trim())return;
+    var nm=r.name.trim();
+    var dup=l.some(function(x){return x.date===r.date&&(impKind==='shift'||(x.name||'').trim()===nm)});
+    if(dup){skip++;return}
+    l.push(impKind==='holiday'?{id:uid(),date:r.date,name:nm}:{id:uid(),date:r.date,who:nm,done:!!r.done});
+    add++;years[be(r.date)]=(years[be(r.date)]||0)+1;
+  });
+  save(k,l);
+  var ys=Object.keys(years).map(Number).sort(function(a,b){return years[b]-years[a]});
+  if(ys.length)yr=ys[0];
+  closeOv('wk-imp-ov');renderWork();
+  toast('นำเข้า '+add+' รายการ'+(skip?' (ข้ามซ้ำ '+skip+')':''));
+};
+})();
 </script>
