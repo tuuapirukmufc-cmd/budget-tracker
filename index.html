@@ -1137,8 +1137,8 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
         <span class="sec-title"><span class="dot db"></span>🚗 รถที่ลงทะเบียน</span>
         <button class="btn btn-pri btn-sm" onclick="openVehicle()">+ ลงทะเบียนรถ</button>
       </div>
+      <div class="vehicle-hint"><span class="vehicle-hint-ic">💡</span><span>ลงทะเบียนรถไว้ด้านบนก่อน แล้วจึงเลือกคันรถเพื่อบันทึกประวัติบำรุงรักษา</span></div>
       <div id="vehicle-reg-list"></div>
-      <div class="sub" style="margin-top:8px">ลงทะเบียนรถไว้ด้านบนก่อน แล้วจึงเลือกคันรถเพื่อบันทึกประวัติบำรุงรักษา</div>
     </div>
 
     <div class="cards c4 vehicle-summary">
@@ -2103,6 +2103,17 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   </div>
 </div></div>
 
+
+<style id="vehicle-reg-fix-style">
+#vehicle-reg-list{padding:12px 14px 2px}
+#budget-vehicle-panel .vehicle-hint{display:flex;align-items:flex-start;gap:8px;margin:12px 14px 0;padding:10px 12px;background:#EFF6FF;border:1px solid #DBEAFE;color:#1E40AF;border-radius:10px;font-size:12.5px;line-height:1.55}
+#budget-vehicle-panel .vehicle-hint-ic{flex-shrink:0}
+.vehicle-actions{flex-shrink:0}
+.vehicle-actions .icon-btn{opacity:1;display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;padding:0;font-size:15px;border:1px solid var(--g200);background:var(--surface);color:var(--g600);border-radius:9px}
+.vehicle-actions .icon-btn:hover{background:var(--g100);color:var(--g900)}
+.vehicle-actions .icon-btn.danger{color:#DC2626;border-color:#FECACA;background:#FEF2F2}
+.vehicle-actions .icon-btn.danger:hover{background:#FEE2E2}
+</style>
 <!-- Debt tracker: เลื่อนนัดคืน -->
 <div class="ov" id="dt-ext-ov"><div class="modal">
   <span class="modal-drag"></span>
@@ -3488,18 +3499,20 @@ function openVehicle(id){
   document.getElementById('vehicle-reg-title').textContent=v?'✏️ แก้ไขข้อมูลรถ':'🚗 ลงทะเบียนรถ'; document.getElementById('vehicle-reg-ov').classList.add('open');
   setTimeout(()=>document.getElementById('vehicle-model-f')?.focus(),40);
 }
+function vehicleSyncHistory(id,model,plate){
+  Object.keys(localStorage).filter(k=>k.includes('vehicle_maintenance_')).forEach(k=>{try{const list=JSON.parse(localStorage.getItem(k)||'[]');let ch=false;list.forEach(x=>{if(String(x.vehicleId)===String(id)&&(x.model!==model||x.plate!==plate)){x.model=model;x.plate=plate;ch=true}});if(ch)lss(k,list)}catch(e){}});
+}
 function saveVehicle(){
   const model=(document.getElementById('vehicle-model-f').value||'').trim(),plate=(document.getElementById('vehicle-plate-f').value||'').trim();
   if(!model||!plate){alert('กรุณากรอกรุ่นรถและทะเบียน');return}
   const year=(document.getElementById('vehicle-year-f').value||'').trim(),note=(document.getElementById('vehicle-note-f').value||'').trim(),id=document.getElementById('vehicle-id-f').value,arr=getVehicles(),now=Date.now();
-  if(id){const i=arr.findIndex(v=>String(v.id)===String(id));if(i>=0)arr[i]={...arr[i],model,plate,year,note,updatedAt:now}}
+  if(id){const i=arr.findIndex(v=>String(v.id)===String(id));if(i>=0){arr[i]={...arr[i],model,plate,year,note,updatedAt:now};vehicleSyncHistory(id,model,plate)}}
   else arr.push({id:`veh_${now}_${Math.random().toString(36).slice(2,7)}`,model,plate,year,note,createdAt:now});
   saveVehicles(arr);closeOv('vehicle-reg-ov');renderVehicleRegistry();renderVehicleMaintenance();addHist('vehicle',id?'แก้ไขรถ':'ลงทะเบียนรถ',`${model} • ${plate}`);
 }
 function deleteVehicle(id){
   const v=vehicleById(id);if(!v)return; const used=Object.keys(localStorage).some(k=>k.includes('vehicle_maintenance_')&&String(localStorage.getItem(k)||'').includes(`"vehicleId":"${id}"`));
-  if(used){alert('รถคันนี้มีประวัติบำรุงรักษาอยู่ จึงยังลบไม่ได้ เพื่อไม่ให้ประวัติหาย');return}
-  if(!confirm(`ลบรถ ${v.model} • ${v.plate} ใช่หรือไม่?`))return;saveVehicles(getVehicles().filter(x=>String(x.id)!==String(id)));renderVehicleRegistry();renderVehicleMaintenance();addHist('vehicle','ลบรถ',`${v.model} • ${v.plate}`);
+  if(!confirm(`ลบรถ ${v.model} • ${v.plate} ใช่หรือไม่?`+(used?'\n\nรถคันนี้มีประวัติบำรุงรักษาอยู่ — ประวัติเดิมจะยังอยู่ครบ (แสดงรุ่น/ทะเบียนเดิม) แต่จะไม่ผูกกับรถที่ลงทะเบียนแล้ว':'')))return;saveVehicles(getVehicles().filter(x=>String(x.id)!==String(id)));renderVehicleRegistry();renderVehicleMaintenance();addHist('vehicle','ลบรถ',`${v.model} • ${v.plate}`);
 }
 function renderVehicleRegistry(){
   const box=document.getElementById('vehicle-reg-list');if(!box)return;const arr=getVehicles();document.getElementById('vehicle-count').textContent=arr.length+' คัน';
