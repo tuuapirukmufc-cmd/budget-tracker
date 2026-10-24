@@ -2114,6 +2114,21 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 .vehicle-actions .icon-btn.danger{color:#DC2626;border-color:#FECACA;background:#FEF2F2}
 .vehicle-actions .icon-btn.danger:hover{background:#FEE2E2}
 </style>
+<!-- Debt tracker: บันทึกการชำระ -->
+<div class="ov" id="dt-pay-ov"><div class="modal">
+  <span class="modal-drag"></span>
+  <h3>✓ บันทึกการชำระ</h3>
+  <input type="hidden" id="dt-pay-id">
+  <div class="f"><label>ผู้ยืม</label><div id="dt-pay-who" style="font-weight:700"></div></div>
+  <div class="f"><label>ยอดคงเหลือ</label><div id="dt-pay-rem" style="font-weight:800;color:#ea580c;font-size:18px"></div></div>
+  <div class="f"><label>จำนวนเงินที่รับชำระครั้งนี้ (บาท) *</label><div style="display:flex;gap:8px"><input type="number" id="dt-pay-amount" inputmode="decimal" min="0" step="0.01" style="flex:1;min-width:0"><button type="button" class="btn btn-ghost btn-sm" onclick="debtPayFull()">เต็มจำนวน</button></div></div>
+  <div class="f"><label>วันที่รับชำระ</label><input type="date" id="dt-pay-date"></div>
+  <div id="dt-pay-err" style="color:#DC2626;font-size:12px;min-height:1em;margin-bottom:6px"></div>
+  <div class="mbtns">
+    <button class="btn btn-ghost" onclick="closeOv('dt-pay-ov')">ยกเลิก</button>
+    <button class="btn btn-pri" onclick="saveDebtPayment()">บันทึกการชำระ</button>
+  </div>
+</div></div>
 <!-- Debt tracker: เลื่อนนัดคืน -->
 <div class="ov" id="dt-ext-ov"><div class="modal">
   <span class="modal-drag"></span>
@@ -2165,6 +2180,16 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   <div class="mbtns">
     <button class="btn btn-ghost" onclick="closeOv('wk-imp-ov')">ยกเลิก</button>
     <button class="btn btn-pri" id="wk-imp-go" onclick="wkImpCommit()" disabled>นำเข้า</button>
+  </div>
+</div></div>
+<div class="ov" id="wk-year-ov"><div class="modal">
+  <span class="modal-drag"></span>
+  <h3>＋ เริ่มปีใหม่</h3>
+  <div class="f"><label>ปี พ.ศ. ที่ต้องการเริ่ม (ข้อมูลปีเก่ายังอยู่ครบ)</label><input type="number" id="wk-year-in" inputmode="numeric" min="2500" max="2700" step="1"></div>
+  <div id="wk-year-err" style="color:#DC2626;font-size:12px;min-height:1em;margin-bottom:6px"></div>
+  <div class="mbtns">
+    <button class="btn btn-ghost" onclick="closeOv('wk-year-ov')">ยกเลิก</button>
+    <button class="btn btn-pri" onclick="wkSaveYear()">เริ่มปีใหม่</button>
   </div>
 </div></div>
 <div class="wk-toast" id="wk-toast"></div>
@@ -2833,7 +2858,27 @@ function saveDebtTrack(e){
 function addDebtBorrowing(id){const r=debtTrackLoad().find(x=>x.id===id);if(!r)return;resetDebtTrackForm();document.getElementById('dt-name').value=r.name||'';document.getElementById('dt-form-heading').textContent='＋ เพิ่มยอดยืมให้ '+(r.name||'ผู้ยืม');document.getElementById('dt-save-btn').textContent='บันทึกยอดยืมเพิ่ม';document.getElementById('dt-form').scrollIntoView({behavior:'smooth',block:'center'});document.getElementById('dt-amount').focus();}
 function editDebtTrack(id){const r=debtTrackLoad().find(x=>x.id===id);if(!r)return;const loan=debtTrackLoans(r).slice(-1)[0];document.getElementById('dt-edit-id').value=r.id;document.getElementById('dt-edit-loan-id').value=loan.id;document.getElementById('dt-name').value=r.name||'';document.getElementById('dt-amount').value=loan.amount||'';document.getElementById('dt-borrow-date').value=loan.date||'';document.getElementById('dt-due-date').value=loan.dueDate||'';document.getElementById('dt-note').value=loan.note||'';document.getElementById('dt-form-heading').textContent='✎ แก้ไขรายการยืมล่าสุด';document.getElementById('dt-save-btn').textContent='บันทึกการแก้ไข';document.getElementById('dt-name').focus();document.getElementById('debttrack-panel').scrollIntoView({behavior:'smooth',block:'start'});}
 function resetDebtTrackForm(){const f=document.getElementById('dt-form');if(f)f.reset();const id=document.getElementById('dt-edit-id');if(id)id.value='';const loanId=document.getElementById('dt-edit-loan-id');if(loanId)loanId.value='';const h=document.getElementById('dt-form-heading');if(h)h.textContent='＋ เพิ่มรายการยืมเงิน';const b=document.getElementById('dt-save-btn');if(b)b.textContent='บันทึกรายการ';const d=document.getElementById('dt-borrow-date');if(d)d.value=new Date().toISOString().slice(0,10);}
-function receiveDebtTrack(id){const rows=debtTrackLoad(),r=rows.find(x=>x.id===id);if(!r)return;const rem=debtTrackRemaining(r);const raw=prompt(`ยอดคงเหลือ ${debtTrackMoney(rem)}\nกรอกจำนวนเงินที่รับชำระครั้งนี้ (บาท)`,String(rem));if(raw===null)return;const n=Number(raw);if(!Number.isFinite(n)||n<=0){alert('กรุณากรอกจำนวนเงินให้ถูกต้อง');return;}if(n>rem+0.009){alert('ยอดชำระมากกว่ายอดคงเหลือ กรุณาตรวจสอบ');return;}r.payments=Array.isArray(r.payments)?r.payments:[];r.payments.push({id:'payment_'+Date.now().toString(36),amount:n,date:new Date().toISOString().slice(0,10),note:'รับชำระคืน'});r.updatedAt=Date.now();debtTrackStore(rows);renderDebtTrack();if(debtTrackRemaining(r)<=0.009)alert('บันทึกเรียบร้อย: คืนเงินครบแล้ว');}
+function receiveDebtTrack(id){
+  const r=debtTrackLoad().find(x=>x.id===id);if(!r)return;const rem=debtTrackRemaining(r);if(rem<=0.009)return;
+  document.getElementById('dt-pay-id').value=r.id;
+  document.getElementById('dt-pay-who').textContent=r.name||'ผู้ยืม';
+  document.getElementById('dt-pay-rem').textContent=debtTrackMoney(rem);
+  document.getElementById('dt-pay-amount').value=String(Math.round(rem*100)/100);
+  document.getElementById('dt-pay-date').value=debtTrackToday();
+  document.getElementById('dt-pay-err').textContent='';
+  document.getElementById('dt-pay-ov').classList.add('open');
+}
+function debtPayFull(){const r=debtTrackLoad().find(x=>x.id===document.getElementById('dt-pay-id').value);if(r)document.getElementById('dt-pay-amount').value=String(Math.round(debtTrackRemaining(r)*100)/100)}
+function saveDebtPayment(){
+  const rows=debtTrackLoad(),r=rows.find(x=>x.id===document.getElementById('dt-pay-id').value);if(!r)return;
+  const err=document.getElementById('dt-pay-err'),rem=debtTrackRemaining(r),n=Number(String(document.getElementById('dt-pay-amount').value).replace(/,/g,'')),date=document.getElementById('dt-pay-date').value||debtTrackToday();
+  if(!Number.isFinite(n)||n<=0){err.textContent='กรุณากรอกจำนวนเงินให้ถูกต้อง';return}
+  if(n>rem+0.009){err.textContent='ยอดชำระมากกว่ายอดคงเหลือ ('+debtTrackMoney(rem)+') กรุณาตรวจสอบ';return}
+  r.payments=Array.isArray(r.payments)?r.payments:[];
+  r.payments.push({id:'payment_'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),amount:n,date,note:'รับชำระคืน'});
+  r.updatedAt=Date.now();debtTrackStore(rows);closeOv('dt-pay-ov');renderDebtTrack();
+  if(debtTrackRemaining(r)<=0.009)alert('บันทึกเรียบร้อย: คืนเงินครบแล้ว');
+}
 function deleteDebtTrack(id){const rows=debtTrackLoad(),r=rows.find(x=>x.id===id);if(!r)return;if(!confirm(`ยืนยันลบข้อมูลหนี้ทั้งหมดของ ${r.name||'ผู้ยืม'} รวมประวัติยืมและชำระ? การลบนี้ย้อนกลับไม่ได้`))return;debtTrackStore(rows.filter(x=>x.id!==id));renderDebtTrack();if(document.getElementById('dt-edit-id').value===id)resetDebtTrackForm();}
 function openDebtExtend(id){
   const r=debtTrackLoad().find(x=>x.id===id);if(!r)return;const loan=debtTrackLatestLoan(r);if(!loan||!loan.dueDate)return;
@@ -6075,10 +6120,11 @@ window.renderAllCurrentData=function(){var r=_rac.apply(this,arguments);renderWo
 /* ---------- controls ---------- */
 window.wkSetYear=function(v){yr=Number(v);renderWork()};
 window.wkSetMonth=function(v){mon=v;renderSh()};
-window.wkNewYear=function(){
-  var v=prompt('เริ่มปีใหม่ — ใส่ปี พ.ศ. (ข้อมูลปีเก่ายังอยู่ครบ)',String(yr+1));if(v===null)return;
-  v=parseInt(v,10);if(!(v>=2500&&v<=2700)){toast('ใส่ปี พ.ศ. 4 หลัก เช่น 2570');return}
-  yr=v;renderWork();toast('เริ่มปี '+v+' แล้ว (ว่าง พร้อมเพิ่มข้อมูล)');
+window.wkNewYear=function(){$('wk-year-in').value=String(yr+1);$('wk-year-err').textContent='';openOv('wk-year-ov')};
+window.wkSaveYear=function(){
+  var v=parseInt($('wk-year-in').value,10);
+  if(!(v>=2500&&v<=2700)){$('wk-year-err').textContent='ใส่ปี พ.ศ. 4 หลัก เช่น 2570';return}
+  yr=v;closeOv('wk-year-ov');renderWork();toast('เริ่มปี '+v+' แล้ว (ว่าง พร้อมเพิ่มข้อมูล)');
 };
 window.wkClearYear=function(kind){
   var k=kind==='holiday'?K_HOL:K_SH,name=kind==='holiday'?'วันหยุด':'วันเข้าเวร';
