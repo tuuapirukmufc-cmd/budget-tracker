@@ -2114,6 +2114,10 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 .vehicle-actions .icon-btn.danger{color:#DC2626;border-color:#FECACA;background:#FEF2F2}
 .vehicle-actions .icon-btn.danger:hover{background:#FEE2E2}
 </style>
+<style id="budget-edit-touch-style">
+@media (hover:none){#inc-body .icon-btn{opacity:1}}
+@media (max-width:768px){#inc-head th:last-child,#inc-body td:last-child{position:sticky;right:0;z-index:1;background:var(--surface);box-shadow:-6px 0 8px -6px rgba(0,0,0,.15)}}
+</style>
 <!-- Debt tracker: บันทึกการชำระ -->
 <div class="ov" id="dt-pay-ov"><div class="modal">
   <span class="modal-drag"></span>
@@ -3706,9 +3710,9 @@ function renderBBody(id,headId,items,type){
     <th style="width:${type==='expense'?'6':'9'}%;text-align:center">${type==='income'?'รับแล้ว':'จ่ายแล้ว'}</th>
     <th style="width:${type==='expense'?'7':'0'}%;text-align:center;${type==='income'?'display:none':''}">จ่ายผ่าน</th>
     ${type==='expense'?'<th style="width:10%;text-align:center">ผู้รับผิดชอบ</th>':''}
-    <th style="width:${type==='expense'?'10':'25'}%">หมายเหตุ</th>
+    <th style="width:${type==='expense'?'10':'21'}%">หมายเหตุ</th>
     ${type==='expense'?'<th style="width:10%;text-align:center">ความจำเป็น</th>':''}
-    <th style="width:${type==='expense'?'6':'5'}%;text-align:center">✏</th>`;
+    <th style="width:${type==='expense'?'6':'9'}%;text-align:center">✏</th>`;
   if(!sorted.length){tb.innerHTML=`<tr><td colspan="${type==='expense'?11:8}" class="empty">ยังไม่มีรายการ</td></tr>`;return}
   tb.innerHTML=sorted.map((item,i)=>{
     const hasSubs=item.subItems?.length>0;
@@ -3735,7 +3739,7 @@ function renderBBody(id,headId,items,type){
       <td>${dueBadge(item.dueDay,paid)}</td>
       <td class="tr ${type==='income'?'ag':'ac'}">${fmt(item.amount)}</td>
       <td class="tc">${paidCell}</td>
-      <td class="tc">${pmBadge}</td>
+      <td class="tc" style="${type==='income'?'display:none':''}">${pmBadge}</td>
       ${type==='expense'?`<td class="tc"><select class="styled owner-select" onchange="setBudgetOwner(${item.id},this.value)" title="ผู้รับผิดชอบ">${getOwners().map(n=>`<option value="${n.replace(/"/g,'&quot;')}" ${(item.owner||'ไม่ระบุ')===n?'selected':''}>👤 ${n}</option>`).join('')}</select></td>`:''}
       <td style="font-size:12px;color:var(--g400)">${item.note||'—'}</td>
       ${type==='expense'?`<td class="tc"><select class="styled necessity-select ${necessityClass(item.necessity||'จำเป็น')}" style="${necessityStyle(item.necessity||'จำเป็น')}" onchange="setBudgetNecessity(${item.id},this.value);this.className='styled necessity-select '+necessityClass(this.value);this.style.cssText=necessityStyle(this.value)">${getNecessities().map(n=>`<option value="${n.replace(/"/g,'&quot;')}" ${(item.necessity||'จำเป็น')===n?'selected':''}>${necessityLabel(n)}</option>`).join('')}</select></td>`:''}
