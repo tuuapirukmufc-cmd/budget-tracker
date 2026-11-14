@@ -1983,7 +1983,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   <span class="modal-drag"></span>
   <h3 id="tm-title">เพิ่มรายการ</h3>
   <div class="f"><label>ชื่อรายการ</label><input type="text" id="tm-name" placeholder="เช่น ต่อประกันรถยนต์"></div>
-  <div class="f"><label>ผู้ใช้งาน</label><input type="text" id="tm-user" placeholder="เช่น อภิรักษ์"></div>
+  <div class="f"><label>ผู้ใช้งาน</label><div style="display:flex;gap:8px;align-items:center"><select id="tm-user" style="flex:1;min-width:0"><option value="">👤 ไม่ระบุผู้ใช้งาน</option></select><button type="button" class="btn btn-ghost btn-sm" onclick="openTodoUserMgr()" style="white-space:nowrap">⚙ จัดการ</button></div></div>
   <div class="todo-sub-editor">
     <div class="todo-sub-editor-head"><span>รายการรอง</span><button type="button" class="btn btn-ghost btn-sm" onclick="addTodoSubRow()">+ เพิ่มรายการรอง</button></div>
     <div id="tm-subitems"></div>
@@ -2146,6 +2146,28 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 #debttrack-panel .dt-int-box{border:1px solid #ddd6fe;background:#f5f3ff;border-radius:11px;padding:10px 12px;display:grid;gap:8px}
 #debttrack-panel .dt-int-title{font-size:13px;font-weight:800;color:#6d28d9}
 #debttrack-panel .dt-int-title span{font-weight:600;color:#7c3aed;font-size:12px}
+</style>
+<div class="ov" id="todo-user-mgr-ov"><div class="modal" style="max-width:560px">
+  <span class="modal-drag"></span>
+  <div class="mh"><div><h3>👤 จัดการผู้ใช้งาน</h3><div class="sub">เพิ่ม แก้ไขชื่อ ลบ หรือเรียงลำดับ (ลำดับนี้คือลำดับตารางในหน้าสิ่งที่ต้องทำ)</div></div><button class="x" onclick="closeTodoUserMgr()">×</button></div>
+  <div class="mbody" style="padding-top:8px">
+    <div id="todo-user-list"></div>
+    <div style="margin-top:12px;padding:12px;border:1px dashed var(--blue);border-radius:12px;background:rgba(59,130,246,.04)">
+      <label style="font-size:11px;font-weight:800;color:var(--g600)">เพิ่มผู้ใช้งานใหม่</label>
+      <div style="display:flex;gap:7px;margin-top:6px">
+        <input id="todo-user-new" type="text" maxlength="60" placeholder="เช่น อภิรักษ์, พลอย..." style="flex:1" onkeydown="if(event.key==='Enter'){event.preventDefault();addTodoUser()}">
+        <button type="button" class="btn btn-pri" onclick="addTodoUser()">+ เพิ่ม</button>
+      </div>
+      <div id="todo-user-err" style="color:#dc2626;font-size:12px;min-height:1em;margin-top:6px"></div>
+    </div>
+  </div>
+  <div class="mbtns"><button class="btn btn-ghost" onclick="closeTodoUserMgr()">ปิด</button></div>
+</div></div>
+<style id="todo-user-style">
+.todo-user-group .grp-mv{display:inline-flex;gap:4px;margin-left:10px;vertical-align:middle}
+.todo-user-group .grp-mv button{border:1px solid var(--g200);background:var(--surface);color:var(--g600);border-radius:6px;padding:1px 9px;font-size:11px;line-height:1.7;cursor:pointer}
+.todo-user-group .grp-mv button:hover:not(:disabled){background:var(--g100);color:var(--g900)}
+.todo-user-group .grp-mv button:disabled{opacity:.3;cursor:default}
 </style>
 <!-- Debt tracker: บันทึกการชำระ -->
 <div class="ov" id="dt-pay-ov"><div class="modal">
@@ -4386,11 +4408,86 @@ function defTodos(){return[
 ]}
 function getTodos(){return ls(uKey('todos_v1'),defTodos())}
 function saveTodos(t){lss(uKey('todos_v1'),t)}
+// ── ผู้ใช้งาน (dropdown + ลำดับตาราง) เก็บที่ todo_users_v1 → ซิงค์ Firestore อัตโนมัติ ──
+const TODO_NONE='__none__';
+function todoUserKey(t){return String(t&&t.user||'').trim()||TODO_NONE}
+function saveTodoUsers(a){lss(uKey('todo_users_v1'),a)}
+function getTodoUsers(){
+  let a=ls(uKey('todo_users_v1'),null),changed=false;
+  if(!Array.isArray(a)){a=[];changed=true}
+  a=a.filter((x,i)=>typeof x==='string'&&x&&a.indexOf(x)===i);
+  getTodos().forEach(t=>{const k=todoUserKey(t);if(!a.includes(k)){a.push(k);changed=true}});
+  if(!a.includes(TODO_NONE)){a.push(TODO_NONE);changed=true}
+  if(changed)saveTodoUsers(a);
+  return a;
+}
+function todoUserNames(){return getTodoUsers().filter(k=>k!==TODO_NONE)}
+function todoUserUsage(n){return getTodos().filter(t=>String(t.user||'').trim()===n).length}
+function refreshTodoUserOptions(keep){
+  const sel=document.getElementById('tm-user');if(!sel)return;
+  const names=todoUserNames();keep=String(keep||'').trim();
+  if(keep&&!names.includes(keep))names.push(keep);
+  sel.innerHTML='<option value="">👤 ไม่ระบุผู้ใช้งาน</option>'+names.map(n=>`<option value="${todoEscAttr(n)}">👤 ${todoEsc(n)}</option>`).join('');
+  sel.value=keep;
+}
+function todoUserErr(m){const e=document.getElementById('todo-user-err');if(e)e.textContent=m||''}
+function openTodoUserMgr(){renderTodoUserMgr();document.getElementById('todo-user-new').value='';todoUserErr('');document.getElementById('todo-user-mgr-ov').classList.add('open')}
+function closeTodoUserMgr(){closeOv('todo-user-mgr-ov');const sel=document.getElementById('tm-user');refreshTodoUserOptions(sel?sel.value:'')}
+function renderTodoUserMgr(){
+  const el=document.getElementById('todo-user-list'),a=todoUserNames();
+  el.innerHTML=a.length?a.map((n,i)=>`<div class="f-row" style="align-items:center;margin-bottom:7px;gap:7px">
+    ${reorderBtns(`moveTodoUserMgr(${i},-1)`,`moveTodoUserMgr(${i},1)`,i>0,i<a.length-1)}
+    <input type="text" value="${todoEscAttr(n)}" maxlength="60" onchange="renameTodoUser(${i},this.value)" style="flex:1;min-width:0">
+    <span style="font-size:11px;color:var(--g500);white-space:nowrap">${todoUserUsage(n)} รายการ</span>
+    <button type="button" class="btn btn-danger btn-sm" onclick="deleteTodoUser(${i})">ลบ</button>
+  </div>`).join(''):'<div class="empty">ยังไม่มีผู้ใช้งาน — เพิ่มได้ด้านล่าง</div>';
+}
+function addTodoUser(){
+  const input=document.getElementById('todo-user-new'),n=(input.value||'').trim();if(!n)return;
+  if(n===TODO_NONE||todoUserNames().includes(n)){todoUserErr('มีชื่อนี้อยู่แล้ว');return}
+  const a=getTodoUsers();const noneAt=a.indexOf(TODO_NONE);a.splice(noneAt<0?a.length:noneAt,0,n);saveTodoUsers(a);
+  input.value='';todoUserErr('');renderTodoUserMgr();refreshTodoUserOptions(n);renderTodo();
+}
+function renameTodoUser(i,n){
+  n=(n||'').trim();const names=todoUserNames(),old=names[i];if(!old)return;
+  if(!n||n===old){renderTodoUserMgr();return}
+  if(n===TODO_NONE||names.some((x,j)=>j!==i&&x===n)){todoUserErr('มีชื่อนี้อยู่แล้ว');renderTodoUserMgr();return}
+  todoUserErr('');
+  saveTodoUsers(getTodoUsers().map(x=>x===old?n:x));
+  saveTodos(getTodos().map(t=>String(t.user||'').trim()===old?{...t,user:n}:t));
+  const sel=document.getElementById('tm-user');refreshTodoUserOptions(sel&&sel.value===old?n:(sel?sel.value:''));
+  renderTodoUserMgr();renderTodo();
+}
+function deleteTodoUser(i){
+  const names=todoUserNames(),n=names[i];if(!n)return;
+  const c=todoUserUsage(n);
+  if(!confirm(c?`ลบผู้ใช้งาน "${n}" ใช่หรือไม่?\n\nรายการ ${c} รายการจะย้ายไปเป็น "ไม่ระบุผู้ใช้งาน"`:`ลบผู้ใช้งาน "${n}" ใช่หรือไม่?`))return;
+  saveTodoUsers(getTodoUsers().filter(x=>x!==n));
+  saveTodos(getTodos().map(t=>String(t.user||'').trim()===n?{...t,user:''}:t));
+  const sel=document.getElementById('tm-user');refreshTodoUserOptions(sel&&sel.value!==n?sel.value:'');
+  renderTodoUserMgr();renderTodo();
+}
+function todoMoveInOrder(order,key,targetKey,dir){
+  order=order.slice();order.splice(order.indexOf(key),1);
+  const ti=order.indexOf(targetKey);order.splice(dir<0?ti:ti+1,0,key);return order;
+}
+function moveTodoUserMgr(i,dir){
+  const names=todoUserNames(),key=names[i],target=names[i+dir];if(!key||!target)return;
+  saveTodoUsers(todoMoveInOrder(getTodoUsers(),key,target,dir));renderTodoUserMgr();renderTodo();
+}
+// เลื่อนตาราง (กลุ่มผู้ใช้งาน) ขึ้น/ลง — ข้ามกลุ่มที่ไม่มีรายการในตารางนั้น
+function moveTodoGroup(idx,dir,tbl){
+  const order=getTodoUsers(),key=order[idx];if(key===undefined)return;
+  const wantDone=tbl==='d',todos=getTodos();
+  const vis=order.filter(k=>todos.some(t=>!!t.done===wantDone&&todoUserKey(t)===k));
+  const vi=vis.indexOf(key),target=vis[vi+dir];if(vi<0||!target)return;
+  saveTodoUsers(todoMoveInOrder(order,key,target,dir));renderTodo();
+}
 function reorderTodo(id,direction){
   const todos=getTodos();
   const target=todos.find(t=>t.id===id);
   if(!target)return;
-  saveTodos(reorderWithinGroup(todos,t=>t.done===target.done,id,direction));
+  saveTodos(reorderWithinGroup(todos,t=>t.done===target.done&&todoUserKey(t)===todoUserKey(target),id,direction));
   renderTodo();
 }
 let tEId=null;
@@ -4435,7 +4532,7 @@ function openTM(id){
   todoSubDraft=normalizeTodoSubs(item);
   document.getElementById('tm-title').textContent=id?'แก้ไขรายการ':'เพิ่มรายการ';
   document.getElementById('tm-name').value=item?.name||'';
-  document.getElementById('tm-user').value=item?.user||'';
+  refreshTodoUserOptions(item?.user||'');
   document.getElementById('tm-due').value=item?.due||'';
   document.getElementById('tm-time').value=item?.time||'';
   const legacySubTotal=todoSubDraft.reduce((a,x)=>a+(parseFloat(x.price)||0),0);
@@ -4533,11 +4630,12 @@ function renderTodo(){
   if(!body||!doneBody)return;
   const pending=items.filter(t=>!t.done);
   const done=items.filter(t=>t.done);
-  const groupRows=(list)=>{
+  const groupRows=(list,tbl)=>{
     if(!list.length)return '<tr><td colspan="13" class="empty">ยังไม่มีรายการ</td></tr>';
     const groups={};
-    list.forEach(t=>{const key=String(t.user||'ไม่ระบุผู้ใช้งาน').trim()||'ไม่ระบุผู้ใช้งาน';(groups[key]||(groups[key]=[])).push(t)});
-    return Object.entries(groups).map(([user,arr])=>{
+    list.forEach(t=>{const key=todoUserKey(t);(groups[key]||(groups[key]=[])).push(t)});
+    const _order=getTodoUsers(),_ents=_order.filter(k=>groups[k]).map(k=>[k,groups[k]]);
+    return _ents.map(([_key,arr],_gi)=>{const user=_key===TODO_NONE?'ไม่ระบุผู้ใช้งาน':_key;
       const safeUser=todoEsc(user);
       const icon=user==='ไม่ระบุผู้ใช้งาน'?'👤':'👤';
       const rows=arr.map((t,i)=>{
@@ -4546,11 +4644,11 @@ function renderTodo(){
         if(!t.done&&r.isSoon)soonCount++;
         return r.html;
       }).join('');
-      return `<tr class="todo-user-group"><td colspan="13"><span class="todo-user-avatar">${icon}</span>ผู้ใช้งาน: ${safeUser}<span class="user-count">${arr.length} รายการ</span></td></tr>${rows}`;
+      return `<tr class="todo-user-group"><td colspan="13"><span class="todo-user-avatar">${icon}</span>ผู้ใช้งาน: ${safeUser}<span class="grp-mv"><button type="button" ${_gi>0?'':'disabled'} onclick="moveTodoGroup(${_order.indexOf(_key)},-1,'${tbl}')" title="เลื่อนตารางนี้ขึ้น">▲</button><button type="button" ${_gi<_ents.length-1?'':'disabled'} onclick="moveTodoGroup(${_order.indexOf(_key)},1,'${tbl}')" title="เลื่อนตารางนี้ลง">▼</button></span><span class="user-count">${arr.length} รายการ</span></td></tr>${rows}`;
     }).join('');
   };
-  body.innerHTML=groupRows(pending);
-  doneBody.innerHTML=groupRows(done);
+  body.innerHTML=groupRows(pending,'p');
+  doneBody.innerHTML=groupRows(done,'d');
   document.getElementById('td-total').textContent=items.length;
   document.getElementById('td-soon').textContent=soonCount;
   document.getElementById('td-over').textContent=overCount;
