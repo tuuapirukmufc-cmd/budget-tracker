@@ -1611,20 +1611,22 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 <!-- PAGE: PASSIVE INCOME -->
 <div id="page-passive" class="page">
   <div class="page-head">
-    <div><h2 class="desk-only">💸 Passive income</h2><div class="sub">ปล่อยเงินกินดอก และวงแชร์ — ติดตามยอดแต่ละงวดว่ารับ/จ่ายแล้วหรือยัง</div></div>
-    <div class="page-head-actions"><button class="btn btn-ghost btn-sm" onclick="sw('todo',null)">⌂ ภาพรวม</button></div>
+    <div><h2 class="desk-only">💸 Passive income</h2><div class="sub">ปล่อยเงินกินดอก และวงแชร์ — ติดตามยอดแต่ละวัน/รอบว่ารับ/จ่ายแล้วหรือยัง</div></div>
+    <div class="page-head-actions"><button class="btn btn-ghost btn-sm" onclick="sw('todo',null)">ภาพรวม</button></div>
   </div>
   <div class="sec">
     <div class="sec-head"><span class="sec-title"><span class="dot dg"></span>ปล่อยเงินกินดอก</span><button class="btn btn-pri btn-sm" onclick="ppAdd('lend')">+ เพิ่มวงปล่อย</button></div>
-    <div class="pp-wrap"><table class="pp-tbl"><thead><tr>
-      <th>ชื่อวงปล่อย</th><th>วันที่ปล่อย</th><th>ครบกำหนดรับยอด</th><th class="tr">ยอดต้นที่ปล่อย</th><th class="tc">เคลียร์ภายใน</th><th>วันที่ได้รับแล้ว</th><th class="tr">ยอดรวมที่จะได้รับ</th><th class="tr">ได้รับแล้ว</th><th class="tr">คงเหลือรับ</th><th>วันรับถัดไป</th><th></th>
-    </tr></thead><tbody id="pp-lend-body"></tbody><tfoot id="pp-lend-foot"></tfoot></table></div>
+    <div class="pp-wrap"><table class="pp-tbl">
+      <colgroup><col style="width:14%"><col style="width:9%"><col style="width:9%"><col style="width:9%"><col style="width:10%"><col style="width:11%"><col style="width:9%"><col style="width:9%"><col style="width:9%"><col style="width:11%"></colgroup>
+      <thead><tr><th>ชื่อวงปล่อย</th><th>วันที่ปล่อย</th><th>ครบกำหนดรับยอด</th><th class="tr">ยอดต้นที่ปล่อย</th><th>ได้รับแล้ว (วัน)</th><th class="tr">ยอดรวมที่จะได้รับ</th><th class="tr">ได้รับแล้ว</th><th class="tr">คงเหลือรับ</th><th>วันรับถัดไป</th><th class="tc">จัดการ</th></tr></thead>
+      <tbody id="pp-lend-body"></tbody><tfoot id="pp-lend-foot"></tfoot></table></div>
   </div>
   <div class="sec">
     <div class="sec-head"><span class="sec-title"><span class="dot dgold"></span>วงแชร์</span><button class="btn btn-pri btn-sm" onclick="ppAdd('share')">+ เพิ่มวงแชร์</button></div>
-    <div class="pp-wrap"><table class="pp-tbl"><thead><tr>
-      <th>ชื่อวงแชร์</th><th>วันที่เริ่มจ่าย</th><th>ครบกำหนดรับยอด</th><th class="tr">ยอดวงแชร์</th><th class="tc">จ่ายทุก</th><th>งวดที่จ่ายแล้ว</th><th class="tr">ยอดจ่ายรวม</th><th class="tr">จ่ายแล้ว</th><th class="tr">คงเหลือต้องจ่าย</th><th>รอบถัดไป</th><th></th>
-    </tr></thead><tbody id="pp-share-body"></tbody><tfoot id="pp-share-foot"></tfoot></table></div>
+    <div class="pp-wrap"><table class="pp-tbl">
+      <colgroup><col style="width:14%"><col style="width:9%"><col style="width:9%"><col style="width:9%"><col style="width:10%"><col style="width:11%"><col style="width:9%"><col style="width:9%"><col style="width:9%"><col style="width:11%"></colgroup>
+      <thead><tr><th>ชื่อวงแชร์</th><th>วันที่เริ่มจ่าย</th><th>ครบกำหนดรับยอด</th><th class="tr">ยอดวงแชร์</th><th>จ่ายแล้ว (งวด)</th><th class="tr">ยอดจ่ายรวม</th><th class="tr">จ่ายแล้ว</th><th class="tr">คงเหลือต้องจ่าย</th><th>รอบถัดไป</th><th class="tc">จัดการ</th></tr></thead>
+      <tbody id="pp-share-body"></tbody><tfoot id="pp-share-foot"></tfoot></table></div>
   </div>
 </div>
 
@@ -6486,13 +6488,13 @@ window.wkImpCommit=function(){
 </script>
 <style id="passive-style">
 #page-passive .pp-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
-.pp-tbl{width:100%;border-collapse:collapse;font-size:12.5px;min-width:900px}
-.pp-tbl th{text-align:left;font-size:11px;font-weight:700;color:var(--g500);padding:9px 8px;background:var(--surface2);border-bottom:1px solid var(--g200);white-space:nowrap}
+.pp-tbl{width:100%;border-collapse:collapse;table-layout:fixed;font-size:13px;min-width:960px}
+.pp-tbl th{text-align:left;font-size:11px;font-weight:700;color:var(--g500);padding:10px 8px;background:var(--surface2);border-bottom:1px solid var(--g200);white-space:normal;line-height:1.35;vertical-align:bottom}
 .pp-tbl td{padding:9px 8px;border-bottom:1px solid var(--g100);color:var(--g700);vertical-align:middle}
 .pp-tbl .tr{text-align:right}.pp-tbl .tc{text-align:center}
 .pp-tbl tr.pp-sub td{background:var(--g50);padding:8px 10px 12px}
 .pp-tbl tfoot td{background:var(--surface2);font-weight:800;color:var(--g900);border-top:2px solid var(--g200)}
-.pp-name b{font-size:14px;color:var(--g900)}.pp-name small{display:block;color:var(--g500);font-size:11px;margin-top:2px}
+.pp-name b{font-size:14px;color:var(--g900);word-break:break-word}.pp-name small{display:block;color:var(--g500);font-size:11px;margin-top:2px}
 .pp-money-sub{display:block;font-size:11px;color:var(--g500);font-weight:500;white-space:nowrap}
 .pp-green{color:#16a34a;font-weight:700}.pp-orange{color:#ea580c;font-weight:700}
 .pp-bar{height:6px;border-radius:99px;background:var(--g100);overflow:hidden;margin-top:5px;min-width:90px}
@@ -6503,9 +6505,17 @@ window.wkImpCommit=function(){
 .pp-chip.ok{background:#DCFCE7;border-color:#86efac;color:#15803d}
 .pp-chip.late{background:#FEE2E2;border-color:#fca5a5;color:#b91c1c}
 .pp-chip.soon{background:#FEF3C7;border-color:#fcd34d;color:#b45309}
-.pp-act{text-align:right;min-width:96px}
-.pp-act .pp-ib.pri{display:block;width:100%;margin:0 0 4px 0}
-.pp-act .pp-ib:not(.pri){margin-left:4px}
+.pp-act{text-align:center}
+.pp-act .pp-ib{margin:0;width:100%}
+.pp-act .pp-ib.pri{display:block;margin-bottom:4px;padding:6px 4px}
+.pp-act2{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.pp-act2 .pp-ib{padding:5px 2px}
+.pp-ib.del{color:#b91c1c}.pp-ib.del:hover{background:#FEE2E2}
+.pp-d2 b{display:block;font-weight:700;color:var(--g900);white-space:nowrap}
+.pp-d2 small{display:block;color:var(--g500);font-size:11px}
+.pp-late{color:#dc2626!important;font-weight:700}
+.pp-dot{display:inline-block;width:8px;height:8px;border:1.5px solid currentColor;border-radius:50%;margin-right:4px;vertical-align:0}
+.pp-tbl td.tr b{white-space:nowrap}
 .pp-ib{border:1px solid var(--g200);background:var(--surface);border-radius:8px;padding:5px 9px;font-size:12px;font-weight:700;cursor:pointer;margin-left:4px;font-family:var(--font)}
 .pp-ib:hover{background:var(--g100)}
 .pp-ib.pri{background:#EFF6FF;border-color:#BFDBFE;color:#1D4ED8}
@@ -6597,25 +6607,26 @@ function chips(kind,c){
   if(!rs.length)return'<span class="pp-chips-lbl">ยังไม่มีรายการ — กด ปุ่ม 📋 เพื่อเพิ่ม</span>';
   return'<div class="pp-chips"><span class="pp-chips-lbl">'+(kind==='lend'?'รายวัน (กดเพื่อติ๊กว่าได้รับแล้ว):':'แต่ละรอบ (กดเพื่อติ๊กว่าจ่ายแล้ว):')+'</span>'+rs.map(function(r,idx){
     var d=diff(r.date),cls=r.done?'ok':d<0?'late':d<=3?'soon':'',a=rTotal(kind,r);
-    return'<button type="button" class="pp-chip '+cls+'" onclick="ppToggle(\''+kind+'\',\''+c.id+'\',\''+r.id+'\')" title="'+fd(r.date)+(r.done?' — '+LBL[kind].recvDone:d<0?' — เลยกำหนด':'')+'">'+(r.done?'✓':'○')+' '+(kind==='lend'?(idx+1)+'. ':'')+fds(r.date)+(a?' · '+money(a):'')+'</button>';
+    return'<button type="button" class="pp-chip '+cls+'" onclick="ppToggle(\''+kind+'\',\''+c.id+'\',\''+r.id+'\')" title="'+fd(r.date)+(r.done?' — '+LBL[kind].recvDone:d<0?' — เลยกำหนด':'')+'">'+(r.done?'✓':'<i class="pp-dot"></i>')+' '+(kind==='lend'?(idx+1)+'. ':'')+fds(r.date)+(a?' · '+money(a):'')+'</button>';
   }).join('')+'</div>';
 }
+function dcell(iso){var d=pIso(iso);return'<b>'+d.getDate()+' '+MS[d.getMonth()]+'</b><small>'+(d.getFullYear()+543)+'</small>'}
 function renderKind(kind){
   var list=load(kind),body=$('pp-'+kind+'-body'),foot=$('pp-'+kind+'-foot');if(!body)return;
-  var T={amount:0,total:0,done:0,remain:0};
+  var T={amount:0,total:0,done:0,remain:0},lend=kind==='lend';
   body.innerHTML=list.length?list.map(function(c){
     var s=sums(kind,c),nx=nextRound(c),pct=s.count?Math.round(s.doneCount/s.count*100):0;
     T.amount+=num(c.amount);T.total+=s.total;T.done+=s.done;T.remain+=s.remain;
-    var totCell=s.total?money(s.total)+(kind==='lend'?'<span class="pp-money-sub">ต้น '+money(s.principal)+' + ดอก '+money(s.interest)+'</span>':''):'<span class="badge b-soon">ยังไม่ใส่ยอดงวด</span>';
-    var nxCell=nx?'<b>'+fd(nx.date)+'</b><span class="pp-money-sub">'+dueTxt(nx.date)+(rTotal(kind,nx)?' · '+money(rTotal(kind,nx)):'')+'</span>':(s.count?'<span class="badge b-ok">ครบทุกงวดแล้ว</span>':'—');
-    return'<tr><td class="pp-name"><b>'+esc(c.name)+'</b>'+(c.note?'<small>'+esc(c.note)+'</small>':'')+'</td>'
-      +'<td>'+fd(c.startDate)+'</td><td>'+fd(c.dueDate)+'</td><td class="tr">'+money(c.amount)+'</td><td class="tc">'+(kind==='lend'?'ภายใน ':'ทุก ')+c.periodDays+' วัน</td>'
-      +'<td><b>'+s.doneCount+'/'+s.count+'</b> '+(kind==='lend'?'วัน':'งวด')+'<div class="pp-bar"><i style="width:'+pct+'%"></i></div></td>'
+    var totCell=s.total?'<b>'+money(s.total)+'</b>'+(lend?'<span class="pp-money-sub">ต้น '+money(s.principal)+'</span><span class="pp-money-sub">ดอก '+money(s.interest)+'</span>':''):'<span class="badge b-soon">ยังไม่ใส่ยอด</span>';
+    var nxCell=nx?'<span class="pp-d2">'+dcell(nx.date)+'</span><span class="pp-money-sub'+(diff(nx.date)<0?' pp-late':'')+'">'+dueTxt(nx.date)+'</span>'+(rTotal(kind,nx)?'<span class="pp-money-sub">'+money(rTotal(kind,nx))+'</span>':''):(s.count?'<span class="badge b-ok">ครบแล้ว</span>':'—');
+    return'<tr><td class="pp-name"><b>'+esc(c.name)+'</b><small>'+(lend?'เคลียร์ภายใน ':'จ่ายทุก ')+c.periodDays+' วัน</small>'+(c.note?'<small>'+esc(c.note)+'</small>':'')+'</td>'
+      +'<td class="pp-d2">'+dcell(c.startDate)+'</td><td class="pp-d2">'+dcell(c.dueDate)+'</td><td class="tr">'+money(c.amount)+'</td>'
+      +'<td><b>'+s.doneCount+'/'+s.count+'</b> '+(lend?'วัน':'งวด')+'<div class="pp-bar"><i style="width:'+pct+'%"></i></div></td>'
       +'<td class="tr">'+totCell+'</td><td class="tr pp-green">'+money(s.done)+'</td><td class="tr pp-orange">'+money(s.remain)+'</td><td>'+nxCell+'</td>'
-      +'<td class="pp-act"><button type="button" class="pp-ib pri" onclick="ppOpenRounds(\''+kind+'\',\''+c.id+'\')">'+(kind==='lend'?'📋 ยอดรายวัน':'📋 ยอดแต่ละรอบ')+'</button><button type="button" class="pp-ib" onclick="ppEdit(\''+kind+'\',\''+c.id+'\')" aria-label="แก้ไข">✏</button><button type="button" class="pp-ib" onclick="ppDel(\''+kind+'\',\''+c.id+'\')" aria-label="ลบ">🗑</button></td></tr>'
-      +'<tr class="pp-sub"><td colspan="11">'+chips(kind,c)+'</td></tr>';
-  }).join(''):'<tr><td colspan="11" class="empty">ยังไม่มี'+LBL[kind].title+' — กด “+ เพิ่ม'+LBL[kind].title+'”</td></tr>';
-  foot.innerHTML=list.length?'<tr><td colspan="3">รวม '+list.length+' '+LBL[kind].title+'</td><td class="tr">'+money(T.amount)+'</td><td></td><td></td><td class="tr">'+money(T.total)+'</td><td class="tr pp-green">'+money(T.done)+'</td><td class="tr pp-orange">'+money(T.remain)+'</td><td colspan="2"></td></tr>':'';
+      +'<td class="pp-act"><button type="button" class="pp-ib pri" onclick="ppOpenRounds(\''+kind+'\',\''+c.id+'\')">'+(lend?'ยอดรายวัน':'ยอดแต่ละรอบ')+'</button><div class="pp-act2"><button type="button" class="pp-ib" onclick="ppEdit(\''+kind+'\',\''+c.id+'\')">แก้ไข</button><button type="button" class="pp-ib del" onclick="ppDel(\''+kind+'\',\''+c.id+'\')">ลบ</button></div></td></tr>'
+      +'<tr class="pp-sub"><td colspan="10">'+chips(kind,c)+'</td></tr>';
+  }).join(''):'<tr><td colspan="10" class="empty">ยังไม่มี'+LBL[kind].title+' — กด “+ เพิ่ม'+LBL[kind].title+'”</td></tr>';
+  foot.innerHTML=list.length?'<tr><td>รวม '+list.length+' '+LBL[kind].title+'</td><td></td><td></td><td class="tr">'+money(T.amount)+'</td><td></td><td class="tr">'+money(T.total)+'</td><td class="tr pp-green">'+money(T.done)+'</td><td class="tr pp-orange">'+money(T.remain)+'</td><td></td><td></td></tr>':'';
 }
 window.renderPassive=function(){renderKind('lend');renderKind('share')};
 
