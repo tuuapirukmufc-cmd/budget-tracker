@@ -1616,6 +1616,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   </div>
   <div class="sec">
     <div class="sec-head"><span class="sec-title"><span class="dot dg"></span>ปล่อยเงินกินดอก</span><button class="btn btn-pri btn-sm" onclick="ppAdd('lend')">+ เพิ่มวงปล่อย</button></div>
+    <div id="pp-lend-sum"></div>
     <div class="pp-wrap"><table class="pp-tbl">
       <colgroup><col style="width:14%"><col style="width:9%"><col style="width:9%"><col style="width:9%"><col style="width:10%"><col style="width:11%"><col style="width:9%"><col style="width:9%"><col style="width:9%"><col style="width:11%"></colgroup>
       <thead><tr><th>ชื่อวงปล่อย</th><th>วันที่ปล่อย</th><th>ครบกำหนดรับยอด</th><th class="tr">ยอดต้นที่ปล่อย</th><th>ได้รับแล้ว (วัน)</th><th class="tr">ยอดรวมที่จะได้รับ</th><th class="tr">ได้รับแล้ว</th><th class="tr">คงเหลือรับ</th><th>วันรับถัดไป</th><th class="tc">จัดการ</th></tr></thead>
@@ -1623,6 +1624,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   </div>
   <div class="sec">
     <div class="sec-head"><span class="sec-title"><span class="dot dgold"></span>วงแชร์</span><button class="btn btn-pri btn-sm" onclick="ppAdd('share')">+ เพิ่มวงแชร์</button></div>
+    <div id="pp-share-sum"></div>
     <div class="pp-wrap"><table class="pp-tbl">
       <colgroup><col style="width:14%"><col style="width:9%"><col style="width:9%"><col style="width:9%"><col style="width:10%"><col style="width:11%"><col style="width:9%"><col style="width:9%"><col style="width:9%"><col style="width:11%"></colgroup>
       <thead><tr><th>ชื่อวงแชร์</th><th>วันที่เริ่มจ่าย</th><th>ครบกำหนดรับยอด</th><th class="tr">ยอดวงแชร์</th><th>จ่ายแล้ว (งวด)</th><th class="tr">ยอดจ่ายรวม</th><th class="tr">จ่ายแล้ว</th><th class="tr">คงเหลือต้องจ่าย</th><th>รอบถัดไป</th><th class="tc">จัดการ</th></tr></thead>
@@ -2202,8 +2204,13 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
     <div class="f"><label id="pp-l-due">วันครบกำหนดรับยอด *</label><input type="date" id="pp-f-due"></div>
   </div>
   <div class="f-row">
-    <div class="f"><label id="pp-l-amount">ยอดต้นที่ปล่อย (฿) *</label><input type="number" id="pp-f-amount" inputmode="decimal" min="0" step="0.01"></div>
+    <div class="f"><label id="pp-l-amount">ยอดต้นที่ปล่อย (฿) *</label><input type="number" id="pp-f-amount" inputmode="decimal" min="0" step="0.01" oninput="ppFormPreview()"></div>
     <div class="f"><label id="pp-l-period">ปล่อยรายกี่วัน *</label><input type="number" id="pp-f-period" inputmode="numeric" min="1" max="400" step="1" placeholder="เช่น 10" oninput="ppFormSync()"></div>
+  </div>
+  <div class="f" id="pp-rate-wrap">
+    <label>ดอกเบี้ย — ทุกๆ กี่บาท ได้ดอกกี่บาท</label>
+    <div class="pp-rate-row"><span>ทุกๆ</span><input type="number" id="pp-f-rate-unit" inputmode="decimal" min="0" step="1" placeholder="5000" oninput="ppFormPreview()"><span>บาท ได้ดอก</span><input type="number" id="pp-f-rate-int" inputmode="decimal" min="0" step="1" placeholder="1000" oninput="ppFormPreview()"><span>บาท</span></div>
+    <div id="pp-f-preview" class="pp-preview"></div>
   </div>
   <div class="f"><label>หมายเหตุ (ไม่บังคับ)</label><input type="text" id="pp-f-note" maxlength="200"></div>
   <div class="f" id="pp-regen-wrap" style="display:none"><label style="display:flex;align-items:flex-start;gap:8px;font-weight:600"><input type="checkbox" id="pp-f-regen" style="margin-top:3px"> <span>สร้างงวดใหม่ตามวันที่/จำนวนวัน (จะล้างยอดและเครื่องหมายที่กรอกไว้ทั้งหมด)</span></label></div>
@@ -6556,6 +6563,29 @@ window.wkImpCommit=function(){
   .pp-rtbl .c-chk::before{content:none!important}
   .pp-rtbl .c-chk::after{content:attr(data-l);font-size:12px;font-weight:600}
 }
+#pp-form-ov .pp-rate-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--g700)}
+#pp-form-ov .pp-rate-row input{width:110px;min-width:0}
+.pp-preview{margin-top:8px;border:1px solid #BFDBFE;background:#EFF6FF;border-radius:12px;padding:10px 12px;display:grid;gap:6px}
+.pp-pv-row{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px;font-size:13px}
+.pp-pv-row span{color:var(--g600);min-width:130px}.pp-pv-row b{font-size:15px;color:var(--g900)}.pp-pv-row small{color:var(--g500);font-size:11px}
+.pp-pv-hint{font-size:12px;color:var(--g500)}
+.pp-name small.pp-rate{color:#7c3aed;font-weight:600}
+#page-passive .pp-sumbox{margin:12px 14px;border:1px solid var(--g200);border-radius:12px;overflow:hidden;background:var(--surface)}
+.pp-sumhead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:6px;padding:10px 14px;font-size:13px;border-bottom:1px solid var(--g200)}
+.pp-sumhead b{font-size:14px;color:var(--g900)}.pp-sumhead span{color:var(--g500);font-size:12px}
+.pp-sum-g .pp-sumhead{background:#F0FDF4}.pp-sum-o .pp-sumhead{background:#FFF7ED}
+.pp-sumtbl{width:100%;border-collapse:collapse;font-size:13px}
+.pp-sumtbl th{font-size:11px;font-weight:700;color:var(--g500);padding:8px 14px;text-align:left}
+.pp-sumtbl td{padding:9px 14px;border-top:1px solid var(--g100);color:var(--g700)}
+.pp-sumtbl td:first-child{font-weight:700;color:var(--g900);width:34%}
+.pp-sumtbl .tr{text-align:right}
+.pp-sumtbl tr.g td{background:#F0FDF4}.pp-sumtbl tr.g td:first-child,.pp-sumtbl tr.g b{color:#15803d}
+.pp-sumtbl tr.o td{background:#FFF7ED}.pp-sumtbl tr.o td:first-child,.pp-sumtbl tr.o b{color:#c2410c}
+.pp-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.pp-tiles div{padding:11px 14px;border-right:1px solid var(--g100);border-bottom:1px solid var(--g100)}
+.pp-tiles span{display:block;font-size:11px;color:var(--g500);font-weight:600;margin-bottom:3px;line-height:1.35}
+.pp-tiles b{font-size:16px;color:var(--g900)}
+.pp-red{color:#dc2626!important}
 </style>
 <script id="passive-js">
 (function(){
@@ -6583,11 +6613,14 @@ function save(kind,list){lss(K[kind],list)}
 function find(kind,id){return load(kind).filter(function(c){return c.id===id})[0]}
 function rTotal(kind,r){return kind==='lend'?num(r.principal)+num(r.interest):num(r.amount)}
 function mkRound(kind,date){return kind==='lend'?{id:uid(),date:date,principal:0,interest:0,done:false}:{id:uid(),date:date,amount:0,done:false}}
-function genRounds(kind,start,due,period,amount){
+function r2(x){return Math.round(x*100)/100}
+// ดอกรวมของทั้งวง = ยอดต้น ÷ ทุกๆ(บาท) × ได้ดอก(บาท)   เช่น 20,000 ÷ 5,000 × 1,000 = 4,000
+function calcInterest(amount,unit,inter){return(num(unit)>0&&num(inter)>0)?r2(num(amount)/num(unit)*num(inter)):0}
+function genRounds(kind,start,due,period,amount,rateUnit,rateInt){
   var out=[],i,d;
   if(kind==='lend'){ // เคลียร์ยอดภายใน N วัน: รับยอดวันละงวด วันที่ 1..N นับจากวันปล่อย
-    var n=Math.min(period,400),per=Math.floor((num(amount)/period)*100)/100;
-    for(i=1;i<=n;i++){var r=mkRound('lend',addDays(start,i));r.principal=i===period?Math.round((num(amount)-per*(period-1))*100)/100:per;out.push(r)}
+    var n=Math.min(period,400),per=Math.floor((num(amount)/period)*100)/100,tI=calcInterest(amount,rateUnit,rateInt),perI=Math.floor((tI/period)*100)/100;
+    for(i=1;i<=n;i++){var r=mkRound('lend',addDays(start,i));r.principal=i===period?r2(num(amount)-per*(period-1)):per;r.interest=i===period?r2(tI-perI*(period-1)):perI;out.push(r)}
     return out;
   }
   d=start;while(d<=due&&out.length<400){out.push(mkRound(kind,d));d=addDays(d,period)}
@@ -6619,14 +6652,40 @@ function renderKind(kind){
     T.amount+=num(c.amount);T.total+=s.total;T.done+=s.done;T.remain+=s.remain;
     var totCell=s.total?'<b>'+money(s.total)+'</b>'+(lend?'<span class="pp-money-sub">ต้น '+money(s.principal)+'</span><span class="pp-money-sub">ดอก '+money(s.interest)+'</span>':''):'<span class="badge b-soon">ยังไม่ใส่ยอด</span>';
     var nxCell=nx?'<span class="pp-d2">'+dcell(nx.date)+'</span><span class="pp-money-sub'+(diff(nx.date)<0?' pp-late':'')+'">'+dueTxt(nx.date)+'</span>'+(rTotal(kind,nx)?'<span class="pp-money-sub">'+money(rTotal(kind,nx))+'</span>':''):(s.count?'<span class="badge b-ok">ครบแล้ว</span>':'—');
-    return'<tr><td class="pp-name"><b>'+esc(c.name)+'</b><small>'+(lend?'เคลียร์ภายใน ':'จ่ายทุก ')+c.periodDays+' วัน</small>'+(c.note?'<small>'+esc(c.note)+'</small>':'')+'</td>'
+    return'<tr><td class="pp-name"><b>'+esc(c.name)+'</b><small>'+(lend?'เคลียร์ภายใน ':'จ่ายทุก ')+c.periodDays+' วัน</small>'+(lend&&c.rateUnit&&c.rateInterest?'<small class="pp-rate">ทุก '+money(c.rateUnit)+' ได้ดอก '+money(c.rateInterest)+'</small>':'')+(c.note?'<small>'+esc(c.note)+'</small>':'')+'</td>'
       +'<td class="pp-d2">'+dcell(c.startDate)+'</td><td class="pp-d2">'+dcell(c.dueDate)+'</td><td class="tr">'+money(c.amount)+'</td>'
       +'<td><b>'+s.doneCount+'/'+s.count+'</b> '+(lend?'วัน':'งวด')+'<div class="pp-bar"><i style="width:'+pct+'%"></i></div></td>'
       +'<td class="tr">'+totCell+'</td><td class="tr pp-green">'+money(s.done)+'</td><td class="tr pp-orange">'+money(s.remain)+'</td><td>'+nxCell+'</td>'
       +'<td class="pp-act"><button type="button" class="pp-ib pri" onclick="ppOpenRounds(\''+kind+'\',\''+c.id+'\')">'+(lend?'ยอดรายวัน':'ยอดแต่ละรอบ')+'</button><div class="pp-act2"><button type="button" class="pp-ib" onclick="ppEdit(\''+kind+'\',\''+c.id+'\')">แก้ไข</button><button type="button" class="pp-ib del" onclick="ppDel(\''+kind+'\',\''+c.id+'\')">ลบ</button></div></td></tr>'
       +'<tr class="pp-sub"><td colspan="10">'+chips(kind,c)+'</td></tr>';
   }).join(''):'<tr><td colspan="10" class="empty">ยังไม่มี'+LBL[kind].title+' — กด “+ เพิ่ม'+LBL[kind].title+'”</td></tr>';
+  renderSummary(kind,list);
   foot.innerHTML=list.length?'<tr><td>รวม '+list.length+' '+LBL[kind].title+'</td><td></td><td></td><td class="tr">'+money(T.amount)+'</td><td></td><td class="tr">'+money(T.total)+'</td><td class="tr pp-green">'+money(T.done)+'</td><td class="tr pp-orange">'+money(T.remain)+'</td><td></td><td></td></tr>':'';
+}
+function renderSummary(kind,list){
+  var box=$('pp-'+kind+'-sum');if(!box)return;
+  if(!list.length){box.innerHTML='';return}
+  if(kind==='lend'){
+    var R={p:0,i:0,dp:0,di:0,out:0};
+    list.forEach(function(c){R.out+=num(c.amount);(c.rounds||[]).forEach(function(r){var p=num(r.principal),i=num(r.interest);R.p+=p;R.i+=i;if(r.done){R.dp+=p;R.di+=i}})});
+    var tot=R.p+R.i,rec=R.dp+R.di,pct=tot?Math.round(rec/tot*100):0;
+    box.innerHTML='<div class="pp-sumbox pp-sum-g"><div class="pp-sumhead"><b>สรุปยอดปล่อยเงินกินดอก</b><span>'+list.length+' วง · ปล่อยออกไปรวม '+money(R.out)+' · รับแล้ว '+pct+'%</span></div>'
+      +'<table class="pp-sumtbl"><thead><tr><th></th><th class="tr">เงินต้น</th><th class="tr">เงินดอก</th><th class="tr">รวม</th></tr></thead><tbody>'
+      +'<tr><td>ทั้งหมดที่จะได้รับ</td><td class="tr">'+money(R.p)+'</td><td class="tr">'+money(R.i)+'</td><td class="tr"><b>'+money(tot)+'</b></td></tr>'
+      +'<tr class="g"><td>ได้รับแล้ว</td><td class="tr">'+money(R.dp)+'</td><td class="tr">'+money(R.di)+'</td><td class="tr"><b>'+money(rec)+'</b></td></tr>'
+      +'<tr class="o"><td>คงเหลือรับ</td><td class="tr">'+money(R.p-R.dp)+'</td><td class="tr">'+money(R.i-R.di)+'</td><td class="tr"><b>'+money(tot-rec)+'</b></td></tr>'
+      +'</tbody></table></div>';
+  }else{
+    var P2=0,D=0,pot=0;
+    list.forEach(function(c){pot+=num(c.amount);(c.rounds||[]).forEach(function(r){var a=num(r.amount);P2+=a;if(r.done)D+=a})});
+    var diff2=pot-P2;
+    box.innerHTML='<div class="pp-sumbox pp-sum-o"><div class="pp-sumhead"><b>สรุปยอดวงแชร์</b><span>'+list.length+' วง · จ่ายแล้ว '+(P2?Math.round(D/P2*100):0)+'%</span></div>'
+      +'<div class="pp-tiles"><div><span>ยอดวงแชร์ที่จะได้รับ</span><b>'+money(pot)+'</b></div>'
+      +'<div><span>เงินต้น (ยอดจ่ายรวมทุกรอบ)</span><b>'+money(P2)+'</b></div>'
+      +'<div><span>เงินดอก (ส่วนต่าง = ยอดวงแชร์ − ยอดจ่ายรวม)</span><b class="'+(diff2<0?'pp-red':'pp-green')+'">'+(diff2>0?'+':diff2<0?'−':'')+money(Math.abs(diff2))+'</b></div>'
+      +'<div><span>จ่ายแล้ว</span><b class="pp-green">'+money(D)+'</b></div>'
+      +'<div><span>คงเหลือต้องจ่าย</span><b class="pp-orange">'+money(P2-D)+'</b></div></div></div>';
+  }
 }
 window.renderPassive=function(){renderKind('lend');renderKind('share')};
 
@@ -6634,26 +6693,35 @@ window.renderPassive=function(){renderKind('lend');renderKind('share')};
 var fKind='lend',fId=null,rKind='lend',rId=null;
 window.ppFormSync=function(){
   if(fKind!=='lend')return;var s=$('pp-f-start').value,n=parseInt($('pp-f-period').value,10);
-  $('pp-f-due').value=(s&&n>=1)?addDays(s,n):'';
+  $('pp-f-due').value=(s&&n>=1)?addDays(s,n):'';ppFormPreview();
+};
+window.ppFormPreview=function(){
+  var box=$('pp-f-preview');if(!box)return;if(fKind!=='lend'){box.innerHTML='';return}
+  var a=num($('pp-f-amount').value),n=parseInt($('pp-f-period').value,10),u=num($('pp-f-rate-unit').value),i=num($('pp-f-rate-int').value);
+  if(!a||!(n>=1)){box.innerHTML='<span class="pp-pv-hint">กรอกยอดต้น + จำนวนวัน แล้วระบบจะคำนวณดอกและยอดรายวันให้ทันที</span>';return}
+  var tI=calcInterest(a,u,i),tot=r2(a+tI);
+  box.innerHTML='<div class="pp-pv-row"><span>ดอกรวมทั้งวง</span><b>'+money(tI)+'</b>'+(tI?'<small>('+money(a)+' ÷ '+money(u)+' × '+money(i)+')</small>':'')+'</div>'
+    +'<div class="pp-pv-row"><span>ยอดรวมที่จะได้รับ</span><b class="pp-green">'+money(tot)+'</b></div>'
+    +'<div class="pp-pv-row"><span>รับวันละ ('+n+' วัน)</span><b>'+money(r2(tot/n))+'</b><small>(ต้น '+money(r2(a/n))+' + ดอก '+money(r2(tI/n))+')</small></div>';
 };
 function formMode(kind){
-  var lend=kind==='lend',due=$('pp-f-due');due.readOnly=lend;due.style.background=lend?'var(--g100)':'';
+  var lend=kind==='lend',due=$('pp-f-due');$('pp-rate-wrap').style.display=lend?'':'none';due.readOnly=lend;due.style.background=lend?'var(--g100)':'';
   $('pp-l-due').textContent=lend?'วันครบกำหนดรับยอด (คำนวณจาก วันที่ปล่อย + จำนวนวัน)':'วันครบกำหนดรับยอด *';
 }
 function ferr(m){$('pp-form-err').textContent=m||''}
 window.ppAdd=function(kind){
   fKind=kind;fId=null;var L=LBL[kind];
   $('pp-form-title').textContent='เพิ่ม'+L.title;$('pp-l-name').textContent=L.name;$('pp-l-start').textContent=L.start;$('pp-l-amount').textContent=L.amount;$('pp-l-period').textContent=L.period;
-  formMode(kind);$('pp-f-name').value='';$('pp-f-start').value=todayIso();$('pp-f-due').value='';$('pp-f-amount').value='';$('pp-f-period').value='';$('pp-f-note').value='';
-  $('pp-regen-wrap').style.display='none';$('pp-f-regen').checked=false;ferr('');$('pp-form-save').textContent=kind==='lend'?'บันทึก แล้วใส่ยอดแต่ละงวด':'บันทึก แล้วใส่ยอดแต่ละรอบ';
-  $('pp-form-ov').classList.add('open');
+  formMode(kind);$('pp-f-rate-unit').value='5000';$('pp-f-rate-int').value='1000';$('pp-f-name').value='';$('pp-f-start').value=todayIso();$('pp-f-due').value='';$('pp-f-amount').value='';$('pp-f-period').value='';$('pp-f-note').value='';
+  $('pp-regen-wrap').style.display='none';$('pp-f-regen').checked=false;ferr('');$('pp-form-save').textContent=kind==='lend'?'บันทึก และสร้างยอดรายวันให้':'บันทึก แล้วใส่ยอดแต่ละรอบ';
+  ppFormPreview();$('pp-form-ov').classList.add('open');
 };
 window.ppEdit=function(kind,id){
   var c=find(kind,id);if(!c)return;fKind=kind;fId=id;var L=LBL[kind];
   $('pp-form-title').textContent='แก้ไข'+L.title;$('pp-l-name').textContent=L.name;$('pp-l-start').textContent=L.start;$('pp-l-amount').textContent=L.amount;$('pp-l-period').textContent=L.period;
-  formMode(kind);$('pp-f-name').value=c.name;$('pp-f-start').value=c.startDate;$('pp-f-due').value=c.dueDate;$('pp-f-amount').value=c.amount||'';$('pp-f-period').value=c.periodDays;$('pp-f-note').value=c.note||'';
+  formMode(kind);$('pp-f-rate-unit').value=c.rateUnit||'';$('pp-f-rate-int').value=c.rateInterest||'';$('pp-f-name').value=c.name;$('pp-f-start').value=c.startDate;$('pp-f-due').value=c.dueDate;$('pp-f-amount').value=c.amount||'';$('pp-f-period').value=c.periodDays;$('pp-f-note').value=c.note||'';
   $('pp-regen-wrap').style.display='';$('pp-f-regen').checked=false;ferr('');$('pp-form-save').textContent='บันทึก';
-  $('pp-form-ov').classList.add('open');
+  ppFormPreview();$('pp-form-ov').classList.add('open');
 };
 window.ppSave=function(){
   var name=$('pp-f-name').value.trim(),start=$('pp-f-start').value,due=$('pp-f-due').value,amount=num($('pp-f-amount').value),period=parseInt($('pp-f-period').value,10),note=$('pp-f-note').value.trim();
@@ -6661,11 +6729,13 @@ window.ppSave=function(){
   if(!name||!start||!due||!amount||!(period>=1)){ferr('กรอกให้ครบทุกช่องที่มี * (ยอดและจำนวนวันต้องมากกว่า 0)');return}
   if(due<start){ferr('วันครบกำหนดรับยอดต้องไม่ก่อนวันเริ่ม');return}
   if(fKind==='lend'&&period>400){ferr('จำนวนวันมากเกินไป (สูงสุด 400 วัน)');return}
+  var ru=num($('pp-f-rate-unit').value),ri=num($('pp-f-rate-int').value);
+  if(fKind==='lend'&&((ru>0)!==(ri>0))){ferr('กรอกอัตราดอกเบี้ยให้ครบทั้ง 2 ช่อง (ทุกๆ ... บาท ได้ดอก ... บาท) หรือเว้นว่างทั้งคู่');return}
   var list=load(fKind),regen=!fId||$('pp-f-regen').checked,rounds=null;
-  if(regen){rounds=genRounds(fKind,start,due,period,amount);if(rounds.length>=400){ferr('งวดเยอะเกินไป (เกิน 400 งวด) ตรวจสอบวันที่/จำนวนวัน');return}}
+  if(regen){rounds=genRounds(fKind,start,due,period,amount,ru,ri);if(rounds.length>=400){ferr('งวดเยอะเกินไป (เกิน 400 งวด) ตรวจสอบวันที่/จำนวนวัน');return}}
   var id=fId;
-  if(fId){list=list.map(function(c){return c.id===fId?Object.assign({},c,{name:name,startDate:start,dueDate:due,amount:amount,periodDays:period,note:note,rounds:regen?rounds:c.rounds}):c})}
-  else{id=uid();list.push({id:id,name:name,startDate:start,dueDate:due,amount:amount,periodDays:period,note:note,rounds:rounds,createdAt:Date.now()})}
+  if(fId){list=list.map(function(c){return c.id===fId?Object.assign({},c,{name:name,startDate:start,dueDate:due,amount:amount,periodDays:period,note:note,rateUnit:fKind==='lend'?ru:0,rateInterest:fKind==='lend'?ri:0,rounds:regen?rounds:c.rounds}):c})}
+  else{id=uid();list.push({id:id,name:name,startDate:start,dueDate:due,amount:amount,periodDays:period,note:note,rateUnit:fKind==='lend'?ru:0,rateInterest:fKind==='lend'?ri:0,rounds:rounds,createdAt:Date.now()})}
   save(fKind,list);closeOv('pp-form-ov');renderPassive();
   if(!fId||regen)ppOpenRounds(fKind,id);
 };
@@ -6680,7 +6750,7 @@ window.ppCloseRounds=function(){closeOv('pp-rounds-ov');renderPassive()};
 function renderRounds(fresh){
   var c=find(rKind,rId);if(!c)return;var L=LBL[rKind],lend=rKind==='lend';
   $('pp-r-title').textContent=(lend?'📋 ยอดรายวัน — ':'📋 ยอดแต่ละรอบ — ')+c.name;$('pp-add-round').textContent=lend?'+ เพิ่มวัน':'+ เพิ่มรอบ';
-  $('pp-r-sub').textContent=(lend?'เคลียร์ยอดภายใน ':'จ่ายทุก ')+c.periodDays+' วัน · '+fd(c.startDate)+' → '+fd(c.dueDate)+' · '+(lend?'ยอดต้นที่ปล่อย ':'ยอดวงแชร์ ')+money(c.amount);
+  $('pp-r-sub').textContent=(lend?'เคลียร์ยอดภายใน ':'จ่ายทุก ')+c.periodDays+' วัน · '+fd(c.startDate)+' → '+fd(c.dueDate)+' · '+(lend?'ยอดต้นที่ปล่อย ':'ยอดวงแชร์ ')+money(c.amount)+((lend&&c.rateUnit&&c.rateInterest)?' · ทุก '+money(c.rateUnit)+' ได้ดอก '+money(c.rateInterest):'');
   var rs=(c.rounds||[]).slice().sort(function(a,b){return a.date<b.date?-1:a.date>b.date?1:0});
   if(JSON.stringify(rs.map(function(r){return r.id}))!==JSON.stringify((c.rounds||[]).map(function(r){return r.id}))){putRounds(rs)}
   $('pp-r-head').innerHTML='<tr><th style="width:34px">#</th><th style="width:150px">วันที่'+(lend?'รับยอด':'จ่าย')+'</th>'+(lend?'<th>ต้น (฿)</th><th>ดอก (฿)</th><th style="text-align:right">รวม</th>':'<th>ยอดที่ต้องจ่าย (฿)</th>')+'<th style="width:80px;text-align:center">'+L.recvDone+'</th><th style="width:34px"></th></tr>';
@@ -6692,9 +6762,9 @@ function renderRounds(fresh){
       +'<td class="c-chk" data-l="'+L.recvDone+'" style="text-align:center"><input type="checkbox" class="pp-chk" '+(r.done?'checked':'')+' onchange="ppRowChange(true,true)" aria-label="'+L.recvDone+'"></td><td class="c-x"><button type="button" class="pp-xbtn" onclick="ppDelRound(\''+r.id+'\')" title="ลบงวดนี้">✕</button></td></tr>';
   }).join(''):'<tr><td colspan="7" class="empty">ยังไม่มีงวด — กด “+ เพิ่มงวด”</td></tr>';
   if(fresh!==false){
-    var per=rs.length?Math.round(c.amount/rs.length*100)/100:0;
+    var per=rs.length?Math.round(c.amount/rs.length*100)/100:0,perI=(lend&&rs.length)?r2(calcInterest(c.amount,c.rateUnit,c.rateInterest)/rs.length):0;
     $('pp-quick').innerHTML=lend
-      ?'<div><label>ต้นต่อวัน (฿)</label><input type="number" id="pp-q-p" inputmode="decimal" min="0" step="0.01" value="'+per+'"></div><div><label>ดอกต่อวัน (฿)</label><input type="number" id="pp-q-i" inputmode="decimal" min="0" step="0.01" placeholder="0"></div><button type="button" class="btn btn-ghost btn-sm" onclick="ppQuickFill()">ใส่ทุกวันที่ยังไม่ได้รับ</button>'
+      ?'<div><label>ต้นต่อวัน (฿)</label><input type="number" id="pp-q-p" inputmode="decimal" min="0" step="0.01" value="'+per+'"></div><div><label>ดอกต่อวัน (฿)</label><input type="number" id="pp-q-i" inputmode="decimal" min="0" step="0.01" value="'+(perI||'')+'" placeholder="0"></div><button type="button" class="btn btn-ghost btn-sm" onclick="ppQuickFill()">ใส่ทุกวันที่ยังไม่ได้รับ</button>'
       :'<div><label>ยอดจ่ายต่อรอบ (฿)</label><input type="number" id="pp-q-a" inputmode="decimal" min="0" step="0.01" value="'+per+'"></div><button type="button" class="btn btn-ghost btn-sm" onclick="ppQuickFill()">ใส่ทุกรอบที่ยังไม่ได้จ่าย</button>';
   }
   updSummary();
