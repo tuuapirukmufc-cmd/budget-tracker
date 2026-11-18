@@ -1611,24 +1611,30 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 <!-- PAGE: PASSIVE INCOME -->
 <div id="page-passive" class="page">
   <div class="page-head">
-    <div><h2 class="desk-only">💸 Passive income</h2><div class="sub">ปล่อยเงินกินดอก และวงแชร์ — ติดตามยอดแต่ละวัน/รอบว่ารับ/จ่ายแล้วหรือยัง</div></div>
+    <div><h2 class="desk-only">💸 Passive income</h2><div class="sub">ปล่อยเงินกินดอก และวงแชร์ — กดที่หัวข้อหรือชื่อวงเพื่อเปิด/ปิด</div></div>
     <div class="page-head-actions"><button class="btn btn-ghost btn-sm" onclick="sw('todo',null)">ภาพรวม</button></div>
   </div>
-  <div class="sec">
-    <div class="sec-head"><span class="sec-title"><span class="dot dg"></span>ปล่อยเงินกินดอก</span><button class="btn btn-pri btn-sm" onclick="ppAdd('lend')">+ เพิ่มวงปล่อย</button></div>
-    <div id="pp-lend-sum"></div>
-    <div class="pp-wrap"><table class="pp-tbl">
-      <colgroup><col style="width:14%"><col style="width:9%"><col style="width:9%"><col style="width:9%"><col style="width:10%"><col style="width:11%"><col style="width:9%"><col style="width:9%"><col style="width:9%"><col style="width:11%"></colgroup>
-      <thead><tr><th>ชื่อวงปล่อย</th><th>วันที่ปล่อย</th><th>ครบกำหนดรับยอด</th><th class="tr">ยอดต้นที่ปล่อย</th><th>ได้รับแล้ว (วัน)</th><th class="tr">ยอดรวมที่จะได้รับ</th><th class="tr">ได้รับแล้ว</th><th class="tr">คงเหลือรับ</th><th>วันรับถัดไป</th><th class="tc">จัดการ</th></tr></thead>
-      <tbody id="pp-lend-body"></tbody><tfoot id="pp-lend-foot"></tfoot></table></div>
+  <div class="sec pp-sec" id="pp-sec-lend">
+    <div class="sec-head pp-sechead" onclick="ppToggleSec('lend')">
+      <span class="sec-title"><span class="dot dg"></span>ปล่อยเงินกินดอก<span class="pp-sec-meta" id="pp-lend-meta"></span></span>
+      <span class="pp-sec-actions"><button class="btn btn-pri btn-sm" onclick="event.stopPropagation();ppAdd('lend')">+ เพิ่มวงปล่อย</button><i class="pp-chev"></i></span>
+    </div>
+    <div class="pp-secbody">
+      <div id="pp-lend-sum"></div>
+      <div class="pp-toolbar" id="pp-lend-tools"><button type="button" onclick="ppAll('lend',true)">เปิดทุกวง</button><button type="button" onclick="ppAll('lend',false)">ปิดทุกวง</button></div>
+      <div class="pp-list" id="pp-lend-list"></div>
+    </div>
   </div>
-  <div class="sec">
-    <div class="sec-head"><span class="sec-title"><span class="dot dgold"></span>วงแชร์</span><button class="btn btn-pri btn-sm" onclick="ppAdd('share')">+ เพิ่มวงแชร์</button></div>
-    <div id="pp-share-sum"></div>
-    <div class="pp-wrap"><table class="pp-tbl">
-      <colgroup><col style="width:14%"><col style="width:9%"><col style="width:9%"><col style="width:9%"><col style="width:10%"><col style="width:11%"><col style="width:9%"><col style="width:9%"><col style="width:9%"><col style="width:11%"></colgroup>
-      <thead><tr><th>ชื่อวงแชร์</th><th>วันที่เริ่มจ่าย</th><th>ครบกำหนดรับยอด</th><th class="tr">ยอดวงแชร์</th><th>จ่ายแล้ว (งวด)</th><th class="tr">ยอดจ่ายรวม</th><th class="tr">จ่ายแล้ว</th><th class="tr">คงเหลือต้องจ่าย</th><th>รอบถัดไป</th><th class="tc">จัดการ</th></tr></thead>
-      <tbody id="pp-share-body"></tbody><tfoot id="pp-share-foot"></tfoot></table></div>
+  <div class="sec pp-sec" id="pp-sec-share">
+    <div class="sec-head pp-sechead" onclick="ppToggleSec('share')">
+      <span class="sec-title"><span class="dot dgold"></span>วงแชร์<span class="pp-sec-meta" id="pp-share-meta"></span></span>
+      <span class="pp-sec-actions"><button class="btn btn-pri btn-sm" onclick="event.stopPropagation();ppAdd('share')">+ เพิ่มวงแชร์</button><i class="pp-chev"></i></span>
+    </div>
+    <div class="pp-secbody">
+      <div id="pp-share-sum"></div>
+      <div class="pp-toolbar" id="pp-share-tools"><button type="button" onclick="ppAll('share',true)">เปิดทุกวง</button><button type="button" onclick="ppAll('share',false)">ปิดทุกวง</button></div>
+      <div class="pp-list" id="pp-share-list"></div>
+    </div>
   </div>
 </div>
 
@@ -4505,7 +4511,7 @@ function renderTodoUserMgr(){
   el.innerHTML=a.length?a.map((n,i)=>`<div class="f-row" style="align-items:center;margin-bottom:7px;gap:7px">
     ${reorderBtns(`moveTodoUserMgr(${i},-1)`,`moveTodoUserMgr(${i},1)`,i>0,i<a.length-1)}
     <input type="text" value="${todoEscAttr(n)}" maxlength="60" onchange="renameTodoUser(${i},this.value)" style="flex:1;min-width:0">
-    <span style="font-size:11px;color:var(--g500);white-space:nowrap">${todoUserUsage(n)} รายการ</span>
+    <span style="font-size:11px;color:var(--g400);white-space:nowrap">${todoUserUsage(n)} รายการ</span>
     <button type="button" class="btn btn-danger btn-sm" onclick="deleteTodoUser(${i})">ลบ</button>
   </div>`).join(''):'<div class="empty">ยังไม่มีผู้ใช้งาน — เพิ่มได้ด้านล่าง</div>';
 }
@@ -6496,18 +6502,18 @@ window.wkImpCommit=function(){
 <style id="passive-style">
 #page-passive .pp-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
 .pp-tbl{width:100%;border-collapse:collapse;table-layout:fixed;font-size:13px;min-width:960px}
-.pp-tbl th{text-align:left;font-size:11px;font-weight:700;color:var(--g500);padding:10px 8px;background:var(--surface2);border-bottom:1px solid var(--g200);white-space:normal;line-height:1.35;vertical-align:bottom}
-.pp-tbl td{padding:9px 8px;border-bottom:1px solid var(--g100);color:var(--g700);vertical-align:middle}
+.pp-tbl th{text-align:left;font-size:11px;font-weight:700;color:var(--g400);padding:10px 8px;background:var(--surface2);border-bottom:1px solid var(--g200);white-space:normal;line-height:1.35;vertical-align:bottom}
+.pp-tbl td{padding:9px 8px;border-bottom:1px solid var(--g100);color:var(--g600);vertical-align:middle}
 .pp-tbl .tr{text-align:right}.pp-tbl .tc{text-align:center}
 .pp-tbl tr.pp-sub td{background:var(--g50);padding:8px 10px 12px}
 .pp-tbl tfoot td{background:var(--surface2);font-weight:800;color:var(--g900);border-top:2px solid var(--g200)}
-.pp-name b{font-size:14px;color:var(--g900);word-break:break-word}.pp-name small{display:block;color:var(--g500);font-size:11px;margin-top:2px}
-.pp-money-sub{display:block;font-size:11px;color:var(--g500);font-weight:500;white-space:nowrap}
+.pp-name b{font-size:14px;color:var(--g900);word-break:break-word}.pp-name small{display:block;color:var(--g400);font-size:11px;margin-top:2px}
+.pp-money-sub{display:block;font-size:11px;color:var(--g400);font-weight:500;white-space:nowrap}
 .pp-green{color:#16a34a;font-weight:700}.pp-orange{color:#ea580c;font-weight:700}
 .pp-bar{height:6px;border-radius:99px;background:var(--g100);overflow:hidden;margin-top:5px;min-width:90px}
 .pp-bar i{display:block;height:100%;background:#22c55e;border-radius:99px}
 .pp-chips{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
-.pp-chips-lbl{font-size:11px;font-weight:700;color:var(--g500);margin-right:2px}
+.pp-chips-lbl{font-size:11px;font-weight:700;color:var(--g400);margin-right:2px}
 .pp-chip{border:1px solid var(--g200);background:var(--surface);color:var(--g600);border-radius:99px;padding:3px 10px;font-size:11px;font-weight:600;cursor:pointer;font-family:var(--font);white-space:nowrap}
 .pp-chip.ok{background:#DCFCE7;border-color:#86efac;color:#15803d}
 .pp-chip.late{background:#FEE2E2;border-color:#fca5a5;color:#b91c1c}
@@ -6519,7 +6525,7 @@ window.wkImpCommit=function(){
 .pp-act2 .pp-ib{padding:5px 2px}
 .pp-ib.del{color:#b91c1c}.pp-ib.del:hover{background:#FEE2E2}
 .pp-d2 b{display:block;font-weight:700;color:var(--g900);white-space:nowrap}
-.pp-d2 small{display:block;color:var(--g500);font-size:11px}
+.pp-d2 small{display:block;color:var(--g400);font-size:11px}
 .pp-late{color:#dc2626!important;font-weight:700}
 .pp-dot{display:inline-block;width:8px;height:8px;border:1.5px solid currentColor;border-radius:50%;margin-right:4px;vertical-align:0}
 .pp-tbl td.tr b{white-space:nowrap}
@@ -6528,7 +6534,7 @@ window.wkImpCommit=function(){
 .pp-ib.pri{background:#EFF6FF;border-color:#BFDBFE;color:#1D4ED8}
 .pp-sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-bottom:10px}
 .pp-sum div{border:1px solid var(--g200);border-radius:10px;padding:8px 10px;background:var(--surface2)}
-.pp-sum span{display:block;font-size:11px;color:var(--g500);font-weight:600}
+.pp-sum span{display:block;font-size:11px;color:var(--g400);font-weight:600}
 .pp-sum b{font-size:15px;color:var(--g900)}
 .pp-quick{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;padding:10px;border:1px dashed var(--blue);border-radius:12px;background:rgba(59,130,246,.04);margin-bottom:10px}
 .pp-quick label{display:block;font-size:11px;font-weight:700;color:var(--g600);margin-bottom:3px}
@@ -6536,7 +6542,7 @@ window.wkImpCommit=function(){
 .pp-warn{font-size:12px;color:#b45309;background:#FEF3C7;border-radius:8px;padding:6px 10px;margin-bottom:8px}
 .pp-rwrap{max-height:46vh;overflow:auto;border:1px solid var(--g200);border-radius:10px;margin-bottom:10px}
 .pp-rtbl{width:100%;border-collapse:collapse;font-size:13px;min-width:520px}
-.pp-rtbl th{position:sticky;top:0;background:var(--surface2);font-size:11px;font-weight:700;color:var(--g500);padding:8px;text-align:left;z-index:1}
+.pp-rtbl th{position:sticky;top:0;background:var(--surface2);font-size:11px;font-weight:700;color:var(--g400);padding:8px;text-align:left;z-index:1}
 .pp-rtbl td{padding:6px 8px;border-top:1px solid var(--g100);vertical-align:middle}
 .pp-rtbl input[type=date],.pp-rtbl input[type=number]{width:100%;min-width:0;padding:6px 8px;font-size:13px}
 .pp-rtbl tr.done td{background:#F0FDF4}
@@ -6544,7 +6550,7 @@ window.wkImpCommit=function(){
 .pp-rtbl input[type=checkbox]{width:20px;height:20px;cursor:pointer}
 .pp-xbtn{border:0;background:none;color:#dc2626;font-size:16px;cursor:pointer;padding:2px 6px}
 #pp-rounds-ov .mh{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
-#pp-rounds-ov .mh .x{border:0;background:var(--g100);color:var(--g700);border-radius:8px;width:32px;height:32px;font-size:20px;line-height:1;cursor:pointer;flex-shrink:0}
+#pp-rounds-ov .mh .x{border:0;background:var(--g100);color:var(--g600);border-radius:8px;width:32px;height:32px;font-size:20px;line-height:1;cursor:pointer;flex-shrink:0}
 .pp-quick input,.pp-rtbl input[type=date],.pp-rtbl input[type=number]{border:1.5px solid var(--g200);border-radius:8px;background:var(--surface);color:var(--g900);font-family:var(--font)}
 .pp-quick input{padding:8px 10px;font-size:14px}
 .pp-rtbl .c-chk::after{content:none}
@@ -6558,34 +6564,84 @@ window.wkImpCommit=function(){
   .pp-rtbl td,.pp-rtbl tr.done td{display:block;padding:0;border:0;min-width:0;background:none}
   .pp-rtbl td.c-no,.pp-rtbl tr.done td.c-no{display:none!important}
   .pp-rtbl .c-date{grid-area:date}.pp-rtbl .c-p{grid-area:p}.pp-rtbl .c-i{grid-area:i}.pp-rtbl .c-a{grid-area:a}.pp-rtbl .c-tot{grid-area:tot;align-self:center;text-align:right}.pp-rtbl .c-chk{grid-area:chk}.pp-rtbl .c-x{grid-area:x}
-  .pp-rtbl td[data-l]::before{content:attr(data-l);display:block;font-size:10px;color:var(--g500);font-weight:600;margin-bottom:2px}
+  .pp-rtbl td[data-l]::before{content:attr(data-l);display:block;font-size:10px;color:var(--g400);font-weight:600;margin-bottom:2px}
   .pp-rtbl .c-chk{display:flex!important;align-items:center;gap:6px;white-space:nowrap}
   .pp-rtbl .c-chk::before{content:none!important}
   .pp-rtbl .c-chk::after{content:attr(data-l);font-size:12px;font-weight:600}
 }
-#pp-form-ov .pp-rate-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--g700)}
+#pp-form-ov .pp-rate-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--g600)}
 #pp-form-ov .pp-rate-row input{width:110px;min-width:0}
 .pp-preview{margin-top:8px;border:1px solid #BFDBFE;background:#EFF6FF;border-radius:12px;padding:10px 12px;display:grid;gap:6px}
 .pp-pv-row{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px;font-size:13px}
-.pp-pv-row span{color:var(--g600);min-width:130px}.pp-pv-row b{font-size:15px;color:var(--g900)}.pp-pv-row small{color:var(--g500);font-size:11px}
-.pp-pv-hint{font-size:12px;color:var(--g500)}
+.pp-pv-row span{color:var(--g600);min-width:130px}.pp-pv-row b{font-size:15px;color:var(--g900)}.pp-pv-row small{color:var(--g400);font-size:11px}
+.pp-pv-hint{font-size:12px;color:var(--g400)}
 .pp-name small.pp-rate{color:#7c3aed;font-weight:600}
 #page-passive .pp-sumbox{margin:12px 14px;border:1px solid var(--g200);border-radius:12px;overflow:hidden;background:var(--surface)}
 .pp-sumhead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:6px;padding:10px 14px;font-size:13px;border-bottom:1px solid var(--g200)}
-.pp-sumhead b{font-size:14px;color:var(--g900)}.pp-sumhead span{color:var(--g500);font-size:12px}
+.pp-sumhead b{font-size:14px;color:var(--g900)}.pp-sumhead span{color:var(--g400);font-size:12px}
 .pp-sum-g .pp-sumhead{background:#F0FDF4}.pp-sum-o .pp-sumhead{background:#FFF7ED}
 .pp-sumtbl{width:100%;border-collapse:collapse;font-size:13px}
-.pp-sumtbl th{font-size:11px;font-weight:700;color:var(--g500);padding:8px 14px;text-align:left}
-.pp-sumtbl td{padding:9px 14px;border-top:1px solid var(--g100);color:var(--g700)}
+.pp-sumtbl th{font-size:11px;font-weight:700;color:var(--g400);padding:8px 14px;text-align:left}
+.pp-sumtbl td{padding:9px 14px;border-top:1px solid var(--g100);color:var(--g600)}
 .pp-sumtbl td:first-child{font-weight:700;color:var(--g900);width:34%}
 .pp-sumtbl .tr{text-align:right}
 .pp-sumtbl tr.g td{background:#F0FDF4}.pp-sumtbl tr.g td:first-child,.pp-sumtbl tr.g b{color:#15803d}
 .pp-sumtbl tr.o td{background:#FFF7ED}.pp-sumtbl tr.o td:first-child,.pp-sumtbl tr.o b{color:#c2410c}
 .pp-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
 .pp-tiles div{padding:11px 14px;border-right:1px solid var(--g100);border-bottom:1px solid var(--g100)}
-.pp-tiles span{display:block;font-size:11px;color:var(--g500);font-weight:600;margin-bottom:3px;line-height:1.35}
+.pp-tiles span{display:block;font-size:11px;color:var(--g400);font-weight:600;margin-bottom:3px;line-height:1.35}
 .pp-tiles b{font-size:16px;color:var(--g900)}
 .pp-red{color:#dc2626!important}
+#page-passive .pp-sechead{cursor:pointer;user-select:none}
+.pp-sec-meta{margin-left:10px;font-size:12px;font-weight:600;color:var(--g400)}
+.pp-sec-actions{display:flex;align-items:center;gap:10px}
+.pp-chev{display:inline-block;width:9px;height:9px;border-right:2.5px solid var(--g400);border-bottom:2.5px solid var(--g400);transform:rotate(45deg);transition:transform .2s;margin:0 6px 4px 2px;flex-shrink:0}
+.pp-sec.closed .pp-secbody{display:none}
+.pp-sec.closed .pp-sechead .pp-chev{transform:rotate(-45deg);margin-bottom:0}
+.pp-secbody{padding-bottom:6px}
+.pp-toolbar{display:flex;justify-content:flex-end;gap:6px;padding:0 14px 6px}
+.pp-toolbar button{border:0;background:none;color:var(--blue);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);padding:4px 6px}
+.pp-list{display:grid;gap:10px;padding:0 14px 12px}
+.pp-card{border:1px solid var(--g200);border-radius:14px;background:var(--surface);overflow:hidden;box-shadow:0 1px 2px rgba(15,23,42,.04)}
+.pp-card.open{border-color:#93c5fd}
+.pp-chead{display:flex;align-items:center;gap:12px;padding:12px 14px;cursor:pointer}
+.pp-chead:hover{background:var(--g50)}
+.pp-cmain{flex:1;min-width:0}
+.pp-ctitle{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.pp-ctitle b{font-size:15px;color:var(--g900);word-break:break-word}
+.pp-no{font-size:11px;font-weight:800;color:#fff;background:#3b82f6;border-radius:99px;padding:2px 9px;white-space:nowrap}
+.pp-csub{font-size:12px;color:var(--g400);margin-top:3px}
+.pp-badge{font-size:11px;font-weight:700;padding:2px 9px;border-radius:99px;background:var(--g100);color:var(--g600);white-space:nowrap}
+.pp-badge.ok{background:#DCFCE7;color:#15803d}.pp-badge.late{background:#FEE2E2;color:#b91c1c}.pp-badge.soon{background:#FEF3C7;color:#b45309}
+.pp-cright{text-align:right;min-width:104px}
+.pp-cright span{display:block;font-size:11px;color:var(--g400);font-weight:600}
+.pp-cright b{font-size:16px}
+.pp-minibar{height:5px;border-radius:99px;background:var(--g100);overflow:hidden;margin-top:5px}
+.pp-minibar i,.pp-pbar i{display:block;height:100%;background:#22c55e;border-radius:99px}
+.pp-pbar{display:block;height:6px;border-radius:99px;background:var(--g100);overflow:hidden;margin-top:5px}
+.pp-card .pp-chead .pp-chev{margin-bottom:4px}
+.pp-card.open .pp-chead .pp-chev{transform:rotate(225deg);margin-bottom:0}
+.pp-cbody{display:none;padding:2px 14px 14px;border-top:1px solid var(--g100)}
+.pp-card.open .pp-cbody{display:block}
+.pp-note{font-size:12px;color:var(--g600);background:var(--g50);border-radius:8px;padding:6px 10px;margin:10px 0 0}
+.pp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
+.pp-t{border:1px solid var(--g200);border-radius:10px;padding:9px 11px;background:var(--surface2);min-width:0}
+.pp-t span{display:block;font-size:11px;color:var(--g400);font-weight:600;margin-bottom:2px}
+.pp-t b{display:block;font-size:14px;color:var(--g900);word-break:break-word}
+.pp-t small{display:block;font-size:11px;color:var(--g400);margin-top:2px}
+.pp-t.g{background:#F0FDF4;border-color:#BBF7D0}.pp-t.g b{color:#15803d}
+.pp-t.o{background:#FFF7ED;border-color:#FED7AA}.pp-t.o b{color:#c2410c}
+.pp-t.late b,.pp-t.red b{color:#dc2626}
+.pp-cact{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;justify-content:flex-end}
+.pp-cact .pp-ib{margin:0;padding:8px 16px;font-size:13px}
+@media(max-width:640px){
+  .pp-grid{grid-template-columns:repeat(2,1fr)}
+  .pp-chead{flex-wrap:wrap;gap:8px}
+  .pp-cright{order:3;flex:1 1 100%;text-align:left;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;min-width:0}
+  .pp-cright .pp-minibar{flex:1 1 100%}
+  .pp-sec-meta{display:block;margin:2px 0 0}
+  .pp-cact .pp-ib{flex:1}
+}
 </style>
 <script id="passive-js">
 (function(){
@@ -6643,24 +6699,44 @@ function chips(kind,c){
     return'<button type="button" class="pp-chip '+cls+'" onclick="ppToggle(\''+kind+'\',\''+c.id+'\',\''+r.id+'\')" title="'+fd(r.date)+(r.done?' — '+LBL[kind].recvDone:d<0?' — เลยกำหนด':'')+'">'+(r.done?'✓':'<i class="pp-dot"></i>')+' '+(kind==='lend'?(idx+1)+'. ':'')+fds(r.date)+(a?' · '+money(a):'')+'</button>';
   }).join('')+'</div>';
 }
-function dcell(iso){var d=pIso(iso);return'<b>'+d.getDate()+' '+MS[d.getMonth()]+'</b><small>'+(d.getFullYear()+543)+'</small>'}
+/* ---- สถานะเปิด/ปิด (เก็บเฉพาะเครื่องนี้) ---- */
+var ui={sec:{lend:true,share:true},card:{}};
+try{var _u=JSON.parse(localStorage.getItem('passive_ui_v1')||'null');if(_u){ui.sec=Object.assign(ui.sec,_u.sec||{});ui.card=_u.card||{}}}catch(e){}
+function saveUi(){try{localStorage.setItem('passive_ui_v1',JSON.stringify(ui))}catch(e){}}
+function applySec(k){var s=$('pp-sec-'+k);if(s)s.classList.toggle('closed',!ui.sec[k])}
+window.ppToggleSec=function(k){ui.sec[k]=!ui.sec[k];saveUi();applySec(k)};
+window.ppToggleCard=function(kind,id){ui.card[id]=!ui.card[id];saveUi();var el=document.querySelector('.pp-card[data-id="'+id+'"]');if(el)el.classList.toggle('open',!!ui.card[id])};
+window.ppAll=function(kind,open){load(kind).forEach(function(c){ui.card[c.id]=open});saveUi();renderKind(kind)};
+function tile(label,val,cls,sub){return'<div class="pp-t'+(cls?' '+cls:'')+'"><span>'+label+'</span><b>'+val+'</b>'+(sub?'<small>'+sub+'</small>':'')+'</div>'}
+function card(kind,c,idx){
+  var lend=kind==='lend',s=sums(kind,c),nx=nextRound(c),open=!!ui.card[c.id],pct=s.count?Math.round(s.doneCount/s.count*100):0,unit=lend?'วัน':'งวด';
+  var rule=(lend&&c.rateUnit&&c.rateInterest)?'ทุก '+money(c.rateUnit)+' ได้ดอก '+money(c.rateInterest):'';
+  var badge='';
+  if(s.count&&s.doneCount===s.count)badge='<span class="pp-badge ok">ครบแล้ว</span>';
+  else if(nx){var d=diff(nx.date);badge=d<0?'<span class="pp-badge late">เลยกำหนด '+(-d)+' วัน</span>':d<=3?'<span class="pp-badge soon">'+(d===0?'ถึงกำหนดวันนี้':'อีก '+d+' วัน')+'</span>':'<span class="pp-badge">รับถัดไป '+fds(nx.date)+'</span>'}
+  var sub=lend?'ปล่อย '+money(c.amount)+' · เคลียร์ภายใน '+c.periodDays+' วัน'+(rule?' · '+rule:''):'ยอดวง '+money(c.amount)+' · จ่ายทุก '+c.periodDays+' วัน';
+  var nxVal=nx?fd(nx.date):(s.count?'ครบทุก'+unit+'แล้ว':'—'),nxSub=nx?dueTxt(nx.date)+(rTotal(kind,nx)?' · '+money(rTotal(kind,nx)):''):'';
+  var tiles;
+  if(lend)tiles=tile('วันที่ปล่อย',fd(c.startDate))+tile('ครบกำหนดรับยอด',fd(c.dueDate))+tile('วันรับถัดไป',nxVal,diff(nx?nx.date:todayIso())<0&&nx?'late':'',nxSub)
+    +tile('ยอดต้นที่ปล่อย',money(c.amount))+tile('ดอกรวม',money(s.interest),'',rule)+tile('ยอดรวมที่จะได้รับ',money(s.total),'',s.total?'ต้น '+money(s.principal)+' + ดอก '+money(s.interest):'ยังไม่ใส่ยอด')
+    +tile('ได้รับแล้ว',money(s.done),'g')+tile('คงเหลือรับ',money(s.remain),'o')+tile('ความคืบหน้า',s.doneCount+'/'+s.count+' '+unit,'','<i class="pp-pbar"><i style="width:'+pct+'%"></i></i>');
+  else{var diff2=num(c.amount)-s.total;
+    tiles=tile('วันที่เริ่มจ่าย',fd(c.startDate))+tile('ครบกำหนดรับยอด',fd(c.dueDate))+tile('รอบถัดไป',nxVal,diff(nx?nx.date:todayIso())<0&&nx?'late':'',nxSub)
+    +tile('ยอดวงแชร์',money(c.amount))+tile('ยอดจ่ายรวม (เงินต้น)',s.total?money(s.total):'—','',s.total?'':'ยังไม่ใส่ยอด')+tile('เงินดอก (ส่วนต่าง)',s.total?(diff2>0?'+':diff2<0?'−':'')+money(Math.abs(diff2)):'—',diff2<0?'red':'g')
+    +tile('จ่ายแล้ว',money(s.done),'g')+tile('คงเหลือต้องจ่าย',money(s.remain),'o')+tile('ความคืบหน้า',s.doneCount+'/'+s.count+' '+unit,'','<i class="pp-pbar"><i style="width:'+pct+'%"></i></i>')}
+  return'<div class="pp-card'+(open?' open':'')+'" data-id="'+c.id+'">'
+    +'<div class="pp-chead" onclick="ppToggleCard(\''+kind+'\',\''+c.id+'\')"><div class="pp-cmain"><div class="pp-ctitle"><span class="pp-no">วงที่ '+(idx+1)+'</span><b>'+esc(c.name)+'</b>'+badge+'</div><div class="pp-csub">'+sub+'</div></div>'
+    +'<div class="pp-cright"><span>'+(lend?'คงเหลือรับ':'คงเหลือต้องจ่าย')+'</span><b class="pp-orange">'+money(s.remain)+'</b><div class="pp-minibar"><i style="width:'+pct+'%"></i></div></div><i class="pp-chev"></i></div>'
+    +'<div class="pp-cbody">'+(c.note?'<div class="pp-note">'+esc(c.note)+'</div>':'')+'<div class="pp-grid">'+tiles+'</div>'+chips(kind,c)
+    +'<div class="pp-cact"><button type="button" class="pp-ib pri" onclick="ppOpenRounds(\''+kind+'\',\''+c.id+'\')">'+(lend?'ยอดรายวัน':'ยอดแต่ละรอบ')+'</button><button type="button" class="pp-ib" onclick="ppEdit(\''+kind+'\',\''+c.id+'\')">แก้ไข</button><button type="button" class="pp-ib del" onclick="ppDel(\''+kind+'\',\''+c.id+'\')">ลบ</button></div></div></div>';
+}
 function renderKind(kind){
-  var list=load(kind),body=$('pp-'+kind+'-body'),foot=$('pp-'+kind+'-foot');if(!body)return;
-  var T={amount:0,total:0,done:0,remain:0},lend=kind==='lend';
-  body.innerHTML=list.length?list.map(function(c){
-    var s=sums(kind,c),nx=nextRound(c),pct=s.count?Math.round(s.doneCount/s.count*100):0;
-    T.amount+=num(c.amount);T.total+=s.total;T.done+=s.done;T.remain+=s.remain;
-    var totCell=s.total?'<b>'+money(s.total)+'</b>'+(lend?'<span class="pp-money-sub">ต้น '+money(s.principal)+'</span><span class="pp-money-sub">ดอก '+money(s.interest)+'</span>':''):'<span class="badge b-soon">ยังไม่ใส่ยอด</span>';
-    var nxCell=nx?'<span class="pp-d2">'+dcell(nx.date)+'</span><span class="pp-money-sub'+(diff(nx.date)<0?' pp-late':'')+'">'+dueTxt(nx.date)+'</span>'+(rTotal(kind,nx)?'<span class="pp-money-sub">'+money(rTotal(kind,nx))+'</span>':''):(s.count?'<span class="badge b-ok">ครบแล้ว</span>':'—');
-    return'<tr><td class="pp-name"><b>'+esc(c.name)+'</b><small>'+(lend?'เคลียร์ภายใน ':'จ่ายทุก ')+c.periodDays+' วัน</small>'+(lend&&c.rateUnit&&c.rateInterest?'<small class="pp-rate">ทุก '+money(c.rateUnit)+' ได้ดอก '+money(c.rateInterest)+'</small>':'')+(c.note?'<small>'+esc(c.note)+'</small>':'')+'</td>'
-      +'<td class="pp-d2">'+dcell(c.startDate)+'</td><td class="pp-d2">'+dcell(c.dueDate)+'</td><td class="tr">'+money(c.amount)+'</td>'
-      +'<td><b>'+s.doneCount+'/'+s.count+'</b> '+(lend?'วัน':'งวด')+'<div class="pp-bar"><i style="width:'+pct+'%"></i></div></td>'
-      +'<td class="tr">'+totCell+'</td><td class="tr pp-green">'+money(s.done)+'</td><td class="tr pp-orange">'+money(s.remain)+'</td><td>'+nxCell+'</td>'
-      +'<td class="pp-act"><button type="button" class="pp-ib pri" onclick="ppOpenRounds(\''+kind+'\',\''+c.id+'\')">'+(lend?'ยอดรายวัน':'ยอดแต่ละรอบ')+'</button><div class="pp-act2"><button type="button" class="pp-ib" onclick="ppEdit(\''+kind+'\',\''+c.id+'\')">แก้ไข</button><button type="button" class="pp-ib del" onclick="ppDel(\''+kind+'\',\''+c.id+'\')">ลบ</button></div></td></tr>'
-      +'<tr class="pp-sub"><td colspan="10">'+chips(kind,c)+'</td></tr>';
-  }).join(''):'<tr><td colspan="10" class="empty">ยังไม่มี'+LBL[kind].title+' — กด “+ เพิ่ม'+LBL[kind].title+'”</td></tr>';
-  renderSummary(kind,list);
-  foot.innerHTML=list.length?'<tr><td>รวม '+list.length+' '+LBL[kind].title+'</td><td></td><td></td><td class="tr">'+money(T.amount)+'</td><td></td><td class="tr">'+money(T.total)+'</td><td class="tr pp-green">'+money(T.done)+'</td><td class="tr pp-orange">'+money(T.remain)+'</td><td></td><td></td></tr>':'';
+  var list=load(kind),box=$('pp-'+kind+'-list');if(!box)return;
+  var T=0;list.forEach(function(c){T+=sums(kind,c).remain});
+  var meta=$('pp-'+kind+'-meta');if(meta)meta.textContent=list.length?list.length+' วง · '+(kind==='lend'?'คงเหลือรับ ':'คงเหลือต้องจ่าย ')+money(T):'';
+  box.innerHTML=list.length?list.map(function(c,i){return card(kind,c,i)}).join(''):'<div class="empty">ยังไม่มี'+LBL[kind].title+' — กด “+ เพิ่ม'+LBL[kind].title+'”</div>';
+  var tools=$('pp-'+kind+'-tools');if(tools)tools.style.display=list.length>1?'':'none';
+  renderSummary(kind,list);applySec(kind);
 }
 function renderSummary(kind,list){
   var box=$('pp-'+kind+'-sum');if(!box)return;
@@ -6736,6 +6812,7 @@ window.ppSave=function(){
   var id=fId;
   if(fId){list=list.map(function(c){return c.id===fId?Object.assign({},c,{name:name,startDate:start,dueDate:due,amount:amount,periodDays:period,note:note,rateUnit:fKind==='lend'?ru:0,rateInterest:fKind==='lend'?ri:0,rounds:regen?rounds:c.rounds}):c})}
   else{id=uid();list.push({id:id,name:name,startDate:start,dueDate:due,amount:amount,periodDays:period,note:note,rateUnit:fKind==='lend'?ru:0,rateInterest:fKind==='lend'?ri:0,rounds:rounds,createdAt:Date.now()})}
+  if(!fId){ui.card[id]=true;saveUi()}
   save(fKind,list);closeOv('pp-form-ov');renderPassive();
   if(!fId||regen)ppOpenRounds(fKind,id);
 };
