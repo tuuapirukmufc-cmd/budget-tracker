@@ -2201,26 +2201,25 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 .todo-user-group .grp-mv button:disabled{opacity:.3;cursor:default}
 </style>
 <!-- Passive income: modals -->
-<div class="ov" id="pp-form-ov"><div class="modal">
+<div class="ov" id="pp-form-ov"><div class="modal pp-form">
   <span class="modal-drag"></span>
   <h3 id="pp-form-title">เพิ่มวงปล่อย</h3>
-  <div class="f"><label id="pp-l-name">ชื่อวงปล่อย *</label><input type="text" id="pp-f-name" maxlength="80"></div>
-  <div class="f-row">
-    <div class="f"><label id="pp-l-start">วันที่ปล่อย *</label><input type="date" id="pp-f-start" onchange="ppFormSync()"></div>
-    <div class="f"><label id="pp-l-due">วันครบกำหนดรับยอด *</label><input type="date" id="pp-f-due"></div>
+  <div class="pp-ff"><label id="pp-l-name">ชื่อวงปล่อย *</label><input type="text" id="pp-f-name" maxlength="80" placeholder="เช่น วงนก"></div>
+  <div class="pp-fsec">ยอดและระยะเวลา</div>
+  <div class="pp-fgrid">
+    <div class="pp-ff"><label id="pp-l-amount">ยอดต้นที่ปล่อย (฿) *</label><input type="number" id="pp-f-amount" inputmode="decimal" min="0" step="0.01" placeholder="เช่น 20000" oninput="ppFormPreview()"></div>
+    <div class="pp-ff"><label id="pp-l-period">ปล่อยรายกี่วัน *</label><input type="number" id="pp-f-period" inputmode="numeric" min="1" max="400" step="1" placeholder="เช่น 10" oninput="ppFormSync()"><small id="pp-period-help"></small></div>
+    <div class="pp-ff"><label id="pp-l-start">วันที่ปล่อย *</label><input type="date" id="pp-f-start" onchange="ppFormSync()"></div>
+    <div class="pp-ff"><label id="pp-l-due">ครบกำหนดรับยอด</label><input type="date" id="pp-f-due"><small id="pp-due-help"></small></div>
   </div>
-  <div class="f-row">
-    <div class="f"><label id="pp-l-amount">ยอดต้นที่ปล่อย (฿) *</label><input type="number" id="pp-f-amount" inputmode="decimal" min="0" step="0.01" oninput="ppFormPreview()"></div>
-    <div class="f"><label id="pp-l-period">ปล่อยรายกี่วัน *</label><input type="number" id="pp-f-period" inputmode="numeric" min="1" max="400" step="1" placeholder="เช่น 10" oninput="ppFormSync()"></div>
-  </div>
-  <div class="f" id="pp-rate-wrap">
-    <label>ดอกเบี้ย — ทุกๆ กี่บาท ได้ดอกกี่บาท</label>
+  <div id="pp-rate-wrap">
+    <div class="pp-fsec">ดอกเบี้ย</div>
     <div class="pp-rate-row"><span>ทุกๆ</span><input type="number" id="pp-f-rate-unit" inputmode="decimal" min="0" step="1" placeholder="5000" oninput="ppFormPreview()"><span>บาท ได้ดอก</span><input type="number" id="pp-f-rate-int" inputmode="decimal" min="0" step="1" placeholder="1000" oninput="ppFormPreview()"><span>บาท</span></div>
     <div id="pp-f-preview" class="pp-preview"></div>
   </div>
-  <div class="f"><label>หมายเหตุ (ไม่บังคับ)</label><input type="text" id="pp-f-note" maxlength="200"></div>
-  <div class="f" id="pp-regen-wrap" style="display:none"><label style="display:flex;align-items:flex-start;gap:8px;font-weight:600"><input type="checkbox" id="pp-f-regen" style="margin-top:3px"> <span>สร้างงวดใหม่ตามวันที่/จำนวนวัน (จะล้างยอดและเครื่องหมายที่กรอกไว้ทั้งหมด)</span></label></div>
-  <div id="pp-form-err" style="color:#dc2626;font-size:12px;min-height:1em;margin-bottom:6px"></div>
+  <div class="pp-ff pp-gap"><label>หมายเหตุ (ไม่บังคับ)</label><input type="text" id="pp-f-note" maxlength="200" placeholder="เช่น ชื่อผู้ยืม / เบอร์โทร"></div>
+  <div class="pp-ff pp-gap" id="pp-regen-wrap" style="display:none"><label style="display:flex;align-items:flex-start;gap:8px;font-weight:600;font-size:13px"><input type="checkbox" id="pp-f-regen" style="width:18px;height:18px;margin-top:2px"> <span>สร้างงวดใหม่ตามวันที่/จำนวนวัน (จะล้างยอดและเครื่องหมายที่กรอกไว้ทั้งหมด)</span></label></div>
+  <div id="pp-form-err" style="color:#dc2626;font-size:12px;min-height:1em;margin:8px 0 4px"></div>
   <div class="mbtns">
     <button class="btn btn-ghost" onclick="closeOv('pp-form-ov')">ยกเลิก</button>
     <button class="btn btn-pri" id="pp-form-save" onclick="ppSave()">บันทึก</button>
@@ -6643,13 +6642,36 @@ window.wkImpCommit=function(){
   .pp-cact .pp-ib{flex:1}
 }
 </style>
+<style id="passive-form-style">
+#pp-form-ov .modal.pp-form{max-width:540px}
+.pp-ff{display:flex;flex-direction:column;gap:5px;min-width:0}
+.pp-ff label{font-size:13px;font-weight:700;color:var(--g900);margin:0}
+.pp-ff input[type=text],.pp-ff input[type=number],.pp-ff input[type=date]{width:100%;height:42px;padding:0 12px;border:1.5px solid var(--g200);border-radius:10px;font-size:14px;background:var(--input-bg);color:var(--g900);font-family:var(--font);box-sizing:border-box}
+.pp-ff input:focus,#pp-form-ov .pp-rate-row input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px var(--bl)}
+.pp-ff input[readonly]{background:var(--g100);color:var(--g600)}
+.pp-ff small{font-size:11px;color:var(--g400);line-height:1.35;min-height:1.35em}
+.pp-fgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+.pp-fsec{display:flex;align-items:center;gap:10px;font-size:12px;font-weight:800;color:var(--blue);margin:18px 0 10px}
+.pp-fsec::after{content:"";flex:1;height:1px;background:var(--g200)}
+.pp-gap{margin-top:16px}
+#pp-form-ov .pp-rate-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;font-size:13px;font-weight:700;color:var(--g900)}
+#pp-form-ov .pp-rate-row input{width:120px;height:42px;padding:0 12px;border:1.5px solid var(--g200);border-radius:10px;font-size:15px;font-weight:700;background:var(--input-bg);color:var(--g900);font-family:var(--font);text-align:right;box-sizing:border-box}
+#pp-form-ov .pp-preview{margin-top:12px;border:1px solid #BFDBFE;background:#EFF6FF;border-radius:12px;padding:10px;display:block}
+.pp-pv3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.pp-pv3>div{background:#fff;border:1px solid #DBEAFE;border-radius:10px;padding:9px 10px;min-width:0}
+.pp-pv3>div.hi{background:#F0FDF4;border-color:#BBF7D0}
+.pp-pv3 span{display:block;font-size:11px;color:var(--g400);font-weight:600;margin-bottom:2px}
+.pp-pv3 b{display:block;font-size:16px;color:var(--g900)}.pp-pv3 .hi b{color:#15803d}
+.pp-pv3 small{display:block;font-size:10.5px;color:var(--g400);margin-top:2px;line-height:1.3}
+@media(max-width:560px){.pp-fgrid{grid-template-columns:1fr}.pp-pv3{grid-template-columns:1fr}}
+</style>
 <script id="passive-js">
 (function(){
 'use strict';
 var K={lend:'passive_lend_v1',share:'passive_share_v1'};
 var MS=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
 var LBL={
-  lend:{title:'วงปล่อย',name:'ชื่อวงปล่อย *',start:'วันที่ปล่อย *',amount:'ยอดต้นที่ปล่อย (฿) *',period:'ปล่อยรายกี่วัน (เคลียร์ยอดภายในกี่วัน) *',recv:'ได้รับ',recvDone:'ได้รับแล้ว',recvLbl:'รับ'},
+  lend:{title:'วงปล่อย',name:'ชื่อวงปล่อย *',start:'วันที่ปล่อย *',amount:'ยอดต้นที่ปล่อย (฿) *',period:'ปล่อยรายกี่วัน *',recv:'ได้รับ',recvDone:'ได้รับแล้ว',recvLbl:'รับ'},
   share:{title:'วงแชร์',name:'ชื่อวงแชร์ *',start:'วันที่เริ่มจ่ายแชร์ *',amount:'ยอดวงแชร์ (฿) *',period:'จ่ายแชร์ทุกกี่วัน *',recv:'จ่าย',recvDone:'จ่ายแล้ว',recvLbl:'จ่าย'}
 };
 function $(id){return document.getElementById(id)}
@@ -6776,13 +6798,15 @@ window.ppFormPreview=function(){
   var a=num($('pp-f-amount').value),n=parseInt($('pp-f-period').value,10),u=num($('pp-f-rate-unit').value),i=num($('pp-f-rate-int').value);
   if(!a||!(n>=1)){box.innerHTML='<span class="pp-pv-hint">กรอกยอดต้น + จำนวนวัน แล้วระบบจะคำนวณดอกและยอดรายวันให้ทันที</span>';return}
   var tI=calcInterest(a,u,i),tot=r2(a+tI);
-  box.innerHTML='<div class="pp-pv-row"><span>ดอกรวมทั้งวง</span><b>'+money(tI)+'</b>'+(tI?'<small>('+money(a)+' ÷ '+money(u)+' × '+money(i)+')</small>':'')+'</div>'
-    +'<div class="pp-pv-row"><span>ยอดรวมที่จะได้รับ</span><b class="pp-green">'+money(tot)+'</b></div>'
-    +'<div class="pp-pv-row"><span>รับวันละ ('+n+' วัน)</span><b>'+money(r2(tot/n))+'</b><small>(ต้น '+money(r2(a/n))+' + ดอก '+money(r2(tI/n))+')</small></div>';
+  box.innerHTML='<div class="pp-pv3"><div><span>ดอกรวมทั้งวง</span><b>'+money(tI)+'</b>'+(tI?'<small>'+money(a)+' ÷ '+money(u)+' × '+money(i)+'</small>':'<small>ยังไม่ได้ตั้งกติกาดอก</small>')+'</div>'
+    +'<div class="hi"><span>ยอดรวมที่จะได้รับ</span><b>'+money(tot)+'</b><small>ต้น '+money(a)+' + ดอก '+money(tI)+'</small></div>'
+    +'<div><span>รับวันละ ('+n+' วัน)</span><b>'+money(r2(tot/n))+'</b><small>ต้น '+money(r2(a/n))+' + ดอก '+money(r2(tI/n))+'</small></div></div>';
 };
 function formMode(kind){
   var lend=kind==='lend',due=$('pp-f-due');$('pp-rate-wrap').style.display=lend?'':'none';due.readOnly=lend;due.style.background=lend?'var(--g100)':'';
-  $('pp-l-due').textContent=lend?'วันครบกำหนดรับยอด (คำนวณจาก วันที่ปล่อย + จำนวนวัน)':'วันครบกำหนดรับยอด *';
+  $('pp-l-due').textContent=lend?'ครบกำหนดรับยอด':'วันครบกำหนดรับยอด *';
+  $('pp-due-help').textContent=lend?'คำนวณให้อัตโนมัติ (วันที่ปล่อย + จำนวนวัน)':'';
+  $('pp-period-help').textContent=lend?'เคลียร์ยอดให้จบภายในกี่วัน (รับยอดวันละงวด)':'จ่ายแชร์ทุกๆ กี่วัน';
 }
 function ferr(m){$('pp-form-err').textContent=m||''}
 window.ppAdd=function(kind){
