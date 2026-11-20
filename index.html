@@ -6665,6 +6665,59 @@ window.wkImpCommit=function(){
 .pp-pv3 small{display:block;font-size:10.5px;color:var(--g400);margin-top:2px;line-height:1.3}
 @media(max-width:560px){.pp-fgrid{grid-template-columns:1fr}.pp-pv3{grid-template-columns:1fr}}
 </style>
+<style id="passive-compact-style">
+/* ===== การ์ดวง: ย่อให้กะทัดรัด ===== */
+.pp-list{gap:8px;padding:0 12px 10px}
+.pp-chead{padding:9px 12px;gap:10px}
+.pp-ctitle{gap:6px}.pp-ctitle b{font-size:14px}
+.pp-no{font-size:10px;padding:1px 8px}
+.pp-badge{font-size:10px;padding:1px 8px}
+.pp-csub{font-size:11px;margin-top:2px}
+.pp-cright{min-width:92px}.pp-cright span{font-size:10px}.pp-cright b{font-size:14px}
+.pp-minibar{height:4px;margin-top:3px}
+.pp-cbody{padding:2px 12px 10px}
+.pp-note{font-size:11px;padding:4px 9px;margin:8px 0 0}
+.pp-dates{display:grid;grid-template-columns:repeat(3,1fr);gap:6px 14px;margin:10px 0 8px;padding:7px 10px;background:var(--g50);border-radius:9px}
+.pp-dtc{min-width:0}.pp-dtc span{display:block;font-size:10px;color:var(--g400);font-weight:600}
+.pp-dtc b{display:block;font-size:12px;color:var(--g900)}.pp-dtc small{display:block;font-size:10px;color:var(--g400)}
+.pp-dtc.late b{color:#dc2626}
+.pp-m5{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.pp-m{border:1px solid var(--g200);border-radius:9px;padding:6px 9px;background:var(--surface2);min-width:0}
+.pp-m span{display:block;font-size:10px;color:var(--g400);font-weight:600;line-height:1.3}
+.pp-m b{display:block;font-size:13px;color:var(--g900);margin-top:1px;word-break:break-word}
+.pp-m small{display:block;font-size:9.5px;color:var(--g400);margin-top:1px;line-height:1.3}
+.pp-m.g{background:#F0FDF4;border-color:#BBF7D0}.pp-m.g b{color:#15803d}
+.pp-m.o{background:#FFF7ED;border-color:#FED7AA}.pp-m.o b{color:#c2410c}
+.pp-m.red b{color:#dc2626}
+.pp-prog{display:flex;align-items:center;gap:8px;margin:8px 0 6px}
+.pp-prog .pp-pbar{flex:1;margin:0;height:5px}.pp-prog span{font-size:10.5px;color:var(--g400);white-space:nowrap}
+.pp-chips{gap:4px;margin-top:2px}.pp-chips-lbl{font-size:10px}
+.pp-chip{font-size:10.5px;padding:2px 8px}
+.pp-chip.part{background:#EEF2FF;border-color:#C7D2FE;color:#4338ca}
+.pp-tag{font-style:normal;font-size:9.5px;font-weight:700;margin-left:5px;padding:0 6px;border-radius:99px;background:#C7D2FE;color:#3730a3}
+.pp-tag.i{background:#E9D5FF;color:#6b21a8}
+.pp-dot.half{background:linear-gradient(90deg,currentColor 50%,transparent 50%)}
+.pp-cact{gap:6px;margin-top:8px}
+.pp-cact .pp-ib{padding:5px 13px;font-size:12px}
+@media(max-width:640px){
+  .pp-dates{grid-template-columns:1fr 1fr}.pp-dates .pp-dtc:last-child{grid-column:1/-1}
+  .pp-m5{grid-template-columns:repeat(2,1fr)}.pp-m5 .pp-m:last-child{grid-column:1/-1}
+}
+/* ===== popup ยอดรายวัน: เลือกรับต้น/ดอก/ครบ ===== */
+.pp-rtbl tr.part td{background:#EEF2FF}
+.pp-rtbl .c-rec{white-space:nowrap;text-align:center}
+.pp-rc{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:700;margin-right:8px;cursor:pointer}
+.pp-rc input{width:18px!important;height:18px;cursor:pointer}
+.pp-all{border:1px solid var(--g200);background:var(--surface);border-radius:7px;font-size:11px;font-weight:700;padding:3px 9px;cursor:pointer;font-family:var(--font);color:#15803d}
+.pp-all:hover{background:#F0FDF4}
+.pp-sum small{display:block;font-size:10px;color:var(--g400);margin-top:1px}
+@media(max-width:640px){
+  .pp-rtbl tr:not(.share){grid-template-areas:"date date x x" "p i tot tot" "rec rec rec rec"}
+  .pp-rtbl tr.part{background:#EEF2FF;border-color:#C7D2FE}
+  .pp-rtbl .c-rec{grid-area:rec;display:flex!important;align-items:center;gap:6px;justify-content:flex-start;padding-top:2px}
+  .pp-rtbl tr.part td,.pp-rtbl tr.done td{background:none}
+}
+</style>
 <script id="passive-js">
 (function(){
 'use strict';
@@ -6690,7 +6743,22 @@ function load(kind){var v=ls(K[kind],[]);return Array.isArray(v)?v:[]}
 function save(kind,list){lss(K[kind],list)}
 function find(kind,id){return load(kind).filter(function(c){return c.id===id})[0]}
 function rTotal(kind,r){return kind==='lend'?num(r.principal)+num(r.interest):num(r.amount)}
-function mkRound(kind,date){return kind==='lend'?{id:uid(),date:date,principal:0,interest:0,done:false}:{id:uid(),date:date,amount:0,done:false}}
+// สถานะรายวันของวงปล่อย: รับต้นแล้ว / รับดอกแล้ว แยกกัน (ข้อมูลเก่าที่ติ๊ก done = รับครบทั้งคู่)
+function isP(r){return r.recP!==undefined?!!r.recP:!!r.done}
+function isI(r){return r.recI!==undefined?!!r.recI:!!r.done}
+function isFull(kind,r){
+  if(kind!=='lend')return !!r.done;
+  var nP=num(r.principal)>0,nI=num(r.interest)>0;
+  if(!nP&&!nI)return isP(r)||isI(r);
+  return(!nP||isP(r))&&(!nI||isI(r));
+}
+function recAmt(kind,r){return kind==='lend'?(isP(r)?num(r.principal):0)+(isI(r)?num(r.interest):0):(r.done?num(r.amount):0)}
+function restTxt(kind,r){
+  var left=rTotal(kind,r)-recAmt(kind,r);if(left<=0)return '';
+  if(kind==='lend'){if(isP(r)&&!isI(r))return 'ค้างดอก '+money(left);if(isI(r)&&!isP(r))return 'ค้างต้น '+money(left)}
+  return money(left);
+}
+function mkRound(kind,date){return kind==='lend'?{id:uid(),date:date,principal:0,interest:0,recP:false,recI:false,done:false}:{id:uid(),date:date,amount:0,done:false}}
 function r2(x){return Math.round(x*100)/100}
 // ดอกรวมของทั้งวง = ยอดต้น ÷ ทุกๆ(บาท) × ได้ดอก(บาท)   เช่น 20,000 ÷ 5,000 × 1,000 = 4,000
 function calcInterest(amount,unit,inter){return(num(unit)>0&&num(inter)>0)?r2(num(amount)/num(unit)*num(inter)):0}
@@ -6705,20 +6773,25 @@ function genRounds(kind,start,due,period,amount,rateUnit,rateInt){
   return out;
 }
 function sums(kind,c){
-  var t={principal:0,interest:0,total:0,done:0,doneCount:0,count:(c.rounds||[]).length};
-  (c.rounds||[]).forEach(function(r){var a=rTotal(kind,r);t.total+=a;if(kind==='lend'){t.principal+=num(r.principal);t.interest+=num(r.interest)}if(r.done){t.done+=a;t.doneCount++}});
-  t.remain=t.total-t.done;return t;
+  var t={principal:0,interest:0,total:0,done:0,doneP:0,doneI:0,doneCount:0,count:(c.rounds||[]).length};
+  (c.rounds||[]).forEach(function(r){
+    t.total+=rTotal(kind,r);
+    if(kind==='lend'){var p=num(r.principal),i=num(r.interest);t.principal+=p;t.interest+=i;if(isP(r))t.doneP+=p;if(isI(r))t.doneI+=i}
+    t.done+=recAmt(kind,r);if(isFull(kind,r))t.doneCount++;
+  });
+  t.remain=t.total-t.done;t.remainP=t.principal-t.doneP;t.remainI=t.interest-t.doneI;return t;
 }
-function nextRound(c){return (c.rounds||[]).filter(function(r){return !r.done}).sort(function(a,b){return a.date<b.date?-1:1})[0]}
+function nextRound(kind,c){return (c.rounds||[]).filter(function(r){return !isFull(kind,r)}).sort(function(a,b){return a.date<b.date?-1:1})[0]}
 function dueTxt(iso){var d=diff(iso);return d<0?'เลยมา '+(-d)+' วัน':d===0?'วันนี้':'อีก '+d+' วัน'}
 
 /* ---------- render ---------- */
 function chips(kind,c){
   var rs=(c.rounds||[]).slice().sort(function(a,b){return a.date<b.date?-1:1});
   if(!rs.length)return'<span class="pp-chips-lbl">ยังไม่มีรายการ — กด ปุ่ม 📋 เพื่อเพิ่ม</span>';
-  return'<div class="pp-chips"><span class="pp-chips-lbl">'+(kind==='lend'?'รายวัน (กดเพื่อติ๊กว่าได้รับแล้ว):':'แต่ละรอบ (กดเพื่อติ๊กว่าจ่ายแล้ว):')+'</span>'+rs.map(function(r,idx){
-    var d=diff(r.date),cls=r.done?'ok':d<0?'late':d<=3?'soon':'',a=rTotal(kind,r);
-    return'<button type="button" class="pp-chip '+cls+'" onclick="ppToggle(\''+kind+'\',\''+c.id+'\',\''+r.id+'\')" title="'+fd(r.date)+(r.done?' — '+LBL[kind].recvDone:d<0?' — เลยกำหนด':'')+'">'+(r.done?'✓':'<i class="pp-dot"></i>')+' '+(kind==='lend'?(idx+1)+'. ':'')+fds(r.date)+(a?' · '+money(a):'')+'</button>';
+  return'<div class="pp-chips"><span class="pp-chips-lbl">'+(kind==='lend'?'รายวัน (กดเพื่อติ๊กรับครบ · เลือกรับเฉพาะต้น/ดอกที่ปุ่ม ยอดรายวัน):':'แต่ละรอบ (กดเพื่อติ๊กว่าจ่ายแล้ว):')+'</span>'+rs.map(function(r,idx){
+    var d=diff(r.date),full=isFull(kind,r),part=!full&&kind==='lend'&&(isP(r)||isI(r)),cls=full?'ok':part?'part':d<0?'late':d<=3?'soon':'',a=rTotal(kind,r);
+    var tag=part?'<em class="pp-tag'+(isI(r)?' i':'')+'">'+(isP(r)?'รับต้น':'รับดอก')+'</em>':'';
+    return'<button type="button" class="pp-chip '+cls+'" onclick="ppToggle(\''+kind+'\',\''+c.id+'\',\''+r.id+'\')" title="'+fd(r.date)+(full?' — '+LBL[kind].recvDone:part?' — '+restTxt(kind,r):d<0?' — เลยกำหนด':'')+'">'+(full?'✓':part?'<i class="pp-dot half"></i>':'<i class="pp-dot"></i>')+' '+(kind==='lend'?(idx+1)+'. ':'')+fds(r.date)+(a?' · '+money(a):'')+tag+'</button>';
   }).join('')+'</div>';
 }
 /* ---- สถานะเปิด/ปิด (เก็บเฉพาะเครื่องนี้) ---- */
@@ -6729,27 +6802,29 @@ function applySec(k){var s=$('pp-sec-'+k);if(s)s.classList.toggle('closed',!ui.s
 window.ppToggleSec=function(k){ui.sec[k]=!ui.sec[k];saveUi();applySec(k)};
 window.ppToggleCard=function(kind,id){ui.card[id]=!ui.card[id];saveUi();var el=document.querySelector('.pp-card[data-id="'+id+'"]');if(el)el.classList.toggle('open',!!ui.card[id])};
 window.ppAll=function(kind,open){load(kind).forEach(function(c){ui.card[c.id]=open});saveUi();renderKind(kind)};
-function tile(label,val,cls,sub){return'<div class="pp-t'+(cls?' '+cls:'')+'"><span>'+label+'</span><b>'+val+'</b>'+(sub?'<small>'+sub+'</small>':'')+'</div>'}
+function mt(label,val,cls,sub){return'<div class="pp-m'+(cls?' '+cls:'')+'"><span>'+label+'</span><b>'+val+'</b>'+(sub?'<small>'+sub+'</small>':'')+'</div>'}
+function dt(label,val,cls,sub){return'<div class="pp-dtc'+(cls?' '+cls:'')+'"><span>'+label+'</span><b>'+val+'</b>'+(sub?'<small>'+sub+'</small>':'')+'</div>'}
 function card(kind,c,idx){
-  var lend=kind==='lend',s=sums(kind,c),nx=nextRound(c),open=!!ui.card[c.id],pct=s.count?Math.round(s.doneCount/s.count*100):0,unit=lend?'วัน':'งวด';
+  var lend=kind==='lend',s=sums(kind,c),nx=nextRound(kind,c),open=!!ui.card[c.id],unit=lend?'วัน':'งวด';
+  var pct=s.total?Math.round(s.done/s.total*100):(s.count?Math.round(s.doneCount/s.count*100):0);
   var rule=(lend&&c.rateUnit&&c.rateInterest)?'ทุก '+money(c.rateUnit)+' ได้ดอก '+money(c.rateInterest):'';
   var badge='';
   if(s.count&&s.doneCount===s.count)badge='<span class="pp-badge ok">ครบแล้ว</span>';
   else if(nx){var d=diff(nx.date);badge=d<0?'<span class="pp-badge late">เลยกำหนด '+(-d)+' วัน</span>':d<=3?'<span class="pp-badge soon">'+(d===0?'ถึงกำหนดวันนี้':'อีก '+d+' วัน')+'</span>':'<span class="pp-badge">รับถัดไป '+fds(nx.date)+'</span>'}
   var sub=lend?'ปล่อย '+money(c.amount)+' · เคลียร์ภายใน '+c.periodDays+' วัน'+(rule?' · '+rule:''):'ยอดวง '+money(c.amount)+' · จ่ายทุก '+c.periodDays+' วัน';
-  var nxVal=nx?fd(nx.date):(s.count?'ครบทุก'+unit+'แล้ว':'—'),nxSub=nx?dueTxt(nx.date)+(rTotal(kind,nx)?' · '+money(rTotal(kind,nx)):''):'';
-  var tiles;
-  if(lend)tiles=tile('วันที่ปล่อย',fd(c.startDate))+tile('ครบกำหนดรับยอด',fd(c.dueDate))+tile('วันรับถัดไป',nxVal,diff(nx?nx.date:todayIso())<0&&nx?'late':'',nxSub)
-    +tile('ยอดต้นที่ปล่อย',money(c.amount))+tile('ดอกรวม',money(s.interest),'',rule)+tile('ยอดรวมที่จะได้รับ',money(s.total),'',s.total?'ต้น '+money(s.principal)+' + ดอก '+money(s.interest):'ยังไม่ใส่ยอด')
-    +tile('ได้รับแล้ว',money(s.done),'g')+tile('คงเหลือรับ',money(s.remain),'o')+tile('ความคืบหน้า',s.doneCount+'/'+s.count+' '+unit,'','<i class="pp-pbar"><i style="width:'+pct+'%"></i></i>');
+  var nxVal=nx?fd(nx.date):(s.count?'ครบทุก'+unit+'แล้ว':'—'),nxSub=nx?dueTxt(nx.date)+(restTxt(kind,nx)?' · '+restTxt(kind,nx):''):'';
+  var dates=dt(lend?'วันที่ปล่อย':'วันที่เริ่มจ่าย',fd(c.startDate))+dt('ครบกำหนดรับยอด',fd(c.dueDate))+dt(lend?'วันรับถัดไป':'รอบถัดไป',nxVal,nx&&diff(nx.date)<0?'late':'',nxSub);
+  var money5;
+  if(lend)money5=mt('ยอดต้นที่ปล่อย',money(c.amount))+mt('ดอกรวม',money(s.interest),'',rule)+mt('ยอดรวมที่จะได้รับ',s.total?money(s.total):'—','',s.total?'':'ยังไม่ใส่ยอด')
+    +mt('ได้รับแล้ว',money(s.done),'g','ต้น '+money(s.doneP)+' · ดอก '+money(s.doneI))+mt('คงเหลือรับ',money(s.remain),'o','ต้น '+money(s.remainP)+' · ดอก '+money(s.remainI));
   else{var diff2=num(c.amount)-s.total;
-    tiles=tile('วันที่เริ่มจ่าย',fd(c.startDate))+tile('ครบกำหนดรับยอด',fd(c.dueDate))+tile('รอบถัดไป',nxVal,diff(nx?nx.date:todayIso())<0&&nx?'late':'',nxSub)
-    +tile('ยอดวงแชร์',money(c.amount))+tile('ยอดจ่ายรวม (เงินต้น)',s.total?money(s.total):'—','',s.total?'':'ยังไม่ใส่ยอด')+tile('เงินดอก (ส่วนต่าง)',s.total?(diff2>0?'+':diff2<0?'−':'')+money(Math.abs(diff2)):'—',diff2<0?'red':'g')
-    +tile('จ่ายแล้ว',money(s.done),'g')+tile('คงเหลือต้องจ่าย',money(s.remain),'o')+tile('ความคืบหน้า',s.doneCount+'/'+s.count+' '+unit,'','<i class="pp-pbar"><i style="width:'+pct+'%"></i></i>')}
+    money5=mt('ยอดวงแชร์',money(c.amount))+mt('ยอดจ่ายรวม (เงินต้น)',s.total?money(s.total):'—','',s.total?'':'ยังไม่ใส่ยอด')+mt('เงินดอก (ส่วนต่าง)',s.total?(diff2>0?'+':diff2<0?'−':'')+money(Math.abs(diff2)):'—',diff2<0?'red':'g')
+    +mt('จ่ายแล้ว',money(s.done),'g')+mt('คงเหลือต้องจ่าย',money(s.remain),'o')}
   return'<div class="pp-card'+(open?' open':'')+'" data-id="'+c.id+'">'
     +'<div class="pp-chead" onclick="ppToggleCard(\''+kind+'\',\''+c.id+'\')"><div class="pp-cmain"><div class="pp-ctitle"><span class="pp-no">วงที่ '+(idx+1)+'</span><b>'+esc(c.name)+'</b>'+badge+'</div><div class="pp-csub">'+sub+'</div></div>'
     +'<div class="pp-cright"><span>'+(lend?'คงเหลือรับ':'คงเหลือต้องจ่าย')+'</span><b class="pp-orange">'+money(s.remain)+'</b><div class="pp-minibar"><i style="width:'+pct+'%"></i></div></div><i class="pp-chev"></i></div>'
-    +'<div class="pp-cbody">'+(c.note?'<div class="pp-note">'+esc(c.note)+'</div>':'')+'<div class="pp-grid">'+tiles+'</div>'+chips(kind,c)
+    +'<div class="pp-cbody">'+(c.note?'<div class="pp-note">'+esc(c.note)+'</div>':'')+'<div class="pp-dates">'+dates+'</div><div class="pp-m5">'+money5+'</div>'
+    +'<div class="pp-prog"><i class="pp-pbar"><i style="width:'+pct+'%"></i></i><span>รับครบ '+s.doneCount+'/'+s.count+' '+unit+' · '+(lend?'รับแล้ว ':'จ่ายแล้ว ')+pct+'%</span></div>'+chips(kind,c)
     +'<div class="pp-cact"><button type="button" class="pp-ib pri" onclick="ppOpenRounds(\''+kind+'\',\''+c.id+'\')">'+(lend?'ยอดรายวัน':'ยอดแต่ละรอบ')+'</button><button type="button" class="pp-ib" onclick="ppEdit(\''+kind+'\',\''+c.id+'\')">แก้ไข</button><button type="button" class="pp-ib del" onclick="ppDel(\''+kind+'\',\''+c.id+'\')">ลบ</button></div></div></div>';
 }
 function renderKind(kind){
@@ -6765,7 +6840,7 @@ function renderSummary(kind,list){
   if(!list.length){box.innerHTML='';return}
   if(kind==='lend'){
     var R={p:0,i:0,dp:0,di:0,out:0};
-    list.forEach(function(c){R.out+=num(c.amount);(c.rounds||[]).forEach(function(r){var p=num(r.principal),i=num(r.interest);R.p+=p;R.i+=i;if(r.done){R.dp+=p;R.di+=i}})});
+    list.forEach(function(c){R.out+=num(c.amount);(c.rounds||[]).forEach(function(r){var p=num(r.principal),i=num(r.interest);R.p+=p;R.i+=i;if(isP(r))R.dp+=p;if(isI(r))R.di+=i})});
     var tot=R.p+R.i,rec=R.dp+R.di,pct=tot?Math.round(rec/tot*100):0;
     box.innerHTML='<div class="pp-sumbox pp-sum-g"><div class="pp-sumhead"><b>สรุปยอดปล่อยเงินกินดอก</b><span>'+list.length+' วง · ปล่อยออกไปรวม '+money(R.out)+' · รับแล้ว '+pct+'%</span></div>'
       +'<table class="pp-sumtbl"><thead><tr><th></th><th class="tr">เงินต้น</th><th class="tr">เงินดอก</th><th class="tr">รวม</th></tr></thead><tbody>'
@@ -6841,7 +6916,7 @@ window.ppSave=function(){
   if(!fId||regen)ppOpenRounds(fKind,id);
 };
 window.ppDel=function(kind,id){var c=find(kind,id);if(!c)return;if(!confirm('ลบ "'+c.name+'" และทุกงวดที่บันทึกไว้ใช่หรือไม่?'))return;save(kind,load(kind).filter(function(x){return x.id!==id}));renderPassive()};
-window.ppToggle=function(kind,cid,rid){var l=load(kind);l.forEach(function(c){if(c.id===cid)(c.rounds||[]).forEach(function(r){if(r.id===rid)r.done=!r.done})});save(kind,l);renderPassive();if($('pp-rounds-ov').classList.contains('open')&&rId===cid)renderRounds()};
+window.ppToggle=function(kind,cid,rid){var l=load(kind);l.forEach(function(c){if(c.id===cid)(c.rounds||[]).forEach(function(r){if(r.id===rid){if(kind==='lend'){var on=!isFull(kind,r);r.recP=on;r.recI=on;r.done=on}else r.done=!r.done}})});save(kind,l);renderPassive();if($('pp-rounds-ov').classList.contains('open')&&rId===cid)renderRounds()};
 
 /* ---------- popup งวด/ยอด ---------- */
 function getRounds(){var c=find(rKind,rId);return c?(c.rounds||[]):[]}
@@ -6854,14 +6929,16 @@ function renderRounds(fresh){
   $('pp-r-sub').textContent=(lend?'เคลียร์ยอดภายใน ':'จ่ายทุก ')+c.periodDays+' วัน · '+fd(c.startDate)+' → '+fd(c.dueDate)+' · '+(lend?'ยอดต้นที่ปล่อย ':'ยอดวงแชร์ ')+money(c.amount)+((lend&&c.rateUnit&&c.rateInterest)?' · ทุก '+money(c.rateUnit)+' ได้ดอก '+money(c.rateInterest):'');
   var rs=(c.rounds||[]).slice().sort(function(a,b){return a.date<b.date?-1:a.date>b.date?1:0});
   if(JSON.stringify(rs.map(function(r){return r.id}))!==JSON.stringify((c.rounds||[]).map(function(r){return r.id}))){putRounds(rs)}
-  $('pp-r-head').innerHTML='<tr><th style="width:34px">#</th><th style="width:150px">วันที่'+(lend?'รับยอด':'จ่าย')+'</th>'+(lend?'<th>ต้น (฿)</th><th>ดอก (฿)</th><th style="text-align:right">รวม</th>':'<th>ยอดที่ต้องจ่าย (฿)</th>')+'<th style="width:80px;text-align:center">'+L.recvDone+'</th><th style="width:34px"></th></tr>';
+  $('pp-r-head').innerHTML='<tr><th style="width:34px">#</th><th style="width:150px">วันที่'+(lend?'รับยอด':'จ่าย')+'</th>'+(lend?'<th>ต้น (฿)</th><th>ดอก (฿)</th><th style="text-align:right">รวม</th><th style="width:176px;text-align:center">รับแล้ว (เลือกต้น / ดอก / ครบ)</th>':'<th>ยอดที่ต้องจ่าย (฿)</th><th style="width:80px;text-align:center">'+L.recvDone+'</th>')+'<th style="width:34px"></th></tr>';
   $('pp-r-body').innerHTML=rs.length?rs.map(function(r,i){
-    var d=diff(r.date),hint=r.done?'':(d<0?'<div style="font-size:10px;color:#dc2626">เลยมา '+(-d)+' วัน</div>':d<=3?'<div style="font-size:10px;color:#b45309">'+dueTxt(r.date)+'</div>':'');
-    return'<tr data-rid="'+r.id+'" class="'+(r.done?'done ':'')+(lend?'':'share')+'"><td class="c-no">'+(i+1)+'</td><td class="c-date"><input type="date" class="pp-d" value="'+r.date+'" onchange="ppRowChange(true,true)">'+hint+'</td>'
+    var d=diff(r.date),full=isFull(rKind,r),part=lend&&!full&&(isP(r)||isI(r)),hint=full?'':(d<0?'<div style="font-size:10px;color:#dc2626">เลยมา '+(-d)+' วัน</div>':d<=3?'<div style="font-size:10px;color:#b45309">'+dueTxt(r.date)+'</div>':'');
+    return'<tr data-rid="'+r.id+'" class="'+(full?'done ':'')+(part?'part ':'')+(lend?'':'share')+'"><td class="c-no">'+(i+1)+'</td><td class="c-date"><input type="date" class="pp-d" value="'+r.date+'" onchange="ppRowChange(true,true)">'+hint+'</td>'
       +(lend?'<td class="c-p" data-l="ต้น (฿)"><input type="number" class="pp-p" inputmode="decimal" min="0" step="0.01" value="'+(num(r.principal)||'')+'" oninput="ppRowChange(false)" onchange="ppRowChange(true)"></td><td class="c-i" data-l="ดอก (฿)"><input type="number" class="pp-i" inputmode="decimal" min="0" step="0.01" value="'+(num(r.interest)||'')+'" oninput="ppRowChange(false)" onchange="ppRowChange(true)"></td><td class="pp-tot c-tot" data-l="รวม">'+money(rTotal(rKind,r))+'</td>'
-        :'<td class="c-a" data-l="ยอดที่ต้องจ่าย (฿)"><input type="number" class="pp-a" inputmode="decimal" min="0" step="0.01" value="'+(num(r.amount)||'')+'" oninput="ppRowChange(false)" onchange="ppRowChange(true)"></td>')
-      +'<td class="c-chk" data-l="'+L.recvDone+'" style="text-align:center"><input type="checkbox" class="pp-chk" '+(r.done?'checked':'')+' onchange="ppRowChange(true,true)" aria-label="'+L.recvDone+'"></td><td class="c-x"><button type="button" class="pp-xbtn" onclick="ppDelRound(\''+r.id+'\')" title="ลบงวดนี้">✕</button></td></tr>';
-  }).join(''):'<tr><td colspan="7" class="empty">ยังไม่มีงวด — กด “+ เพิ่มงวด”</td></tr>';
+        +'<td class="c-rec"><label class="pp-rc"><input type="checkbox" class="pp-cp" '+(isP(r)?'checked':'')+' onchange="ppRowChange(true,true)"> ต้น</label><label class="pp-rc"><input type="checkbox" class="pp-ci" '+(isI(r)?'checked':'')+' onchange="ppRowChange(true,true)"> ดอก</label><button type="button" class="pp-all" onclick="ppRowAll(\''+r.id+'\')">ครบ</button></td>'
+        :'<td class="c-a" data-l="ยอดที่ต้องจ่าย (฿)"><input type="number" class="pp-a" inputmode="decimal" min="0" step="0.01" value="'+(num(r.amount)||'')+'" oninput="ppRowChange(false)" onchange="ppRowChange(true)"></td>'
+        +'<td class="c-chk" data-l="'+L.recvDone+'" style="text-align:center"><input type="checkbox" class="pp-chk" '+(r.done?'checked':'')+' onchange="ppRowChange(true,true)" aria-label="'+L.recvDone+'"></td>')
+      +'<td class="c-x"><button type="button" class="pp-xbtn" onclick="ppDelRound(\''+r.id+'\')" title="ลบรายการนี้">✕</button></td></tr>';
+  }).join(''):'<tr><td colspan="8" class="empty">ยังไม่มีรายการ — กด “+ เพิ่ม”</td></tr>';
   if(fresh!==false){
     var per=rs.length?Math.round(c.amount/rs.length*100)/100:0,perI=(lend&&rs.length)?r2(calcInterest(c.amount,c.rateUnit,c.rateInterest)/rs.length):0;
     $('pp-quick').innerHTML=lend
@@ -6874,25 +6951,31 @@ function updSummary(){drawSummary(find(rKind,rId))}
 function drawSummary(c){
   if(!c)return;var s=sums(rKind,c),lend=rKind==='lend';
   $('pp-r-sum').innerHTML=lend
-    ?'<div><span>ต้นรวมทุกวัน</span><b>'+money(s.principal)+'</b></div><div><span>ดอกรวมทุกวัน</span><b>'+money(s.interest)+'</b></div><div><span>ยอดรวมที่จะได้รับ</span><b>'+money(s.total)+'</b></div><div><span>ได้รับแล้ว ('+s.doneCount+'/'+s.count+' วัน)</span><b class="pp-green">'+money(s.done)+'</b></div><div><span>คงเหลือรับ</span><b class="pp-orange">'+money(s.remain)+'</b></div>'
+    ?'<div><span>ต้นรวมทุกวัน</span><b>'+money(s.principal)+'</b></div><div><span>ดอกรวมทุกวัน</span><b>'+money(s.interest)+'</b></div><div><span>ยอดรวมที่จะได้รับ</span><b>'+money(s.total)+'</b></div><div><span>ได้รับแล้ว (ครบ '+s.doneCount+'/'+s.count+' วัน)</span><b class="pp-green">'+money(s.done)+'</b><small>ต้น '+money(s.doneP)+' · ดอก '+money(s.doneI)+'</small></div><div><span>คงเหลือรับ</span><b class="pp-orange">'+money(s.remain)+'</b><small>ต้น '+money(s.remainP)+' · ดอก '+money(s.remainI)+'</small></div>'
     :'<div><span>ยอดจ่ายรวมทุกรอบ</span><b>'+money(s.total)+'</b></div><div><span>จ่ายแล้ว ('+s.doneCount+'/'+s.count+' รอบ)</span><b class="pp-green">'+money(s.done)+'</b></div><div><span>คงเหลือต้องจ่าย</span><b class="pp-orange">'+money(s.remain)+'</b></div>';
   $('pp-r-warn').innerHTML=(lend&&s.principal>0&&Math.abs(s.principal-num(c.amount))>0.05)?'<div class="pp-warn">⚠ ต้นรวมรายวัน '+money(s.principal)+' ต่างจากยอดต้นที่ปล่อย '+money(c.amount)+' (ผลต่าง '+money(Math.abs(s.principal-num(c.amount)))+')</div>':'';
 }
 // อ่านค่าจากตารางใน popup -> บันทึกทันที (ติ๊กแล้วเก็บเลย)
 window.ppRowChange=function(doSave,rerender){
-  var rows=[].slice.call($('pp-r-body').querySelectorAll('tr[data-rid]')),old=getRounds();
+  var rows=[].slice.call($('pp-r-body').querySelectorAll('tr[data-rid]')),old=getRounds(),lend=rKind==='lend';
   var out=rows.map(function(tr){
-    var o=old.filter(function(r){return r.id===tr.getAttribute('data-rid')})[0]||{},r={id:tr.getAttribute('data-rid'),date:tr.querySelector('.pp-d').value||o.date,done:tr.querySelector('.pp-chk').checked};
-    if(rKind==='lend'){r.principal=num(tr.querySelector('.pp-p').value);r.interest=num(tr.querySelector('.pp-i').value)}else r.amount=num(tr.querySelector('.pp-a').value);
-    var t=tr.querySelector('.pp-tot');if(t)t.textContent=money(rTotal(rKind,r));tr.classList.toggle('done',r.done);return r;
+    var o=old.filter(function(r){return r.id===tr.getAttribute('data-rid')})[0]||{},r={id:tr.getAttribute('data-rid'),date:tr.querySelector('.pp-d').value||o.date};
+    if(lend){r.principal=num(tr.querySelector('.pp-p').value);r.interest=num(tr.querySelector('.pp-i').value);r.recP=tr.querySelector('.pp-cp').checked;r.recI=tr.querySelector('.pp-ci').checked;r.done=isFull('lend',r)}
+    else{r.amount=num(tr.querySelector('.pp-a').value);r.done=tr.querySelector('.pp-chk').checked}
+    var t=tr.querySelector('.pp-tot');if(t)t.textContent=money(rTotal(rKind,r));
+    var full=isFull(rKind,r);tr.classList.toggle('done',full);tr.classList.toggle('part',lend&&!full&&(r.recP||r.recI));return r;
   });
   var c=find(rKind,rId);if(!c)return;
   drawSummary(Object.assign({},c,{rounds:out})); // แสดงยอดรวมสดทันที
   if(doSave){putRounds(out);if(rerender)renderRounds(false)}
 };
+window.ppRowAll=function(rid){
+  var tr=$('pp-r-body').querySelector('tr[data-rid="'+rid+'"]');if(!tr)return;
+  var cp=tr.querySelector('.pp-cp'),ci=tr.querySelector('.pp-ci'),on=!(cp.checked&&ci.checked);cp.checked=on;ci.checked=on;ppRowChange(true,true);
+};
 window.ppQuickFill=function(){
   var rs=getRounds().map(function(r){return Object.assign({},r)});
-  if(rKind==='lend'){var p=num($('pp-q-p').value),i=num($('pp-q-i').value);rs.forEach(function(r){if(!r.done){r.principal=p;r.interest=i}})}
+  if(rKind==='lend'){var p=num($('pp-q-p').value),i=num($('pp-q-i').value);rs.forEach(function(r){if(!isP(r))r.principal=p;if(!isI(r))r.interest=i})}
   else{var a=num($('pp-q-a').value);rs.forEach(function(r){if(!r.done)r.amount=a})}
   putRounds(rs);renderRounds(false);
 };
