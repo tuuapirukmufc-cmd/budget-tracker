@@ -6719,33 +6719,32 @@ window.wkImpCommit=function(){
 }
 </style>
 <style id="passive-days-style">
-/* ===== การ์ดรายวัน (ติ๊กต้น/ดอกได้ที่การ์ดเลย) ===== */
-.pp-dhead{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:12px 0 7px}
-.pp-dhead b{font-size:13px;color:var(--g900)}
-.pp-dhead span{font-size:11px;color:var(--g400);flex:1;min-width:150px}
-.pp-days{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px}
-.pp-day{border:1px solid var(--g200);border-radius:11px;padding:8px 9px 7px;background:var(--surface);display:flex;flex-direction:column;gap:7px;min-width:0}
+/* ===== การ์ดรายวัน (ขนาดเล็ก) ===== */
+.pp-dhead{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin:10px 0 5px}
+.pp-dhead b{font-size:12px;color:var(--g900)}
+.pp-dhead span{font-size:10.5px;color:var(--g400)}
+.pp-days{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:5px}
+.pp-day{border:1px solid var(--g200);border-radius:8px;padding:5px 6px;background:var(--surface);display:flex;flex-direction:column;gap:4px;min-width:0}
 .pp-day.ok{background:#F0FDF4;border-color:#BBF7D0}
 .pp-day.part{background:#EEF2FF;border-color:#C7D2FE}
 .pp-day.late{background:#FEF2F2;border-color:#FECACA}
 .pp-day.soon{background:#FFFBEB;border-color:#FDE68A}
-.pp-dtop{display:flex;align-items:center;gap:6px}
-.pp-dn{width:20px;height:20px;border-radius:50%;background:rgba(15,23,42,.08);color:var(--g600);font-size:10.5px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.pp-dtop b{font-size:12.5px;color:var(--g900);flex:0 0 auto;white-space:nowrap;margin-right:auto}
-.pp-ds{font-size:10px;font-weight:700;padding:1px 7px;border-radius:99px;background:var(--g100);color:var(--g600);white-space:nowrap;min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis;flex-shrink:1}
+.pp-dtop{display:flex;align-items:center;gap:5px;min-height:17px}
+.pp-dn{width:16px;height:16px;border-radius:50%;background:rgba(15,23,42,.08);color:var(--g600);font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.pp-dtop b{font-size:11px;color:var(--g900);flex:0 0 auto;white-space:nowrap;margin-right:auto}
+.pp-ds{font-size:9px;font-weight:700;padding:0 6px;line-height:15px;border-radius:99px;background:var(--g100);color:var(--g600);white-space:nowrap;min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis;flex-shrink:1}
 .pp-ds.ok{background:#DCFCE7;color:#15803d}.pp-ds.part{background:#E0E7FF;color:#4338ca}.pp-ds.late{background:#FEE2E2;color:#b91c1c}.pp-ds.soon{background:#FEF3C7;color:#b45309}
-.pp-pills{display:grid;grid-template-columns:1fr 1fr;gap:5px}
-.pp-pill{border:1.5px solid var(--g200);background:var(--surface);border-radius:9px;padding:5px 8px;font-size:10.5px;font-weight:700;color:var(--g600);cursor:pointer;font-family:var(--font);text-align:left;line-height:1.25;display:flex;flex-direction:column;gap:1px;min-width:0;transition:background .12s,border-color .12s}
-.pp-pill b{font-size:13px;color:var(--g900)}
+.pp-pills{display:flex;gap:3px}
+.pp-pill{flex:1;min-width:0;border:1px solid var(--g200);background:var(--surface);border-radius:6px;padding:3px 4px;font-size:9px;font-weight:700;color:var(--g600);cursor:pointer;font-family:var(--font);display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:3px;line-height:1.3;transition:background .12s,border-color .12s}
+.pp-pill b{font-size:10px;color:var(--g900);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pp-pill:hover{border-color:var(--blue)}
-.pp-pill.solo{grid-column:1/-1}
 .pp-pill.on.p{background:#2563eb;border-color:#2563eb;color:#DBEAFE}
 .pp-pill.on.i{background:#7c3aed;border-color:#7c3aed;color:#EDE9FE}
 .pp-pill.on b{color:#fff}
-.pp-dfoot{display:flex;justify-content:space-between;align-items:center;gap:6px;font-size:10.5px;color:var(--g400);min-height:16px}
-.pp-dfoot button{border:0;background:none;color:#15803d;font-weight:700;font-size:10.5px;cursor:pointer;padding:0;font-family:var(--font)}
-.pp-day.ok .pp-dfoot button{color:var(--g400)}
-.pp-dempty{font-size:12px;color:var(--g400);padding:10px 0}
+.pp-fullbtn{flex:0 0 20px;border:1px solid var(--g200);background:var(--surface);color:var(--g300);border-radius:6px;font-size:11px;font-weight:800;line-height:1;cursor:pointer;padding:0;font-family:var(--font)}
+.pp-fullbtn:hover{border-color:#16a34a;color:#16a34a}
+.pp-fullbtn.on{background:#16a34a;border-color:#16a34a;color:#fff}
+.pp-dempty{font-size:12px;color:var(--g400);padding:8px 0}
 @media(max-width:640px){.pp-days{grid-template-columns:repeat(2,1fr)}}
 </style>
 <script id="passive-js">
@@ -6824,19 +6823,20 @@ function dayStatus(kind,r){
   if(d<=3)return{cls:'soon',tag:'<span class="pp-ds soon">อีก '+d+' วัน</span>'};
   return{cls:'',tag:'<span class="pp-ds">รอรับ</span>'};
 }
-function pill(kind,cid,rid,part,label,amount,on,solo){
-  return'<button type="button" class="pp-pill '+part+(on?' on':'')+(solo?' solo':'')+'" onclick="ppTogglePart(\''+kind+'\',\''+cid+'\',\''+rid+'\',\''+part+'\')"><span>'+(on?'✓ ':'')+label+'</span><b>'+(amount?money(amount):'—')+'</b></button>';
+function amt(n){return n?(Math.round(n*100)/100).toLocaleString('th-TH',{maximumFractionDigits:2}):'—'}
+function pill(kind,cid,rid,part,label,amount,on){
+  return'<button type="button" class="pp-pill '+part+(on?' on':'')+'" onclick="ppTogglePart(\''+kind+'\',\''+cid+'\',\''+rid+'\',\''+part+'\')" title="'+(on?'รับแล้ว — กดเพื่อยกเลิก':'กดเพื่อติ๊กว่ารับแล้ว')+'"><span>'+label+'</span><b>'+amt(amount)+'</b></button>';
 }
 function chips(kind,c){
   var rs=(c.rounds||[]).slice().sort(function(a,b){return a.date<b.date?-1:1}),lend=kind==='lend',s=sums(kind,c);
   if(!rs.length)return'<div class="pp-dempty">ยังไม่มีรายการ — กดปุ่ม “'+(lend?'ยอดรายวัน':'ยอดแต่ละรอบ')+'” เพื่อเพิ่ม</div>';
-  var head='<div class="pp-dhead"><b>'+(lend?'รายวัน':'แต่ละรอบ')+'</b><span>'+(lend?'แตะ “ต้น” หรือ “ดอก” เพื่อติ๊กว่าได้รับแล้ว (รับครบ '+s.doneCount+'/'+s.count+' วัน)':'แตะปุ่มเพื่อติ๊กว่าจ่ายแล้ว (จ่ายแล้ว '+s.doneCount+'/'+s.count+' รอบ)')+'</span></div>';
+  var head='<div class="pp-dhead"><b>'+(lend?'รายวัน':'แต่ละรอบ')+'</b><span>'+(lend?'แตะ ต้น/ดอก เพื่อติ๊กว่ารับแล้ว · ✓ = รับครบ · รับครบ '+s.doneCount+'/'+s.count+' วัน':'แตะปุ่มเพื่อติ๊กว่าจ่ายแล้ว · จ่ายแล้ว '+s.doneCount+'/'+s.count+' รอบ')+'</span></div>';
   var tiles=rs.map(function(r,idx){
     var st=dayStatus(kind,r),full=isFull(kind,r),pr=num(r.principal),it=num(r.interest),none=!pr&&!it,body;
-    if(lend)body=((pr||none)?pill(kind,c.id,r.id,'p','ต้น',pr,isP(r),!(it||none)):'')+((it||none)?pill(kind,c.id,r.id,'i','ดอก',it,isI(r),!(pr||none)):'');
-    else body=pill(kind,c.id,r.id,'p','จ่าย',num(r.amount),!!r.done,true);
-    return'<div class="pp-day '+st.cls+'"><div class="pp-dtop"><span class="pp-dn">'+(idx+1)+'</span><b>'+fds(r.date)+'</b>'+st.tag+'</div><div class="pp-pills">'+body+'</div>'
-      +'<div class="pp-dfoot"><span>'+(lend?'รวม '+money(rTotal(kind,r)):'')+'</span><button type="button" onclick="ppToggle(\''+kind+'\',\''+c.id+'\',\''+r.id+'\')">'+(full?'ยกเลิกทั้งหมด':(lend?'ติ๊กรับครบ':''))+'</button></div></div>';
+    if(lend)body=((pr||none)?pill(kind,c.id,r.id,'p','ต้น',pr,isP(r)):'')+((it||none)?pill(kind,c.id,r.id,'i','ดอก',it,isI(r)):'');
+    else body=pill(kind,c.id,r.id,'p','จ่าย',num(r.amount),!!r.done);
+    return'<div class="pp-day '+st.cls+'" title="'+fd(r.date)+(rTotal(kind,r)?' · รวม '+money(rTotal(kind,r)):'')+'"><div class="pp-dtop"><span class="pp-dn">'+(idx+1)+'</span><b>'+fds(r.date)+'</b>'+st.tag+'</div>'
+      +'<div class="pp-pills">'+body+(lend?'<button type="button" class="pp-fullbtn'+(full?' on':'')+'" title="'+(full?'ยกเลิกทั้งหมด':'ติ๊กรับครบ (ต้น+ดอก)')+'" onclick="ppToggle(\''+kind+'\',\''+c.id+'\',\''+r.id+'\')">✓</button>':'')+'</div></div>';
   }).join('');
   return head+'<div class="pp-days">'+tiles+'</div>';
 }
