@@ -6718,6 +6718,36 @@ window.wkImpCommit=function(){
   .pp-rtbl tr.part td,.pp-rtbl tr.done td{background:none}
 }
 </style>
+<style id="passive-days-style">
+/* ===== การ์ดรายวัน (ติ๊กต้น/ดอกได้ที่การ์ดเลย) ===== */
+.pp-dhead{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:12px 0 7px}
+.pp-dhead b{font-size:13px;color:var(--g900)}
+.pp-dhead span{font-size:11px;color:var(--g400);flex:1;min-width:150px}
+.pp-days{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px}
+.pp-day{border:1px solid var(--g200);border-radius:11px;padding:8px 9px 7px;background:var(--surface);display:flex;flex-direction:column;gap:7px;min-width:0}
+.pp-day.ok{background:#F0FDF4;border-color:#BBF7D0}
+.pp-day.part{background:#EEF2FF;border-color:#C7D2FE}
+.pp-day.late{background:#FEF2F2;border-color:#FECACA}
+.pp-day.soon{background:#FFFBEB;border-color:#FDE68A}
+.pp-dtop{display:flex;align-items:center;gap:6px}
+.pp-dn{width:20px;height:20px;border-radius:50%;background:rgba(15,23,42,.08);color:var(--g600);font-size:10.5px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.pp-dtop b{font-size:12.5px;color:var(--g900);flex:0 0 auto;white-space:nowrap;margin-right:auto}
+.pp-ds{font-size:10px;font-weight:700;padding:1px 7px;border-radius:99px;background:var(--g100);color:var(--g600);white-space:nowrap;min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis;flex-shrink:1}
+.pp-ds.ok{background:#DCFCE7;color:#15803d}.pp-ds.part{background:#E0E7FF;color:#4338ca}.pp-ds.late{background:#FEE2E2;color:#b91c1c}.pp-ds.soon{background:#FEF3C7;color:#b45309}
+.pp-pills{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.pp-pill{border:1.5px solid var(--g200);background:var(--surface);border-radius:9px;padding:5px 8px;font-size:10.5px;font-weight:700;color:var(--g600);cursor:pointer;font-family:var(--font);text-align:left;line-height:1.25;display:flex;flex-direction:column;gap:1px;min-width:0;transition:background .12s,border-color .12s}
+.pp-pill b{font-size:13px;color:var(--g900)}
+.pp-pill:hover{border-color:var(--blue)}
+.pp-pill.solo{grid-column:1/-1}
+.pp-pill.on.p{background:#2563eb;border-color:#2563eb;color:#DBEAFE}
+.pp-pill.on.i{background:#7c3aed;border-color:#7c3aed;color:#EDE9FE}
+.pp-pill.on b{color:#fff}
+.pp-dfoot{display:flex;justify-content:space-between;align-items:center;gap:6px;font-size:10.5px;color:var(--g400);min-height:16px}
+.pp-dfoot button{border:0;background:none;color:#15803d;font-weight:700;font-size:10.5px;cursor:pointer;padding:0;font-family:var(--font)}
+.pp-day.ok .pp-dfoot button{color:var(--g400)}
+.pp-dempty{font-size:12px;color:var(--g400);padding:10px 0}
+@media(max-width:640px){.pp-days{grid-template-columns:repeat(2,1fr)}}
+</style>
 <script id="passive-js">
 (function(){
 'use strict';
@@ -6785,14 +6815,30 @@ function nextRound(kind,c){return (c.rounds||[]).filter(function(r){return !isFu
 function dueTxt(iso){var d=diff(iso);return d<0?'เลยมา '+(-d)+' วัน':d===0?'วันนี้':'อีก '+d+' วัน'}
 
 /* ---------- render ---------- */
+function dayStatus(kind,r){
+  var d=diff(r.date),full=isFull(kind,r),part=kind==='lend'&&!full&&(isP(r)||isI(r));
+  if(full)return{cls:'ok',tag:'<span class="pp-ds ok">✓ ครบ</span>'};
+  if(part)return{cls:'part',tag:'<span class="pp-ds part">'+restTxt(kind,r)+'</span>'};
+  if(d<0)return{cls:'late',tag:'<span class="pp-ds late">เลยมา '+(-d)+' วัน</span>'};
+  if(d===0)return{cls:'soon',tag:'<span class="pp-ds soon">วันนี้</span>'};
+  if(d<=3)return{cls:'soon',tag:'<span class="pp-ds soon">อีก '+d+' วัน</span>'};
+  return{cls:'',tag:'<span class="pp-ds">รอรับ</span>'};
+}
+function pill(kind,cid,rid,part,label,amount,on,solo){
+  return'<button type="button" class="pp-pill '+part+(on?' on':'')+(solo?' solo':'')+'" onclick="ppTogglePart(\''+kind+'\',\''+cid+'\',\''+rid+'\',\''+part+'\')"><span>'+(on?'✓ ':'')+label+'</span><b>'+(amount?money(amount):'—')+'</b></button>';
+}
 function chips(kind,c){
-  var rs=(c.rounds||[]).slice().sort(function(a,b){return a.date<b.date?-1:1});
-  if(!rs.length)return'<span class="pp-chips-lbl">ยังไม่มีรายการ — กด ปุ่ม 📋 เพื่อเพิ่ม</span>';
-  return'<div class="pp-chips"><span class="pp-chips-lbl">'+(kind==='lend'?'รายวัน (กดเพื่อติ๊กรับครบ · เลือกรับเฉพาะต้น/ดอกที่ปุ่ม ยอดรายวัน):':'แต่ละรอบ (กดเพื่อติ๊กว่าจ่ายแล้ว):')+'</span>'+rs.map(function(r,idx){
-    var d=diff(r.date),full=isFull(kind,r),part=!full&&kind==='lend'&&(isP(r)||isI(r)),cls=full?'ok':part?'part':d<0?'late':d<=3?'soon':'',a=rTotal(kind,r);
-    var tag=part?'<em class="pp-tag'+(isI(r)?' i':'')+'">'+(isP(r)?'รับต้น':'รับดอก')+'</em>':'';
-    return'<button type="button" class="pp-chip '+cls+'" onclick="ppToggle(\''+kind+'\',\''+c.id+'\',\''+r.id+'\')" title="'+fd(r.date)+(full?' — '+LBL[kind].recvDone:part?' — '+restTxt(kind,r):d<0?' — เลยกำหนด':'')+'">'+(full?'✓':part?'<i class="pp-dot half"></i>':'<i class="pp-dot"></i>')+' '+(kind==='lend'?(idx+1)+'. ':'')+fds(r.date)+(a?' · '+money(a):'')+tag+'</button>';
-  }).join('')+'</div>';
+  var rs=(c.rounds||[]).slice().sort(function(a,b){return a.date<b.date?-1:1}),lend=kind==='lend',s=sums(kind,c);
+  if(!rs.length)return'<div class="pp-dempty">ยังไม่มีรายการ — กดปุ่ม “'+(lend?'ยอดรายวัน':'ยอดแต่ละรอบ')+'” เพื่อเพิ่ม</div>';
+  var head='<div class="pp-dhead"><b>'+(lend?'รายวัน':'แต่ละรอบ')+'</b><span>'+(lend?'แตะ “ต้น” หรือ “ดอก” เพื่อติ๊กว่าได้รับแล้ว (รับครบ '+s.doneCount+'/'+s.count+' วัน)':'แตะปุ่มเพื่อติ๊กว่าจ่ายแล้ว (จ่ายแล้ว '+s.doneCount+'/'+s.count+' รอบ)')+'</span></div>';
+  var tiles=rs.map(function(r,idx){
+    var st=dayStatus(kind,r),full=isFull(kind,r),pr=num(r.principal),it=num(r.interest),none=!pr&&!it,body;
+    if(lend)body=((pr||none)?pill(kind,c.id,r.id,'p','ต้น',pr,isP(r),!(it||none)):'')+((it||none)?pill(kind,c.id,r.id,'i','ดอก',it,isI(r),!(pr||none)):'');
+    else body=pill(kind,c.id,r.id,'p','จ่าย',num(r.amount),!!r.done,true);
+    return'<div class="pp-day '+st.cls+'"><div class="pp-dtop"><span class="pp-dn">'+(idx+1)+'</span><b>'+fds(r.date)+'</b>'+st.tag+'</div><div class="pp-pills">'+body+'</div>'
+      +'<div class="pp-dfoot"><span>'+(lend?'รวม '+money(rTotal(kind,r)):'')+'</span><button type="button" onclick="ppToggle(\''+kind+'\',\''+c.id+'\',\''+r.id+'\')">'+(full?'ยกเลิกทั้งหมด':(lend?'ติ๊กรับครบ':''))+'</button></div></div>';
+  }).join('');
+  return head+'<div class="pp-days">'+tiles+'</div>';
 }
 /* ---- สถานะเปิด/ปิด (เก็บเฉพาะเครื่องนี้) ---- */
 var ui={sec:{lend:true,share:true},card:{}};
@@ -6917,6 +6963,13 @@ window.ppSave=function(){
 };
 window.ppDel=function(kind,id){var c=find(kind,id);if(!c)return;if(!confirm('ลบ "'+c.name+'" และทุกงวดที่บันทึกไว้ใช่หรือไม่?'))return;save(kind,load(kind).filter(function(x){return x.id!==id}));renderPassive()};
 window.ppToggle=function(kind,cid,rid){var l=load(kind);l.forEach(function(c){if(c.id===cid)(c.rounds||[]).forEach(function(r){if(r.id===rid){if(kind==='lend'){var on=!isFull(kind,r);r.recP=on;r.recI=on;r.done=on}else r.done=!r.done}})});save(kind,l);renderPassive();if($('pp-rounds-ov').classList.contains('open')&&rId===cid)renderRounds()};
+
+window.ppTogglePart=function(kind,cid,rid,part){
+  var l=load(kind);
+  l.forEach(function(c){if(c.id===cid)(c.rounds||[]).forEach(function(r){if(r.id!==rid)return;
+    if(kind==='lend'){var p=isP(r),i=isI(r);if(part==='p')p=!p;else i=!i;r.recP=p;r.recI=i;r.done=isFull('lend',r)}else r.done=!r.done})});
+  save(kind,l);renderPassive();if($('pp-rounds-ov').classList.contains('open')&&rId===cid)renderRounds();
+};
 
 /* ---------- popup งวด/ยอด ---------- */
 function getRounds(){var c=find(rKind,rId);return c?(c.rounds||[]):[]}
