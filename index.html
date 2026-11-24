@@ -1166,7 +1166,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 <div id="page-debt" class="page">
   <div class="debt-subtabs" role="tablist" aria-label="หมวดติดตามหนี้">
     <button type="button" class="debt-subtab active" id="debt-subtab-credit" onclick="showDebtSection('main')">💳 หนี้สินส่วนตัว</button>
-    <button type="button" class="debt-subtab" id="debt-subtab-lend" onclick="showDebtSection('track')">🤝 ติดตามเงินที่ให้ยืม</button>
+    <button type="button" class="debt-subtab" id="debt-subtab-lend" onclick="showDebtSection('track')">🤝 ติดตามเงินยืม</button>
   </div>
   <div id="debt-main-panel">
   <div class="db-header">
@@ -1214,25 +1214,29 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   <div id="debttrack-panel" style="display:none">
 <!-- PERSONAL DEBT TRACKER SUBPAGE -->
   <div class="dt-heading">
-    <div><div class="dt-title">🤝 ติดตามหนี้</div><div class="dt-sub">บันทึกการยืมหลายครั้งต่อคน พร้อมติดตามยอดค้างและประวัติการชำระ</div></div>
+    <div><div class="dt-title">🤝 ติดตามหนี้</div><div class="dt-sub">บันทึกทั้ง “คนอื่นยืมเรา” และ “เรายืมคนอื่น” พร้อมติดตามยอดค้าง ดอกเบี้ย และประวัติการชำระ</div></div>
     <button class="dt-btn dt-btn-soft" type="button" onclick="resetDebtTrackForm()">＋ รายการใหม่</button>
   </div>
-  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-    <div class="dt-card"><div class="dt-stat-label">ยอดเงินที่ยังค้างชำระ</div><div id="dt-total-outstanding" class="dt-stat-value" style="color:#ea580c">฿0</div><div class="text-xs text-slate-500 mt-2">ยอดเงินต้นคงเหลือจากทุกรายการ</div></div>
-    <div class="dt-card"><div class="dt-stat-label">จำนวนคนที่ยังคืนไม่ครบ</div><div id="dt-open-people" class="dt-stat-value" style="color:#2563eb">0 คน</div><div class="text-xs text-slate-500 mt-2">นับจากผู้ยืมที่มียอดค้างอยู่</div></div>
-  </div>
+  <div id="dt-summary" class="dt-sum"></div>
   <div class="dt-card mb-4">
     <div class="flex items-center justify-between gap-3 flex-wrap mb-4"><div class="text-base font-extrabold text-slate-800" id="dt-form-heading">＋ เพิ่มรายการยืมเงิน</div><div class="text-xs text-slate-500">บันทึกในอุปกรณ์นี้ด้วย localStorage</div></div>
     <form id="dt-form" onsubmit="saveDebtTrack(event)">
       <input type="hidden" id="dt-edit-id" value=""><input type="hidden" id="dt-edit-loan-id" value="">
       <div class="dt-form-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-        <div><label class="dt-label" for="dt-name">ชื่อผู้ยืม *</label><input class="dt-input" id="dt-name" required maxlength="100" placeholder="เช่น สมชาย ใจดี"></div>
-        <div><label class="dt-label" for="dt-amount">จำนวนเงินที่ยืมครั้งนี้ (บาท) *</label><input class="dt-input" id="dt-amount" type="number" min="0.01" step="0.01" required placeholder="0.00"></div>
-        <div><label class="dt-label" for="dt-borrow-date">วันที่ยืม *</label><input class="dt-input" id="dt-borrow-date" type="date" required></div>
-        <div><label class="dt-label" for="dt-due-date">วันที่นัดคืน</label><input class="dt-input" id="dt-due-date" type="date"></div>
+        <div class="sm:col-span-2 lg:col-span-3"><label class="dt-label">ประเภทรายการ</label>
+          <div class="dt-int-row">
+            <label class="dt-int-opt"><input type="radio" name="dt-dir" value="lend" checked onchange="dtDirSync()"> 🙋 คนอื่นยืมเรา</label>
+            <label class="dt-int-opt"><input type="radio" name="dt-dir" value="borrow" onchange="dtDirSync()"> 💳 เรายืมคนอื่น</label>
+          </div>
+          <div id="dt-dir-hint" class="dt-int-hint"></div>
+        </div>
+        <div><label class="dt-label" id="dt-l-name" for="dt-name">ชื่อผู้ยืม *</label><input class="dt-input" id="dt-name" required maxlength="100" placeholder="เช่น สมชาย ใจดี"></div>
+        <div><label class="dt-label" id="dt-l-amount" for="dt-amount">จำนวนเงินที่ยืมครั้งนี้ (บาท) *</label><input class="dt-input" id="dt-amount" type="number" min="0.01" step="0.01" required placeholder="0.00"></div>
+        <div><label class="dt-label" id="dt-l-date" for="dt-borrow-date">วันที่ยืม *</label><input class="dt-input" id="dt-borrow-date" type="date" required></div>
+        <div><label class="dt-label" id="dt-l-due" for="dt-due-date">วันที่นัดคืน</label><input class="dt-input" id="dt-due-date" type="date"></div>
         <div class="sm:col-span-2"><label class="dt-label" for="dt-note">หมายเหตุเพิ่มเติม (ไม่บังคับ)</label><input class="dt-input" id="dt-note" maxlength="500" placeholder="รายละเอียดหรือข้อตกลงเพิ่มเติม"></div>
         <div class="sm:col-span-2 lg:col-span-3">
-          <label class="dt-label">ดอกเบี้ย (สำหรับผู้ยืมคนนี้)</label>
+          <label class="dt-label" id="dt-l-int">ดอกเบี้ย (สำหรับผู้ยืมคนนี้)</label>
           <div class="dt-int-row">
             <label class="dt-int-opt"><input type="radio" name="dt-int-mode" value="off" checked onchange="dtIntSync()"> ไม่คิดดอกเบี้ย</label>
             <label class="dt-int-opt"><input type="radio" name="dt-int-mode" value="on" onchange="dtIntSync()"> คิดดอกเบี้ย</label>
@@ -1241,7 +1245,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
               <input id="dt-int-rate-custom" class="dt-input" type="number" min="0.01" max="100" step="0.01" inputmode="decimal" placeholder="% ต่อเดือน" style="display:none">
             </span>
           </div>
-          <div class="dt-int-hint">คิดดอกเบี้ยจากเงินต้นที่เหลือ — ระบบคำนวณยอดจ่ายต่อเดือนให้ในการ์ดผู้ยืม</div>
+          <div class="dt-int-hint" id="dt-int-hint">คิดดอกเบี้ยจากเงินต้นที่เหลือ — ระบบคำนวณยอดจ่ายต่อเดือนให้ในการ์ดผู้ยืม</div>
           <div id="dt-int-err" class="dt-int-err"></div>
         </div>
       </div>
@@ -1249,7 +1253,7 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
     </form>
   </div>
   <div class="dt-card">
-    <div class="flex items-center justify-between gap-3 flex-wrap mb-4"><div class="text-base font-extrabold text-slate-800">รายการผู้ยืมเงิน</div><div class="flex gap-2 flex-wrap"><input class="dt-input" id="dt-search" style="width:min(220px,60vw)" placeholder="ค้นหาชื่อ..." oninput="renderDebtTrack()"><select class="dt-input" id="dt-filter" style="width:auto" onchange="renderDebtTrack()"><option value="all">ทั้งหมด</option><option value="open">ยังไม่คืน</option><option value="paid">คืนแล้ว</option></select></div></div>
+    <div class="flex items-center justify-between gap-3 flex-wrap mb-4"><div class="text-base font-extrabold text-slate-800">รายการยืมเงิน (รวมทั้งสองฝั่ง)</div><div class="flex gap-2 flex-wrap"><input class="dt-input" id="dt-search" style="width:min(220px,60vw)" placeholder="ค้นหาชื่อ..." oninput="renderDebtTrack()"><select class="dt-input" id="dt-dirfilter" style="width:auto" onchange="renderDebtTrack()"><option value="all">ทั้งสองฝั่ง</option><option value="lend">คนอื่นยืมเรา</option><option value="borrow">เรายืมคนอื่น</option></select><select class="dt-input" id="dt-filter" style="width:auto" onchange="renderDebtTrack()"><option value="all">ทั้งหมด</option><option value="open">ยังไม่ครบ</option><option value="paid">ครบแล้ว</option></select></div></div>
     <div id="dt-list" class="grid grid-cols-1 lg:grid-cols-2 gap-3"></div>
   </div>
   </div><!-- /debttrack-panel -->
@@ -2238,15 +2242,34 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
   <div class="mbtns"><button class="btn btn-pri" onclick="ppCloseRounds()">เสร็จสิ้น</button></div>
 </div></div>
 
+<style id="debt-dir-style">
+#debttrack-panel .dt-sum{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+#debttrack-panel .dt-sum-card{border:1px solid #e2e8f0;border-radius:14px;padding:14px 16px;background:#fff;display:flex;flex-direction:column;gap:5px;min-width:0}
+#debttrack-panel .dt-sum-l{border-top:4px solid #22c55e;background:linear-gradient(180deg,#f0fdf4,#fff 40%)}
+#debttrack-panel .dt-sum-b{border-top:4px solid #ef4444;background:linear-gradient(180deg,#fef2f2,#fff 40%)}
+#debttrack-panel .dt-sum-n{border-top:4px solid #64748b;background:linear-gradient(180deg,#f8fafc,#fff 40%)}
+#debttrack-panel .dt-sum-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:13px;font-weight:800;color:#334155}
+#debttrack-panel .dt-sum-head span{font-size:11px;font-weight:600;color:#94a3b8}
+#debttrack-panel .dt-sum-big{font-size:26px;font-weight:800;line-height:1.2}
+#debttrack-panel .dt-sum-cap{font-size:11px;color:#64748b;margin-bottom:6px}
+#debttrack-panel .dt-sum-line{display:flex;justify-content:space-between;gap:10px;font-size:12px;color:#64748b;border-top:1px solid #f1f5f9;padding-top:5px}
+#debttrack-panel .dt-sum-line b{color:#0f172a;white-space:nowrap}
+#debttrack-panel .dt-dir{display:inline-block;margin-left:6px;font-size:10.5px;font-weight:800;padding:1px 9px;border-radius:99px;vertical-align:middle}
+#debttrack-panel .dt-dir-l{background:#dcfce7;color:#15803d}
+#debttrack-panel .dt-dir-b{background:#fee2e2;color:#b91c1c}
+#debttrack-panel .dt-item-b{border-left:4px solid #ef4444}
+#debttrack-panel .dt-item:not(.dt-item-b){border-left:4px solid #22c55e}
+@media(max-width:900px){#debttrack-panel .dt-sum{grid-template-columns:1fr}}
+</style>
 <!-- Debt tracker: บันทึกการชำระ -->
 <div class="ov" id="dt-pay-ov"><div class="modal">
   <span class="modal-drag"></span>
-  <h3>✓ บันทึกการชำระ</h3>
+  <h3 id="dt-pay-title">✓ บันทึกการชำระ</h3>
   <input type="hidden" id="dt-pay-id">
   <div class="f"><label>ผู้ยืม</label><div id="dt-pay-who" style="font-weight:700"></div></div>
   <div class="f"><label>ยอดคงเหลือ</label><div id="dt-pay-rem" style="font-weight:800;color:#ea580c;font-size:18px"></div></div>
-  <div class="f" id="dt-pay-kind-wrap" style="display:none"><label>รับเป็น</label><div style="display:flex;gap:16px;flex-wrap:wrap"><label style="display:flex;align-items:center;gap:6px;font-weight:600"><input type="radio" name="dt-pay-kind" value="principal" checked onchange="debtPayFull()"> เงินต้น</label><label style="display:flex;align-items:center;gap:6px;font-weight:600"><input type="radio" name="dt-pay-kind" value="interest" onchange="debtPayFull()"> ดอกเบี้ย</label></div><div id="dt-pay-int-hint" style="font-size:12px;color:#7c3aed;margin-top:4px"></div></div>
-  <div class="f"><label>จำนวนเงินที่รับชำระครั้งนี้ (บาท) *</label><div style="display:flex;gap:8px"><input type="number" id="dt-pay-amount" inputmode="decimal" min="0" step="0.01" style="flex:1;min-width:0"><button type="button" class="btn btn-ghost btn-sm" onclick="debtPayFull()">เต็มจำนวน</button></div></div>
+  <div class="f" id="dt-pay-kind-wrap" style="display:none"><label id="dt-pay-kind-lbl">รับเป็น</label><div style="display:flex;gap:16px;flex-wrap:wrap"><label style="display:flex;align-items:center;gap:6px;font-weight:600"><input type="radio" name="dt-pay-kind" value="principal" checked onchange="debtPayFull()"> เงินต้น</label><label style="display:flex;align-items:center;gap:6px;font-weight:600"><input type="radio" name="dt-pay-kind" value="interest" onchange="debtPayFull()"> ดอกเบี้ย</label></div><div id="dt-pay-int-hint" style="font-size:12px;color:#7c3aed;margin-top:4px"></div></div>
+  <div class="f"><label id="dt-pay-amount-lbl">จำนวนเงินที่รับชำระครั้งนี้ (บาท) *</label><div style="display:flex;gap:8px"><input type="number" id="dt-pay-amount" inputmode="decimal" min="0" step="0.01" style="flex:1;min-width:0"><button type="button" class="btn btn-ghost btn-sm" onclick="debtPayFull()">เต็มจำนวน</button></div></div>
   <div class="f"><label>วันที่รับชำระ</label><input type="date" id="dt-pay-date"></div>
   <div id="dt-pay-err" style="color:#DC2626;font-size:12px;min-height:1em;margin-bottom:6px"></div>
   <div class="mbtns">
@@ -2932,7 +2955,7 @@ function debtTrackLoad(){
     });
     // Combine duplicate legacy entries for the same person, retaining all loan and payment history.
     const grouped=[];
-    for(const r of rows){const key=String(r.name||'').trim().toLocaleLowerCase();const found=grouped.find(x=>String(x.name||'').trim().toLocaleLowerCase()===key&&key);
+    for(const r of rows){const nm=String(r.name||'').trim().toLocaleLowerCase(),key=nm?nm+'|'+(r.dir==='borrow'?'b':'l'):'';const found=grouped.find(x=>key&&(String(x.name||'').trim().toLocaleLowerCase()+'|'+(x.dir==='borrow'?'b':'l'))===key);
       if(found&&!(raw.find(z=>z.id===found.id)?.borrowings)) {found.borrowings.push(...r.borrowings);found.payments.push(...r.payments);found.updatedAt=Math.max(found.updatedAt||0,r.updatedAt||0);}
       else if(found&&r.id!==found.id){found.borrowings.push(...r.borrowings);found.payments.push(...r.payments);}
       else grouped.push({...r,borrowings:[...r.borrowings],payments:[...r.payments]});
@@ -2977,41 +3000,72 @@ function debtTrackLatestLoan(row){let best=null,bt=-1;debtTrackLoans(row).forEac
 function debtTrackExtensions(row){const out=[];debtTrackLoans(row).forEach(l=>(l.extensions||[]).forEach(e=>out.push({...e,loanDate:l.date})));return out.sort((a,b)=>String(a.at||'').localeCompare(String(b.at||''))||String(a.id||'').localeCompare(String(b.id||'')))}
 function debtTrackToday(){return new Date(Date.now()-new Date().getTimezoneOffset()*60000).toISOString().slice(0,10)}
 function debtTrackDaysLeft(due){if(!due)return null;return Math.round((new Date(due+'T00:00:00')-new Date(debtTrackToday()+'T00:00:00'))/86400000)}
+function dtDirOf(r){return r&&r.dir==='borrow'?'borrow':'lend'}
+function dtDirSync(){
+  const b=(document.querySelector('input[name="dt-dir"]:checked')||{}).value==='borrow',set=(id,t)=>{const e=document.getElementById(id);if(e)e.textContent=t};
+  set('dt-l-name',b?'ชื่อเจ้าหนี้ (คนที่เรายืม) *':'ชื่อผู้ยืม *');
+  set('dt-l-amount',b?'จำนวนเงินที่เรายืมครั้งนี้ (บาท) *':'จำนวนเงินที่ยืมครั้งนี้ (บาท) *');
+  set('dt-l-date','วันที่ยืม *');
+  set('dt-l-due',b?'วันที่นัดจ่ายคืน':'วันที่นัดคืน');
+  set('dt-l-int',b?'ดอกเบี้ย (ที่เราต้องจ่ายให้เจ้าหนี้คนนี้)':'ดอกเบี้ย (สำหรับผู้ยืมคนนี้)');
+  set('dt-int-hint',b?'คิดดอกเบี้ยจากเงินต้นที่เหลือ — ระบบคำนวณดอกเบี้ยที่ต้องจ่ายต่อเดือนให้ในการ์ด':'คิดดอกเบี้ยจากเงินต้นที่เหลือ — ระบบคำนวณยอดจ่ายต่อเดือนให้ในการ์ดผู้ยืม');
+  set('dt-dir-hint',b?'เรายืมเงินจากคนอื่น — ติดตามยอดที่เราต้องจ่ายคืนและดอกเบี้ยที่ต้องจ่าย':'คนอื่นยืมเงินเรา — ติดตามยอดที่เราจะได้รับคืนและดอกเบี้ยที่จะได้รับ');
+  const n=document.getElementById('dt-name');if(n)n.placeholder=b?'เช่น พี่สมศรี / ธนาคาร':'เช่น สมชาย ใจดี';
+  const e=document.getElementById('dt-int-err');if(e)e.textContent='';
+}
+function dtDirLoad(r){
+  const v=dtDirOf(r),el=document.querySelector('input[name="dt-dir"][value="'+v+'"]');if(el)el.checked=true;
+  document.querySelectorAll('input[name="dt-dir"]').forEach(x=>x.disabled=true); // ฝั่งของรายการที่มีอยู่เปลี่ยนไม่ได้
+  dtDirSync();
+}
+function dtSumFor(rows,dir){
+  const rs=rows.filter(r=>dtDirOf(r)===dir),o={n:rs.length,open:0,tot:0,paid:0,rem:0,intPaid:0,intMonth:0,due:0};
+  rs.forEach(r=>{const m=debtTrackRemaining(r);o.tot+=debtTrackTotal(r);o.paid+=debtTrackPaid(r);o.rem+=m;o.intPaid+=debtTrackInterestPaid(r);
+    if(m>0.009){o.open++;o.intMonth+=debtTrackMonthlyInterest(r);const l=debtTrackLatestLoan(r),d=debtTrackDaysLeft(l&&l.dueDate);if(d!==null&&d<=DEBT_EXT_WINDOW)o.due++}});
+  return o;
+}
+function dtRenderSummary(rows){
+  const el=document.getElementById('dt-summary');if(!el)return;
+  const L=dtSumFor(rows,'lend'),B=dtSumFor(rows,'borrow'),net=L.rem-B.rem,M=debtTrackMoney;
+  const line=(k,v,c)=>`<div class="dt-sum-line"><span>${k}</span><b${c?` style="color:${c}"`:''}>${v}</b></div>`;
+  el.innerHTML=`<div class="dt-sum-card dt-sum-l"><div class="dt-sum-head">🙋 คนอื่นยืมเรา <span>${L.n} คน</span></div><div class="dt-sum-big" style="color:#16a34a">${M(L.rem)}</div><div class="dt-sum-cap">ยอดค้างรับ (เงินต้นคงเหลือ)</div>${line('ปล่อยให้ยืมรวม',M(L.tot))}${line('รับคืนแล้ว (ต้น)',M(L.paid),'#16a34a')}${line('ดอกเบี้ยที่รับแล้ว',M(L.intPaid),'#7c3aed')}${line('ดอกเบี้ยเดือนนี้ (ประมาณ)',M(L.intMonth))}${line('ยังค้างอยู่',L.open+' คน'+(L.due?' · ใกล้/เลยกำหนด '+L.due:''))}</div>`
+   +`<div class="dt-sum-card dt-sum-b"><div class="dt-sum-head">💳 เรายืมคนอื่น <span>${B.n} คน</span></div><div class="dt-sum-big" style="color:#dc2626">${M(B.rem)}</div><div class="dt-sum-cap">ยอดค้างจ่าย (เงินต้นคงเหลือ)</div>${line('ยืมมารวม',M(B.tot))}${line('จ่ายคืนแล้ว (ต้น)',M(B.paid),'#16a34a')}${line('ดอกเบี้ยที่จ่ายแล้ว',M(B.intPaid),'#7c3aed')}${line('ดอกเบี้ยเดือนนี้ (ประมาณ)',M(B.intMonth))}${line('ยังค้างอยู่',B.open+' คน'+(B.due?' · ใกล้/เลยกำหนด '+B.due:''))}</div>`
+   +`<div class="dt-sum-card dt-sum-n"><div class="dt-sum-head">⚖ สุทธิ <span>ค้างรับ − ค้างจ่าย</span></div><div class="dt-sum-big" style="color:${net>=0?'#16a34a':'#dc2626'}">${net>0?'+':net<0?'−':''}${M(Math.abs(net))}</div><div class="dt-sum-cap">${net>0?'คนอื่นค้างเรามากกว่าที่เราค้างเขา':net<0?'เราค้างคนอื่นมากกว่าที่เขาค้างเรา':'ยอดค้างรับและค้างจ่ายเท่ากัน'}</div>${line('ค้างรับรวม',M(L.rem),'#16a34a')}${line('ค้างจ่ายรวม',M(B.rem),'#dc2626')}</div>`;
+}
 function renderDebtTrack(){
   const rows=debtTrackLoad();
-  const open=rows.filter(r=>debtTrackRemaining(r)>0.009);
-  const outstanding=open.reduce((s,r)=>s+debtTrackRemaining(r),0);
-  const totalEl=document.getElementById('dt-total-outstanding');if(totalEl)totalEl.textContent=debtTrackMoney(outstanding);
-  const peopleEl=document.getElementById('dt-open-people');if(peopleEl)peopleEl.textContent=open.length+' คน';
+  dtRenderSummary(rows);
+  const dirF=document.getElementById('dt-dirfilter')?.value||'all';
   const search=(document.getElementById('dt-search')?.value||'').trim().toLocaleLowerCase();
   const filter=document.getElementById('dt-filter')?.value||'all';
-  const filtered=rows.filter(r=>String(r.name||'').toLocaleLowerCase().includes(search)).filter(r=>filter==='all'||(filter==='open'?debtTrackRemaining(r)>0.009:debtTrackRemaining(r)<=0.009)).sort((a,b)=>String(debtTrackLoans(b).slice(-1)[0]?.date||'').localeCompare(String(debtTrackLoans(a).slice(-1)[0]?.date||'')));
+  const filtered=rows.filter(r=>dirF==='all'||dtDirOf(r)===dirF).filter(r=>String(r.name||'').toLocaleLowerCase().includes(search)).filter(r=>filter==='all'||(filter==='open'?debtTrackRemaining(r)>0.009:debtTrackRemaining(r)<=0.009)).sort((a,b)=>String(debtTrackLoans(b).slice(-1)[0]?.date||'').localeCompare(String(debtTrackLoans(a).slice(-1)[0]?.date||'')));
   const list=document.getElementById('dt-list');if(!list)return;
   if(!filtered.length){list.innerHTML='<div class="dt-empty lg:col-span-2"><div style="font-size:34px;margin-bottom:8px">🗂️</div><strong style="display:block;color:#334155;margin-bottom:4px">ยังไม่มีรายการที่ตรงกัน</strong><span>เพิ่มรายการยืมเงินจากฟอร์มด้านบนได้เลย</span></div>';return;}
-  list.innerHTML=filtered.map(r=>{const loans=debtTrackLoans(r),rem=debtTrackRemaining(r),total=debtTrackTotal(r),paid=rem<=0.009,latest=debtTrackLatestLoan(r),exts=debtTrackExtensions(r),it=debtTrackInterest(r),mi=debtTrackMonthlyInterest(r),ip=debtTrackInterestPaid(r),dl=debtTrackDaysLeft(latest?.dueDate),canExt=!paid&&dl!==null&&dl<=DEBT_EXT_WINDOW,overdue=!paid&&latest?.dueDate&&latest.dueDate<new Date().toISOString().slice(0,10);return `<article class="dt-item">
-    <div class="dt-item-top"><div style="min-width:0"><div class="dt-item-name">${escHtml(r.name||'ไม่ระบุชื่อ')}</div><div class="dt-item-meta" style="margin-top:6px"><span>🧾 ยืม ${loans.length} ครั้ง</span><span>🗓️ นัดคืน ${debtTrackDate(latest?.dueDate)}${canExt?` (${dl<0?'เลยมา '+(-dl)+' วัน':dl===0?'ครบกำหนดวันนี้':'อีก '+dl+' วัน'})`:''}</span><span>💸 ${it.on?'ดอกเบี้ย '+it.rate+'%/เดือน':'ไม่คิดดอกเบี้ย'}</span>${exts.length?`<span>🔁 เลื่อนนัดแล้ว ${exts.length} ครั้ง</span>`:''}</div></div><span class="dt-status ${paid?'dt-status-paid':'dt-status-open'}">${paid?'✓ คืนครบแล้ว':(overdue?'เลยกำหนด':'ยังไม่คืนครบ')}</span></div>
-    <div class="grid grid-cols-2 gap-3"><div><div class="text-xs text-slate-500 mb-1">ยอดยืมรวม</div><div class="dt-item-amount">${debtTrackMoney(total)}</div></div><div><div class="text-xs text-slate-500 mb-1">ยอดคงเหลือ</div><div class="dt-item-amount" style="color:${paid?'#16a34a':'#ea580c'}">${debtTrackMoney(rem)}</div><div class="text-xs text-slate-500 mt-1">ชำระแล้ว ${debtTrackMoney(paid)}</div></div></div>${it.on&&!paid?`<div class="dt-int-box"><div class="dt-int-title">💸 ดอกเบี้ย ${it.rate}% ต่อเดือน <span>(คิดจากเงินต้นคงเหลือ ${debtTrackMoney(rem)})</span></div><div class="grid grid-cols-2 gap-3"><div><div class="text-xs text-slate-500 mb-1">ยอดจ่ายต่อเดือน (ดอกเบี้ย)</div><div class="dt-item-amount" style="color:#7c3aed">${debtTrackMoney(mi)}</div></div><div><div class="text-xs text-slate-500 mb-1">ยอดปิดหนี้เดือนนี้ (ต้น+ดอก)</div><div class="dt-item-amount">${debtTrackMoney(rem+mi)}</div></div></div></div>`:''}${ip>0?`<div class="text-xs text-slate-500">ดอกเบี้ยที่รับแล้ว <b style="color:#16a34a">${debtTrackMoney(ip)}</b></div>`:''}
-    <details style="border:1px solid #e2e8f0;border-radius:11px;padding:10px 12px"><summary style="cursor:pointer;font-size:13px;font-weight:800;color:#334155">ดูประวัติยืมและชำระ (${loans.length+(r.payments||[]).length} รายการ)</summary><div style="display:grid;gap:8px;margin-top:10px">${[...loans.map(x=>({type:'ยืม',date:x.date,amount:x.amount,note:x.note,sort:x.date||''})),...(r.payments||[]).map(x=>x.kind==='interest'?({type:'รับดอกเบี้ย',int:true,date:x.date,amount:Number(x.amount||0),note:x.note,sort:x.date||''}):({type:'ชำระ',date:x.date,amount:-Number(x.amount||0),note:x.note,sort:x.date||''}))].sort((a,b)=>String(a.sort).localeCompare(String(b.sort))).map(x=>`<div style="display:flex;justify-content:space-between;gap:10px;border-top:1px solid #f1f5f9;padding-top:8px"><div><div style="font-size:13px;font-weight:700">${(x.type==='ยืม'||x.int)?'＋':'－'} ${x.type} ${debtTrackDate(x.date)}</div>${x.note?`<div style="font-size:11px;color:#64748b">${escHtml(x.note)}</div>`:''}</div><strong style="white-space:nowrap;color:${(x.amount<0||x.int)?'#16a34a':'#0f172a'}">${x.amount<0?'-':'+'}${debtTrackMoney(Math.abs(x.amount))}</strong></div>`).join('')}</div></details>
+  list.innerHTML=filtered.map(r=>{const b=dtDirOf(r)==='borrow',loans=debtTrackLoans(r),rem=debtTrackRemaining(r),total=debtTrackTotal(r),paid=rem<=0.009,latest=debtTrackLatestLoan(r),exts=debtTrackExtensions(r),it=debtTrackInterest(r),mi=debtTrackMonthlyInterest(r),ip=debtTrackInterestPaid(r),dl=debtTrackDaysLeft(latest?.dueDate),canExt=!paid&&dl!==null&&dl<=DEBT_EXT_WINDOW,overdue=!paid&&latest?.dueDate&&latest.dueDate<new Date().toISOString().slice(0,10);return `<article class="dt-item${b?' dt-item-b':''}">
+    <div class="dt-item-top"><div style="min-width:0"><div class="dt-item-name">${escHtml(r.name||'ไม่ระบุชื่อ')} <span class="dt-dir ${b?'dt-dir-b':'dt-dir-l'}">${b?'เรายืมเขา':'เขายืมเรา'}</span></div><div class="dt-item-meta" style="margin-top:6px"><span>🧾 ยืม ${loans.length} ครั้ง</span><span>🗓️ นัดคืน ${debtTrackDate(latest?.dueDate)}${canExt?` (${dl<0?'เลยมา '+(-dl)+' วัน':dl===0?'ครบกำหนดวันนี้':'อีก '+dl+' วัน'})`:''}</span><span>💸 ${it.on?'ดอกเบี้ย '+it.rate+'%/เดือน':'ไม่คิดดอกเบี้ย'}</span>${exts.length?`<span>🔁 เลื่อนนัดแล้ว ${exts.length} ครั้ง</span>`:''}</div></div><span class="dt-status ${paid?'dt-status-paid':'dt-status-open'}">${paid?(b?'✓ จ่ายคืนครบแล้ว':'✓ คืนครบแล้ว'):(overdue?'เลยกำหนด':(b?'ยังจ่ายไม่ครบ':'ยังไม่คืนครบ'))}</span></div>
+    <div class="grid grid-cols-2 gap-3"><div><div class="text-xs text-slate-500 mb-1">ยอดยืมรวม</div><div class="dt-item-amount">${debtTrackMoney(total)}</div></div><div><div class="text-xs text-slate-500 mb-1">${b?'ยอดค้างจ่าย':'ยอดคงเหลือ'}</div><div class="dt-item-amount" style="color:${paid?'#16a34a':'#ea580c'}">${debtTrackMoney(rem)}</div><div class="text-xs text-slate-500 mt-1">${b?'จ่ายคืนแล้ว':'ชำระแล้ว'} ${debtTrackMoney(debtTrackPaid(r))}</div></div></div>${it.on&&!paid?`<div class="dt-int-box"><div class="dt-int-title">💸 ดอกเบี้ย ${it.rate}% ต่อเดือน <span>(คิดจากเงินต้นคงเหลือ ${debtTrackMoney(rem)})</span></div><div class="grid grid-cols-2 gap-3"><div><div class="text-xs text-slate-500 mb-1">${b?'ดอกเบี้ยที่ต้องจ่ายต่อเดือน':'ยอดจ่ายต่อเดือน (ดอกเบี้ย)'}</div><div class="dt-item-amount" style="color:#7c3aed">${debtTrackMoney(mi)}</div></div><div><div class="text-xs text-slate-500 mb-1">ยอดปิดหนี้เดือนนี้ (ต้น+ดอก)</div><div class="dt-item-amount">${debtTrackMoney(rem+mi)}</div></div></div></div>`:''}${ip>0?`<div class="text-xs text-slate-500">${b?'ดอกเบี้ยที่จ่ายแล้ว':'ดอกเบี้ยที่รับแล้ว'} <b style="color:#16a34a">${debtTrackMoney(ip)}</b></div>`:''}
+    <details style="border:1px solid #e2e8f0;border-radius:11px;padding:10px 12px"><summary style="cursor:pointer;font-size:13px;font-weight:800;color:#334155">ดูประวัติยืมและชำระ (${loans.length+(r.payments||[]).length} รายการ)</summary><div style="display:grid;gap:8px;margin-top:10px">${[...loans.map(x=>({type:'ยืม',date:x.date,amount:x.amount,note:x.note,sort:x.date||''})),...(r.payments||[]).map(x=>x.kind==='interest'?({type:b?'จ่ายดอกเบี้ย':'รับดอกเบี้ย',int:true,date:x.date,amount:Number(x.amount||0),note:x.note,sort:x.date||''}):({type:b?'จ่ายคืน':'ชำระ',date:x.date,amount:-Number(x.amount||0),note:x.note,sort:x.date||''}))].sort((a,b)=>String(a.sort).localeCompare(String(b.sort))).map(x=>`<div style="display:flex;justify-content:space-between;gap:10px;border-top:1px solid #f1f5f9;padding-top:8px"><div><div style="font-size:13px;font-weight:700">${(x.type==='ยืม'||x.int)?'＋':'－'} ${x.type} ${debtTrackDate(x.date)}</div>${x.note?`<div style="font-size:11px;color:#64748b">${escHtml(x.note)}</div>`:''}</div><strong style="white-space:nowrap;color:${(x.amount<0||x.int)?'#16a34a':'#0f172a'}">${x.amount<0?'-':'+'}${debtTrackMoney(Math.abs(x.amount))}</strong></div>`).join('')}</div></details>
     ${exts.length?`<details style="border:1px solid #e2e8f0;border-radius:11px;padding:10px 12px"><summary style="cursor:pointer;font-size:13px;font-weight:800;color:#334155">🔁 ประวัติเลื่อนนัดคืน (${exts.length} ครั้ง)</summary><div style="display:grid;gap:8px;margin-top:10px">${exts.map((x,i)=>`<div style="border-top:1px solid #f1f5f9;padding-top:8px"><div style="font-size:13px;font-weight:700">ครั้งที่ ${i+1} • เลื่อนเมื่อ ${debtTrackDate(x.at)}</div><div style="font-size:12px;color:#64748b">นัดเดิม ${debtTrackDate(x.from)} → นัดใหม่ ${debtTrackDate(x.to)}${loans.length>1&&x.loanDate?` • (ยืมวันที่ ${debtTrackDate(x.loanDate)})`:''}</div>${x.note?`<div style="font-size:11px;color:#64748b">${escHtml(x.note)}</div>`:''}</div>`).join('')}</div></details>`:''}
-    <div class="dt-item-actions"><button class="dt-btn dt-btn-primary" onclick="addDebtBorrowing('${r.id}')">＋ เพิ่มยอดยืม</button>${!paid?`<button class="dt-btn dt-btn-green" onclick="receiveDebtTrack('${r.id}')">✓ บันทึกชำระ</button>`:''}${canExt?`<button class="dt-btn dt-btn-soft" onclick="openDebtExtend('${r.id}')">🔁 เลื่อนนัดคืน</button>`:''}<button class="dt-btn dt-btn-soft" onclick="editDebtTrack('${r.id}')">✎ แก้ไขข้อมูลล่าสุด</button><button class="dt-btn dt-btn-danger" onclick="deleteDebtTrack('${r.id}')">ลบรายการ</button></div>
+    <div class="dt-item-actions"><button class="dt-btn dt-btn-primary" onclick="addDebtBorrowing('${r.id}')">＋ เพิ่มยอดยืม</button>${!paid?`<button class="dt-btn dt-btn-green" onclick="receiveDebtTrack('${r.id}')">${b?'✓ บันทึกจ่ายคืน':'✓ บันทึกชำระ'}</button>`:''}${canExt?`<button class="dt-btn dt-btn-soft" onclick="openDebtExtend('${r.id}')">🔁 เลื่อนนัดคืน</button>`:''}<button class="dt-btn dt-btn-soft" onclick="editDebtTrack('${r.id}')">✎ แก้ไขข้อมูลล่าสุด</button><button class="dt-btn dt-btn-danger" onclick="deleteDebtTrack('${r.id}')">ลบรายการ</button></div>
   </article>`}).join('');
 }
 function saveDebtTrack(e){
-  e.preventDefault();const id=document.getElementById('dt-edit-id').value;
+  e.preventDefault();const id=document.getElementById('dt-edit-id').value,dir=(document.querySelector('input[name="dt-dir"]:checked')||{}).value==='borrow'?'borrow':'lend';
   const name=document.getElementById('dt-name').value.trim(),amount=Number(document.getElementById('dt-amount').value),borrowDate=document.getElementById('dt-borrow-date').value;
   if(!name||!Number.isFinite(amount)||amount<=0||!borrowDate){alert('กรุณากรอกชื่อ จำนวนเงิน และวันที่ยืมให้ครบถ้วน');return;}
   const intr=dtIntRead();if(intr.error){const ie=document.getElementById('dt-int-err');if(ie){ie.textContent=intr.error;ie.scrollIntoView({block:'center',behavior:'smooth'})}return;}
   const rows=debtTrackLoad(),existing=rows.find(r=>r.id===id),dueDate=document.getElementById('dt-due-date').value,note=document.getElementById('dt-note').value.trim();
   if(existing){const loans=debtTrackLoans(existing);const loanId=document.getElementById('dt-edit-loan-id').value;const loan=loans.find(x=>x.id===loanId)||loans[loans.length-1];if(!loan)return;const otherTotal=debtTrackTotal(existing)-Number(loan.amount||0);if(amount+otherTotal<debtTrackPaid(existing)){alert('ยอดยืมรวมต้องไม่น้อยกว่ายอดที่ชำระไปแล้ว');return;}loan.amount=amount;loan.date=borrowDate;loan.dueDate=dueDate;loan.note=note;existing.borrowings=loans;existing.interest=intr.value;existing.updatedAt=Date.now();}
-  else {let person=rows.find(r=>String(r.name||'').trim().toLocaleLowerCase()===name.toLocaleLowerCase());const loan={id:'loan_'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),amount,date:borrowDate,dueDate,note,createdAt:Date.now()};if(person){person.borrowings=debtTrackLoans(person);person.borrowings.push(loan);person.interest=intr.value;person.updatedAt=Date.now();}else rows.unshift({id:Date.now().toString(36)+Math.random().toString(36).slice(2,8),name,borrowings:[loan],payments:[],interest:intr.value,createdAt:Date.now(),updatedAt:Date.now()});}
+  else {let person=rows.find(r=>String(r.name||'').trim().toLocaleLowerCase()===name.toLocaleLowerCase()&&dtDirOf(r)===dir);const loan={id:'loan_'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),amount,date:borrowDate,dueDate,note,createdAt:Date.now()};if(person){person.borrowings=debtTrackLoans(person);person.borrowings.push(loan);person.interest=intr.value;person.updatedAt=Date.now();}else rows.unshift({id:Date.now().toString(36)+Math.random().toString(36).slice(2,8),name,dir,borrowings:[loan],payments:[],interest:intr.value,createdAt:Date.now(),updatedAt:Date.now()});}
   debtTrackStore(rows);resetDebtTrackForm();renderDebtTrack();
 }
-function addDebtBorrowing(id){const r=debtTrackLoad().find(x=>x.id===id);if(!r)return;resetDebtTrackForm();dtIntLoad(r);document.getElementById('dt-name').value=r.name||'';document.getElementById('dt-form-heading').textContent='＋ เพิ่มยอดยืมให้ '+(r.name||'ผู้ยืม');document.getElementById('dt-save-btn').textContent='บันทึกยอดยืมเพิ่ม';document.getElementById('dt-form').scrollIntoView({behavior:'smooth',block:'center'});document.getElementById('dt-amount').focus();}
-function editDebtTrack(id){const r=debtTrackLoad().find(x=>x.id===id);if(!r)return;const loan=debtTrackLoans(r).slice(-1)[0];document.getElementById('dt-edit-id').value=r.id;document.getElementById('dt-edit-loan-id').value=loan.id;document.getElementById('dt-name').value=r.name||'';document.getElementById('dt-amount').value=loan.amount||'';document.getElementById('dt-borrow-date').value=loan.date||'';document.getElementById('dt-due-date').value=loan.dueDate||'';document.getElementById('dt-note').value=loan.note||'';document.getElementById('dt-form-heading').textContent='✎ แก้ไขรายการยืมล่าสุด';document.getElementById('dt-save-btn').textContent='บันทึกการแก้ไข';dtIntLoad(r);document.getElementById('dt-name').focus();document.getElementById('debttrack-panel').scrollIntoView({behavior:'smooth',block:'start'});}
-function resetDebtTrackForm(){const f=document.getElementById('dt-form');if(f)f.reset();const id=document.getElementById('dt-edit-id');if(id)id.value='';const loanId=document.getElementById('dt-edit-loan-id');if(loanId)loanId.value='';const h=document.getElementById('dt-form-heading');if(h)h.textContent='＋ เพิ่มรายการยืมเงิน';const b=document.getElementById('dt-save-btn');if(b)b.textContent='บันทึกรายการ';const d=document.getElementById('dt-borrow-date');if(d)d.value=new Date().toISOString().slice(0,10);if(typeof dtIntSync==='function')dtIntSync();}
+function addDebtBorrowing(id){const r=debtTrackLoad().find(x=>x.id===id);if(!r)return;resetDebtTrackForm();dtIntLoad(r);dtDirLoad(r);document.getElementById('dt-name').value=r.name||'';document.getElementById('dt-form-heading').textContent='＋ เพิ่มยอดยืมให้ '+(r.name||'ผู้ยืม');document.getElementById('dt-save-btn').textContent='บันทึกยอดยืมเพิ่ม';document.getElementById('dt-form').scrollIntoView({behavior:'smooth',block:'center'});document.getElementById('dt-amount').focus();}
+function editDebtTrack(id){const r=debtTrackLoad().find(x=>x.id===id);if(!r)return;const loan=debtTrackLoans(r).slice(-1)[0];document.getElementById('dt-edit-id').value=r.id;document.getElementById('dt-edit-loan-id').value=loan.id;document.getElementById('dt-name').value=r.name||'';document.getElementById('dt-amount').value=loan.amount||'';document.getElementById('dt-borrow-date').value=loan.date||'';document.getElementById('dt-due-date').value=loan.dueDate||'';document.getElementById('dt-note').value=loan.note||'';document.getElementById('dt-form-heading').textContent='✎ แก้ไขรายการยืมล่าสุด';document.getElementById('dt-save-btn').textContent='บันทึกการแก้ไข';dtIntLoad(r);dtDirLoad(r);document.getElementById('dt-name').focus();document.getElementById('debttrack-panel').scrollIntoView({behavior:'smooth',block:'start'});}
+function resetDebtTrackForm(){const f=document.getElementById('dt-form');if(f)f.reset();const id=document.getElementById('dt-edit-id');if(id)id.value='';const loanId=document.getElementById('dt-edit-loan-id');if(loanId)loanId.value='';const h=document.getElementById('dt-form-heading');if(h)h.textContent='＋ เพิ่มรายการยืมเงิน';const b=document.getElementById('dt-save-btn');if(b)b.textContent='บันทึกรายการ';const d=document.getElementById('dt-borrow-date');if(d)d.value=new Date().toISOString().slice(0,10);if(typeof dtIntSync==='function')dtIntSync();if(typeof dtDirSync==='function'){const rl=document.querySelector('input[name="dt-dir"][value="lend"]');if(rl)rl.checked=true;document.querySelectorAll('input[name="dt-dir"]').forEach(x=>x.disabled=false);dtDirSync();}}
 function receiveDebtTrack(id){
   const r=debtTrackLoad().find(x=>x.id===id);if(!r)return;const rem=debtTrackRemaining(r);if(rem<=0.009)return;
-  const it=debtTrackInterest(r),mi=debtTrackMonthlyInterest(r);
+  const it=debtTrackInterest(r),mi=debtTrackMonthlyInterest(r),b=dtDirOf(r)==='borrow',st=(id,t)=>{const e=document.getElementById(id);if(e)e.textContent=t};
+  st('dt-pay-title',b?'✓ บันทึกการจ่ายคืน':'✓ บันทึกการชำระ');st('dt-pay-amount-lbl',b?'จำนวนเงินที่จ่ายคืนครั้งนี้ (บาท) *':'จำนวนเงินที่รับชำระครั้งนี้ (บาท) *');st('dt-pay-kind-lbl',b?'จ่ายเป็น':'รับเป็น');
   document.getElementById('dt-pay-id').value=r.id;
   document.getElementById('dt-pay-who').textContent=r.name||'ผู้ยืม';
   document.getElementById('dt-pay-rem').textContent=debtTrackMoney(rem);
@@ -3035,7 +3089,7 @@ function saveDebtPayment(){
   if(!Number.isFinite(n)||n<=0){err.textContent='กรุณากรอกจำนวนเงินให้ถูกต้อง';return}
   if(kind==='principal'&&n>rem+0.009){err.textContent='ยอดชำระมากกว่าเงินต้นคงเหลือ ('+debtTrackMoney(rem)+') กรุณาตรวจสอบ';return}
   r.payments=Array.isArray(r.payments)?r.payments:[];
-  const p={id:'payment_'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),amount:n,date,note:kind==='interest'?'รับดอกเบี้ย':'รับชำระคืน'};
+  const p={id:'payment_'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),amount:n,date,note:dtDirOf(r)==='borrow'?(kind==='interest'?'จ่ายดอกเบี้ย':'จ่ายคืน'):(kind==='interest'?'รับดอกเบี้ย':'รับชำระคืน')};
   if(kind==='interest')p.kind='interest';
   r.payments.push(p);
   r.updatedAt=Date.now();debtTrackStore(rows);closeOv('dt-pay-ov');renderDebtTrack();
