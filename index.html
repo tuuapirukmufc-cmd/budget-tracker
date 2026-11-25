@@ -2261,6 +2261,28 @@ tr.debt-excluded .toggle-sw .slider{background:#555}
 #debttrack-panel .dt-item:not(.dt-item-b){border-left:4px solid #22c55e}
 @media(max-width:900px){#debttrack-panel .dt-sum{grid-template-columns:1fr}}
 </style>
+<style id="debt-compact-style">
+/* ===== การ์ดรายการยืมเงิน: ย่อให้เล็กลง ~50% ===== */
+#debttrack-panel #dt-list{grid-template-columns:repeat(auto-fill,minmax(290px,1fr))!important;gap:8px!important}
+#debttrack-panel .dt-item{padding:8px 10px;gap:5px;border-radius:10px}
+#debttrack-panel .dt-item-top{gap:6px;align-items:center}
+#debttrack-panel .dt-item-name{font-size:13px;line-height:1.3}
+#debttrack-panel .dt-item .dt-dir{margin-left:4px;font-size:9px;padding:0 7px}
+#debttrack-panel .dt-item .dt-status{padding:2px 8px;font-size:9.5px}
+#debttrack-panel .dt-item-meta{gap:2px 10px;font-size:10px;margin-top:2px}
+#debttrack-panel .dt-item-meta span{line-height:1.4}
+#debttrack-panel .dt-item .grid{gap:2px 10px!important}
+#debttrack-panel .dt-item .text-xs{font-size:9.5px!important;margin-bottom:0!important;margin-top:1px!important;line-height:1.3}
+#debttrack-panel .dt-item-amount{font-size:14px;line-height:1.25}
+#debttrack-panel .dt-int-box{padding:5px 8px;gap:3px;border-radius:8px}
+#debttrack-panel .dt-int-title{font-size:10.5px}
+#debttrack-panel .dt-int-title span{font-size:9.5px}
+#debttrack-panel .dt-item details{border-radius:8px!important;padding:5px 8px!important}
+#debttrack-panel .dt-item details summary{font-size:10.5px!important}
+#debttrack-panel .dt-item-actions{gap:4px}
+#debttrack-panel .dt-item .dt-item-actions .dt-btn{flex:0 0 auto;padding:4px 9px;font-size:10.5px;border-radius:7px;gap:3px}
+@media(max-width:640px){#debttrack-panel #dt-list{grid-template-columns:1fr!important}}
+</style>
 <!-- Debt tracker: บันทึกการชำระ -->
 <div class="ov" id="dt-pay-ov"><div class="modal">
   <span class="modal-drag"></span>
