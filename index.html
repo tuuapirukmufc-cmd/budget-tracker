@@ -4312,6 +4312,10 @@ function deleteExpenseCat(idx){
 
 // ── สถานะ — เพิ่ม/แก้ไข/ลบเองได้ ──
 function defDebtStatuses(){return['active','inactive']}
+// สถานะที่ตารางแสดง = สถานะที่เลือกในหน้าแก้ไข (active/inactive ผูกกับการนับรวม; สถานะที่ตั้งเองแสดงตามชื่อ)
+function dbIsDefStatus(st){return !st||st==='active'||st==='inactive'}
+function dbEffStatus(d){return dbIsDefStatus(d.status)?(d.included!==false?'active':'inactive'):d.status}
+function dbBadgeText(d,isOn){return dbIsDefStatus(d.status)?(isOn?'✓ Active':'Inactive'):((isOn?'✓ ':'')+d.status)}
 function getDebtStatuses(){return ls(uKey('debt_statuses_v1'),defDebtStatuses())}
 function saveDebtStatuses(s){lss(uKey('debt_statuses_v1'),s)}
 function refreshDMStatOptions(){
@@ -4377,7 +4381,7 @@ function openDM(id){
   refreshDMCatOptions();
   document.getElementById('dm-cat').value=item?.cat||(getDebtCats()[0]?.id||'');
   refreshDMStatOptions();
-  document.getElementById('dm-stat').value=item?.status||(getDebtStatuses()[0]||'');
+  document.getElementById('dm-stat').value=item?dbEffStatus(item):(getDebtStatuses()[0]||'');
   document.getElementById('dm-rate').value=item?.rate||'';
   document.getElementById('dm-lim').value=item?.limit||'';
   document.getElementById('dm-remaining').value=item?(item.limit-item.used):'';
@@ -4420,6 +4424,7 @@ async function saveDebt(){
     dueDay:parseInt(document.getElementById('dm-dueday').value)||null,
     statementDay:parseInt(document.getElementById('dm-stmtday').value)||null,
     type:document.getElementById('dm-type').value,note:document.getElementById('dm-note').value};
+  if(obj.status==='active')obj.included=true;else if(obj.status==='inactive')obj.included=false;
   let d=getDebts();
   if(dEId){d=d.map(i=>i.id===dEId?{...i,...obj}:i);addHist('debt','แก้ไข',`${name} วงเงินคงเหลือ ${fmt(dmRemaining)} / ${fmt(obj.limit)}`);}
   else{d.push({id:saveId,...obj});addHist('debt','เพิ่ม',`${name} วงเงิน ${fmt(obj.limit)}`);}
@@ -4437,6 +4442,7 @@ function toggleDebtInclude(id){
   if(idx<0)return;
   // ถ้าไม่มี field included → default = true
   debts[idx].included = debts[idx].included===false ? true : false;
+  if(dbIsDefStatus(debts[idx].status))debts[idx].status=debts[idx].included===false?'inactive':'active';
   saveDebts(debts);
   renderDebt();
 }
@@ -4546,7 +4552,7 @@ function renderDBody(tbId,totId,headId,items,cat){
     return`<tr class="${isOn?'':'db-row-off'}">
       <td class="db-tc db-idx">${i+1}</td>
       <td class="db-tc">
-        <span class="db-status-badge ${isOn?'db-status-on':'db-status-off'}" title="คลิกเพื่อ${isOn?'ปิด':'เปิด'}การนับรวม" onclick="toggleDebtInclude(${d.id})">${isOn?'✓ Active':'Inactive'}</span>
+        <span class="db-status-badge ${isOn?'db-status-on':'db-status-off'}" title="คลิกเพื่อ${isOn?'ปิด':'เปิด'}การนับรวม" onclick="toggleDebtInclude(${d.id})">${dbBadgeText(d,isOn)}</span>
       </td>
       <td><div class="db-name">${d.name}</div></td>
       <td class="db-tr db-num">${fmt(d.limit)}</td>
